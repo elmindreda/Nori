@@ -39,10 +39,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Item::Item(Layer& initLayer, const char* initValue, ItemID initID):
-  layer(initLayer),
-  value(initValue),
-  ID(initID)
+Item::Item(Layer& layer, const char* value, ItemID id):
+  m_layer(layer),
+  m_value(value),
+  m_id(id)
 {
 }
 
@@ -52,55 +52,53 @@ Item::~Item()
 
 bool Item::operator < (const Item& other) const
 {
-  return value < other.value;
+  return m_value < other.m_value;
 }
 
-float Item::getWidth() const
+float Item::width() const
 {
-  Drawer& drawer = layer.drawer();
+  Drawer& drawer = m_layer.drawer();
 
   const float em = drawer.currentEM();
 
   float width = em * 2.f;
 
-  if (value.empty())
+  if (m_value.empty())
     width += em * 3.f;
   else
-    width += drawer.currentFont().boundsOf(value.c_str()).size.x;
+    width += drawer.currentFont().boundsOf(m_value.c_str()).size.x;
 
   return width;
 }
 
-float Item::getHeight() const
+float Item::height() const
 {
-  return layer.drawer().currentFont().height() * 1.5f;
+  return m_layer.drawer().currentFont().height() * 1.5f;
 }
 
-ItemID Item::getID() const
+ItemID Item::id() const
 {
-  return ID;
+  return m_id;
 }
 
 const String& Item::asString() const
 {
-  return value;
+  return m_value;
 }
 
 void Item::setStringValue(const char* newValue)
 {
-  value = newValue;
-  layer.invalidate();
+  m_value = newValue;
+  m_layer.invalidate();
 }
 
 void Item::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = layer.drawer();
+  Drawer& drawer = m_layer.drawer();
 
   const float em = drawer.currentEM();
-
-  Rect textArea = area;
-  textArea.position.x += em / 2.f;
-  textArea.size.x -= em;
+  const Rect textArea(area.position + vec2(em / 2.f, 0.f),
+                      area.size - vec2(em, 0.f));
 
   if (state == STATE_SELECTED)
   {
@@ -108,7 +106,7 @@ void Item::draw(const Rect& area, WidgetState state) const
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 
-  drawer.drawText(textArea, value.c_str(), LEFT_ALIGNED, state);
+  drawer.drawText(textArea, m_value.c_str(), LEFT_ALIGNED, state);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -118,19 +116,19 @@ SeparatorItem::SeparatorItem(Layer& layer):
 {
 }
 
-float SeparatorItem::getWidth() const
+float SeparatorItem::width() const
 {
-  return layer.drawer().currentEM() * 3.f;
+  return m_layer.drawer().currentEM() * 3.f;
 }
 
-float SeparatorItem::getHeight() const
+float SeparatorItem::height() const
 {
-  return layer.drawer().currentEM() / 2.f;
+  return m_layer.drawer().currentEM() / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = layer.drawer();
+  Drawer& drawer = m_layer.drawer();
 
   Segment2 segment;
   segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
@@ -142,34 +140,32 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 ///////////////////////////////////////////////////////////////////////
 
 TextureItem::TextureItem(Layer& layer,
-                         GL::Texture& initTexture,
+                         GL::Texture& texture,
                          const char* name,
                          ItemID ID):
   Item(layer, name, ID),
-  texture(&initTexture)
+  m_texture(&texture)
 {
 }
 
-float TextureItem::getWidth() const
+float TextureItem::width() const
 {
-  return Item::getHeight() + layer.drawer().currentEM() * 3.f;
+  return Item::height() + m_layer.drawer().currentEM() * 3.f;
 }
 
-float TextureItem::getHeight() const
+float TextureItem::height() const
 {
-  return layer.drawer().currentEM() * 3.f;
+  return m_layer.drawer().currentEM() * 3.f;
 }
 
-GL::Texture& TextureItem::getTexture() const
+GL::Texture& TextureItem::texture() const
 {
-  return *texture;
+  return *m_texture;
 }
 
 void TextureItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = layer.drawer();
-
-  const float em = drawer.currentEM();
+  Drawer& drawer = m_layer.drawer();
 
   if (state == STATE_SELECTED)
   {
@@ -177,15 +173,13 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 
-  Rect textureArea = area;
-  textureArea.size = vec2(em * 3.f, em * 3.f);
+  const float em = drawer.currentEM();
 
-  drawer.blitTexture(textureArea, *texture);
+  const Rect textureArea(area.position, vec2(em * 3.f));
+  drawer.blitTexture(textureArea, *m_texture);
 
-  Rect textArea = area;
-  textArea.position.x += em * 3.5f;
-  textArea.size.x -= em;
-
+  const Rect textArea(area.position + vec2(em * 3.5f, 0.f),
+                      area.size - vec2(em, 0.f));
   drawer.drawText(textArea, asString().c_str(), LEFT_ALIGNED, state);
 }
 

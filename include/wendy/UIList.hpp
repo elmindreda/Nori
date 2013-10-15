@@ -49,17 +49,17 @@ public:
   void sortItems();
   bool isEditable() const;
   void setEditable(bool newState);
-  uint getOffset() const;
+  uint offset() const;
   void setOffset(uint newOffset);
-  uint getSelection() const;
+  uint selection() const;
   void setSelection(uint newSelection);
-  Item* getSelectedItem();
+  Item* selectedItem();
   void setSelectedItem(Item& newItem);
-  uint getItemCount() const;
-  Item* getItem(uint index);
-  const Item* getItem(uint index) const;
-  const ItemList& getItems() const;
-  SignalProxy1<void, List&> getItemSelectedSignal();
+  uint itemCount() const;
+  Item* item(uint index);
+  const Item* item(uint index) const;
+  const ItemList& items() const;
+  SignalProxy1<void, List&> itemSelectedSignal();
 protected:
   void draw() const;
 private:
@@ -81,15 +81,15 @@ private:
   void updateScroller();
   bool isSelectionVisible() const;
   void setSelection(uint newSelection, bool notify);
-  Signal1<void, List&> itemSelectedSignal;
-  bool editable;
-  bool editing;
-  ItemList items;
-  uint offset;
-  uint maxOffset;
-  uint selection;
-  Scroller* scroller;
-  Entry* entry;
+  Signal1<void, List&> m_itemSelectedSignal;
+  bool m_editable;
+  bool m_editing;
+  ItemList m_items;
+  uint m_offset;
+  uint m_maxOffset;
+  uint m_selection;
+  Scroller* m_scroller;
+  Entry* m_entry;
 };
 
 ///////////////////////////////////////////////////////////////////////

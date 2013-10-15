@@ -41,20 +41,20 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(Layer& layer, const char* initText):
+Page::Page(Layer& layer, const char* text):
   Widget(layer),
-  text(initText)
+  m_text(text)
 {
 }
 
-const String& Page::getText() const
+const String& Page::text() const
 {
-  return text;
+  return m_text;
 }
 
 void Page::setText(const char* newText)
 {
-  text = newText;
+  m_text = newText;
   invalidate();
 }
 
@@ -62,16 +62,16 @@ void Page::setText(const char* newText)
 
 Book::Book(Layer& layer):
   Widget(layer),
-  activePage(nullptr)
+  m_activePage(nullptr)
 {
   keyPressedSignal().connect(*this, &Book::onKey);
   buttonClickedSignal().connect(*this, &Book::onMouseButton);
   areaChangedSignal().connect(*this, &Book::onAreaChanged);
 }
 
-Page* Book::getActivePage() const
+Page* Book::activePage() const
 {
-  return activePage;
+  return m_activePage;
 }
 
 void Book::setActivePage(Page* newPage)
@@ -79,9 +79,9 @@ void Book::setActivePage(Page* newPage)
   setActivePage(newPage, false);
 }
 
-SignalProxy1<void, Book&> Book::getPageChangedSignal()
+SignalProxy1<void, Book&> Book::pageChangedSignal()
 {
-  return pageChangedSignal;
+  return m_pageChangedSignal;
 }
 
 void Book::draw() const
@@ -91,9 +91,9 @@ void Book::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    if (!pages.empty())
+    if (!m_pages.empty())
     {
-      const vec2 tabSize(area.size.x / pages.size(),
+      const vec2 tabSize(area.size.x / m_pages.size(),
                          drawer.currentEM() * 2.f);
 
       Rect tabArea(area.position.x,
@@ -101,12 +101,12 @@ void Book::draw() const
                    tabSize.x,
                    tabSize.y);
 
-      for (auto p = pages.begin();  p != pages.end();  p++)
+      for (auto p : m_pages)
       {
         WidgetState state;
         if (isEnabled())
         {
-          if (activePage == *p)
+          if (m_activePage == p)
             state = STATE_ACTIVE;
           else
             state = STATE_NORMAL;
@@ -114,7 +114,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.drawTab(tabArea, state, (*p)->getText().c_str());
+        drawer.drawTab(tabArea, state, p->text().c_str());
 
         tabArea.position.x += tabSize.x;
       }
@@ -134,12 +134,12 @@ void Book::addedChild(Widget& child)
 
     page->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
 
-    if (activePage)
+    if (m_activePage)
       page->hide();
     else
       setActivePage(page, false);
 
-    pages.push_back(page);
+    m_pages.push_back(page);
   }
 }
 
@@ -147,35 +147,35 @@ void Book::removedChild(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
-    if (page == activePage)
+    if (page == m_activePage)
     {
-      if (pages.empty())
+      if (m_pages.empty())
         setActivePage(nullptr, false);
       else
-        setActivePage(pages.front(), false);
+        setActivePage(m_pages.front(), false);
     }
 
-    pages.erase(std::find(pages.begin(), pages.end(), page));
+    m_pages.erase(std::find(m_pages.begin(), m_pages.end(), page));
   }
 }
 
 void Book::setActivePage(Page* newPage, bool notify)
 {
-  if (newPage == activePage)
+  if (newPage == m_activePage)
     return;
 
   if (std::find(children().begin(), children().end(), newPage) == children().end())
     return;
 
-  if (activePage)
-    activePage->hide();
+  if (m_activePage)
+    m_activePage->hide();
 
-  activePage = newPage;
-  activePage->show();
-  activePage->activate();
+  m_activePage = newPage;
+  m_activePage->show();
+  m_activePage->activate();
 
   if (notify)
-    pageChangedSignal(*this);
+    m_pageChangedSignal(*this);
 
   invalidate();
 }
@@ -184,7 +184,7 @@ void Book::onAreaChanged(Widget& widget)
 {
   const float em = layer().drawer().currentEM();
 
-  for (auto p : pages)
+  for (auto p : m_pages)
     p->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
 }
 
@@ -193,8 +193,8 @@ void Book::onKey(Widget& widget, Key key, Action action, uint mods)
   if (action != PRESSED)
     return;
 
-  auto p = std::find(pages.begin(), pages.end(), activePage);
-  if (p == pages.end())
+  auto p = std::find(m_pages.begin(), m_pages.end(), m_activePage);
+  if (p == m_pages.end())
     return;
 
   switch (key)
@@ -202,8 +202,8 @@ void Book::onKey(Widget& widget, Key key, Action action, uint mods)
     case KEY_TAB:
     case KEY_RIGHT:
     {
-      if (++p == pages.end())
-        setActivePage(pages.front(), true);
+      if (++p == m_pages.end())
+        setActivePage(m_pages.front(), true);
       else
         setActivePage(*p, true);
       break;
@@ -211,8 +211,8 @@ void Book::onKey(Widget& widget, Key key, Action action, uint mods)
 
     case KEY_LEFT:
     {
-      if (p == pages.begin())
-        setActivePage(pages.back(), true);
+      if (p == m_pages.begin())
+        setActivePage(m_pages.back(), true);
       else
         setActivePage(*(--p), true);
       break;
@@ -233,12 +233,12 @@ void Book::onMouseButton(Widget& widget,
     return;
 
   const float position = transformToLocal(point).x;
-  const float tabWidth = width() / pages.size();
+  const float tabWidth = width() / m_pages.size();
 
   const uint index = (uint) (position / tabWidth);
 
-  if (pages[index] != activePage)
-    setActivePage(pages[index], true);
+  if (m_pages[index] != m_activePage)
+    setActivePage(m_pages[index], true);
 }
 
 ///////////////////////////////////////////////////////////////////////

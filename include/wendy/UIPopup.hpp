@@ -48,15 +48,15 @@ public:
   const Item* findItem(const char* value) const;
   void destroyItem(Item& item);
   void destroyItems();
-  uint getSelection() const;
+  uint selection() const;
   void setSelection(uint newIndex);
-  Item* getSelectedItem();
+  Item* selectedItem();
   void setSelectedItem(Item& newItem);
-  uint getItemCount() const;
-  Item* getItem(uint index);
-  const Item* getItem(uint index) const;
-  const ItemList& getItems() const;
-  SignalProxy2<void, Popup&, uint> getItemSelectedSignal();
+  uint itemCount() const;
+  Item* item(uint index);
+  const Item* item(uint index) const;
+  const ItemList& items() const;
+  SignalProxy2<void, Popup&, uint> itemSelectedSignal();
 protected:
   void draw() const;
 private:
@@ -69,9 +69,9 @@ private:
   void onKey(Widget& widget, Key key, Action action, uint mods);
   void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
-  Signal2<void, Popup&, uint> itemSelectedSignal;
-  uint selection;
-  Menu* menu;
+  Signal2<void, Popup&, uint> m_itemSelectedSignal;
+  uint m_selection;
+  Menu* m_menu;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -51,11 +51,11 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
-  uint getItemCount() const;
-  Item* getItem(uint index);
-  const Item* getItem(uint index) const;
-  const ItemList& getItems() const;
-  SignalProxy2<void, Menu&, uint> getItemSelectedSignal();
+  uint itemCount() const { return (uint) m_items.size(); }
+  Item* item(uint index) { return m_items[index]; }
+  const Item* item(uint index) const { return m_items[index]; }
+  const ItemList& items() const { return m_items; }
+  SignalProxy2<void, Menu&, uint> itemSelectedSignal();
 private:
   void draw() const;
   void onFocusChanged(Widget& widget, bool activated);
@@ -69,9 +69,9 @@ private:
   void onKey(Widget& widget, Key key, Action action, uint mods);
   void onDragEnded(Widget& widget, vec2 position);
   void sizeToFit();
-  ItemList items;
-  uint selection;
-  Signal2<void, Menu&, uint> itemSelectedSignal;
+  ItemList m_items;
+  uint m_selection;
+  Signal2<void, Menu&, uint> m_itemSelectedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

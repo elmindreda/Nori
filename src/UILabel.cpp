@@ -41,10 +41,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(Layer& layer, const char* initText):
+Label::Label(Layer& layer, const char* text):
   Widget(layer),
-  text(initText),
-  textAlignment(LEFT_ALIGNED)
+  m_text(text),
+  m_textAlignment(LEFT_ALIGNED)
 {
   Drawer& drawer = layer.drawer();
 
@@ -52,33 +52,33 @@ Label::Label(Layer& layer, const char* initText):
 
   float textWidth;
 
-  if (text.empty())
+  if (m_text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = drawer.currentFont().boundsOf(text.c_str()).size.x;
+    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
-const String& Label::getText() const
+const String& Label::text() const
 {
-  return text;
+  return m_text;
 }
 
 void Label::setText(const char* newText)
 {
-  text = newText;
+  m_text = newText;
   invalidate();
 }
 
-const Alignment& Label::getTextAlignment() const
+const Alignment& Label::textAlignment() const
 {
-  return textAlignment;
+  return m_textAlignment;
 }
 
 void Label::setTextAlignment(const Alignment& newAlignment)
 {
-  textAlignment = newAlignment;
+  m_textAlignment = newAlignment;
   invalidate();
 }
 
@@ -89,7 +89,7 @@ void Label::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawText(area, text.c_str(), textAlignment, state());
+    drawer.drawText(area, m_text.c_str(), m_textAlignment, state());
     Widget::draw();
     drawer.popClipArea();
   }

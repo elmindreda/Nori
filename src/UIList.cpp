@@ -46,40 +46,40 @@ namespace wendy
 
 List::List(Layer& layer):
   Widget(layer),
-  editable(false),
-  editing(false),
-  offset(0),
-  maxOffset(0),
-  selection(NO_ITEM),
-  scroller(nullptr),
-  entry(nullptr)
+  m_editable(false),
+  m_editing(false),
+  m_offset(0),
+  m_maxOffset(0),
+  m_selection(NO_ITEM),
+  m_scroller(nullptr),
+  m_entry(nullptr)
 {
   areaChangedSignal().connect(*this, &List::onAreaChanged);
   buttonClickedSignal().connect(*this, &List::onMouseButton);
   keyPressedSignal().connect(*this, &List::onKey);
   scrolledSignal().connect(*this, &List::onScroll);
 
-  scroller = new Scroller(layer, VERTICAL);
-  scroller->setValueRange(0.f, 1.f);
-  scroller->setPercentage(1.f);
-  scroller->getValueChangedSignal().connect(*this, &List::onValueChanged);
-  addChild(*scroller);
+  m_scroller = new Scroller(layer, VERTICAL);
+  m_scroller->setValueRange(0.f, 1.f);
+  m_scroller->setPercentage(1.f);
+  m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
+  addChild(*m_scroller);
 
   onAreaChanged(*this);
 }
 
 List::~List()
 {
-  delete entry;
+  delete m_entry;
   destroyItems();
 }
 
 void List::addItem(Item& item)
 {
-  if (std::find(items.begin(), items.end(), &item) != items.end())
+  if (std::find(m_items.begin(), m_items.end(), &item) != m_items.end())
     return;
 
-  items.push_back(&item);
+  m_items.push_back(&item);
   updateScroller();
 }
 
@@ -91,7 +91,7 @@ void List::createItem(const char* value, ItemID ID)
 
 Item* List::findItem(const char* value)
 {
-  for (auto i : items)
+  for (auto i : m_items)
   {
     if (i->asString() == value)
       return i;
@@ -102,7 +102,7 @@ Item* List::findItem(const char* value)
 
 const Item* List::findItem(const char* value) const
 {
-  for (auto i : items)
+  for (auto i : m_items)
   {
     if (i->asString() == value)
       return i;
@@ -113,23 +113,23 @@ const Item* List::findItem(const char* value) const
 
 void List::destroyItem(Item& item)
 {
-  auto i = std::find(items.begin(), items.end(), &item);
-  assert(i != items.end());
+  auto i = std::find(m_items.begin(), m_items.end(), &item);
+  assert(i != m_items.end());
 
-  if (selection == i - items.begin())
+  if (m_selection == i - m_items.begin())
     setSelection(NO_ITEM, false);
 
   delete *i;
-  items.erase(i);
+  m_items.erase(i);
   updateScroller();
 }
 
 void List::destroyItems()
 {
-  while (!items.empty())
+  while (!m_items.empty())
   {
-    delete items.back();
-    items.pop_back();
+    delete m_items.back();
+    m_items.pop_back();
   }
 
   setSelection(NO_ITEM, false);
@@ -139,103 +139,103 @@ void List::destroyItems()
 void List::sortItems()
 {
   ItemComparator comparator;
-  std::sort(items.begin(), items.end(), comparator);
+  std::sort(m_items.begin(), m_items.end(), comparator);
 
   updateScroller();
 }
 
 bool List::isEditable() const
 {
-  return editable;
+  return m_editable;
 }
 
 void List::setEditable(bool newState)
 {
-  if (editable == newState)
+  if (m_editable == newState)
     return;
 
-  editable = newState;
+  m_editable = newState;
 
-  if (editable)
+  if (m_editable)
   {
-    entry = new UI::Entry(layer());
-    entry->hide();
-    entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
-    entry->keyPressedSignal().connect(*this, &List::onEntryKeyPressed);
-    entry->destroyedSignal().connect(*this, &List::onEntryDestroyed);
-    layer().addRootWidget(*entry);
+    m_entry = new UI::Entry(layer());
+    m_entry->hide();
+    m_entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
+    m_entry->keyPressedSignal().connect(*this, &List::onEntryKeyPressed);
+    m_entry->destroyedSignal().connect(*this, &List::onEntryDestroyed);
+    layer().addRootWidget(*m_entry);
   }
   else
   {
     cancelEditing();
-    delete entry;
-    entry = nullptr;
+    delete m_entry;
+    m_entry = nullptr;
   }
 }
 
-uint List::getOffset() const
+uint List::offset() const
 {
-  return offset;
+  return m_offset;
 }
 
 void List::setOffset(uint newOffset)
 {
-  offset = min(newOffset, maxOffset);
-  scroller->setValue(float(offset));
+  m_offset = min(newOffset, m_maxOffset);
+  m_scroller->setValue(float(m_offset));
 }
 
-uint List::getSelection() const
+uint List::selection() const
 {
-  return selection;
+  return m_selection;
 }
 
 void List::setSelection(uint newSelection)
 {
-  assert(newSelection == NO_ITEM || newSelection < items.size());
+  assert(newSelection == NO_ITEM || newSelection < m_items.size());
   setSelection(newSelection, false);
 }
 
-Item* List::getSelectedItem()
+Item* List::selectedItem()
 {
-  if (selection == NO_ITEM)
+  if (m_selection == NO_ITEM)
     return nullptr;
 
-  assert(selection < items.size());
-  return items[selection];
+  assert(m_selection < m_items.size());
+  return m_items[m_selection];
 }
 
 void List::setSelectedItem(Item& newItem)
 {
-  auto i = std::find(items.begin(), items.end(), &newItem);
-  assert(i != items.end());
-  setSelection(i - items.begin(), false);
+  auto i = std::find(m_items.begin(), m_items.end(), &newItem);
+  assert(i != m_items.end());
+  setSelection(i - m_items.begin(), false);
 }
 
-uint List::getItemCount() const
+uint List::itemCount() const
 {
-  return (uint) items.size();
+  return (uint) m_items.size();
 }
 
-Item* List::getItem(uint index)
+Item* List::item(uint index)
 {
-  assert(index < items.size());
-  return items[index];
+  assert(index < m_items.size());
+  return m_items[index];
 }
 
-const Item* List::getItem(uint index) const
+const Item* List::item(uint index) const
 {
-  assert(index < items.size());
-  return items[index];
+  assert(index < m_items.size());
+  return m_items[index];
 }
 
-const ItemList& List::getItems() const
+const ItemList& List::items() const
 {
-  return items;
+  return m_items;
 }
 
-SignalProxy1<void, List&> List::getItemSelectedSignal()
+SignalProxy1<void, List&> List::itemSelectedSignal()
 {
-  return itemSelectedSignal;
+  return m_itemSelectedSignal;
 }
 
 void List::draw() const
@@ -249,19 +249,17 @@ void List::draw() const
 
     float start = area.size.y;
 
-    for (uint i = offset;  i < items.size();  i++)
+    for (uint i = m_offset;  i < m_items.size();  i++)
     {
-      const Item& item = *items[i];
+      const Item& item = *m_items[i];
 
-      float height = item.getHeight();
+      float height = item.height();
       if (height + start < 0.f)
         break;
 
-      Rect itemArea = area;
-      itemArea.position.y += start - height;
-      itemArea.size.y = height;
-
-      item.draw(itemArea, i == selection ? STATE_SELECTED : STATE_NORMAL);
+      const Rect itemArea(area.position + vec2(0.f, start - height),
+                          vec2(area.size.x, height));
+      item.draw(itemArea, i == m_selection ? STATE_SELECTED : STATE_NORMAL);
 
       start -= height;
     }
@@ -274,14 +272,14 @@ void List::draw() const
 
 void List::onAreaChanged(Widget& widget)
 {
-  scroller->setArea(Rect(width() - scroller->width(), 0.f,
-                         scroller->width(), height()));
+  m_scroller->setArea(Rect(width() - m_scroller->width(), 0.f,
+                           m_scroller->width(), height()));
   updateScroller();
 }
 
 void List::onEntryFocusChanged(Widget& widget, bool activated)
 {
-  if (editing)
+  if (m_editing)
     applyEditing();
 }
 
@@ -312,7 +310,7 @@ void List::onEntryKeyPressed(Widget& widget, Key key, Action action, uint mods)
 void List::onEntryDestroyed(Widget& widget)
 {
   cancelEditing();
-  entry = nullptr;
+  m_entry = nullptr;
 }
 
 void List::onMouseButton(Widget& widget,
@@ -328,19 +326,19 @@ void List::onMouseButton(Widget& widget,
 
   float itemTop = height();
 
-  for (uint i = offset;  i < items.size();  i++)
+  for (uint i = m_offset;  i < m_items.size();  i++)
   {
-    const float itemHeight = items[i]->getHeight();
+    const float itemHeight = m_items[i]->height();
     const float itemBottom = itemTop - itemHeight;
 
     if (itemBottom <= local.y)
     {
       if (itemBottom < 0.f)
-        setOffset(offset + 1);
+        setOffset(m_offset + 1);
 
-      if (selection == i)
+      if (m_selection == i)
       {
-        if (editable)
+        if (m_editable)
           beginEditing();
       }
       else
@@ -364,25 +362,25 @@ void List::onKey(Widget& widget, Key key, Action action, uint mods)
   {
     case KEY_UP:
     {
-      if (selection == NO_ITEM)
+      if (m_selection == NO_ITEM)
       {
-        if (!items.empty())
-          setSelection(items.size() - 1, true);
+        if (!m_items.empty())
+          setSelection(m_items.size() - 1, true);
       }
-      else if (selection > 0)
-        setSelection(selection - 1, true);
+      else if (m_selection > 0)
+        setSelection(m_selection - 1, true);
       break;
     }
 
     case KEY_DOWN:
     {
-      if (selection == NO_ITEM)
+      if (m_selection == NO_ITEM)
       {
-        if (!items.empty())
+        if (!m_items.empty())
           setSelection(0, true);
       }
-      else if (selection < items.size() - 1)
-        setSelection(selection + 1, true);
+      else if (m_selection < m_items.size() - 1)
+        setSelection(m_selection + 1, true);
       break;
     }
 
@@ -394,8 +392,8 @@ void List::onKey(Widget& widget, Key key, Action action, uint mods)
 
     case KEY_END:
     {
-      if (!items.empty())
-        setSelection(items.size() - 1, true);
+      if (!m_items.empty())
+        setSelection(m_items.size() - 1, true);
       break;
     }
 
@@ -406,113 +404,113 @@ void List::onKey(Widget& widget, Key key, Action action, uint mods)
 
 void List::onScroll(Widget& widget, vec2 so)
 {
-  if (items.empty())
+  if (m_items.empty())
     return;
 
-  if (int(so.y) + (int) offset < 0)
+  if (int(so.y) + (int) m_offset < 0)
     return;
 
-  if (editing)
+  if (m_editing)
     return;
 
-  setOffset(offset + int(so.y));
+  setOffset(m_offset + int(so.y));
 }
 
 void List::onValueChanged(Scroller& scroller)
 {
-  setOffset((uint) scroller.getValue());
+  setOffset((uint) scroller.value());
 }
 
 void List::beginEditing()
 {
-  if (Item* selected = getSelectedItem())
+  if (Item* selected = selectedItem())
   {
     const Rect area = globalArea();
-    const float selectedHeight = selected->getHeight();
+    const float selectedHeight = selected->height();
 
     Rect entryArea(vec2(0.f, area.size.y - selectedHeight),
                    vec2(area.size.x, selectedHeight));
 
-    if (scroller->isVisible())
-      entryArea.size.x -= scroller->width();
+    if (m_scroller->isVisible())
+      entryArea.size.x -= m_scroller->width();
 
-    for (uint i = offset;  i < selection;  i++)
-      entryArea.position.y -= items[i]->getHeight();
+    for (uint i = m_offset;  i < m_selection;  i++)
+      entryArea.position.y -= m_items[i]->height();
 
     entryArea.position += area.position;
 
     const String& value = selected->asString();
 
-    entry->setArea(entryArea);
-    entry->setText(value.c_str());
-    entry->setCaretPosition(value.length());
-    entry->show();
-    entry->activate();
-    editing = true;
+    m_entry->setArea(entryArea);
+    m_entry->setText(value.c_str());
+    m_entry->setCaretPosition(value.length());
+    m_entry->show();
+    m_entry->activate();
+    m_editing = true;
   }
 }
 
 void List::applyEditing()
 {
-  entry->hide();
-  editing = false;
+  m_entry->hide();
+  m_editing = false;
 
-  if (Item* item = getSelectedItem())
-    item->setStringValue(entry->getText().c_str());
+  if (Item* item = selectedItem())
+    item->setStringValue(m_entry->text().c_str());
 }
 
 void List::cancelEditing()
 {
-  entry->hide();
-  editing = false;
+  m_entry->hide();
+  m_editing = false;
 }
 
 void List::updateScroller()
 {
-  maxOffset = 0;
+  m_maxOffset = 0;
 
   float totalItemHeight = 0.f;
 
-  for (auto i : items)
-    totalItemHeight += i->getHeight();
+  for (auto i : m_items)
+    totalItemHeight += i->height();
 
   float visibleItemHeight = 0.f;
 
-  for (auto i = items.rbegin();  i != items.rend();  i++)
+  for (auto i = m_items.rbegin();  i != m_items.rend();  i++)
   {
-    visibleItemHeight += (*i)->getHeight();
+    visibleItemHeight += (*i)->height();
     if (visibleItemHeight > height())
     {
-      maxOffset = items.rend() - i;
+      m_maxOffset = m_items.rend() - i;
       break;
     }
   }
 
-  if (maxOffset)
+  if (m_maxOffset)
   {
-    scroller->show();
-    scroller->setValueRange(0.f, float(maxOffset));
-    scroller->setPercentage(height() / totalItemHeight);
+    m_scroller->show();
+    m_scroller->setValueRange(0.f, float(m_maxOffset));
+    m_scroller->setPercentage(height() / totalItemHeight);
   }
   else
-    scroller->hide();
+    m_scroller->hide();
 
-  setOffset(offset);
+  setOffset(m_offset);
 }
 
 bool List::isSelectionVisible() const
 {
-  if (selection == NO_ITEM)
+  if (m_selection == NO_ITEM)
     return true;
 
-  if (selection < offset)
+  if (m_selection < m_offset)
     return false;
 
   float visibleItemHeight = 0.f;
 
-  for (uint i = offset;  i <= selection;  i++)
+  for (auto i : m_items)
   {
-    visibleItemHeight += items[i]->getHeight();
+    visibleItemHeight += i->height();
     if (visibleItemHeight > height())
       return false;
   }
@@ -522,18 +520,18 @@ bool List::isSelectionVisible() const
 
 void List::setSelection(uint newSelection, bool notify)
 {
-  if (selection == newSelection)
+  if (m_selection == newSelection)
     return;
 
-  selection = newSelection;
+  m_selection = newSelection;
 
   if (isSelectionVisible())
     invalidate();
   else
-    setOffset(selection);
+    setOffset(m_selection);
 
   if (notify)
-    itemSelectedSignal(*this);
+    m_itemSelectedSignal(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -43,10 +43,10 @@ class Page : public Widget
 {
 public:
   Page(Layer& layer, const char* text);
-  const String& getText() const;
+  const String& text() const;
   void setText(const char* newText);
 private:
-  String text;
+  String m_text;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ class Book : public Widget
 {
 public:
   Book(Layer& layer);
-  Page* getActivePage() const;
+  Page* activePage() const;
   void setActivePage(Page* newPage);
-  SignalProxy1<void, Book&> getPageChangedSignal();
+  SignalProxy1<void, Book&> pageChangedSignal();
 protected:
   void draw() const;
   void addedChild(Widget& child);
@@ -73,9 +73,9 @@ private:
                      MouseButton button,
                      Action action,
                      uint mods);
-  Signal1<void, Book&> pageChangedSignal;
-  Page* activePage;
-  std::vector<Page*> pages;
+  Signal1<void, Book&> m_pageChangedSignal;
+  Page* m_activePage;
+  std::vector<Page*> m_pages;
 };
 
 ///////////////////////////////////////////////////////////////////////

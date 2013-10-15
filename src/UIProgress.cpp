@@ -39,63 +39,43 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Progress::Progress(Layer& layer, Orientation initOrientation):
+Progress::Progress(Layer& layer, Orientation orientation):
   Widget(layer),
-  minValue(0.f),
-  maxValue(1.f),
-  value(0.f),
-  orientation(initOrientation)
+  m_minValue(0.f),
+  m_maxValue(1.f),
+  m_value(0.f),
+  m_orientation(orientation)
 {
   const float em = layer.drawer().currentEM();
 
-  if (orientation == HORIZONTAL)
+  if (m_orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 }
 
-float Progress::getMinValue() const
-{
-  return minValue;
-}
-
-float Progress::getMaxValue() const
-{
-  return maxValue;
-}
-
 void Progress::setValueRange(float newMinValue, float newMaxValue)
 {
-  minValue = newMinValue;
-  maxValue = newMaxValue;
+  m_minValue = newMinValue;
+  m_maxValue = newMaxValue;
 
-  if (value < minValue)
-    setValue(minValue);
-  else if (value > maxValue)
-    setValue(maxValue);
+  if (m_value < m_minValue)
+    setValue(m_minValue);
+  else if (m_value > m_maxValue)
+    setValue(m_maxValue);
   else
     invalidate();
 }
 
-float Progress::getValue() const
-{
-  return value;
-}
-
 void Progress::setValue(float newValue)
 {
-  value = newValue;
+  m_value = newValue;
   invalidate();
-}
-
-Orientation Progress::getOrientation() const
-{
-  return orientation;
 }
 
 void Progress::setOrientation(Orientation newOrientation)
 {
-  orientation = newOrientation;
+  m_orientation = newOrientation;
   invalidate();
 }
 
@@ -108,11 +88,10 @@ void Progress::draw() const
   {
     drawer.drawWell(area, state());
 
-    const float position = (value - minValue) / (maxValue - minValue);
-
+    const float position = (m_value - m_minValue) / (m_maxValue - m_minValue);
     Rect handleArea;
 
-    if (orientation == HORIZONTAL)
+    if (m_orientation == HORIZONTAL)
     {
       handleArea.set(area.position.x + position * (area.size.x - 10.f) + 5.f,
                      area.position.y,

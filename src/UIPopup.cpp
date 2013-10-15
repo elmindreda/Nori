@@ -43,8 +43,8 @@ namespace wendy
 
 Popup::Popup(Layer& layer):
   Widget(layer),
-  selection(NO_ITEM),
-  menu(nullptr)
+  m_selection(NO_ITEM),
+  m_menu(nullptr)
 {
   const float em = layer.drawer().currentEM();
 
@@ -53,105 +53,105 @@ Popup::Popup(Layer& layer):
   keyPressedSignal().connect(*this, &Popup::onKey);
   buttonClickedSignal().connect(*this, &Popup::onMouseButton);
 
-  menu = new Menu(layer);
-  menu->getItemSelectedSignal().connect(*this, &Popup::onItemSelected);
-  menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
-  layer.addRootWidget(*menu);
+  m_menu = new Menu(layer);
+  m_menu->itemSelectedSignal().connect(*this, &Popup::onItemSelected);
+  m_menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
+  layer.addRootWidget(*m_menu);
 }
 
 Popup::~Popup()
 {
-  if (menu)
-    delete menu;
+  if (m_menu)
+    delete m_menu;
 }
 
 void Popup::addItem(Item& item)
 {
-  menu->addItem(item);
+  m_menu->addItem(item);
 }
 
 void Popup::createItem(const char* value, ItemID ID)
 {
   Item* item = new Item(layer(), value, ID);
-  menu->addItem(*item);
+  m_menu->addItem(*item);
 }
 
 Item* Popup::findItem(const char* value)
 {
-  return menu->findItem(value);
+  return m_menu->findItem(value);
 }
 
 const Item* Popup::findItem(const char* value) const
 {
-  return menu->findItem(value);
+  return m_menu->findItem(value);
 }
 
 void Popup::destroyItem(Item& item)
 {
-  menu->destroyItem(item);
-  setSelection(selection);
+  m_menu->destroyItem(item);
+  setSelection(m_selection);
 }
 
 void Popup::destroyItems()
 {
-  menu->destroyItems();
-  selection = NO_ITEM;
+  m_menu->destroyItems();
+  m_selection = NO_ITEM;
 }
 
-uint Popup::getSelection() const
+uint Popup::selection() const
 {
-  return selection;
+  return m_selection;
 }
 
 void Popup::setSelection(uint newIndex)
 {
-  if (menu->getItemCount())
-    selection = min(newIndex, menu->getItemCount() - 1);
+  if (m_menu->itemCount())
+    m_selection = min(newIndex, m_menu->itemCount() - 1);
   else
-    selection = NO_ITEM;
+    m_selection = NO_ITEM;
 }
 
-Item* Popup::getSelectedItem()
+Item* Popup::selectedItem()
 {
-  if (selection == NO_ITEM)
+  if (m_selection == NO_ITEM)
     return nullptr;
 
-  return menu->getItem(selection);
+  return m_menu->item(m_selection);
 }
 
 void Popup::setSelectedItem(Item& newItem)
 {
-  const ItemList& items = menu->getItems();
+  const ItemList& items = m_menu->items();
 
   auto i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
 
-  selection = i - items.begin();
+  m_selection = i - items.begin();
 }
 
-uint Popup::getItemCount() const
+uint Popup::itemCount() const
 {
-  return menu->getItemCount();
+  return m_menu->itemCount();
 }
 
-Item* Popup::getItem(uint index)
+Item* Popup::item(uint index)
 {
-  return menu->getItem(index);
+  return m_menu->item(index);
 }
 
-const Item* Popup::getItem(uint index) const
+const Item* Popup::item(uint index) const
 {
-  return menu->getItem(index);
+  return m_menu->item(index);
 }
 
-const ItemList& Popup::getItems() const
+const ItemList& Popup::items() const
 {
-  return menu->getItems();
+  return m_menu->items();
 }
 
-SignalProxy2<void, Popup&, uint> Popup::getItemSelectedSignal()
+SignalProxy2<void, Popup&, uint> Popup::itemSelectedSignal()
 {
-  return itemSelectedSignal;
+  return m_itemSelectedSignal;
 }
 
 void Popup::draw() const
@@ -163,15 +163,12 @@ void Popup::draw() const
   {
     drawer.drawFrame(area, state());
 
-    if (selection != NO_ITEM)
+    if (m_selection != NO_ITEM)
     {
-      const Item* item = menu->getItem(selection);
-
+      const Item* item = m_menu->item(m_selection);
       const float em = drawer.currentEM();
-
-      Rect textArea = area;
-      textArea.position.x += em / 2.f;
-      textArea.size.x -= em;
+      const Rect textArea(area.position + vec2(em / 2.f, 0.f),
+                          area.size - vec2(em, 0.f));
 
       drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED, state());
     }
@@ -184,9 +181,9 @@ void Popup::draw() const
 
 void Popup::display()
 {
-  menu->setArea(Rect(globalPos(),
-                     vec2(max(menu->width(), width()), menu->height())));
-  menu->display();
+  m_menu->setArea(Rect(globalPos(),
+                       vec2(max(m_menu->width(), width()), m_menu->height())));
+  m_menu->display();
 }
 
 void Popup::onMouseButton(Widget& widget,
@@ -221,14 +218,14 @@ void Popup::onKey(Widget& widget, Key key, Action action, uint mods)
 
 void Popup::onItemSelected(Menu& menu, uint index)
 {
-  selection = index;
-  itemSelectedSignal(*this, selection);
+  m_selection = index;
+  m_itemSelectedSignal(*this, m_selection);
   activate();
 }
 
 void Popup::onMenuDestroyed(Widget& widget)
 {
-  menu = nullptr;
+  m_menu = nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////

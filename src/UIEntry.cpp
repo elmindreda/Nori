@@ -41,7 +41,7 @@ namespace wendy
 
 Entry::Entry(Layer& layer, const char* text):
   Widget(layer),
-  controller(text)
+  m_controller(text)
 {
   const float em = layer.drawer().currentEM();
 
@@ -51,39 +51,39 @@ Entry::Entry(Layer& layer, const char* text):
   keyPressedSignal().connect(*this, &Entry::onKey);
   charInputSignal().connect(*this, &Entry::onCharacter);
 
-  controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
-  controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
+  m_controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
+  m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
 }
 
-const String& Entry::getText() const
+const String& Entry::text() const
 {
-  return controller.text();
+  return m_controller.text();
 }
 
 void Entry::setText(const char* newText)
 {
-  controller.setText(newText);
+  m_controller.setText(newText);
   invalidate();
 }
 
-uint Entry::getCaretPosition() const
+uint Entry::caretPosition() const
 {
-  return controller.caretPosition();
+  return m_controller.caretPosition();
 }
 
 void Entry::setCaretPosition(uint newPosition)
 {
-  controller.setCaretPosition(newPosition);
+  m_controller.setCaretPosition(newPosition);
 }
 
-SignalProxy1<void, Entry&> Entry::getTextChangedSignal()
+SignalProxy1<void, Entry&> Entry::textChangedSignal()
 {
-  return textChangedSignal;
+  return m_textChangedSignal;
 }
 
-SignalProxy1<void, Entry&> Entry::getCaretMovedSignal()
+SignalProxy1<void, Entry&> Entry::caretMovedSignal()
 {
-  return caretMovedSignal;
+  return m_caretMovedSignal;
 }
 
 void Entry::draw() const
@@ -98,7 +98,7 @@ void Entry::draw() const
     const float em = drawer.currentEM();
     const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                         area.size + vec2(em, 0.f));
-    const String& text = controller.text();
+    const String& text = m_controller.text();
 
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());
 
@@ -107,7 +107,7 @@ void Entry::draw() const
       float position = 0.f;
 
       render::Font& font = drawer.currentFont();
-      const Rect bounds = font.boundsOf(text.substr(0, controller.caretPosition()).c_str());
+      const Rect bounds = font.boundsOf(text.substr(0, m_controller.caretPosition()).c_str());
       position = bounds.size.x;
 
       Segment2 segment;
@@ -140,7 +140,7 @@ void Entry::onMouseButton(Widget& widget,
   const float offset = em / 2.f;
   float position = transformToLocal(point).x - offset;
 
-  std::vector<Rect> layout = drawer.currentFont().layoutOf(controller.text().c_str());
+  std::vector<Rect> layout = drawer.currentFont().layoutOf(m_controller.text().c_str());
 
   uint index;
 
@@ -153,28 +153,28 @@ void Entry::onMouseButton(Widget& widget,
       break;
   }
 
-  controller.setCaretPosition(index);
-  caretMovedSignal(*this);
+  m_controller.setCaretPosition(index);
+  m_caretMovedSignal(*this);
 }
 
 void Entry::onKey(Widget& widget, Key key, Action action, uint mods)
 {
-  controller.inputKey(key, action, mods);
+  m_controller.inputKey(key, action, mods);
 }
 
 void Entry::onCharacter(Widget& widget, uint32 codepoint, uint mods)
 {
-  controller.inputCharacter(codepoint, mods);
+  m_controller.inputCharacter(codepoint, mods);
 }
 
 void Entry::onTextChanged()
 {
-  textChangedSignal(*this);
+  m_textChangedSignal(*this);
 }
 
 void Entry::onCaretMoved()
 {
-  caretMovedSignal(*this);
+  m_caretMovedSignal(*this);
 }
 
 ///////////////////////////////////////////////////////////////////////

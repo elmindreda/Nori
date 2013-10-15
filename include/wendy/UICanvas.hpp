@@ -39,10 +39,10 @@ class Canvas : public Widget
 {
 public:
   Canvas(Layer& layer);
-  SignalProxy1<void, const Canvas&> getDrawSignal();
+  SignalProxy1<void, const Canvas&> drawSignal();
 protected:
   void draw() const;
-  Signal1<void, const Canvas&> drawSignal;
+  Signal1<void, const Canvas&> m_drawSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

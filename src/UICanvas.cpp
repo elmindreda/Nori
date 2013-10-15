@@ -44,9 +44,9 @@ Canvas::Canvas(Layer& layer):
 {
 }
 
-SignalProxy1<void, const Canvas&> Canvas::getDrawSignal()
+SignalProxy1<void, const Canvas&> Canvas::drawSignal()
 {
-  return drawSignal;
+  return m_drawSignal;
 }
 
 void Canvas::draw() const
@@ -63,7 +63,7 @@ void Canvas::draw() const
   context.setScissorArea(area);
 
   drawer.end();
-  drawSignal(*this);
+  m_drawSignal(*this);
   drawer.begin();
 
   context.setViewportArea(oldViewport);

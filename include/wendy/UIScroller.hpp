@@ -39,15 +39,15 @@ class Scroller : public Widget
 {
 public:
   Scroller(Layer& layer, Orientation orientation);
-  Orientation getOrientation() const;
-  float getMinValue() const;
-  float getMaxValue() const;
+  Orientation orientation() const;
+  float minValue() const { return m_minValue; }
+  float maxValue() const { return m_maxValue; }
   void setValueRange(float newMinValue, float newMaxValue);
-  float getValue() const;
+  float value() const { return m_value; }
   void setValue(float newValue);
-  float getPercentage() const;
+  float percentage() const { return m_percentage; }
   void setPercentage(float newPercentage);
-  SignalProxy1<void, Scroller&> getValueChangedSignal();
+  SignalProxy1<void, Scroller&> valueChangedSignal();
 protected:
   void draw() const;
 private:
@@ -61,16 +61,16 @@ private:
   void onDragBegun(Widget& widget, vec2 position);
   void onDragMoved(Widget& widget, vec2 position);
   void setValue(float newValue, bool notify);
-  float getHandleSize() const;
-  float getHandleOffset() const;
-  float getValueStep() const;
-  Signal1<void, Scroller&> valueChangedSignal;
-  float minValue;
-  float maxValue;
-  float value;
-  float percentage;
-  float reference;
-  Orientation orientation;
+  float handleSize() const;
+  float handleOffset() const;
+  float valueStep() const;
+  Signal1<void, Scroller&> m_valueChangedSignal;
+  float m_minValue;
+  float m_maxValue;
+  float m_value;
+  float m_percentage;
+  float m_reference;
+  Orientation m_orientation;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -42,10 +42,10 @@ public:
   void addChild(Widget& child);
   void addChild(Widget& child, float size);
   bool isExpanding() const;
-  Orientation getOrientation() const;
-  float getBorderSize() const;
+  Orientation orientation() const;
+  float borderSize() const;
   void setBorderSize(float newSize);
-  float getChildSize(Widget& child) const;
+  float childSize(Widget& child) const;
   void setChildSize(Widget& child, float newSize);
 protected:
   void addedChild(Widget& child);
@@ -56,11 +56,11 @@ protected:
 private:
   typedef std::pair<Widget*, float> Size;
   void update();
-  std::vector<Size> sizes;
-  float borderSize;
-  Orientation orientation;
-  bool expanding;
-  Ptr<SignalSlot> parentAreaSlot;
+  std::vector<Size> m_sizes;
+  float m_borderSize;
+  Orientation m_orientation;
+  bool m_expanding;
+  Ptr<SignalSlot> m_parentAreaSlot;
 };
 
 ///////////////////////////////////////////////////////////////////////

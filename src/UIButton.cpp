@@ -39,19 +39,19 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(Layer& layer, const char* initText):
+Button::Button(Layer& layer, const char* text):
   Widget(layer),
-  selected(false),
-  text(initText)
+  m_selected(false),
+  m_text(text)
 {
   const float em = layer.drawer().currentEM();
 
   float textWidth;
 
-  if (text.empty())
+  if (m_text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = layer.drawer().currentFont().boundsOf(text.c_str()).size.x;
+    textWidth = layer.drawer().currentFont().boundsOf(m_text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
@@ -61,20 +61,20 @@ Button::Button(Layer& layer, const char* initText):
   keyPressedSignal().connect(*this, &Button::onKey);
 }
 
-const String& Button::getText() const
+const String& Button::text() const
 {
-  return text;
+  return m_text;
 }
 
 void Button::setText(const char* newText)
 {
-  text = newText;
+  m_text = newText;
   invalidate();
 }
 
-SignalProxy1<void, Button&> Button::getPushedSignal()
+SignalProxy1<void, Button&> Button::pushedSignal()
 {
-  return pushedSignal;
+  return m_pushedSignal;
 }
 
 void Button::draw() const
@@ -86,12 +86,12 @@ void Button::draw() const
   {
     WidgetState hoverState;
 
-    if (isUnderCursor() && selected)
+    if (isUnderCursor() && m_selected)
       hoverState = STATE_SELECTED;
     else
       hoverState = state();
 
-    drawer.drawButton(area, hoverState, text.c_str());
+    drawer.drawButton(area, hoverState, m_text.c_str());
 
     Widget::draw();
 
@@ -108,11 +108,11 @@ void Button::onMouseButton(Widget& widget,
   if (button == MOUSE_BUTTON_LEFT)
   {
     if (action == PRESSED)
-      selected = true;
+      m_selected = true;
     else if (action == RELEASED)
     {
-      selected = false;
-      pushedSignal(*this);
+      m_selected = false;
+      m_pushedSignal(*this);
     }
 
     invalidate();
@@ -121,7 +121,7 @@ void Button::onMouseButton(Widget& widget,
 
 void Button::onDragEnded(Widget& widget, vec2 position)
 {
-  selected = false;
+  m_selected = false;
   invalidate();
 }
 
@@ -133,11 +133,11 @@ void Button::onKey(Widget& widget, Key key, Action action, uint mods)
     case KEY_ENTER:
     {
       if (action == PRESSED)
-        selected = true;
+        m_selected = true;
       else if (action == RELEASED)
       {
-        selected = false;
-        pushedSignal(*this);
+        m_selected = false;
+        m_pushedSignal(*this);
         invalidate();
       }
 

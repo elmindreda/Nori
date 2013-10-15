@@ -39,9 +39,9 @@ class Button : public Widget
 {
 public:
   Button(Layer& layer, const char* text = "");
-  const String& getText() const;
+  const String& text() const;
   void setText(const char* newText);
-  SignalProxy1<void, Button&> getPushedSignal();
+  SignalProxy1<void, Button&> pushedSignal();
 protected:
   void draw() const;
 private:
@@ -52,9 +52,9 @@ private:
                      uint mods);
   void onDragEnded(Widget& widget, vec2 position);
   void onKey(Widget& widget, Key key, Action action, uint mods);
-  Signal1<void, Button&> pushedSignal;
-  bool selected;
-  String text;
+  Signal1<void, Button&> m_pushedSignal;
+  bool m_selected;
+  String m_text;
 };
 
 ///////////////////////////////////////////////////////////////////////

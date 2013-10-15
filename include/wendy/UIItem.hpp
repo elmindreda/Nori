@@ -52,20 +52,20 @@ class Item
   friend class List;
   friend class Menu;
 public:
-  Item(Layer& layer, const char* value = "", ItemID ID = 0);
+  Item(Layer& layer, const char* value = "", ItemID id = 0);
   virtual ~Item();
   virtual bool operator < (const Item& other) const;
-  virtual float getWidth() const;
-  virtual float getHeight() const;
-  virtual ItemID getID() const;
+  virtual float width() const;
+  virtual float height() const;
+  virtual ItemID id() const;
   virtual const String& asString() const;
   virtual void setStringValue(const char* newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
-  Layer& layer;
+  Layer& m_layer;
 private:
-  String value;
-  ItemID ID;
+  String m_value;
+  ItemID m_id;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -82,8 +82,8 @@ class SeparatorItem : public Item
 {
 public:
   SeparatorItem(Layer& layer);
-  float getWidth() const;
-  float getHeight() const;
+  float width() const override;
+  float height() const override;
 protected:
   void draw(const Rect& area, WidgetState state) const;
 };
@@ -99,13 +99,13 @@ public:
               GL::Texture& texture,
               const char* name = "",
               ItemID ID = 0);
-  float getWidth() const;
-  float getHeight() const;
-  GL::Texture& getTexture() const;
+  float width() const override;
+  float height() const override;
+  GL::Texture& texture() const;
 protected:
   void draw(const Rect& area, WidgetState state) const;
 private:
-  Ref<GL::Texture> texture;
+  Ref<GL::Texture> m_texture;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -44,7 +44,7 @@ namespace wendy
 
 Menu::Menu(Layer& layer):
   Widget(layer),
-  selection(NO_ITEM)
+  m_selection(NO_ITEM)
 {
   cursorMovedSignal().connect(*this, &Menu::onCursorPos);
   cursorLeftSignal().connect(*this, &Menu::onCursorLeft);
@@ -86,7 +86,7 @@ void Menu::display(const vec2& point)
 
 void Menu::display()
 {
-  selection = NO_ITEM;
+  m_selection = NO_ITEM;
   show();
   bringToFront();
   activate();
@@ -94,24 +94,24 @@ void Menu::display()
 
 void Menu::addItem(Item& item)
 {
-  auto i = std::find(items.begin(), items.end(), &item);
-  if (i != items.end())
+  auto i = std::find(m_items.begin(), m_items.end(), &item);
+  if (i != m_items.end())
     return;
 
-  items.push_back(&item);
+  m_items.push_back(&item);
 
   sizeToFit();
 }
 
 void Menu::addItemAt(Item& item, uint index)
 {
-  auto i = std::find(items.begin(), items.end(), &item);
-  if (i != items.end())
+  auto i = std::find(m_items.begin(), m_items.end(), &item);
+  if (i != m_items.end())
     return;
 
-  i = items.begin();
-  std::advance(i, min(index, (uint) items.size()));
-  items.insert(i, &item);
+  i = m_items.begin();
+  std::advance(i, min(index, (uint) m_items.size()));
+  m_items.insert(i, &item);
 
   sizeToFit();
 }
@@ -130,7 +130,7 @@ void Menu::createSeparatorItem()
 
 Item* Menu::findItem(const char* value)
 {
-  for (auto i : items)
+  for (auto i : m_items)
   {
     if (i->asString() == value)
       return i;
@@ -141,7 +141,7 @@ Item* Menu::findItem(const char* value)
 
 const Item* Menu::findItem(const char* value) const
 {
-  for (auto i : items)
+  for (auto i : m_items)
   {
     if (i->asString() == value)
       return i;
@@ -152,11 +152,11 @@ const Item* Menu::findItem(const char* value) const
 
 void Menu::destroyItem(Item& item)
 {
-  auto i = std::find(items.begin(), items.end(), &item);
-  if (i != items.end())
+  auto i = std::find(m_items.begin(), m_items.end(), &item);
+  if (i != m_items.end())
   {
     delete *i;
-    items.erase(i);
+    m_items.erase(i);
 
     sizeToFit();
   }
@@ -164,10 +164,10 @@ void Menu::destroyItem(Item& item)
 
 void Menu::destroyItems()
 {
-  while (!items.empty())
+  while (!m_items.empty())
   {
-    delete items.back();
-    items.pop_back();
+    delete m_items.back();
+    m_items.pop_back();
   }
 
   sizeToFit();
@@ -176,32 +176,12 @@ void Menu::destroyItems()
 void Menu::sortItems()
 {
   ItemComparator comparator;
-  std::sort(items.begin(), items.end(), comparator);
+  std::sort(m_items.begin(), m_items.end(), comparator);
 }
 
-uint Menu::getItemCount() const
+SignalProxy2<void, Menu&, uint> Menu::itemSelectedSignal()
 {
-  return (uint) items.size();
-}
-
-Item* Menu::getItem(uint index)
-{
-  return items[index];
-}
-
-const Item* Menu::getItem(uint index) const
-{
-  return items[index];
-}
-
-const ItemList& Menu::getItems() const
-{
-  return items;
-}
-
-SignalProxy2<void, Menu&, uint> Menu::getItemSelectedSignal()
-{
-  return itemSelectedSignal;
+  return m_itemSelectedSignal;
 }
 
 void Menu::draw() const
@@ -217,17 +197,15 @@ void Menu::draw() const
 
     uint index = 0;
 
-    for (auto i : items)
+    for (auto i : m_items)
     {
-      float height = i->getHeight();
+      float height = i->height();
       if (height + itemTop < 0.f)
         break;
 
-      Rect itemArea = area;
-      itemArea.position.y += itemTop - height;
-      itemArea.size.y = height;
-
-      i->draw(itemArea, index == selection ? STATE_SELECTED : STATE_NORMAL);
+      const Rect itemArea(area.position + vec2(0.f, itemTop - height),
+                          vec2(area.size.x, height));
+      i->draw(itemArea, index == m_selection ? STATE_SELECTED : STATE_NORMAL);
 
       itemTop -= height;
       index++;
@@ -247,21 +225,19 @@ void Menu::onFocusChanged(Widget& widget, bool activated)
 
 void Menu::onCursorPos(Widget& widget, vec2 position)
 {
-  vec2 localPosition = transformToLocal(position);
-
+  const vec2 localPosition = transformToLocal(position);
+  float itemTop = height() - 2.f;
   uint index = 0;
 
-  float itemTop = height() - 2.f;
-
-  for (auto i : items)
+  for (auto i : m_items)
   {
-    const float itemHeight = i->getHeight();
+    const float itemHeight = i->height();
     if (itemTop - itemHeight < 0.f)
       break;
 
     if (itemTop - itemHeight <= localPosition.y)
     {
-      selection = index;
+      m_selection = index;
       invalidate();
       return;
     }
@@ -273,7 +249,7 @@ void Menu::onCursorPos(Widget& widget, vec2 position)
 
 void Menu::onCursorLeft(Widget& widget)
 {
-  selection = NO_ITEM;
+  m_selection = NO_ITEM;
 }
 
 void Menu::onMouseButton(Widget& widget,
@@ -285,21 +261,19 @@ void Menu::onMouseButton(Widget& widget,
   if (action != RELEASED)
     return;
 
-  vec2 localPosition = transformToLocal(position);
-
+  const vec2 localPosition = transformToLocal(position);
+  float itemTop = height() - 2.f;
   uint index = 0;
 
-  float itemTop = height() - 2.f;
-
-  for (auto i : items)
+  for (auto i : m_items)
   {
-    const float itemHeight = i->getHeight();
+    const float itemHeight = i->height();
     if (itemTop - itemHeight < 0.f)
       break;
 
     if (itemTop - itemHeight <= localPosition.y)
     {
-      itemSelectedSignal(*this, index);
+      m_itemSelectedSignal(*this, index);
       hide();
       return;
     }
@@ -318,10 +292,10 @@ void Menu::onKey(Widget& widget, Key key, Action action, uint mods)
   {
     case KEY_UP:
     {
-      if (selection > 0)
-        selection--;
+      if (m_selection > 0)
+        m_selection--;
       else
-        selection = items.size() - 1;
+        m_selection = m_items.size() - 1;
 
       invalidate();
       break;
@@ -329,9 +303,9 @@ void Menu::onKey(Widget& widget, Key key, Action action, uint mods)
 
     case KEY_DOWN:
     {
-      selection++;
-      if (selection == items.size())
-        selection = 0;
+      m_selection++;
+      if (m_selection == m_items.size())
+        m_selection = 0;
 
       invalidate();
       break;
@@ -339,7 +313,7 @@ void Menu::onKey(Widget& widget, Key key, Action action, uint mods)
 
     case KEY_ENTER:
     {
-      itemSelectedSignal(*this, selection);
+      m_itemSelectedSignal(*this, m_selection);
       hide();
       break;
     }
@@ -351,7 +325,7 @@ void Menu::onKey(Widget& widget, Key key, Action action, uint mods)
 
 void Menu::onDragEnded(Widget& widget, vec2 position)
 {
-  vec2 localPosition = transformToLocal(position);
+  const vec2 localPosition = transformToLocal(position);
 
   if (!area().contains(localPosition))
     hide();
@@ -361,10 +335,10 @@ void Menu::sizeToFit()
 {
   vec2 size(0.f, 2.f);
 
-  for (auto i : items)
+  for (auto i : m_items)
   {
-    size.x = max(i->getWidth(), size.x);
-    size.y += i->getHeight();
+    size.x = max(i->width(), size.x);
+    size.y += i->height();
   }
 
   setSize(size);

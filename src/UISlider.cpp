@@ -39,17 +39,17 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(Layer& layer, Orientation initOrientation):
+Slider::Slider(Layer& layer, Orientation orientation):
   Widget(layer),
-  minValue(0.f),
-  maxValue(1.f),
-  stepSize(1.f),
-  value(0.f),
-  orientation(initOrientation)
+  m_minValue(0.f),
+  m_maxValue(1.f),
+  m_stepSize(1.f),
+  m_value(0.f),
+  m_orientation(orientation)
 {
   const float em = layer.drawer().currentEM();
 
-  if (orientation == HORIZONTAL)
+  if (m_orientation == HORIZONTAL)
     setSize(vec2(em * 10.f, em * 1.5f));
   else
     setSize(vec2(em * 1.5f, em * 10.f));
@@ -62,32 +62,17 @@ Slider::Slider(Layer& layer, Orientation initOrientation):
   setDraggable(true);
 }
 
-float Slider::getMinValue() const
-{
-  return minValue;
-}
-
-float Slider::getMaxValue() const
-{
-  return maxValue;
-}
-
 void Slider::setValueRange(float newMinValue, float newMaxValue)
 {
-  minValue = newMinValue;
-  maxValue = newMaxValue;
+  m_minValue = newMinValue;
+  m_maxValue = newMaxValue;
 
-  if (value < minValue)
-    setValue(minValue, true);
-  else if (value > maxValue)
-    setValue(maxValue, true);
+  if (m_value < m_minValue)
+    setValue(m_minValue, true);
+  else if (m_value > m_maxValue)
+    setValue(m_maxValue, true);
   else
     invalidate();
-}
-
-float Slider::getValue() const
-{
-  return value;
 }
 
 void Slider::setValue(float newValue)
@@ -95,19 +80,14 @@ void Slider::setValue(float newValue)
   setValue(newValue, false);
 }
 
-float Slider::getStepSize() const
-{
-  return stepSize;
-}
-
 void Slider::setStepSize(float newSize)
 {
-  stepSize = max(newSize, 0.f);
+  m_stepSize = max(newSize, 0.f);
 }
 
-SignalProxy1<void, Slider&> Slider::getValueChangedSignal()
+SignalProxy1<void, Slider&> Slider::valueChangedSignal()
 {
-  return valueChangedSignal;
+  return m_valueChangedSignal;
 }
 
 void Slider::draw() const
@@ -119,11 +99,11 @@ void Slider::draw() const
   {
     drawer.drawWell(area, state());
 
-    const float fraction = (value - minValue) / (maxValue - minValue);
+    const float fraction = (m_value - m_minValue) / (m_maxValue - m_minValue);
 
     Rect handleArea;
 
-    if (orientation == HORIZONTAL)
+    if (m_orientation == HORIZONTAL)
     {
       handleArea.set(area.position.x + fraction * (area.size.x - area.size.y),
                      area.position.y,
@@ -165,17 +145,17 @@ void Slider::onKey(Widget& widget, Key key, Action action, uint mods)
   {
     case KEY_UP:
     case KEY_RIGHT:
-      setValue(value + stepSize, true);
+      setValue(m_value + m_stepSize, true);
       break;
     case KEY_DOWN:
     case KEY_LEFT:
-      setValue(value - stepSize, true);
+      setValue(m_value - m_stepSize, true);
       break;
     case KEY_HOME:
-      setValue(minValue, true);
+      setValue(m_minValue, true);
       break;
     case KEY_END:
-      setValue(maxValue, true);
+      setValue(m_maxValue, true);
       break;
     default:
       break;
@@ -184,10 +164,10 @@ void Slider::onKey(Widget& widget, Key key, Action action, uint mods)
 
 void Slider::onScroll(Widget& widget, vec2 offset)
 {
-  if (orientation == HORIZONTAL)
-    setValue(value + float(offset.x) * stepSize, true);
+  if (m_orientation == HORIZONTAL)
+    setValue(m_value + float(offset.x) * m_stepSize, true);
   else
-    setValue(value + float(offset.y) * stepSize, true);
+    setValue(m_value + float(offset.y) * m_stepSize, true);
 }
 
 void Slider::onDragMoved(Widget& widget, vec2 position)
@@ -199,24 +179,24 @@ void Slider::setValue(const vec2& position)
 {
   float fraction;
 
-  if (orientation == HORIZONTAL)
+  if (m_orientation == HORIZONTAL)
     fraction = clamp((position.x - height() / 2.f) / (width() - height()), 0.f, 1.f);
   else
     fraction = clamp((position.y - width() / 2.f) / (height() - width()), 0.f, 1.f);
 
-  setValue(minValue + (maxValue - minValue) * fraction, true);
+  setValue(m_minValue + (m_maxValue - m_minValue) * fraction, true);
 }
 
 void Slider::setValue(float newValue, bool notify)
 {
-  newValue = clamp(newValue, minValue, maxValue);
-  if (newValue == value)
+  newValue = clamp(newValue, m_minValue, m_maxValue);
+  if (newValue == m_value)
     return;
 
-  value = newValue;
+  m_value = newValue;
 
   if (notify)
-    valueChangedSignal(*this);
+    m_valueChangedSignal(*this);
 
   invalidate();
 }
