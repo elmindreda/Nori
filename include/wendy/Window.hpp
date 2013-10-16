@@ -489,12 +489,12 @@ public:
   void inputKey(Key key, Action action, uint mods);
   void inputMouseButton(MouseButton button, Action action, uint mods);
   void inputCursorOffset(vec2 offset);
-  const Transform3& getTransform() const;
+  const Transform3& transform() const { return m_transform; }
   void setPosition(vec3 newPosition);
-  float getAngleX() const;
-  float getAngleY() const;
+  float angleX() const { return m_angleX; }
+  float angleY() const { return m_angleY; }
   void setRotation(float newAngleX, float newAngleY);
-  float getSpeed() const;
+  float speed() const { return m_speed; }
   void setSpeed(float newSpeed);
 private:
   enum Direction
@@ -506,12 +506,12 @@ private:
     FORWARD,
     BACK
   };
-  Transform3 transform;
-  float angleX;
-  float angleY;
-  float speed;
-  bool directions[6];
-  bool turbo;
+  Transform3 m_transform;
+  float m_angleX;
+  float m_angleY;
+  float m_speed;
+  bool m_directions[6];
+  bool m_turbo;
 };
 
 ///////////////////////////////////////////////////////////////////////

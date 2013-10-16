@@ -507,48 +507,48 @@ std::vector<Resolution> Window::resolutions()
 ///////////////////////////////////////////////////////////////////////
 
 SpectatorController::SpectatorController():
-  angleX(0.f),
-  angleY(0.f),
-  speed(3.f),
-  turbo(false)
+  m_angleX(0.f),
+  m_angleY(0.f),
+  m_speed(3.f),
+  m_turbo(false)
 {
-  std::memset(directions, 0, sizeof(directions));
+  std::memset(m_directions, 0, sizeof(m_directions));
 }
 
 void SpectatorController::update(Time deltaTime)
 {
   float multiplier;
 
-  if (turbo)
+  if (m_turbo)
     multiplier = 3.f;
   else
     multiplier = 1.f;
 
   vec3 direction;
 
-  if (directions[UP])
+  if (m_directions[UP])
     direction.y += 1.f;
-  if (directions[DOWN])
+  if (m_directions[DOWN])
     direction.y -= 1.f;
-  if (directions[FORWARD])
+  if (m_directions[FORWARD])
     direction.z -= 1.f;
-  if (directions[BACK])
+  if (m_directions[BACK])
     direction.z += 1.f;
-  if (directions[LEFT])
+  if (m_directions[LEFT])
     direction.x -= 1.f;
-  if (directions[RIGHT])
+  if (m_directions[RIGHT])
     direction.x += 1.f;
 
   if (length2(direction))
-    direction = normalize(transform.rotation * direction);
+    direction = normalize(m_transform.rotation * direction);
 
-  transform.position += direction * speed * multiplier * float(deltaTime);
+  m_transform.position += direction * m_speed * multiplier * float(deltaTime);
 }
 
 void SpectatorController::release()
 {
-  std::memset(directions, 0, sizeof(directions));
-  turbo = false;
+  std::memset(m_directions, 0, sizeof(m_directions));
+  m_turbo = false;
 }
 
 void SpectatorController::inputKey(Key key, Action action, uint mods)
@@ -559,9 +559,9 @@ void SpectatorController::inputKey(Key key, Action action, uint mods)
     case KEY_UP:
     {
       if (action == PRESSED)
-        directions[FORWARD] = true;
+        m_directions[FORWARD] = true;
       else if (action == RELEASED)
-        directions[FORWARD] = false;
+        m_directions[FORWARD] = false;
       break;
     }
 
@@ -569,9 +569,9 @@ void SpectatorController::inputKey(Key key, Action action, uint mods)
     case KEY_DOWN:
     {
       if (action == PRESSED)
-        directions[BACK] = true;
+        m_directions[BACK] = true;
       else if (action == RELEASED)
-        directions[BACK] = false;
+        m_directions[BACK] = false;
       break;
     }
 
@@ -579,9 +579,9 @@ void SpectatorController::inputKey(Key key, Action action, uint mods)
     case KEY_LEFT:
     {
       if (action == PRESSED)
-        directions[LEFT] = true;
+        m_directions[LEFT] = true;
       else if (action == RELEASED)
-        directions[LEFT] = false;
+        m_directions[LEFT] = false;
       break;
     }
 
@@ -589,9 +589,9 @@ void SpectatorController::inputKey(Key key, Action action, uint mods)
     case KEY_RIGHT:
     {
       if (action == PRESSED)
-        directions[RIGHT] = true;
+        m_directions[RIGHT] = true;
       else if (action == RELEASED)
-        directions[RIGHT] = false;
+        m_directions[RIGHT] = false;
       break;
     }
 
@@ -599,9 +599,9 @@ void SpectatorController::inputKey(Key key, Action action, uint mods)
     case KEY_RIGHT_CONTROL:
     {
       if (action == PRESSED)
-        directions[DOWN] = true;
+        m_directions[DOWN] = true;
       else if (action == RELEASED)
-        directions[DOWN] = false;
+        m_directions[DOWN] = false;
       break;
     }
 
@@ -609,9 +609,9 @@ void SpectatorController::inputKey(Key key, Action action, uint mods)
     case KEY_RIGHT_SHIFT:
     {
       if (action == PRESSED)
-        turbo = true;
+        m_turbo = true;
       else if (action == RELEASED)
-        turbo = false;
+        m_turbo = false;
       break;
     }
 
@@ -627,9 +627,9 @@ void SpectatorController::inputMouseButton(MouseButton button,
   if (button == MOUSE_BUTTON_RIGHT)
   {
     if (action == PRESSED)
-      directions[UP] = true;
+      m_directions[UP] = true;
     else if (action == RELEASED)
-      directions[UP] = false;
+      m_directions[UP] = false;
   }
 }
 
@@ -638,48 +638,28 @@ void SpectatorController::inputCursorOffset(vec2 offset)
   const float scale = 1.f / 250.f;
   const float limit = half_pi<float>() - 0.01f;
 
-  setRotation(clamp(angleX - offset.y * scale, -limit, limit),
-              angleY - offset.x * scale);
-}
-
-const Transform3& SpectatorController::getTransform() const
-{
-  return transform;
-}
-
-float SpectatorController::getSpeed() const
-{
-  return speed;
+  setRotation(clamp(m_angleX - offset.y * scale, -limit, limit),
+              m_angleY - offset.x * scale);
 }
 
 void SpectatorController::setSpeed(float newSpeed)
 {
-  speed = newSpeed;
+  m_speed = newSpeed;
 }
 
 void SpectatorController::setPosition(vec3 newPosition)
 {
-  transform.position = newPosition;
-}
-
-float SpectatorController::getAngleX() const
-{
-  return angleX;
-}
-
-float SpectatorController::getAngleY() const
-{
-  return angleY;
+  m_transform.position = newPosition;
 }
 
 void SpectatorController::setRotation(float newAngleX, float newAngleY)
 {
-  angleX = newAngleX;
-  angleY = newAngleY;
+  m_angleX = newAngleX;
+  m_angleY = newAngleY;
 
-  const quat axisX = angleAxis(degrees(angleX), 1.f, 0.f, 0.f);
-  const quat axisY = angleAxis(degrees(angleY), 0.f, 1.f, 0.f);
-  transform.rotation = axisY * axisX;
+  const quat axisX = angleAxis(degrees(m_angleX), 1.f, 0.f, 0.f);
+  const quat axisY = angleAxis(degrees(m_angleY), 0.f, 1.f, 0.f);
+  m_transform.rotation = axisY * axisX;
 }
 
 ///////////////////////////////////////////////////////////////////////
