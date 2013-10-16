@@ -82,6 +82,14 @@ void EventHook::onWindowCloseRequest()
 {
 }
 
+void EventHook::onConnected(const Gamepad& gamepad)
+{
+}
+
+void EventHook::onDisconnected(const Gamepad& gamepad)
+{
+}
+
 bool EventHook::onKey(Key key, Action action, uint mods)
 {
   return false;
@@ -122,6 +130,14 @@ void EventTarget::onWindowDamage()
 }
 
 void EventTarget::onWindowCloseRequest()
+{
+}
+
+void EventTarget::onConnected(const Gamepad& gamepad)
+{
+}
+
+void EventTarget::onDisconnected(const Gamepad& gamepad)
 {
 }
 
@@ -198,6 +214,68 @@ WindowConfig::WindowConfig(const String& initTitle,
 
 ///////////////////////////////////////////////////////////////////////
 
+bool Gamepad::isButtonDown(uint button) const
+{
+  assert(button < m_buttons.size());
+  return m_buttons[button];
+}
+
+uint Gamepad::buttonCount() const
+{
+  return uint(m_buttons.size());
+}
+
+float Gamepad::axis(uint axis) const
+{
+  assert(axis < m_axes.size());
+  return m_axes[axis];
+}
+
+uint Gamepad::axisCount() const
+{
+  return uint(m_axes.size());
+}
+
+const char* Gamepad::name() const
+{
+  return glfwGetJoystickName(GLFW_JOYSTICK_1);
+}
+
+Gamepad::Gamepad()
+{
+  int count;
+
+  glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
+  m_buttons.resize(count);
+
+  glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+  m_axes.resize(count);
+}
+
+void Gamepad::update()
+{
+  int count;
+
+  const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
+  assert(count == m_buttons.size());
+
+  for (int i = 0;  i < count;  i++)
+    m_buttons[i] = buttons[i] ? true : false;
+
+  const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+  assert(count == m_axes.size());
+
+  for (int i = 0;  i < count;  i++)
+    m_axes[i] = axes[i];
+}
+
+bool Gamepad::present()
+{
+  return glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 Window::~Window()
 {
 }
@@ -205,6 +283,32 @@ Window::~Window()
 bool Window::update()
 {
   ProfileNodeCall call("Window::update");
+
+  if (Gamepad::present())
+  {
+    if (!m_gamepad)
+    {
+      m_gamepad = new Gamepad();
+
+      if (m_hook)
+        m_hook->onConnected(*m_gamepad);
+
+      if (m_target)
+        m_target->onConnected(*m_gamepad);
+    }
+
+    m_gamepad->update();
+  }
+  else
+  {
+    if (m_hook)
+      m_hook->onDisconnected(*m_gamepad);
+
+    if (m_target)
+      m_target->onDisconnected(*m_gamepad);
+
+    m_gamepad = nullptr;
+  }
 
   glfwSwapBuffers(m_handle);
   m_needsRefresh = false;

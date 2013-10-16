@@ -223,6 +223,27 @@ enum Action
 
 ///////////////////////////////////////////////////////////////////////
 
+/*! @brief Gamepad.
+ */
+class Gamepad
+{
+  friend class Window;
+public:
+  bool isButtonDown(uint button) const;
+  uint buttonCount() const;
+  float axis(uint axis) const;
+  uint axisCount() const;
+  const char* name() const;
+private:
+  Gamepad();
+  void update();
+  static bool present();
+  std::vector<bool> m_buttons;
+  std::vector<float> m_axes;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Input hook interface.
  *
  *  This is intended for hotkeys that should work regardless of which target
@@ -245,6 +266,12 @@ public:
   /*! Called when the window is requested to close.
    */
   virtual void onWindowCloseRequest();
+  /*! Called when a gamepad is connected.
+   */
+  virtual void onConnected(const Gamepad& gamepad);
+  /*! Called when a gamepad is disconnected.
+   */
+  virtual void onDisconnected(const Gamepad& gamepad);
   /*! Called when a key has been pressed or released.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -294,6 +321,12 @@ public:
   /*! Called when the window is requested to close.
    */
   virtual void onWindowCloseRequest();
+  /*! Called when a gamepad is connected.
+   */
+  virtual void onConnected(const Gamepad& gamepad);
+  /*! Called when a gamepad is disconnected.
+   */
+  virtual void onDisconnected(const Gamepad& gamepad);
   /*! Called when a key has been pressed or released.
    */
   virtual void onKey(Key key, Action action, uint mods);
@@ -456,6 +489,7 @@ public:
   void setHook(EventHook* newHook);
   EventTarget* target() const { return m_target; }
   void setTarget(EventTarget* newTarget);
+  const Gamepad* gamepad() const { return m_gamepad; }
   static std::vector<Resolution> resolutions();
 private:
   Window();
@@ -476,6 +510,7 @@ private:
   EventHook* m_hook;
   EventTarget* m_target;
   Signal0<void> m_frameSignal;
+  Ptr<Gamepad> m_gamepad;
 };
 
 ///////////////////////////////////////////////////////////////////////
