@@ -215,6 +215,9 @@ public:
   /*! Destructor.
    */
   ~AudioContext();
+  /*! Makes this context current on the calling thread.
+   */
+  void makeCurrent();
   /*! @return The position of the context listener.
    */
   const vec3& listenerPosition() const { return m_listenerPosition; }
@@ -253,6 +256,9 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   static AudioContext* create(ResourceCache& cache);
+  /*! Clears any context current on the calling thread.
+   */
+  static void clearCurrentContext();
 private:
   AudioContext(ResourceCache& cache);
   AudioContext(const AudioContext&) = delete;

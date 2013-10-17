@@ -416,6 +416,12 @@ AudioContext::~AudioContext()
     alcCloseDevice((ALCdevice*) m_device);
 }
 
+void AudioContext::makeCurrent()
+{
+  if (!alcMakeContextCurrent((ALCcontext*) m_handle))
+    checkALC("Failed to make OpenAL context current");
+}
+
 void AudioContext::setListenerPosition(const vec3& newPosition)
 {
   if (m_listenerPosition != newPosition)
@@ -481,6 +487,11 @@ AudioContext* AudioContext::create(ResourceCache& cache)
     return nullptr;
 
   return context.detachObject();
+}
+
+void AudioContext::clearCurrentContext()
+{
+  alcMakeContextCurrent(nullptr);
 }
 
 AudioContext::AudioContext(ResourceCache& cache):
