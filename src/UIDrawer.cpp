@@ -111,7 +111,7 @@ ThemeReader::ThemeReader(render::VertexPool& initPool):
 
 Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.asString().c_str());
+  std::ifstream stream(path.name().c_str());
   if (stream.fail())
   {
     logError("Failed to open animation %s", name.c_str());

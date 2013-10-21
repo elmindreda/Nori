@@ -68,17 +68,17 @@ void Preprocessor::parse(const char* name)
     throw Exception("Failed to find shader file");
   }
 
-  std::ifstream stream(path.asString().c_str());
+  std::ifstream stream(path.name().c_str());
   if (stream.fail())
   {
     if (files.empty())
-      logError("Failed to open shader file %s", path.asString().c_str());
+      logError("Failed to open shader file %s", path.name().c_str());
     else
     {
       logError("%s:%u: Failed to open shader file %s",
                files.back().name,
                files.back().line,
-               path.asString().c_str());
+               path.name().c_str());
     }
 
     throw Exception("Failed to open shader file");

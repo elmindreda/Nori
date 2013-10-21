@@ -196,10 +196,10 @@ FaceReader::FaceReader(ResourceCache& cache):
 
 Ref<Face> FaceReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.asString().c_str());
+  std::ifstream stream(path.name().c_str());
   if (stream.fail())
   {
-    logError("Failed to open face file %s", path.asString().c_str());
+    logError("Failed to open face file %s", path.name().c_str());
     return nullptr;
   }
 

@@ -64,7 +64,7 @@ public:
   bool exists() const;
   /*! @return This path represented as a string.
    */
-  const String& asString() const { return m_string; }
+  const String& name() const { return m_string; }
   /*! Append operator. Creates a path with this path as the directory part and
    *  the specified name as the leaf (file or directory) name.
    *  @param[in] child The desired leaf name.

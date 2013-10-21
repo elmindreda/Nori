@@ -403,10 +403,10 @@ ImageReader::ImageReader(ResourceCache& cache):
 
 Ref<Image> ImageReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.asString().c_str(), std::ios::in | std::ios::binary);
+  std::ifstream stream(path.name().c_str(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
-    logError("Failed to open image file %s", path.asString().c_str());
+    logError("Failed to open image file %s", path.name().c_str());
     return nullptr;
   }
 
@@ -513,10 +513,10 @@ bool ImageWriter::write(const Path& path, const Image& image)
     return false;
   }
 
-  std::ofstream stream(path.asString().c_str());
+  std::ofstream stream(path.name().c_str());
   if (!stream.is_open())
   {
-    logError("Failed to create image file %s", path.asString().c_str());
+    logError("Failed to create image file %s", path.name().c_str());
     return false;
   }
 
@@ -527,7 +527,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   if (!context)
   {
     logError("Failed to create PNG write struct for image file %s",
-             path.asString().c_str());
+             path.name().c_str());
     return false;
   }
 
@@ -539,7 +539,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
   {
     png_destroy_write_struct(&context, png_infopp(nullptr));
     logError("Failed to create PNG info struct for image file %s",
-             path.asString().c_str());
+             path.name().c_str());
     return false;
   }
 

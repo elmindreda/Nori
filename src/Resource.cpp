@@ -96,7 +96,7 @@ bool ResourceCache::addSearchPath(const Path& path)
   if (!path.isDirectory())
   {
     logError("Resource search path %s does not exist",
-             path.asString().c_str());
+             path.name().c_str());
     return false;
   }
 

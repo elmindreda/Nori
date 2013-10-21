@@ -94,11 +94,11 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   int result;
   OggVorbis_File file;
 
-  result = ov_fopen(path.asString().c_str(), &file);
+  result = ov_fopen(path.name().c_str(), &file);
   if (result)
   {
     logError("Failed to open audio file %s: %s",
-             path.asString().c_str(),
+             path.name().c_str(),
              getErrorString(result));
     return nullptr;
   }
@@ -107,7 +107,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   {
     ov_clear(&file);
     logError("Audio file %s has an unsupported number of bitstreams",
-             path.asString().c_str());
+             path.name().c_str());
     return nullptr;
   }
 
@@ -116,7 +116,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   {
     ov_clear(&file);
     logError("Failed to retrieve Vorbis info for audio file %s",
-             path.asString().c_str());
+             path.name().c_str());
     return nullptr;
   }
 
@@ -124,7 +124,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
   {
     ov_clear(&file);
     logError("Audio file %s has an unsupported number of channels",
-             path.asString().c_str());
+             path.name().c_str());
     return nullptr;
   }
 
@@ -154,7 +154,7 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
     {
       ov_clear(&file);
       logError("Error when reading audio file %s: %s",
-              path.asString().c_str(),
+              path.name().c_str(),
               getErrorString(result));
       return nullptr;
     }

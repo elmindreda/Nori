@@ -272,7 +272,7 @@ bool VM::execute(const char* name)
     return false;
   }
 
-  std::ifstream stream(path.asString().c_str());
+  std::ifstream stream(path.name().c_str());
   if (stream.fail())
   {
     logError("Failed to open script %s", name);

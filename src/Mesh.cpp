@@ -398,7 +398,7 @@ MeshReader::MeshReader(ResourceCache& index):
 
 Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.asString().c_str(), std::ios::in | std::ios::binary);
+  std::ifstream stream(path.name().c_str(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
     logError("Failed to open mesh %s", name.c_str());
@@ -650,11 +650,10 @@ bool MeshReader::interesting(const char** text)
 
 bool MeshWriter::write(const Path& path, const Mesh& mesh)
 {
-  std::ofstream stream(path.asString().c_str());
+  std::ofstream stream(path.name().c_str());
   if (!stream.is_open())
   {
-    logError("Failed to open %s for writing",
-             path.asString().c_str());
+    logError("Failed to open %s for writing", path.name().c_str());
     return false;
   }
 
