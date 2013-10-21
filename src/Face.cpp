@@ -196,7 +196,7 @@ FaceReader::FaceReader(ResourceCache& cache):
 
 Ref<Face> FaceReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.name().c_str());
+  std::ifstream stream(path.name().c_str(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
     logError("Failed to open face file %s", path.name().c_str());
@@ -206,7 +206,7 @@ Ref<Face> FaceReader::read(const String& name, const Path& path)
   std::vector<char> data;
 
   stream.seekg(0, std::ios::end);
-  data.resize(uint(stream.tellg()));
+  data.resize((size_t) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
   stream.read(&data[0], data.size());
