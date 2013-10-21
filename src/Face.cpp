@@ -179,7 +179,10 @@ bool Face::init(const char* data, size_t size)
   m_info = new stbtt_fontinfo;
 
   if (!stbtt_InitFont(m_info, (unsigned char*) &m_data[0], 0))
+  {
+    logError("Failed to parse TrueType face file");
     return false;
+  }
 
   return true;
 }
