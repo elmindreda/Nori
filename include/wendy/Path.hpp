@@ -123,7 +123,7 @@ public:
   String suffix() const;
   /*! @return The name part of the filename, without the directory or suffix parts.
    */
-  String name() const;
+  String leaf() const;
 private:
   String m_string;
 };

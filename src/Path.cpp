@@ -314,7 +314,7 @@ String Path::suffix() const
   return last.substr(offset + 1, String::npos);
 }
 
-String Path::name() const
+String Path::leaf() const
 {
   String::size_type start = m_string.find_last_of('/');
   String::size_type end = m_string.find_last_of('.');
