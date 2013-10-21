@@ -43,9 +43,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+Face::~Face()
+{
+  if (m_info)
+    delete m_info;
+}
+
 float Face::scale(uint height) const
 {
-  return stbtt_ScaleForPixelHeight(m_info, height);
+  return stbtt_ScaleForPixelHeight(m_info, float(height));
 }
 
 float Face::ascender(float scale) const
@@ -113,7 +119,7 @@ float Face::width(int index, float scale) const
   int left, top, right, bottom;
   stbtt_GetGlyphBitmapBox(m_info, index, scale, scale,
                           &left, &top, &right, &bottom);
-  return right - left + 1;
+  return float(right - left + 1);
 }
 
 float Face::height(int index, float scale) const
@@ -121,7 +127,7 @@ float Face::height(int index, float scale) const
   int left, top, right, bottom;
   stbtt_GetGlyphBitmapBox(m_info, index, scale, scale,
                           &left, &top, &right, &bottom);
-  return bottom - top + 1;
+  return float(bottom - top + 1);
 }
 
 Ref<Image> Face::glyph(int index, float scale) const
@@ -162,7 +168,8 @@ Ref<Face> Face::read(ResourceCache& cache, const String& name)
 }
 
 Face::Face(const ResourceInfo& info):
-  Resource(info)
+  Resource(info),
+  m_info(nullptr)
 {
 }
 
@@ -196,7 +203,7 @@ Ref<Face> FaceReader::read(const String& name, const Path& path)
   std::vector<char> data;
 
   stream.seekg(0, std::ios::end);
-  data.resize(stream.tellg());
+  data.resize(uint(stream.tellg()));
 
   stream.seekg(0, std::ios::beg);
   stream.read(&data[0], data.size());

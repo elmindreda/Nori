@@ -357,7 +357,7 @@ bool Window::isCursorCaptured() const
 
 bool Window::shouldClose() const
 {
-  return glfwWindowShouldClose(m_handle);
+  return glfwWindowShouldClose(m_handle) ? true : false;
 }
 
 void Window::setShouldClose(bool newValue)

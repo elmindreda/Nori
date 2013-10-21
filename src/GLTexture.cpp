@@ -603,7 +603,10 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   m_type = params.type;
   m_format = data.format;
 
-  if (!convertToGL(m_format, params.flags & TF_SRGB))
+  const bool sRGB = (params.flags & TF_SRGB) ? true : false;
+  const bool mipmapped = (params.flags & TF_MIPMAPPED) ? true : false;
+
+  if (!convertToGL(m_format, sRGB))
   {
     logError("Source image for texture %s has unsupported pixel format %s",
              name().c_str(),
@@ -676,7 +679,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage1D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(m_format, params.flags & TF_SRGB),
+                 convertToGL(m_format, sRGB),
                  width,
                  0,
                  convertToGL(m_format.semantic()),
@@ -687,7 +690,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage3D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(m_format, params.flags & TF_SRGB),
+                 convertToGL(m_format, sRGB),
                  width,
                  height,
                  depth,
@@ -700,7 +703,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage2D(convertToProxyGL(m_type),
                  0,
-                 convertToGL(m_format, params.flags & TF_SRGB),
+                 convertToGL(m_format, sRGB),
                  width,
                  height,
                  0,
@@ -734,7 +737,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage1D(convertToGL(m_type),
                  0,
-                 convertToGL(m_format, params.flags & TF_SRGB),
+                 convertToGL(m_format, sRGB),
                  width,
                  0,
                  convertToGL(m_format.semantic()),
@@ -745,7 +748,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage3D(convertToGL(m_type),
                  0,
-                 convertToGL(m_format, params.flags & TF_SRGB),
+                 convertToGL(m_format, sRGB),
                  width, height, depth,
                  0,
                  convertToGL(m_format.semantic()),
@@ -772,7 +775,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
-                   convertToGL(m_format, params.flags & TF_SRGB),
+                   convertToGL(m_format, sRGB),
                    width, height,
                    0,
                    convertToGL(m_format.semantic()),
@@ -787,7 +790,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   {
     glTexImage2D(convertToGL(m_type),
                  0,
-                 convertToGL(m_format, params.flags & TF_SRGB),
+                 convertToGL(m_format, sRGB),
                  width, height,
                  0,
                  convertToGL(m_format.semantic()),

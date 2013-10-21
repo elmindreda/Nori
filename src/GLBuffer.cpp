@@ -816,7 +816,7 @@ uint DefaultFramebuffer::width() const
 
 uint DefaultFramebuffer::height() const
 {
-  context().window().height();
+  return context().window().height();
 }
 
 ///////////////////////////////////////////////////////////////////////

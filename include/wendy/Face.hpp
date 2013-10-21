@@ -40,6 +40,7 @@ namespace wendy
 class Face : public Resource, public RefObject
 {
 public:
+  ~Face();
   float scale(uint height) const;
   float ascender(float scale) const;
   float descender(float scale) const;
@@ -61,7 +62,7 @@ private:
   bool init(const char* data, size_t size);
   Face& operator = (const Face&) = delete;
   std::vector<char> m_data;
-  Ptr<stbtt_fontinfo> m_info;
+  stbtt_fontinfo* m_info;
 };
 
 ///////////////////////////////////////////////////////////////////////
