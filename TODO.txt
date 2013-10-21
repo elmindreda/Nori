@@ -6,37 +6,25 @@ Global
 Core
 ====
 
-Add file change notifications [Pod]
-Add explicit resource hierarchy [Pod]
-Add automatic resource reloading [Pod]
-Add resource layers or master resource stack [Pod]
-
-Replace Mesh with more flexible, DoD-friendly structures [opt]
-Add binary mesh format (possibly using OpenCTM) [opt]
-
-Add console module from Pod [Pod]
+Add resource reloading [Pod]
 
 Make frustum-AABB intersection test less conservative [Pod]
 
 
-OpenAL
-======
+Audio
+=====
 
-Add streaming of audio files [pod]
+Add streaming of audio files [Pod]
 
 
-OpenGL
+Render
 ======
 
 Separate formats from vertex and index buffer [Pod]
 Add binding objects connecting a VAO with a program using a vertex format [Mac]
+
 Remove last string compares in render code [opt]
-
 Add value cache to Uniform and Sampler [opt]
-
-
-Renderer
-========
 
 Add procedural generation of texture contents using fragment shader [Pod]
 
@@ -49,15 +37,18 @@ Add forward renderer lighting system [Pod]
 Scene
 =====
 
-Add list of non-culled renderables to Scene [Pod]
+Add list of elements (non-culled renderables) to Scene [Pod]
 
-Add root nodes with ivec3 coordinates scaled by per-scene vec3 [Pod]
+Replace generic hierarchy with entities and skeletons [Pod]
+Make entity positions integer with per-scene scale [Pod]
+
+Replace node bounds tracking with manual setting [opt]
 
 
 Squirrel
 ========
 
-Add parameter checking
+Add parameter type mask generation
 Add collection iteration [Pod]
 
 
@@ -65,6 +56,7 @@ Input
 =====
 
 Add selection to TextController
+Add clipboard support to TextController
 
 
 UI
@@ -74,6 +66,8 @@ Add check button widget [Pod]
 Add color picker widget [Pod]
 
 Add tooltip system [Pod]
+
+Replace self-signals with virtual methods
 
 
 Bullet
@@ -87,6 +81,7 @@ Debug
 
 Add graphs to stats items [Pod]
 Add drawing of profiling graph [Pod]
+Add support for custom debug bar entries [Pod]
 
 
 Tools
