@@ -88,7 +88,12 @@ Resource& Resource::operator = (const Resource& source)
 ResourceCache::~ResourceCache()
 {
   if (!m_resources.empty())
+  {
+    for (auto r : m_resources)
+      logError("Resource %s not destroyed", r->name().c_str());
+
     panic("Resource cache destroyed with attached resources");
+  }
 }
 
 bool ResourceCache::addSearchPath(const Path& path)
