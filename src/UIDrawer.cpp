@@ -289,43 +289,6 @@ void Drawer::drawLine(const Segment2& segment, const vec4& color)
   m_context.render(GL::PrimitiveRange(GL::LINE_LIST, range));
 }
 
-void Drawer::drawTriangle(const Triangle2& triangle, const vec4& color)
-{
-  Vertex2fv vertices[3];
-  vertices[0].position = triangle.P[0];
-  vertices[1].position = triangle.P[1];
-  vertices[2].position = triangle.P[2];
-
-  GL::VertexRange range = m_pool->allocate(3, Vertex2fv::format);
-  if (range.isEmpty())
-    return;
-
-  range.copyFrom(vertices);
-  setDrawingState(color, true);
-  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
-}
-
-void Drawer::drawBezier(const BezierCurve2& spline, const vec4& color)
-{
-  BezierCurve2::PointList points;
-  spline.tessellate(points);
-
-  GL::VertexRange range = m_pool->allocate(points.size(), Vertex2fv::format);
-  if (range.isEmpty())
-    return;
-
-  // Realize vertices
-  {
-    GL::VertexRangeLock<Vertex2fv> vertices(range);
-
-    for (uint i = 0;  i < points.size();  i++)
-      vertices[i].position = points[i];
-  }
-
-  setDrawingState(color, true);
-  m_context.render(GL::PrimitiveRange(GL::LINE_STRIP, range));
-}
-
 void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
 {
   float minX, minY, maxX, maxY;
@@ -347,22 +310,6 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   range.copyFrom(vertices);
   setDrawingState(color, true);
   m_context.render(GL::PrimitiveRange(GL::LINE_LOOP, range));
-}
-
-void Drawer::fillTriangle(const Triangle2& triangle, const vec4& color)
-{
-  Vertex2fv vertices[3];
-  vertices[0].position = triangle.P[0];
-  vertices[1].position = triangle.P[1];
-  vertices[2].position = triangle.P[2];
-
-  GL::VertexRange range = m_pool->allocate(3, Vertex2fv::format);
-  if (range.isEmpty())
-    return;
-
-  range.copyFrom(vertices);
-  setDrawingState(color, false);
-  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
 }
 
 void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)

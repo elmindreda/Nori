@@ -27,9 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.hpp>
-#include <wendy/Bezier.hpp>
 #include <wendy/Segment.hpp>
-#include <wendy/Triangle.hpp>
 
 #include <wendy/GLTexture.hpp>
 #include <wendy/GLBuffer.hpp>
@@ -177,11 +175,8 @@ public:
   void popClipArea();
   void drawPoint(const vec2& point, const vec4& color);
   void drawLine(const Segment2& segment, const vec4& color);
-  void drawTriangle(const Triangle2& triangle, const vec4& color);
-  void drawBezier(const BezierCurve2& spline, const vec4& color);
   void drawRectangle(const Rect& rectangle, const vec4& color);
   void fillRectangle(const Rect& rectangle, const vec4& color);
-  void fillTriangle(const Triangle2& triangle, const vec4& color);
   void blitTexture(const Rect& area, GL::Texture& texture);
   void drawText(const Rect& area,
                 const char* text,

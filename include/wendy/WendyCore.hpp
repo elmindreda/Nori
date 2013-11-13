@@ -37,16 +37,13 @@
 #include <wendy/Transform.hpp>
 
 #include <wendy/AABB.hpp>
-#include <wendy/OBB.hpp>
 #include <wendy/Segment.hpp>
 #include <wendy/Rect.hpp>
 #include <wendy/Plane.hpp>
 #include <wendy/Ray.hpp>
 #include <wendy/Sphere.hpp>
-#include <wendy/Triangle.hpp>
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
-#include <wendy/Bezier.hpp>
 
 #include <wendy/Pattern.hpp>
 #include <wendy/Pixel.hpp>
