@@ -384,6 +384,12 @@ bool Host::update(Time timeout)
         enet_packet_destroy(event.packet);
         break;
       }
+
+      case ENET_EVENT_TYPE_NONE:
+      {
+        // This removes a useless warning by Clang
+        break;
+      }
     }
   }
 
