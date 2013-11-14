@@ -110,13 +110,12 @@ void Entry::draw() const
       const Rect bounds = font.boundsOf(text.substr(0, m_controller.caretPosition()).c_str());
       position = bounds.size.x;
 
-      Segment2 segment;
-      segment.start = vec2(textArea.position.x + position,
-                           textArea.position.y);
-      segment.end = vec2(textArea.position.x + position,
-                         textArea.position.y + textArea.size.y);
+      const vec2 start = vec2(textArea.position.x + position,
+                              textArea.position.y);
+      const vec2 end = vec2(textArea.position.x + position,
+                            textArea.position.y + textArea.size.y);
 
-      drawer.drawLine(segment, vec4(drawer.theme().caretColors[state()], 1.f));
+      drawer.drawLine(start, end, vec4(drawer.theme().caretColors[state()], 1.f));
     }
 
     Widget::draw();

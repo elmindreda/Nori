@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy core library
-// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2013 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,12 +22,96 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_AABB_HPP
-#define WENDY_AABB_HPP
+#ifndef WENDY_PRIMITIVE_HPP
+#define WENDY_PRIMITIVE_HPP
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
+
+///////////////////////////////////////////////////////////////////////
+
+class Transform3;
+class Sphere;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! Simple 3D ray.
+ */
+class Ray3
+{
+public:
+  /*! Default constructor.
+   */
+  Ray3() { }
+  /*! Constructor.
+   *  @param[in] origin The initial origin.
+   *  @param[in] direction The initial direction.
+   */
+  Ray3(const vec3& origin, const vec3& direction);
+  /*! Transforms this ray by the specified transform.
+   *  @param[in] transform The transform to use.
+   */
+  void transformBy(const Transform3& transform);
+  /*! Sets the values of this ray.
+   *  @param[in] newOrigin The desired origin.
+   *  @param[in] newDirection The desired direction.
+   */
+  void set(const vec3& newOrigin, const vec3& newDirection);
+  /*! The origin of this ray.
+   */
+  vec3 origin;
+  /*! The direction of this ray.
+   */
+  vec3 direction;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Plane
+{
+public:
+  Plane():
+    normal(0.f, 1.f, 0.f),
+    distance(0.f)
+  {
+  }
+  Plane(vec3 normal, float distance);
+  Plane(const vec3& P0, const vec3& P1, const vec3& P2);
+  void transformBy(const Transform3& transform);
+  bool contains(vec3 point) const;
+  bool contains(const Sphere& sphere) const;
+  bool intersects(const Ray3& ray, float& distance) const;
+  bool intersects(const Ray3& ray, float& distance, vec3& normal, bool& inside) const;
+  void set(vec3 newPosition, float newDistance);
+  void set(const vec3& P0, const vec3& P1, const vec3& P2);
+  vec3 normal;
+  float distance;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+class Sphere
+{
+public:
+  Sphere():
+    center(0.f),
+    radius(0.f)
+  {
+  }
+  Sphere(vec3 center, float radius);
+  void transformBy(const Transform3& transform);
+  bool contains(vec3 point) const;
+  bool contains(const Sphere& sphere) const;
+  bool intersects(const Sphere& sphere) const;
+  bool intersects(const Plane& plane, float& distance) const;
+  bool intersects(const Ray3& ray, float& distance) const;
+  void envelop(vec3 point);
+  void envelop(const Sphere& sphere);
+  void set(vec3 newCenter, float newRadius);
+  vec3 center;
+  float radius;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -45,7 +129,7 @@ public:
    *  @param[in] center The center of the newly constructed bounding box.
    *  @param[in] size The size of the newly constructed bounding box.
    */
-  AABB(const vec3& center, const vec3& size);
+  AABB(vec3 center, vec3 size);
   /*! Constructor.
    *  @param[in] width The width of the newly constructed bounding box.
    *  @param[in] height The height of the newly constructed bounding box.
@@ -56,7 +140,7 @@ public:
   AABB(float width, float height, float depth);
   /*! Checks whether this bounding box contains the specified point.
    */
-  bool contains(const vec3& point) const;
+  bool contains(vec3 point) const;
   /*! Checks whether this bounding box contains the specified bounding box.
    */
   bool contains(const AABB& other) const;
@@ -65,7 +149,7 @@ public:
   bool intersects(const AABB& other) const;
   /*! Expands this bounding box so as to contain the specified point.
    */
-  void envelop(const vec3& point);
+  void envelop(vec3 point);
   /*! Expands this bounding box so as to contain the specified bounding box.
    */
   void envelop(const AABB& other);
@@ -82,7 +166,7 @@ public:
                  float maxX, float maxY, float maxZ);
   /*! Sets the position and size of this bounding box.
    */
-  void set(const vec3& newCenter, const vec3& newSize);
+  void set(vec3 newCenter, vec3 newSize);
   /*! Sets the size of this bounding box.
    */
   void set(float newWidth, float newHeight, float newDepth);
@@ -99,5 +183,5 @@ public:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_AABB_HPP*/
+#endif /*WENDY_PRIMITIVE_HPP*/
 ///////////////////////////////////////////////////////////////////////

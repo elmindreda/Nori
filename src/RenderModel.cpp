@@ -27,8 +27,7 @@
 
 #include <wendy/Core.hpp>
 #include <wendy/Transform.hpp>
-#include <wendy/AABB.hpp>
-#include <wendy/Plane.hpp>
+#include <wendy/Primitive.hpp>
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 

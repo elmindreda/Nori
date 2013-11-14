@@ -27,7 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.hpp>
-#include <wendy/Sphere.hpp>
+#include <wendy/Primitive.hpp>
 #include <wendy/Mesh.hpp>
 
 #include <map>

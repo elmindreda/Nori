@@ -130,11 +130,11 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = m_layer.drawer();
 
-  Segment2 segment;
-  segment.start = vec2(area.position.x, area.position.y + area.size.y / 2.f);
-  segment.end = vec2(area.position.x + area.size.x, area.position.y + area.size.y / 2.f);
+  const vec2 start(area.position.x, area.position.y + area.size.y / 2.f);
+  const vec2 end(area.position.x + area.size.x,
+                 area.position.y + area.size.y / 2.f);
 
-  drawer.drawLine(segment, vec4(vec3(0.f), 1.f));
+  drawer.drawLine(start, end, vec4(vec3(0.f), 1.f));
 }
 
 ///////////////////////////////////////////////////////////////////////

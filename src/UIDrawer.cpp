@@ -274,11 +274,11 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   m_context.render(GL::PrimitiveRange(GL::POINT_LIST, range));
 }
 
-void Drawer::drawLine(const Segment2& segment, const vec4& color)
+void Drawer::drawLine(vec2 start, vec2 end, const vec4& color)
 {
   Vertex2fv vertices[2];
-  vertices[0].position = segment.start;
-  vertices[1].position = segment.end;
+  vertices[0].position = start;
+  vertices[1].position = end;
 
   GL::VertexRange range = m_pool->allocate(2, Vertex2fv::format);
   if (range.isEmpty())

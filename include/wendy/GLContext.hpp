@@ -28,7 +28,6 @@
 
 #include <wendy/Core.hpp>
 #include <wendy/Rect.hpp>
-#include <wendy/AABB.hpp>
 #include <wendy/Pixel.hpp>
 #include <wendy/Signal.hpp>
 #include <wendy/Timer.hpp>

@@ -26,10 +26,9 @@
 #include <wendy/Config.hpp>
 
 #include <wendy/Core.hpp>
-#include <wendy/AABB.hpp>
-#include <wendy/Sphere.hpp>
 #include <wendy/Path.hpp>
 #include <wendy/Resource.hpp>
+#include <wendy/Primitive.hpp>
 #include <wendy/Mesh.hpp>
 
 #include <limits>

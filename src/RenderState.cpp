@@ -25,6 +25,9 @@
 
 #include <wendy/Config.hpp>
 
+#include <wendy/Core.hpp>
+#include <wendy/Primitive.hpp>
+
 #include <wendy/RenderState.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>

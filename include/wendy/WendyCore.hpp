@@ -36,12 +36,8 @@
 
 #include <wendy/Transform.hpp>
 
-#include <wendy/AABB.hpp>
-#include <wendy/Segment.hpp>
 #include <wendy/Rect.hpp>
-#include <wendy/Plane.hpp>
-#include <wendy/Ray.hpp>
-#include <wendy/Sphere.hpp>
+#include <wendy/Primitive.hpp>
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
