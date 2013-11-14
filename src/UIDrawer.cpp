@@ -521,7 +521,7 @@ bool Drawer::init()
     if (!m_vertexBuffer)
       return false;
 
-    ElementVertex* vertices = (ElementVertex*) m_vertexBuffer->lock();
+    ElementVertex vertices[16];
 
     // These are scaling factors used when rendering UI widget elements
     //
@@ -558,13 +558,14 @@ bool Drawer::init()
     vertices[0xe].set(vec2(1.f, 1.f), vec2(-0.5f,   0.f), vec2(0.5f,  1.f));
     vertices[0xf].set(vec2(1.f, 1.f), vec2(  0.f,   0.f), vec2( 1.f,  1.f));
 
-    m_vertexBuffer->unlock();
+    m_vertexBuffer->copyFrom(vertices, 16);
 
     m_indexBuffer = GL::IndexBuffer::create(m_context, 54, GL::INDEX_UINT8, GL::USAGE_STATIC);
     if (!m_indexBuffer)
       return false;
 
-    uint8* indices = (uint8*) m_indexBuffer->lock();
+    uint8 indices[54];
+    size_t index = 0;
 
     // This is a perfectly normal indexed triangle list using the vertices above
 
@@ -572,17 +573,17 @@ bool Drawer::init()
     {
       for (int x = 0;  x < 3;  x++)
       {
-        *indices++ = x + y * 4;
-        *indices++ = (x + 1) + (y + 1) * 4;
-        *indices++ = x + (y + 1) * 4;
+        indices[index++] = x + y * 4;
+        indices[index++] = (x + 1) + (y + 1) * 4;
+        indices[index++] = x + (y + 1) * 4;
 
-        *indices++ = x + y * 4;
-        *indices++ = (x + 1) + y * 4;
-        *indices++ = (x + 1) + (y + 1) * 4;
+        indices[index++] = x + y * 4;
+        indices[index++] = (x + 1) + y * 4;
+        indices[index++] = (x + 1) + (y + 1) * 4;
       }
     }
 
-    m_indexBuffer->unlock();
+    m_indexBuffer->copyFrom(indices, 54);
 
     m_range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
                                  *m_vertexBuffer,

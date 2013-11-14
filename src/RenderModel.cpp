@@ -179,9 +179,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
     if (indexType == GL::INDEX_UINT8)
     {
-      GL::IndexRangeLock<uint8> indices(range);
-      if (!indices)
-        return false;
+      std::vector<uint8> indices(range.count());
 
       size_t index = 0;
 
@@ -191,12 +189,12 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
         indices[index++] = t.indices[1];
         indices[index++] = t.indices[2];
       }
+
+      range.copyFrom(&indices[0]);
     }
     else if (indexType == GL::INDEX_UINT16)
     {
-      GL::IndexRangeLock<uint16> indices(range);
-      if (!indices)
-        return false;
+      std::vector<uint16> indices(range.count());
 
       size_t index = 0;
 
@@ -206,12 +204,12 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
         indices[index++] = t.indices[1];
         indices[index++] = t.indices[2];
       }
+
+      range.copyFrom(&indices[0]);
     }
     else
     {
-      GL::IndexRangeLock<uint32> indices(range);
-      if (!indices)
-        return false;
+      std::vector<uint32> indices(range.count());
 
       size_t index = 0;
 
@@ -221,6 +219,8 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
         indices[index++] = t.indices[1];
         indices[index++] = t.indices[2];
       }
+
+      range.copyFrom(&indices[0]);
     }
 
     start += count;

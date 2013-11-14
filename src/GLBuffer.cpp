@@ -49,21 +49,6 @@ namespace wendy
 namespace
 {
 
-GLenum convertToGL(BufferLockType type)
-{
-  switch (type)
-  {
-    case LOCK_READ_ONLY:
-      return GL_READ_ONLY;
-    case LOCK_WRITE_ONLY:
-      return GL_WRITE_ONLY;
-    case LOCK_READ_WRITE:
-      return GL_READ_WRITE;
-  }
-
-  panic("Invalid lock type %u", type);
-}
-
 GLenum convertToGL(BufferUsage usage)
 {
   switch (usage)
@@ -137,51 +122,11 @@ bool isColorAttachment(TextureFramebuffer::Attachment attachment)
 
 VertexBuffer::~VertexBuffer()
 {
-  if (m_locked)
-    logWarning("Vertex buffer destroyed while locked");
-
   if (m_bufferID)
     glDeleteBuffers(1, &m_bufferID);
 
   if (Stats* stats = m_context.stats())
     stats->removeVertexBuffer(size());
-}
-
-void* VertexBuffer::lock(BufferLockType type)
-{
-  if (m_locked)
-  {
-    logError("Vertex buffer already locked");
-    return nullptr;
-  }
-
-  m_context.setCurrentVertexBuffer(this);
-
-  void* mapping = glMapBuffer(GL_ARRAY_BUFFER, convertToGL(type));
-  if (mapping == nullptr)
-  {
-    checkGL("Failed to lock vertex buffer");
-    return nullptr;
-  }
-
-  m_locked = true;
-  return mapping;
-}
-
-void VertexBuffer::unlock()
-{
-  if (!m_locked)
-  {
-    logWarning("Cannot unlock non-locked vertex buffer");
-    return;
-  }
-
-  m_context.setCurrentVertexBuffer(this);
-
-  if (!glUnmapBuffer(GL_ARRAY_BUFFER))
-    logWarning("Data for vertex buffer was corrupted");
-
-  m_locked = false;
 }
 
 void VertexBuffer::discard()
@@ -200,12 +145,6 @@ void VertexBuffer::discard()
 
 void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
-  if (m_locked)
-  {
-    logError("Cannot copy data into locked vertex buffer");
-    return;
-  }
-
   if (start + sourceCount > m_count)
   {
     logError("Too many vertices submitted to vertex buffer");
@@ -224,12 +163,6 @@ void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start
 
 void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 {
-  if (m_locked)
-  {
-    logError("Cannot copy data from locked vertex buffer");
-    return;
-  }
-
   if (start + targetCount > m_count)
   {
     logError("Too many vertices requested from vertex buffer");
@@ -260,7 +193,6 @@ Ref<VertexBuffer> VertexBuffer::create(Context& context,
 
 VertexBuffer::VertexBuffer(Context& context):
   m_context(context),
-  m_locked(false),
   m_bufferID(0),
   m_count(0),
   m_usage(USAGE_STATIC)
@@ -299,9 +231,6 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, BufferUsage us
 
 IndexBuffer::~IndexBuffer()
 {
-  if (m_locked)
-    logWarning("Index buffer destroyed while locked");
-
   if (m_bufferID)
     glDeleteBuffers(1, &m_bufferID);
 
@@ -309,51 +238,8 @@ IndexBuffer::~IndexBuffer()
     stats->removeIndexBuffer(size());
 }
 
-void* IndexBuffer::lock(BufferLockType type)
-{
-  if (m_locked)
-  {
-    logError("Index buffer already locked");
-    return nullptr;
-  }
-
-  m_context.setCurrentIndexBuffer(this);
-
-  void* mapping = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, convertToGL(type));
-  if (mapping == nullptr)
-  {
-    checkGL("Failed to lock index buffer");
-    return nullptr;
-  }
-
-  m_locked = true;
-  return mapping;
-}
-
-void IndexBuffer::unlock()
-{
-  if (!m_locked)
-  {
-    logWarning("Cannot unlock non-locked index buffer");
-    return;
-  }
-
-  m_context.setCurrentIndexBuffer(this);
-
-  if (!glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER))
-    logWarning("Data for index buffer was corrupted");
-
-  m_locked = false;
-}
-
 void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 {
-  if (m_locked)
-  {
-    logError("Cannot copy data into locked index buffer");
-    return;
-  }
-
   if (start + sourceCount > m_count)
   {
     logError("Too many indices submitted to index buffer");
@@ -372,12 +258,6 @@ void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
 
 void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 {
-  if (m_locked)
-  {
-    logError("Cannot copy data from locked index buffer");
-    return;
-  }
-
   if (start + targetCount > m_count)
   {
     logError("Too many indices requested from index buffer");
@@ -428,7 +308,6 @@ size_t IndexBuffer::typeSize(IndexBufferType type)
 
 IndexBuffer::IndexBuffer(Context& context):
   m_context(context),
-  m_locked(false),
   m_type(INDEX_UINT8),
   m_usage(USAGE_STATIC),
   m_bufferID(0),
@@ -491,32 +370,6 @@ VertexRange::VertexRange(VertexBuffer& vertexBuffer,
   assert(m_buffer->count() >= m_start + m_count);
 }
 
-void* VertexRange::lock(BufferLockType type) const
-{
-  if (!m_buffer || m_count == 0)
-  {
-    logError("Cannot lock empty vertex buffer range");
-    return nullptr;
-  }
-
-  uint8* vertices = (uint8*) m_buffer->lock(type);
-  if (!vertices)
-    return nullptr;
-
-  return vertices + m_start * m_buffer->format().size();
-}
-
-void VertexRange::unlock() const
-{
-  if (!m_buffer)
-  {
-    logError("Cannot unlock non-locked vertex buffer");
-    return;
-  }
-
-  m_buffer->unlock();
-}
-
 void VertexRange::copyFrom(const void* source)
 {
   if (!m_buffer)
@@ -558,32 +411,6 @@ IndexRange::IndexRange(IndexBuffer& buffer,
   m_count(count)
 {
   assert(m_buffer->count() >= m_start + m_count);
-}
-
-void* IndexRange::lock(BufferLockType type) const
-{
-  if (!m_buffer || m_count == 0)
-  {
-    logError("Cannot lock empty index buffer range");
-    return nullptr;
-  }
-
-  uint8* indices = (uint8*) m_buffer->lock(type);
-  if (!indices)
-    return nullptr;
-
-  return indices + m_start * IndexBuffer::typeSize(m_buffer->type());
-}
-
-void IndexRange::unlock() const
-{
-  if (!m_buffer)
-  {
-    logError("Cannot unlock non-locked index buffer");
-    return;
-  }
-
-  m_buffer->unlock();
 }
 
 void IndexRange::copyFrom(const void* source)
@@ -705,56 +532,6 @@ bool PrimitiveRange::isEmpty() const
     return true;
 
   return m_count == 0;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-template <>
-IndexRangeLock<uint8>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(nullptr)
-{
-  if (IndexBuffer* indexBuffer = range.indexBuffer())
-  {
-    if (indexBuffer->type() != INDEX_UINT8)
-      panic("Index buffer is not of type UINT8");
-  }
-
-  indices = (uint8*) range.lock();
-  if (!indices)
-    panic("Failed to lock index buffer");
-}
-
-template <>
-IndexRangeLock<uint16>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(nullptr)
-{
-  if (IndexBuffer* indexBuffer = range.indexBuffer())
-  {
-    if (indexBuffer->type() != INDEX_UINT16)
-      panic("Index buffer is not of type UINT16");
-  }
-
-  indices = (uint16*) range.lock();
-  if (!indices)
-    panic("Failed to lock index buffer");
-}
-
-template <>
-IndexRangeLock<uint32>::IndexRangeLock(IndexRange& initRange):
-  range(initRange),
-  indices(nullptr)
-{
-  if (IndexBuffer* indexBuffer = range.indexBuffer())
-  {
-    if (indexBuffer->type() != INDEX_UINT32)
-      panic("Index buffer is not of type UINT32");
-  }
-
-  indices = (uint32*) range.lock();
-  if (!indices)
-    panic("Failed to lock index buffer");
 }
 
 ///////////////////////////////////////////////////////////////////////

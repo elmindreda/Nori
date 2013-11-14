@@ -59,24 +59,6 @@ enum PrimitiveType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Memory locking type enumeration.
- *  @ingroup opengl
- */
-enum BufferLockType
-{
-  /*! Requests read-only access.
-   */
-  LOCK_READ_ONLY,
-  /*! Requests write-only access.
-   */
-  LOCK_WRITE_ONLY,
-  /*! Requests read and write access.
-   */
-  LOCK_READ_WRITE
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! Index buffer element type enumeration.
  */
 enum IndexBufferType
@@ -121,13 +103,6 @@ public:
   /*! Destructor.
    */
   ~VertexBuffer();
-  /*! Locks this vertex buffer for reading and writing.
-   *  @return The base address of the vertices.
-   */
-  void* lock(BufferLockType type = LOCK_WRITE_ONLY);
-  /*! Unlocks this vertex buffer, finalizing any changes.
-   */
-  void unlock();
   /*! Discards the current data.
    */
   void discard();
@@ -173,7 +148,6 @@ private:
   bool init(const VertexFormat& format, size_t count, BufferUsage usage);
   VertexBuffer& operator = (const VertexBuffer&) = delete;
   Context& m_context;
-  bool m_locked;
   VertexFormat m_format;
   uint m_bufferID;
   size_t m_count;
@@ -192,14 +166,6 @@ public:
   /*! Destructor.
    */
   ~IndexBuffer();
-  /*! Locks this index buffer for reading and writing.
-   *  @param[in] type The desired type of lock.
-   *  @return The base address of the index elements.
-   */
-  void* lock(BufferLockType type = LOCK_WRITE_ONLY);
-  /*! Unlocks this index buffer, finalizing any changes.
-   */
-  void unlock();
   /*! Copies the specified data into this index buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.
@@ -246,7 +212,6 @@ private:
   bool init(size_t count, IndexBufferType type, BufferUsage usage);
   IndexBuffer& operator = (const IndexBuffer&) = delete;
   Context& m_context;
-  bool m_locked;
   IndexBufferType m_type;
   BufferUsage m_usage;
   uint m_bufferID;
@@ -274,14 +239,6 @@ public:
   /*! Constructor.
    */
   VertexRange(VertexBuffer& vertexBuffer, size_t start, size_t count);
-  /*! Locks this vertex range into memory and returns its address.
-   *  @return The base address of this vertex range, or @c nullptr if an error
-   *  occurred.
-   */
-  void* lock(BufferLockType type = LOCK_WRITE_ONLY) const;
-  /*! Unlocks this vertex range.
-   */
-  void unlock() const;
   /*! Copies the specified data into this vertex range.
    *  @param[in] source The base address of the source data.
    */
@@ -330,15 +287,6 @@ public:
   /*! Creates the specified range within the specified index buffer.
    */
   IndexRange(IndexBuffer& buffer, size_t start, size_t count);
-  /*! Locks this index range into memory and returns its address.
-   *  @param[in] type The desired type of lock.
-   *  @return The base address of this index range, or @c nullptr if an error
-   *  occurred.
-   */
-  void* lock(BufferLockType type = LOCK_WRITE_ONLY) const;
-  /*! Unlocks this index range.
-   */
-  void unlock() const;
   /*! Copies the specified data into this index range.
    *  @param[in] source The base address of the source data.
    */
@@ -438,93 +386,6 @@ private:
   size_t m_start;
   size_t m_count;
   size_t m_base;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Vertex range scoped lock helper template.
- *  @ingroup opengl
- */
-template <typename T>
-class VertexRangeLock
-{
-public:
-  /*! Constructor.
-   *  @param[in] range The vertex range to lock.
-   *  @remarks The vertex range must not already be locked.
-   *  @remarks The specified vertex range object is copied, not referenced.
-   */
-  VertexRangeLock(VertexRange& initRange):
-    range(initRange),
-    vertices(nullptr)
-  {
-    if (VertexBuffer* vertexBuffer = range.vertexBuffer())
-    {
-      const VertexFormat& format = vertexBuffer->format();
-
-      if (T::format != format)
-      {
-        panic("Vertex buffer format \'%s\' does not match range lock format \'%s\'",
-              format.asString().c_str(),
-              T::format.asString().c_str());
-      }
-    }
-
-    vertices = (T*) range.lock();
-    if (!vertices)
-      panic("Failed to lock vertex buffer");
-  }
-  /*! Destructor.
-   *  Releases any lock held.
-   */
-  ~VertexRangeLock()
-  {
-    range.unlock();
-  }
-  /*! @return The base address of the locked vertex range.
-   *  @remarks The vertex range is locked the first time this is called.
-   */
-  operator T* ()
-  {
-    return vertices;
-  }
-private:
-  VertexRange range;
-  T* vertices;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Index range scoped lock helper template.
- *  @ingroup opengl
- */
-template <typename T>
-class IndexRangeLock
-{
-public:
-  /*! Constructor.
-   *  @param[in] range The index range to lock.
-   *  @remarks The index range must not already be locked.
-   *  @remarks The specified index range object is copied, not referenced.
-   */
-  IndexRangeLock(IndexRange& range);
-  /*! Destructor.
-   *  Releases any lock held.
-   */
-  ~IndexRangeLock()
-  {
-    range.unlock();
-  }
-  /*! @return The base address of the locked index range.
-   *  @remarks The index range is locked the first time this is called.
-   */
-  operator T* ()
-  {
-    return indices;
-  }
-private:
-  IndexRange range;
-  T* indices;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -686,15 +547,6 @@ private:
   uint m_bufferID;
   Ref<TextureImage> m_images[5];
 };
-
-///////////////////////////////////////////////////////////////////////
-
-template <>
-IndexRangeLock<uint8>::IndexRangeLock(IndexRange &range);
-template <>
-IndexRangeLock<uint16>::IndexRangeLock(IndexRange &range);
-template <>
-IndexRangeLock<uint32>::IndexRangeLock(IndexRange &range);
 
 ///////////////////////////////////////////////////////////////////////
 
