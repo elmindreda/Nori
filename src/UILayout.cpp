@@ -180,7 +180,7 @@ void Layout::update()
   if (m_orientation == VERTICAL)
   {
     const float childWidth = width() - m_borderSize * 2.f;
-    float flexibleHeight, positionY = height();
+    float flexibleHeight = 0.f, positionY = height();
 
     if (flexibleCount)
       flexibleHeight = (height() - stackSize) / flexibleCount;
@@ -198,7 +198,7 @@ void Layout::update()
   else
   {
     const float childHeight = height() - m_borderSize * 2.f;
-    float flexibleWidth, positionX = width();
+    float flexibleWidth = 0.f, positionX = width();
 
     if (flexibleCount)
       flexibleWidth = (width() - stackSize) / flexibleCount;

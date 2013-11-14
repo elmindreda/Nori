@@ -625,7 +625,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
       return false;
     }
 
-    if (params.flags & TF_MIPMAPPED)
+    if (mipmapped)
     {
       logError("Texture %s specified as both rectangular and mipmapped",
                name().c_str());
@@ -798,7 +798,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
                  data.texels);
   }
 
-  if (params.flags & TF_MIPMAPPED)
+  if (mipmapped)
     generateMipmaps();
   else
     retrieveImages();
