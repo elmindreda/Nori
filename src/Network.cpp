@@ -39,6 +39,15 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace
+{
+
+const size_t MAX_EVENT_SIZE = 1024;
+
+} /*namespace*/
+
+///////////////////////////////////////////////////////////////////////
+
 bool initialize()
 {
   return enet_initialize() == 0;
@@ -425,6 +434,41 @@ Peer* Host::findPeer(TargetID targetID)
   return nullptr;
 }
 
+Object* Host::findObject(ObjectID ID)
+{
+  assert(ID < m_objects.size());
+  return m_objects[ID];
+}
+
+PacketData Host::createEvent(EventID eventID, ObjectID recipientID)
+{
+  const size_t size = MAX_EVENT_SIZE + sizeof(EventID) + sizeof(ObjectID);
+
+  PacketData data(allocatePacketData(size), size);
+  data.write16(recipientID);
+  data.write8(eventID);
+
+  return data;
+}
+
+bool Host::dispatchEvent(TargetID sourceID, PacketData& data)
+{
+  const ObjectID recipientID = data.read16();
+  const EventID eventID = data.read8();
+
+  Object* object = findObject(recipientID);
+  if (!object)
+  {
+    if (isClient() || m_objectIDs.bucketOf(recipientID) == ID_BUCKET_UNUSED)
+      logError("Failed to find recipient object %u", recipientID);
+
+    return false;
+  }
+
+  object->receiveEvent(sourceID, data, eventID);
+  return true;
+}
+
 bool Host::isClient() const
 {
   return !m_server;
@@ -482,6 +526,7 @@ Host::Host():
   m_object(nullptr),
   m_observer(nullptr),
   m_clientIDs(FIRST_CLIENT),
+  m_objectIDs(OBJECT_ID_POOL_BASE),
   m_allocated(0)
 {
 }
@@ -578,6 +623,87 @@ bool Host::broadcast(ChannelID channel, PacketType type, const PacketData& data)
 
   enet_host_broadcast((ENetHost*) m_object, channel, packet);
   return true;
+}
+
+///////////////////////////////////////////////////////////////////////
+
+Object::Object(Host& host, ObjectID ID):
+  m_ID(ID),
+  m_host(host)
+{
+  if (isOnServer())
+  {
+    if (m_ID == OBJECT_ID_INVALID)
+      m_ID = m_host.m_objectIDs.allocateID();
+  }
+  else
+  {
+    if (ID == OBJECT_ID_INVALID)
+      panic("Object on client created with invalid ID");
+  }
+
+  auto& objects = m_host.m_objects;
+
+  if (objects.size() <= m_ID)
+    objects.insert(objects.end(), m_ID * 2 - objects.size(), nullptr);
+
+  objects[m_ID] = this;
+}
+
+Object::~Object()
+{
+  if (isOnServer() && m_ID >= OBJECT_ID_POOL_BASE)
+    m_host.m_objectIDs.releaseID(m_ID);
+
+  m_host.m_objects[m_ID] = nullptr;
+}
+
+void Object::synchronize()
+{
+}
+
+PacketData Object::createEvent(EventID eventID, ObjectID recipientID) const
+{
+  return m_host.createEvent(eventID, recipientID);
+}
+
+bool Object::broadcastEvent(ChannelID channelID,
+                            PacketType type,
+                            PacketData& data) const
+{
+  return sendEvent(BROADCAST, channelID, type, data);
+}
+
+bool Object::broadcastEvent(ChannelID channelID,
+                            PacketType type,
+                            ObjectID recipientID,
+                            EventID eventID) const
+{
+  return sendEvent(BROADCAST, channelID, type, recipientID, eventID);
+}
+
+bool Object::sendEvent(TargetID targetID,
+                       ChannelID channelID,
+                       PacketType type,
+                       PacketData& data) const
+{
+  return m_host.sendPacketTo(targetID, channelID, type, data);
+}
+
+bool Object::sendEvent(TargetID targetID,
+                       ChannelID channelID,
+                       PacketType type,
+                       ObjectID recipientID,
+                       EventID eventID) const
+{
+  PacketData event = createEvent(eventID, recipientID);
+  return sendEvent(targetID, channelID, type, event);
+}
+
+void Object::receiveEvent(TargetID senderID,
+                          PacketData& data,
+                          EventID eventID)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////

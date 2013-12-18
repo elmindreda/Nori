@@ -37,6 +37,10 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class Object;
+
+///////////////////////////////////////////////////////////////////////
+
 /*! Network channel ID.
  *  @ingroup net
  */
@@ -46,6 +50,17 @@ typedef uint8 ChannelID;
  *  @ingroup net
  */
 typedef uint8 TargetID;
+
+/*! Network event ID.
+ *  @ingroup net
+ */
+typedef uint8 EventID;
+
+/*! Network object ID.
+ *  @ingroup net
+ */
+typedef uint16 ObjectID;
+
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -92,6 +107,23 @@ enum IDBucket
   ID_BUCKET_ALLOCATED,
   ID_BUCKET_RELEASED,
   ID_BUCKET_UNUSED
+};
+
+///////////////////////////////////////////////////////////////////////
+
+enum
+{
+  EVENT_CUSTOM_BASE,
+};
+
+///////////////////////////////////////////////////////////////////////
+
+enum
+{
+  OBJECT_ID_INVALID,
+  OBJECT_ID_GAME,
+  OBJECT_ID_LEVEL,
+  OBJECT_ID_POOL_BASE,
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -230,11 +262,12 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Network host.
+/*! @brief Network host.
  *  @ingroup net
  */
 class Host
 {
+  friend class Object;
 public:
   ~Host();
   bool sendPacketTo(TargetID targetID,
@@ -244,6 +277,9 @@ public:
   bool update(Time timeout);
   void* allocatePacketData(size_t size);
   Peer* findPeer(TargetID targetID);
+  Object* findObject(ObjectID ID);
+  PacketData createEvent(EventID eventID, ObjectID recipientID);
+  bool dispatchEvent(TargetID sourceID, PacketData& data);
   bool isClient() const;
   bool isServer() const;
   uint totalIncomingBytes() const;
@@ -264,9 +300,52 @@ private:
   std::list<Peer> m_peers;
   Observer* m_observer;
   IDPool<TargetID> m_clientIDs;
+  IDPool<ObjectID> m_objectIDs;
+  std::vector<Object*> m_objects;
   size_t m_allocated;
   uint8 m_buffer[65536];
   bool m_server;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Network object.
+ */
+class Object
+{
+  friend class Host;
+public:
+  Object(Host& host, ObjectID ID = OBJECT_ID_INVALID);
+  virtual ~Object();
+  virtual void synchronize();
+  bool isOnServer() const { return m_host.isServer(); }
+  bool isOnClient() const { return m_host.isClient(); }
+  ObjectID getID() const { return m_ID; }
+  Host& host() const { return m_host; }
+protected:
+  PacketData createEvent(EventID eventID, ObjectID recipientID) const;
+  bool broadcastEvent(ChannelID channelID,
+                      PacketType type,
+                      PacketData& data) const;
+  bool broadcastEvent(ChannelID channelID,
+                      PacketType type,
+                      ObjectID recipientID,
+                      EventID eventID) const;
+  bool sendEvent(TargetID targetID,
+                 ChannelID channelID,
+                 PacketType type,
+                 PacketData& data) const;
+  bool sendEvent(TargetID targetID,
+                 ChannelID channelID,
+                 PacketType type,
+                 ObjectID recipientID,
+                 EventID eventID) const;
+  virtual void receiveEvent(TargetID senderID,
+                            PacketData& data,
+                            EventID eventID);
+private:
+  ObjectID m_ID;
+  Host& m_host;
 };
 
 ///////////////////////////////////////////////////////////////////////
