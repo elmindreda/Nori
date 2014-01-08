@@ -77,6 +77,9 @@ enum
    *  If on a client, discards the packet.
    */
   BROADCAST,
+  /*! If on the server, sends to the first client.
+   *  If on a client, generates an error.
+   */
   FIRST_CLIENT,
 };
 
