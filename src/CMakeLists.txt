@@ -73,7 +73,7 @@ endif()
 
 # We add headers to list of sources so that CMake's generator
 # knows to add them to IDE project files for e.g. Qt Creator
-file(GLOB_RECURSE wendy_HEADERS ${CMAKE_SOURCE_DIR}/include/*.h)
+file(GLOB_RECURSE wendy_HEADERS ${CMAKE_SOURCE_DIR}/include/*.hpp)
 
 add_library(wendy STATIC ${wendy_SOURCES} ${wendy_HEADERS})
 set_target_properties(wendy PROPERTIES COMPILE_DEFINITIONS_DEBUG WENDY_DEBUG)
