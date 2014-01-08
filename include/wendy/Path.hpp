@@ -31,7 +31,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Pattern;
+class Regex;
 class Path;
 
 ///////////////////////////////////////////////////////////////////////
@@ -111,12 +111,12 @@ public:
    */
   PathList children() const;
   /*! Returns the paths of all files and directories in the directory with this
-   *  path whose names match the specified pattern.
+   *  path whose names match the specified regex.
    *  @param[in,out] children The resulting list of paths.
-   *  @param[in] pattern The pattern to use.
+   *  @param[in] regex The regex to use.
    *  @return @c true if successful, otherwise @c false.
    */
-  PathList childrenMatching(const Pattern& pattern) const;
+  PathList childrenMatching(const Regex& regex) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */

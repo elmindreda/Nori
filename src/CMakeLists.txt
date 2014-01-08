@@ -19,8 +19,8 @@ include_directories(${libpng_SOURCE_DIR}
 set(wendy_SOURCES
     Wendy.cpp
 
-    Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp Pattern.cpp
-    Path.cpp Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Resource.cpp
+    Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp Path.cpp
+    Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Regex.cpp Resource.cpp
     Sample.cpp Signal.cpp Timer.cpp Transform.cpp Vertex.cpp
 
     GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp

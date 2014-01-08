@@ -25,7 +25,7 @@
 
 #include <wendy/Config.hpp>
 #include <wendy/Core.hpp>
-#include <wendy/Pattern.hpp>
+#include <wendy/Regex.hpp>
 
 #define PCRE_STATIC
 #include <pcre.h>
@@ -37,7 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-PatternMatch::PatternMatch(const String& text, int* ranges, uint count)
+RegexMatch::RegexMatch(const String& text, int* ranges, uint count)
 {
   for (uint i = 0;  i < count;  i++)
   {
@@ -48,20 +48,20 @@ PatternMatch::PatternMatch(const String& text, int* ranges, uint count)
 
 ///////////////////////////////////////////////////////////////////////
 
-Pattern::Pattern(const String& source):
+Regex::Regex(const String& source):
   m_object(nullptr)
 {
   if (!init(source))
-    throw Exception("Failed to compile PCRE pattern");
+    throw Exception("Failed to compile regex");
 }
 
-Pattern::~Pattern()
+Regex::~Regex()
 {
   if (m_object)
     pcre_free(m_object);
 }
 
-bool Pattern::matches(const String& text) const
+bool Regex::matches(const String& text) const
 {
   // NOTE: Static sizes are bad, but what is one to do?
   int results[300];
@@ -72,7 +72,7 @@ bool Pattern::matches(const String& text) const
   if (pairs < 0)
   {
     if (pairs != PCRE_ERROR_NOMATCH)
-      logError("Error when matching pattern");
+      logError("Error when matching regex");
 
     return false;
   }
@@ -84,7 +84,7 @@ bool Pattern::matches(const String& text) const
   return true;
 }
 
-bool Pattern::contains(const String& text) const
+bool Regex::contains(const String& text) const
 {
   if (!pcre_exec((pcre*) m_object, nullptr, text.c_str(), text.length(), 0, 0, nullptr, 0))
     return false;
@@ -92,7 +92,7 @@ bool Pattern::contains(const String& text) const
   return true;
 }
 
-PatternMatch* Pattern::match(const String& text) const
+RegexMatch* Regex::match(const String& text) const
 {
   // NOTE: Static sizes are bad, but what is one to do?
   int ranges[300];
@@ -103,29 +103,29 @@ PatternMatch* Pattern::match(const String& text) const
   if (count < 0)
   {
     if (count != PCRE_ERROR_NOMATCH)
-      logError("Error when matching pattern");
+      logError("Error when matching regex");
 
     return nullptr;
   }
 
-  return new PatternMatch(text, ranges, count);
+  return new RegexMatch(text, ranges, count);
 }
 
-Pattern* Pattern::create(const String& source)
+Regex* Regex::create(const String& source)
 {
-  Ptr<Pattern> pattern(new Pattern());
-  if (!pattern->init(source))
+  Ptr<Regex> regex(new Regex());
+  if (!regex->init(source))
     return nullptr;
 
-  return pattern.detachObject();
+  return regex.detachObject();
 }
 
-Pattern::Pattern():
+Regex::Regex():
   m_object(nullptr)
 {
 }
 
-bool Pattern::init(const String& source)
+bool Regex::init(const String& source)
 {
   const char* message = nullptr;
   int offset = 0;
@@ -133,7 +133,7 @@ bool Pattern::init(const String& source)
   m_object = pcre_compile(source.c_str(), 0, &message, &offset, nullptr);
   if (!m_object)
   {
-    logError("Failed to compile PCRE pattern: %s", message);
+    logError("Failed to compile regex: %s", message);
     return false;
   }
 

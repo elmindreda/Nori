@@ -41,7 +41,7 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/Pattern.hpp>
+#include <wendy/Regex.hpp>
 #include <wendy/Pixel.hpp>
 #include <wendy/Vertex.hpp>
 

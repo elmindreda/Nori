@@ -26,7 +26,7 @@
 #include <wendy/Config.hpp>
 
 #include <wendy/Core.hpp>
-#include <wendy/Pattern.hpp>
+#include <wendy/Regex.hpp>
 #include <wendy/Path.hpp>
 
 #if WENDY_HAVE_SYS_STAT_H
@@ -257,7 +257,7 @@ PathList Path::children() const
   return children;
 }
 
-PathList Path::childrenMatching(const Pattern& pattern) const
+PathList Path::childrenMatching(const Regex& regex) const
 {
   PathList children;
 
@@ -271,7 +271,7 @@ PathList Path::childrenMatching(const Pattern& pattern) const
 
   do
   {
-    if (pattern.matches(data.cFileName))
+    if (regex.matches(data.cFileName))
       children.push_back(operator + (data.cFileName));
   }
   while (FindNextFile(search, &data));
@@ -287,7 +287,7 @@ PathList Path::childrenMatching(const Pattern& pattern) const
 
   while ((entry = readdir(stream)))
   {
-    if (pattern.matches(entry->d_name))
+    if (regex.matches(entry->d_name))
       children.push_back(operator + (entry->d_name));
   }
 

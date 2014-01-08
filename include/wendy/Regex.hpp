@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_PATTERN_HPP
-#define WENDY_PATTERN_HPP
+#ifndef WENDY_REGEX_HPP
+#define WENDY_REGEX_HPP
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -33,9 +33,9 @@ namespace wendy
 
 /*! @brief Regular expression match descriptor.
  */
-class PatternMatch
+class RegexMatch
 {
-  friend class Pattern;
+  friend class Regex;
 public:
   /*! @return The number of substrings in this match descriptor.
    */
@@ -49,7 +49,7 @@ public:
    */
   const String& asString(uint index = 0) const { return m_strings[index]; }
 private:
-  PatternMatch(const String& text, int* ranges, uint count);
+  RegexMatch(const String& text, int* ranges, uint count);
   std::vector<int> m_offsets;
   std::vector<String> m_strings;
 };
@@ -60,42 +60,42 @@ private:
  *
  *  This class encapsulates a PCRE regular expression.
  */
-class Pattern
+class Regex
 {
 public:
   /*! Constructor.
    */
-  Pattern(const String& source);
+  Regex(const String& source);
   /*! Destructor.
    */
-  ~Pattern();
-  /*! Checks whether this pattern matches the entire specified text.
-   *  @param[in] text The text to match this pattern against.
-   *  @return @c true if this pattern matched the entire specified text,
+  ~Regex();
+  /*! Checks whether this regex matches the entire specified text.
+   *  @param[in] text The text to match this regex against.
+   *  @return @c true if this regex matched the entire specified text,
    *          otherwise @c false.
    */
   bool matches(const String& text) const;
-  /*! Checks whether this pattern matches any part of the specified text.
-   *  @param[in] text The text to match this pattern against.
-   *  @return @c true if this pattern matched any part of the specified text,
+  /*! Checks whether this regex matches any part of the specified text.
+   *  @param[in] text The text to match this regex against.
+   *  @return @c true if this regex matched any part of the specified text,
    *          otherwise @c false.
    */
   bool contains(const String& text) const;
-  /*! Checks whether this pattern matches any part of the specified text.
-   *  @param[in] text The text to match this pattern against.
+  /*! Checks whether this regex matches any part of the specified text.
+   *  @param[in] text The text to match this regex against.
    *  @return A match descriptor, or @c nullptr if no match was found.
    */
-  PatternMatch* match(const String& text) const;
-  /*! Creates a pattern object with the specified pattern expression.
-   *  @param[in] source The pattern expression to use.
-   *  @return The newly created pattern object.
+  RegexMatch* match(const String& text) const;
+  /*! Creates a regex object with the specified regex expression.
+   *  @param[in] source The regex expression to use.
+   *  @return The newly created regex object.
    */
-  static Pattern* create(const String& source);
+  static Regex* create(const String& source);
 private:
-  Pattern();
-  Pattern(const Pattern&) = delete;
+  Regex();
+  Regex(const Regex&) = delete;
   bool init(const String& source);
-  Pattern& operator = (const Pattern&) = delete;
+  Regex& operator = (const Regex&) = delete;
   void* m_object;
 };
 
@@ -104,5 +104,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_PATTERN_HPP*/
+#endif /*WENDY_REGEX_HPP*/
 ///////////////////////////////////////////////////////////////////////
