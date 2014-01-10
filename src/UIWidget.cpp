@@ -55,7 +55,7 @@ Widget::~Widget()
   destroyChildren();
   removeFromParent();
 
-  m_destroyedSignal(*this);
+  onDestroyed();
 }
 
 void Widget::addChild(Widget& child)
@@ -67,8 +67,8 @@ void Widget::addChild(Widget& child)
   child.removeFromParent();
   child.m_parent = this;
   m_children.push_back(&child);
-  addedChild(child);
-  child.addedToParent(*this);
+  onChildAdded(child);
+  child.onAddedToParent(*this);
 
   invalidate();
 }
@@ -102,8 +102,8 @@ void Widget::removeFromParent()
     Widget* oldParent = m_parent;
     m_parent = nullptr;
 
-    oldParent->removedChild(*this);
-    removedFromParent(*oldParent);
+    oldParent->onChildRemoved(*this);
+    onRemovedFromParent(*oldParent);
   }
 }
 
@@ -308,7 +308,7 @@ void Widget::setArea(const Rect& newArea)
   if (newArea != m_area)
   {
     m_area = newArea;
-    m_areaChangedSignal(*this);
+    onAreaChanged();
 
     invalidate();
   }
@@ -347,29 +347,29 @@ SignalProxy2<void, Widget&, bool> Widget::focusChangedSignal()
   return m_focusChangedSignal;
 }
 
-SignalProxy4<void, Widget&, Key, Action, uint> Widget::keyPressedSignal()
+SignalProxy4<void, Widget&, Key, Action, uint> Widget::keySignal()
 {
-  return m_keyPressedSignal;
+  return m_keySignal;
 }
 
-SignalProxy3<void, Widget&, uint32, uint> Widget::charInputSignal()
+SignalProxy3<void, Widget&, uint32, uint> Widget::characterSignal()
 {
-  return m_charInputSignal;
+  return m_characterSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::cursorMovedSignal()
+SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> Widget::mouseButtonSignal()
 {
-  return m_cursorMovedSignal;
+  return m_mouseButtonSignal;
 }
 
-SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> Widget::buttonClickedSignal()
+SignalProxy2<void, Widget&, vec2> Widget::scrollSignal()
 {
-  return m_buttonClickedSignal;
+  return m_scrollSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::scrolledSignal()
+SignalProxy2<void, Widget&, vec2> Widget::cursorPosSignal()
 {
-  return m_scrolledSignal;
+  return m_cursorPosSignal;
 }
 
 SignalProxy1<void, Widget&> Widget::cursorEnteredSignal()
@@ -406,20 +406,88 @@ void Widget::draw() const
   }
 }
 
-void Widget::addedChild(Widget& child)
+void Widget::onChildAdded(Widget& child)
 {
 }
 
-void Widget::removedChild(Widget& child)
+void Widget::onChildRemoved(Widget& child)
 {
 }
 
-void Widget::addedToParent(Widget& parent)
+void Widget::onAddedToParent(Widget& parent)
 {
 }
 
-void Widget::removedFromParent(Widget& parent)
+void Widget::onRemovedFromParent(Widget& parent)
 {
+}
+
+void Widget::onDestroyed()
+{
+  m_destroyedSignal(*this);
+}
+
+void Widget::onAreaChanged()
+{
+  m_areaChangedSignal(*this);
+}
+
+void Widget::onFocusChanged(bool activated)
+{
+  m_focusChangedSignal(*this, activated);
+}
+
+void Widget::onKey(Key key, Action action, uint mods)
+{
+  m_keySignal(*this, key, action, mods);
+}
+
+void Widget::onCharacter(uint32 character, uint mods)
+{
+  m_characterSignal(*this, character, mods);
+}
+
+void Widget::onMouseButton(vec2 point,
+                           MouseButton button,
+                           Action action,
+                           uint mods)
+{
+  m_mouseButtonSignal(*this, point, button, action, mods);
+}
+
+void Widget::onScroll(vec2 offset)
+{
+  m_scrollSignal(*this, offset);
+}
+
+void Widget::onCursorPos(vec2 point)
+{
+  m_cursorPosSignal(*this, point);
+}
+
+void Widget::onCursorEntered()
+{
+  m_cursorEnteredSignal(*this);
+}
+
+void Widget::onCursorLeft()
+{
+  m_cursorLeftSignal(*this);
+}
+
+void Widget::onDragBegun(vec2 point)
+{
+  m_dragBegunSignal(*this, point);
+}
+
+void Widget::onDragMoved(vec2 point)
+{
+  m_dragMovedSignal(*this, point);
+}
+
+void Widget::onDragEnded(vec2 point)
+{
+  m_dragEndedSignal(*this, point);
 }
 
 ///////////////////////////////////////////////////////////////////////

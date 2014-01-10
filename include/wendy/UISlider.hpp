@@ -51,14 +51,13 @@ public:
 protected:
   void draw() const;
 private:
-  void onMouseButton(Widget& widget,
-                     vec2 position,
+  void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
                      uint mods);
-  void onKey(Widget& widget, Key key, Action action, uint mods);
-  void onScroll(Widget& widget, vec2 offset);
-  void onDragMoved(Widget& widget, vec2 position);
+  void onKey(Key key, Action action, uint mods);
+  void onScroll(vec2 offset);
+  void onDragMoved(vec2 point);
   void setValue(const vec2& position);
   void setValue(float newValue, bool notify);
   Signal1<void, Slider&> m_valueChangedSignal;

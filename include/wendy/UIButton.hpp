@@ -44,14 +44,13 @@ public:
   SignalProxy1<void, Button&> pushedSignal();
 protected:
   void draw() const;
-private:
-  void onMouseButton(Widget& widget,
-                     vec2 position,
+  void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
-                     uint mods);
-  void onDragEnded(Widget& widget, vec2 position);
-  void onKey(Widget& widget, Key key, Action action, uint mods);
+                     uint mods) override;
+  void onDragEnded(vec2 point) override;
+  void onKey(Key key, Action action, uint mods) override;
+private:
   Signal1<void, Button&> m_pushedSignal;
   bool m_selected;
   String m_text;

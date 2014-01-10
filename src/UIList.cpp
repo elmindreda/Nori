@@ -54,18 +54,13 @@ List::List(Layer& layer):
   m_scroller(nullptr),
   m_entry(nullptr)
 {
-  areaChangedSignal().connect(*this, &List::onAreaChanged);
-  buttonClickedSignal().connect(*this, &List::onMouseButton);
-  keyPressedSignal().connect(*this, &List::onKey);
-  scrolledSignal().connect(*this, &List::onScroll);
-
   m_scroller = new Scroller(layer, VERTICAL);
   m_scroller->setValueRange(0.f, 1.f);
   m_scroller->setPercentage(1.f);
   m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
   addChild(*m_scroller);
 
-  onAreaChanged(*this);
+  onAreaChanged();
 }
 
 List::~List()
@@ -161,7 +156,7 @@ void List::setEditable(bool newState)
     m_entry = new UI::Entry(layer());
     m_entry->hide();
     m_entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
-    m_entry->keyPressedSignal().connect(*this, &List::onEntryKeyPressed);
+    m_entry->keySignal().connect(*this, &List::onEntryKey);
     m_entry->destroyedSignal().connect(*this, &List::onEntryDestroyed);
     layer().addRootWidget(*m_entry);
   }
@@ -270,11 +265,116 @@ void List::draw() const
   }
 }
 
-void List::onAreaChanged(Widget& widget)
+void List::onAreaChanged()
 {
   m_scroller->setArea(Rect(width() - m_scroller->width(), 0.f,
                            m_scroller->width(), height()));
   updateScroller();
+
+  Widget::onAreaChanged();
+}
+
+void List::onMouseButton(vec2 point,
+                         MouseButton button,
+                         Action action,
+                         uint mods)
+{
+  if (action == PRESSED)
+  {
+    const vec2 local = transformToLocal(point);
+
+    float itemTop = height();
+
+    for (uint i = m_offset;  i < m_items.size();  i++)
+    {
+      const float itemHeight = m_items[i]->height();
+      const float itemBottom = itemTop - itemHeight;
+
+      if (itemBottom <= local.y)
+      {
+        if (itemBottom < 0.f)
+          setOffset(m_offset + 1);
+
+        if (m_selection == i)
+        {
+          if (m_editable)
+            beginEditing();
+        }
+        else
+          setSelection(i, true);
+
+        return;
+      }
+
+      itemTop = itemBottom;
+      if (itemTop < 0.f)
+        break;
+    }
+  }
+
+  Widget::onMouseButton(point, button, action, mods);
+}
+
+void List::onKey(Key key, Action action, uint mods)
+{
+  if (action == PRESSED)
+  {
+    switch (key)
+    {
+      case KEY_UP:
+      {
+        if (m_selection == NO_ITEM)
+        {
+          if (!m_items.empty())
+            setSelection(m_items.size() - 1, true);
+        }
+        else if (m_selection > 0)
+          setSelection(m_selection - 1, true);
+        break;
+      }
+
+      case KEY_DOWN:
+      {
+        if (m_selection == NO_ITEM)
+        {
+          if (!m_items.empty())
+            setSelection(0, true);
+        }
+        else if (m_selection < m_items.size() - 1)
+          setSelection(m_selection + 1, true);
+        break;
+      }
+
+      case KEY_HOME:
+      {
+        setSelection(0, true);
+        break;
+      }
+
+      case KEY_END:
+      {
+        if (!m_items.empty())
+          setSelection(m_items.size() - 1, true);
+        break;
+      }
+
+      default:
+        break;
+    }
+  }
+
+  Widget::onKey(key, action, mods);
+}
+
+void List::onScroll(vec2 offset)
+{
+  if (!m_items.empty() && !m_editing &&
+      int(offset.y) + int(m_offset) >= 0)
+  {
+    setOffset(m_offset + int(offset.y));
+  }
+
+  Widget::onScroll(offset);
 }
 
 void List::onEntryFocusChanged(Widget& widget, bool activated)
@@ -283,7 +383,7 @@ void List::onEntryFocusChanged(Widget& widget, bool activated)
     applyEditing();
 }
 
-void List::onEntryKeyPressed(Widget& widget, Key key, Action action, uint mods)
+void List::onEntryKey(Widget& widget, Key key, Action action, uint mods)
 {
   if (action != PRESSED)
     return;
@@ -311,109 +411,6 @@ void List::onEntryDestroyed(Widget& widget)
 {
   cancelEditing();
   m_entry = nullptr;
-}
-
-void List::onMouseButton(Widget& widget,
-                         vec2 position,
-                         MouseButton button,
-                         Action action,
-                         uint mods)
-{
-  if (action != PRESSED)
-    return;
-
-  const vec2 local = transformToLocal(position);
-
-  float itemTop = height();
-
-  for (uint i = m_offset;  i < m_items.size();  i++)
-  {
-    const float itemHeight = m_items[i]->height();
-    const float itemBottom = itemTop - itemHeight;
-
-    if (itemBottom <= local.y)
-    {
-      if (itemBottom < 0.f)
-        setOffset(m_offset + 1);
-
-      if (m_selection == i)
-      {
-        if (m_editable)
-          beginEditing();
-      }
-      else
-        setSelection(i, true);
-
-      return;
-    }
-
-    itemTop = itemBottom;
-    if (itemTop < 0.f)
-      break;
-  }
-}
-
-void List::onKey(Widget& widget, Key key, Action action, uint mods)
-{
-  if (action != PRESSED)
-    return;
-
-  switch (key)
-  {
-    case KEY_UP:
-    {
-      if (m_selection == NO_ITEM)
-      {
-        if (!m_items.empty())
-          setSelection(m_items.size() - 1, true);
-      }
-      else if (m_selection > 0)
-        setSelection(m_selection - 1, true);
-      break;
-    }
-
-    case KEY_DOWN:
-    {
-      if (m_selection == NO_ITEM)
-      {
-        if (!m_items.empty())
-          setSelection(0, true);
-      }
-      else if (m_selection < m_items.size() - 1)
-        setSelection(m_selection + 1, true);
-      break;
-    }
-
-    case KEY_HOME:
-    {
-      setSelection(0, true);
-      break;
-    }
-
-    case KEY_END:
-    {
-      if (!m_items.empty())
-        setSelection(m_items.size() - 1, true);
-      break;
-    }
-
-    default:
-      break;
-  }
-}
-
-void List::onScroll(Widget& widget, vec2 so)
-{
-  if (m_items.empty())
-    return;
-
-  if (int(so.y) + (int) m_offset < 0)
-    return;
-
-  if (m_editing)
-    return;
-
-  setOffset(m_offset + int(so.y));
 }
 
 void List::onValueChanged(Scroller& scroller)

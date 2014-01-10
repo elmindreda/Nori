@@ -64,9 +64,6 @@ Book::Book(Layer& layer):
   Widget(layer),
   m_activePage(nullptr)
 {
-  keyPressedSignal().connect(*this, &Book::onKey);
-  buttonClickedSignal().connect(*this, &Book::onMouseButton);
-  areaChangedSignal().connect(*this, &Book::onAreaChanged);
 }
 
 Page* Book::activePage() const
@@ -126,7 +123,7 @@ void Book::draw() const
   }
 }
 
-void Book::addedChild(Widget& child)
+void Book::onChildAdded(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
@@ -143,7 +140,7 @@ void Book::addedChild(Widget& child)
   }
 }
 
-void Book::removedChild(Widget& child)
+void Book::onChildRemoved(Widget& child)
 {
   if (Page* page = dynamic_cast<Page*>(&child))
   {
@@ -157,6 +154,72 @@ void Book::removedChild(Widget& child)
 
     m_pages.erase(std::find(m_pages.begin(), m_pages.end(), page));
   }
+}
+
+void Book::onAreaChanged()
+{
+  const float em = layer().drawer().currentEM();
+
+  for (auto p : m_pages)
+    p->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
+
+  Widget::onAreaChanged();
+}
+
+void Book::onKey(Key key, Action action, uint mods)
+{
+  if (action == PRESSED)
+  {
+    auto p = std::find(m_pages.begin(), m_pages.end(), m_activePage);
+    if (p != m_pages.end())
+    {
+      switch (key)
+      {
+        case KEY_TAB:
+        case KEY_RIGHT:
+        {
+          if (++p == m_pages.end())
+            setActivePage(m_pages.front(), true);
+          else
+            setActivePage(*p, true);
+          break;
+        }
+
+        case KEY_LEFT:
+        {
+          if (p == m_pages.begin())
+            setActivePage(m_pages.back(), true);
+          else
+            setActivePage(*(--p), true);
+          break;
+        }
+
+        default:
+          break;
+      }
+    }
+  }
+
+  Widget::onKey(key, action, mods);
+}
+
+void Book::onMouseButton(vec2 point,
+                         MouseButton button,
+                         Action action,
+                         uint mods)
+{
+  if (action != PRESSED)
+    return;
+
+  const float position = transformToLocal(point).x;
+  const float tabWidth = width() / m_pages.size();
+
+  const uint index = (uint) (position / tabWidth);
+
+  if (m_pages[index] != m_activePage)
+    setActivePage(m_pages[index], true);
+
+  Widget::onMouseButton(point, button, action, mods);
 }
 
 void Book::setActivePage(Page* newPage, bool notify)
@@ -178,67 +241,6 @@ void Book::setActivePage(Page* newPage, bool notify)
     m_pageChangedSignal(*this);
 
   invalidate();
-}
-
-void Book::onAreaChanged(Widget& widget)
-{
-  const float em = layer().drawer().currentEM();
-
-  for (auto p : m_pages)
-    p->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
-}
-
-void Book::onKey(Widget& widget, Key key, Action action, uint mods)
-{
-  if (action != PRESSED)
-    return;
-
-  auto p = std::find(m_pages.begin(), m_pages.end(), m_activePage);
-  if (p == m_pages.end())
-    return;
-
-  switch (key)
-  {
-    case KEY_TAB:
-    case KEY_RIGHT:
-    {
-      if (++p == m_pages.end())
-        setActivePage(m_pages.front(), true);
-      else
-        setActivePage(*p, true);
-      break;
-    }
-
-    case KEY_LEFT:
-    {
-      if (p == m_pages.begin())
-        setActivePage(m_pages.back(), true);
-      else
-        setActivePage(*(--p), true);
-      break;
-    }
-
-    default:
-      break;
-  }
-}
-
-void Book::onMouseButton(Widget& widget,
-                         vec2 point,
-                         MouseButton button,
-                         Action action,
-                         uint mods)
-{
-  if (action != PRESSED)
-    return;
-
-  const float position = transformToLocal(point).x;
-  const float tabWidth = width() / m_pages.size();
-
-  const uint index = (uint) (position / tabWidth);
-
-  if (m_pages[index] != m_activePage)
-    setActivePage(m_pages[index], true);
 }
 
 ///////////////////////////////////////////////////////////////////////

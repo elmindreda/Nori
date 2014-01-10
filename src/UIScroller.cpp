@@ -55,12 +55,6 @@ Scroller::Scroller(Layer& layer, Orientation orientation):
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 
-  keyPressedSignal().connect(*this, &Scroller::onKey);
-  buttonClickedSignal().connect(*this, &Scroller::onMouseButton);
-  scrolledSignal().connect(*this, &Scroller::onScroll);
-  dragBegunSignal().connect(*this, &Scroller::onDragBegun);
-  dragMovedSignal().connect(*this, &Scroller::onDragMoved);
-
   setDraggable(true);
 }
 
@@ -133,38 +127,39 @@ void Scroller::draw() const
   }
 }
 
-void Scroller::onMouseButton(Widget& widget,
-                             vec2 point,
+void Scroller::onMouseButton(vec2 point,
                              MouseButton button,
                              Action action,
                              uint mods)
 {
-  if (action != PRESSED)
-    return;
-
-  const vec2 local = transformToLocal(point);
-  const float size = handleSize();
-  const float offset = handleOffset();
-
-  if (m_orientation == HORIZONTAL)
+  if (action == PRESSED)
   {
-    if (local.x < offset)
-      setValue(m_value - valueStep(), true);
-    else if (local.x >= offset + size)
-      setValue(m_value + valueStep(), true);
+    const vec2 local = transformToLocal(point);
+    const float size = handleSize();
+    const float offset = handleOffset();
+
+    if (m_orientation == HORIZONTAL)
+    {
+      if (local.x < offset)
+        setValue(m_value - valueStep(), true);
+      else if (local.x >= offset + size)
+        setValue(m_value + valueStep(), true);
+    }
+    else
+    {
+      if (local.y > height() - offset)
+        setValue(m_value - valueStep(), true);
+      else if (local.y <= height() - offset - size)
+        setValue(m_value + valueStep(), true);
+    }
   }
-  else
-  {
-    if (local.y > height() - offset)
-      setValue(m_value - valueStep(), true);
-    else if (local.y <= height() - offset - size)
-      setValue(m_value + valueStep(), true);
-  }
+
+  Widget::onMouseButton(point, button, action, mods);
 }
 
-void Scroller::onKey(Widget& widget, Key key, Action action, uint mods)
+void Scroller::onKey(Key key, Action action, uint mods)
 {
-  if (action != PRESSED)
+  if (action != RELEASED)
   {
     switch (key)
     {
@@ -198,17 +193,21 @@ void Scroller::onKey(Widget& widget, Key key, Action action, uint mods)
         break;
     }
   }
+
+  Widget::onKey(key, action, mods);
 }
 
-void Scroller::onScroll(Widget& widget, vec2 offset)
+void Scroller::onScroll(vec2 offset)
 {
   if (m_orientation == HORIZONTAL)
     setValue(m_value + float(offset.x) * valueStep(), true);
   else
     setValue(m_value + float(offset.y) * valueStep(), true);
+
+  Widget::onScroll(offset);
 }
 
-void Scroller::onDragBegun(Widget& widget, vec2 point)
+void Scroller::onDragBegun(vec2 point)
 {
   const vec2 local = transformToLocal(point);
   const float size = handleSize();
@@ -228,9 +227,11 @@ void Scroller::onDragBegun(Widget& widget, vec2 point)
     else
       cancelDragging();
   }
+
+  Widget::onDragBegun(point);
 }
 
-void Scroller::onDragMoved(Widget& widget, vec2 point)
+void Scroller::onDragMoved(vec2 point)
 {
   const vec2 local = transformToLocal(point);
   const float size = handleSize();
@@ -243,6 +244,8 @@ void Scroller::onDragMoved(Widget& widget, vec2 point)
     scale = (height() - local.y - m_reference) / (height() - size);
 
   setValue(m_minValue + (m_maxValue - m_minValue) * scale, true);
+
+  Widget::onDragMoved(point);
 }
 
 void Scroller::setValue(float newValue, bool notify)

@@ -45,8 +45,6 @@ Layout::Layout(Layer& layer, Orientation orientation, bool expanding):
   m_orientation(orientation),
   m_expanding(expanding)
 {
-  if (!m_expanding)
-    areaChangedSignal().connect(*this, &Layout::onAreaChanged);
 }
 
 void Layout::addChild(Widget& child)
@@ -106,7 +104,7 @@ void Layout::setChildSize(Widget& child, float newSize)
   m_sizes.push_back(Size(&child, newSize));
 }
 
-void Layout::addedChild(Widget& child)
+void Layout::onChildAdded(Widget& child)
 {
   auto s = m_sizes.begin();
 
@@ -127,7 +125,7 @@ void Layout::addedChild(Widget& child)
   update();
 }
 
-void Layout::removedChild(Widget& child)
+void Layout::onChildRemoved(Widget& child)
 {
   for (auto s = m_sizes.begin();  s != m_sizes.end();  s++)
   {
@@ -141,15 +139,18 @@ void Layout::removedChild(Widget& child)
   update();
 }
 
-void Layout::onAreaChanged(Widget& widget)
+void Layout::onAreaChanged()
 {
-  if (m_expanding)
-    setArea(Rect(vec2(0.f), widget.size()));
-
   update();
+  Widget::onAreaChanged();
 }
 
-void Layout::addedToParent(Widget& parent)
+void Layout::onAreaChanged(Widget& widget)
+{
+  setArea(Rect(vec2(0.f), widget.size()));
+}
+
+void Layout::onAddedToParent(Widget& parent)
 {
   if (m_expanding)
   {
@@ -158,7 +159,7 @@ void Layout::addedToParent(Widget& parent)
   }
 }
 
-void Layout::removedFromParent(Widget& parent)
+void Layout::onRemovedFromParent(Widget& parent)
 {
   if (m_expanding)
     m_parentAreaSlot = nullptr;

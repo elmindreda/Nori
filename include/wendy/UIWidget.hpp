@@ -200,11 +200,11 @@ public:
   SignalProxy1<void, Widget&> destroyedSignal();
   SignalProxy1<void, Widget&> areaChangedSignal();
   SignalProxy2<void, Widget&, bool> focusChangedSignal();
-  SignalProxy4<void, Widget&, Key, Action, uint> keyPressedSignal();
-  SignalProxy3<void, Widget&, uint32, uint> charInputSignal();
-  SignalProxy2<void, Widget&, vec2> cursorMovedSignal();
-  SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> buttonClickedSignal();
-  SignalProxy2<void, Widget&, vec2> scrolledSignal();
+  SignalProxy4<void, Widget&, Key, Action, uint> keySignal();
+  SignalProxy3<void, Widget&, uint32, uint> characterSignal();
+  SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal();
+  SignalProxy2<void, Widget&, vec2> scrollSignal();
+  SignalProxy2<void, Widget&, vec2> cursorPosSignal();
   SignalProxy1<void, Widget&> cursorEnteredSignal();
   SignalProxy1<void, Widget&> cursorLeftSignal();
   SignalProxy2<void, Widget&, vec2> dragBegunSignal();
@@ -214,19 +214,35 @@ protected:
   /*! Calls Widget::draw for all children of this widget.
    */
   virtual void draw() const;
-  virtual void addedChild(Widget& child);
-  virtual void removedChild(Widget& child);
-  virtual void addedToParent(Widget& parent);
-  virtual void removedFromParent(Widget& parent);
+  virtual void onChildAdded(Widget& child);
+  virtual void onChildRemoved(Widget& child);
+  virtual void onAddedToParent(Widget& parent);
+  virtual void onRemovedFromParent(Widget& parent);
+  virtual void onDestroyed();
+  virtual void onAreaChanged();
+  virtual void onFocusChanged(bool activated);
+  virtual void onKey(Key key, Action action, uint mods);
+  virtual void onCharacter(uint32 codepoint, uint mods);
+  virtual void onMouseButton(vec2 point,
+                               MouseButton button,
+                               Action action,
+                               uint mods);
+  virtual void onScroll(vec2 offset);
+  virtual void onCursorPos(vec2 point);
+  virtual void onCursorEntered();
+  virtual void onCursorLeft();
+  virtual void onDragBegun(vec2 point);
+  virtual void onDragMoved(vec2 point);
+  virtual void onDragEnded(vec2 point);
 private:
   Signal1<void, Widget&> m_destroyedSignal;
   Signal1<void, Widget&> m_areaChangedSignal;
   Signal2<void, Widget&, bool> m_focusChangedSignal;
-  Signal4<void, Widget&, Key, Action, uint> m_keyPressedSignal;
-  Signal3<void, Widget&, uint32, uint> m_charInputSignal;
-  Signal2<void, Widget&, vec2> m_cursorMovedSignal;
-  Signal5<void, Widget&, vec2, MouseButton, Action, uint> m_buttonClickedSignal;
-  Signal2<void, Widget&, vec2> m_scrolledSignal;
+  Signal4<void, Widget&, Key, Action, uint> m_keySignal;
+  Signal3<void, Widget&, uint32, uint> m_characterSignal;
+  Signal5<void, Widget&, vec2, MouseButton, Action, uint> m_mouseButtonSignal;
+  Signal2<void, Widget&, vec2> m_scrollSignal;
+  Signal2<void, Widget&, vec2> m_cursorPosSignal;
   Signal1<void, Widget&> m_cursorEnteredSignal;
   Signal1<void, Widget&> m_cursorLeftSignal;
   Signal2<void, Widget&, vec2> m_dragBegunSignal;

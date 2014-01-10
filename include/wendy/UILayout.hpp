@@ -48,11 +48,12 @@ public:
   float childSize(Widget& child) const;
   void setChildSize(Widget& child, float newSize);
 protected:
-  void addedChild(Widget& child);
-  void removedChild(Widget& child);
-  void addedToParent(Widget& parent);
-  void removedFromParent(Widget& parent);
-  void onAreaChanged(Widget& parent);
+  void onChildAdded(Widget& child) override;
+  void onChildRemoved(Widget& child) override;
+  void onAddedToParent(Widget& parent) override;
+  void onRemovedFromParent(Widget& parent) override;
+  void onAreaChanged() override;
+  void onAreaChanged(Widget& widget);
 private:
   typedef std::pair<Widget*, float> Size;
   void update();

@@ -50,9 +50,6 @@ Popup::Popup(Layer& layer):
 
   setSize(vec2(em * 10.f, em * 2.f));
 
-  keyPressedSignal().connect(*this, &Popup::onKey);
-  buttonClickedSignal().connect(*this, &Popup::onMouseButton);
-
   m_menu = new Menu(layer);
   m_menu->itemSelectedSignal().connect(*this, &Popup::onItemSelected);
   m_menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
@@ -186,34 +183,35 @@ void Popup::display()
   m_menu->display();
 }
 
-void Popup::onMouseButton(Widget& widget,
-                          vec2 position,
+void Popup::onMouseButton(vec2 point,
                           MouseButton button,
                           Action action,
                           uint mods)
 {
-  if (action != PRESSED)
-    return;
+  if (action == PRESSED)
+    display();
 
-  display();
+  Widget::onMouseButton(point, button, action, mods);
 }
 
-void Popup::onKey(Widget& widget, Key key, Action action, uint mods)
+void Popup::onKey(Key key, Action action, uint mods)
 {
-  if (action != PRESSED)
-    return;
-
-  switch (key)
+  if (action == PRESSED)
   {
-    case KEY_ENTER:
+    switch (key)
     {
-      display();
-      break;
-    }
+      case KEY_ENTER:
+      {
+        display();
+        break;
+      }
 
-    default:
-      break;
+      default:
+        break;
+    }
   }
+
+  Widget::onKey(key, action, mods);
 }
 
 void Popup::onItemSelected(Menu& menu, uint index)

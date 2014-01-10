@@ -140,7 +140,7 @@ void Layer::cancelDragging()
     vec2 cursorPosition = vec2(m_window.cursorPosition());
     cursorPosition.y = m_window.height() - cursorPosition.y;
 
-    m_draggedWidget->m_dragEndedSignal(*m_draggedWidget, cursorPosition);
+    m_draggedWidget->onDragEnded(cursorPosition);
 
     m_draggedWidget = nullptr;
     m_dragging = false;
@@ -179,12 +179,12 @@ void Layer::setActiveWidget(Widget* widget)
     releaseCursor();
 
   if (m_activeWidget)
-    m_activeWidget->m_focusChangedSignal(*m_activeWidget, false);
+    m_activeWidget->onFocusChanged(false);
 
   m_activeWidget = widget;
 
   if (m_activeWidget)
-    m_activeWidget->m_focusChangedSignal(*m_activeWidget, true);
+    m_activeWidget->onFocusChanged(true);
 
   invalidate();
 }
@@ -219,7 +219,7 @@ void Layer::updateHoveredWidget()
     if (newWidget && newWidget->isChildOf(*ancestor))
       break;
 
-    ancestor->m_cursorLeftSignal(*ancestor);
+    ancestor->onCursorLeft();
     ancestor = ancestor->parent();
   }
 
@@ -232,7 +232,7 @@ void Layer::updateHoveredWidget()
     if (newWidget == ancestor)
       break;
 
-    newWidget->m_cursorEnteredSignal(*newWidget);
+    newWidget->onCursorEntered();
     newWidget = newWidget->parent();
   }
 }
@@ -275,34 +275,34 @@ void Layer::onWindowSize(uint width, uint height)
 void Layer::onKey(Key key, Action action, uint mods)
 {
   if (m_activeWidget)
-    m_activeWidget->m_keyPressedSignal(*m_activeWidget, key, action, mods);
+    m_activeWidget->onKey(key, action, mods);
 }
 
 void Layer::onCharacter(uint32 codepoint, uint mods)
 {
   if (m_activeWidget)
-    m_activeWidget->m_charInputSignal(*m_activeWidget, codepoint, mods);
+    m_activeWidget->onCharacter(codepoint, mods);
 }
 
-void Layer::onCursorPos(vec2 position)
+void Layer::onCursorPos(vec2 point)
 {
   updateHoveredWidget();
 
-  position.y = m_window.height() - position.y;
+  point.y = m_window.height() - point.y;
 
   if (m_hoveredWidget)
-    m_hoveredWidget->m_cursorMovedSignal(*m_hoveredWidget, position);
+    m_hoveredWidget->onCursorPos(point);
 
   if (m_draggedWidget)
   {
     if (m_dragging)
-      m_draggedWidget->m_dragMovedSignal(*m_draggedWidget, position);
+      m_draggedWidget->onDragMoved(point);
     else
     {
       // TODO: Add insensitivity radius.
 
       m_dragging = true;
-      m_draggedWidget->m_dragBegunSignal(*m_draggedWidget, position);
+      m_draggedWidget->onDragBegun(point);
     }
   }
 }
@@ -337,11 +337,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     if (clickedWidget)
     {
       clickedWidget->activate();
-      clickedWidget->m_buttonClickedSignal(*clickedWidget,
-                                           cursorPosition,
-                                           button,
-                                           action,
-                                           mods);
+      clickedWidget->onMouseButton(cursorPosition, button, action, mods);
 
       if (!m_captureWidget && clickedWidget->isDraggable())
         m_draggedWidget = clickedWidget;
@@ -353,7 +349,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     {
       if (m_dragging)
       {
-        m_draggedWidget->m_dragEndedSignal(*m_draggedWidget, cursorPosition);
+        m_draggedWidget->onDragEnded(cursorPosition);
         m_dragging = false;
       }
 
@@ -363,13 +359,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     if (m_activeWidget)
     {
       if (m_captureWidget || m_activeWidget->globalArea().contains(cursorPosition))
-      {
-        m_activeWidget->m_buttonClickedSignal(*m_activeWidget,
-                                              cursorPosition,
-                                              button,
-                                              action,
-                                              mods);
-      }
+        m_activeWidget->onMouseButton(cursorPosition, button, action, mods);
     }
   }
 }
@@ -377,7 +367,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 void Layer::onScroll(vec2 offset)
 {
   if (m_hoveredWidget)
-    m_hoveredWidget->m_scrolledSignal(*m_hoveredWidget, offset);
+    m_hoveredWidget->onScroll(offset);
 }
 
 void Layer::onFocus(bool activated)

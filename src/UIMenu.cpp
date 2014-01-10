@@ -46,13 +46,6 @@ Menu::Menu(Layer& layer):
   Widget(layer),
   m_selection(NO_ITEM)
 {
-  cursorMovedSignal().connect(*this, &Menu::onCursorPos);
-  cursorLeftSignal().connect(*this, &Menu::onCursorLeft);
-  buttonClickedSignal().connect(*this, &Menu::onMouseButton);
-  keyPressedSignal().connect(*this, &Menu::onKey);
-  dragEndedSignal().connect(*this, &Menu::onDragEnded);
-  focusChangedSignal().connect(*this, &Menu::onFocusChanged);
-
   setDraggable(true);
   hide();
 }
@@ -217,15 +210,17 @@ void Menu::draw() const
   }
 }
 
-void Menu::onFocusChanged(Widget& widget, bool activated)
+void Menu::onFocusChanged(bool activated)
 {
   if (!activated)
     hide();
+
+  Widget::onFocusChanged(activated);
 }
 
-void Menu::onCursorPos(Widget& widget, vec2 position)
+void Menu::onCursorPos(vec2 point)
 {
-  const vec2 localPosition = transformToLocal(position);
+  const vec2 local = transformToLocal(point);
   float itemTop = height() - 2.f;
   uint index = 0;
 
@@ -235,100 +230,116 @@ void Menu::onCursorPos(Widget& widget, vec2 position)
     if (itemTop - itemHeight < 0.f)
       break;
 
-    if (itemTop - itemHeight <= localPosition.y)
+    if (itemTop - itemHeight <= local.y)
     {
       m_selection = index;
       invalidate();
-      return;
+      break;
     }
 
     itemTop -= itemHeight;
     index++;
   }
+
+  Widget::onCursorPos(point);
 }
 
-void Menu::onCursorLeft(Widget& widget)
+void Menu::onCursorLeft()
 {
   m_selection = NO_ITEM;
+
+  Widget::onCursorLeft();
 }
 
-void Menu::onMouseButton(Widget& widget,
-                         vec2 position,
+void Menu::onMouseButton(vec2 point,
                          MouseButton button,
                          Action action,
                          uint mods)
 {
-  if (action != RELEASED)
-    return;
-
-  const vec2 localPosition = transformToLocal(position);
-  float itemTop = height() - 2.f;
-  uint index = 0;
-
-  for (auto i : m_items)
+  if (action == RELEASED)
   {
-    const float itemHeight = i->height();
-    if (itemTop - itemHeight < 0.f)
-      break;
+    const vec2 local = transformToLocal(point);
+    float itemTop = height() - 2.f;
+    uint index = 0;
 
-    if (itemTop - itemHeight <= localPosition.y)
+    for (auto i : m_items)
     {
-      m_itemSelectedSignal(*this, index);
-      hide();
-      return;
-    }
+      const float itemHeight = i->height();
+      if (itemTop - itemHeight < 0.f)
+        break;
 
-    itemTop -= itemHeight;
-    index++;
+      if (itemTop - itemHeight <= local.y)
+      {
+        m_itemSelectedSignal(*this, index);
+        hide();
+        break;
+      }
+
+      itemTop -= itemHeight;
+      index++;
+    }
   }
+
+  Widget::onMouseButton(point, button, action, mods);
 }
 
-void Menu::onKey(Widget& widget, Key key, Action action, uint mods)
+void Menu::onKey(Key key, Action action, uint mods)
 {
-  if (action != PRESSED)
-    return;
-
   switch (key)
   {
     case KEY_UP:
     {
-      if (m_selection > 0)
-        m_selection--;
-      else
-        m_selection = m_items.size() - 1;
+      if (action == PRESSED || action == REPEATED)
+      {
+        if (m_selection > 0)
+          m_selection--;
+        else
+          m_selection = m_items.size() - 1;
 
-      invalidate();
+        invalidate();
+      }
+
       break;
     }
 
     case KEY_DOWN:
     {
-      m_selection++;
-      if (m_selection == m_items.size())
-        m_selection = 0;
+      if (action == PRESSED || action == REPEATED)
+      {
+        m_selection++;
+        if (m_selection == m_items.size())
+          m_selection = 0;
 
-      invalidate();
+        invalidate();
+      }
+
       break;
     }
 
     case KEY_ENTER:
     {
-      m_itemSelectedSignal(*this, m_selection);
-      hide();
+      if (action == PRESSED)
+      {
+        m_itemSelectedSignal(*this, m_selection);
+        hide();
+      }
+
       break;
     }
 
     default:
       break;
   }
+
+  Widget::onKey(key, action, mods);
 }
 
-void Menu::onDragEnded(Widget& widget, vec2 position)
+void Menu::onDragEnded(vec2 point)
 {
-  const vec2 localPosition = transformToLocal(position);
-
-  if (!area().contains(localPosition))
+  if (!area().contains(transformToLocal(point)))
     hide();
+
+  Widget::onDragEnded(point);
 }
 
 void Menu::sizeToFit()

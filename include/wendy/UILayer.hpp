@@ -101,7 +101,7 @@ private:
   void onWindowSize(uint width, uint height) override;
   void onKey(Key key, Action action, uint mods) override;
   void onCharacter(uint32 codepoint, uint mods) override;
-  void onCursorPos(vec2 position) override;
+  void onCursorPos(vec2 point) override;
   void onMouseButton(MouseButton button, Action action, uint mods) override;
   void onScroll(vec2 offset) override;
   void onFocus(bool activated) override;

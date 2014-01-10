@@ -58,16 +58,15 @@ public:
   SignalProxy2<void, Menu&, uint> itemSelectedSignal();
 private:
   void draw() const;
-  void onFocusChanged(Widget& widget, bool activated);
-  void onCursorPos(Widget& widget, vec2 position);
-  void onCursorLeft(Widget& widget);
-  void onMouseButton(Widget& widget,
-                     vec2 position,
+  void onFocusChanged(bool activated) override;
+  void onCursorPos(vec2 point) override;
+  void onCursorLeft() override;
+  void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
-                     uint mods);
-  void onKey(Widget& widget, Key key, Action action, uint mods);
-  void onDragEnded(Widget& widget, vec2 position);
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onDragEnded(vec2 point) override;
   void sizeToFit();
   ItemList m_items;
   uint m_selection;

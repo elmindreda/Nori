@@ -54,11 +54,6 @@ Slider::Slider(Layer& layer, Orientation orientation):
   else
     setSize(vec2(em * 1.5f, em * 10.f));
 
-  keyPressedSignal().connect(*this, &Slider::onKey);
-  buttonClickedSignal().connect(*this, &Slider::onMouseButton);
-  scrolledSignal().connect(*this, &Slider::onScroll);
-  dragMovedSignal().connect(*this, &Slider::onDragMoved);
-
   setDraggable(true);
 }
 
@@ -126,53 +121,59 @@ void Slider::draw() const
   }
 }
 
-void Slider::onMouseButton(Widget& widget,
-                           vec2 position,
+void Slider::onMouseButton(vec2 point,
                            MouseButton button,
                            Action action,
                            uint mods)
 {
   if (action == PRESSED)
-    setValue(transformToLocal(position));
+    setValue(transformToLocal(point));
+
+  Widget::onMouseButton(point, button, action, mods);
 }
 
-void Slider::onKey(Widget& widget, Key key, Action action, uint mods)
+void Slider::onKey(Key key, Action action, uint mods)
 {
-  if (action != PRESSED)
-    return;
-
-  switch (key)
+  if (action == PRESSED)
   {
-    case KEY_UP:
-    case KEY_RIGHT:
-      setValue(m_value + m_stepSize, true);
-      break;
-    case KEY_DOWN:
-    case KEY_LEFT:
-      setValue(m_value - m_stepSize, true);
-      break;
-    case KEY_HOME:
-      setValue(m_minValue, true);
-      break;
-    case KEY_END:
-      setValue(m_maxValue, true);
-      break;
-    default:
-      break;
+    switch (key)
+    {
+      case KEY_UP:
+      case KEY_RIGHT:
+        setValue(m_value + m_stepSize, true);
+        break;
+      case KEY_DOWN:
+      case KEY_LEFT:
+        setValue(m_value - m_stepSize, true);
+        break;
+      case KEY_HOME:
+        setValue(m_minValue, true);
+        break;
+      case KEY_END:
+        setValue(m_maxValue, true);
+        break;
+      default:
+        break;
+    }
   }
+
+  Widget::onKey(key, action, mods);
 }
 
-void Slider::onScroll(Widget& widget, vec2 offset)
+void Slider::onScroll(vec2 offset)
 {
   if (m_orientation == HORIZONTAL)
     setValue(m_value + float(offset.x) * m_stepSize, true);
   else
     setValue(m_value + float(offset.y) * m_stepSize, true);
+
+  Widget::onScroll(offset);
 }
 
-void Slider::onDragMoved(Widget& widget, vec2 position)
+void Slider::onDragMoved(vec2 point)
 {
-  setValue(transformToLocal(position));
+  setValue(transformToLocal(point));
+  Widget::onDragMoved(point);
 }
 
 void Slider::setValue(const vec2& position)

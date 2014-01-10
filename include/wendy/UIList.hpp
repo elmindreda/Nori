@@ -63,17 +63,16 @@ public:
 protected:
   void draw() const;
 private:
-  void onAreaChanged(Widget& widget);
-  void onMouseButton(Widget& widget,
-                     vec2 position,
+  void onAreaChanged() override;
+  void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
-                     uint mods);
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onScroll(vec2 offset) override;
   void onEntryFocusChanged(Widget& widget, bool activated);
-  void onEntryKeyPressed(Widget& widget, Key key, Action action, uint mods);
+  void onEntryKey(Widget& widget, Key key, Action action, uint mods);
   void onEntryDestroyed(Widget& widget);
-  void onKey(Widget& widget, Key key, Action action, uint mods);
-  void onScroll(Widget& widget, vec2);
   void onValueChanged(Scroller& scroller);
   void beginEditing();
   void applyEditing();

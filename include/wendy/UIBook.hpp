@@ -62,17 +62,16 @@ public:
   SignalProxy1<void, Book&> pageChangedSignal();
 protected:
   void draw() const;
-  void addedChild(Widget& child);
-  void removedChild(Widget& child);
-private:
-  void setActivePage(Page* newPage, bool notify);
-  void onAreaChanged(Widget& widget);
-  void onKey(Widget& widget, Key key, Action action, uint mods);
-  void onMouseButton(Widget& widget,
-                     vec2 position,
+  void onChildAdded(Widget& child) override;
+  void onChildRemoved(Widget& child) override;
+  void onAreaChanged() override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
-                     uint mods);
+                     uint mods) override;
+private:
+  void setActivePage(Page* newPage, bool notify);
   Signal1<void, Book&> m_pageChangedSignal;
   Page* m_activePage;
   std::vector<Page*> m_pages;

@@ -48,13 +48,12 @@ public:
 protected:
   void draw() const;
 private:
-  void onMouseButton(Widget& widget,
-                     vec2 position,
+  void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
-                     uint mods);
-  void onKey(Widget& widget, Key key, Action action, uint mods);
-  void onCharacter(Widget& widget, uint32 codepoint, uint mods);
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onCharacter(uint32 codepoint, uint mods) override;
   void onTextChanged();
   void onCaretMoved();
   void setCaretPosition(uint newPosition, bool notify);

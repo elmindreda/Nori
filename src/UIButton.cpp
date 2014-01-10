@@ -55,10 +55,6 @@ Button::Button(Layer& layer, const char* text):
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
-
-  dragEndedSignal().connect(*this, &Button::onDragEnded);
-  buttonClickedSignal().connect(*this, &Button::onMouseButton);
-  keyPressedSignal().connect(*this, &Button::onKey);
 }
 
 const String& Button::text() const
@@ -99,8 +95,7 @@ void Button::draw() const
   }
 }
 
-void Button::onMouseButton(Widget& widget,
-                           vec2 position,
+void Button::onMouseButton(vec2 point,
                            MouseButton button,
                            Action action,
                            uint mods)
@@ -117,15 +112,19 @@ void Button::onMouseButton(Widget& widget,
 
     invalidate();
   }
+
+  Widget::onMouseButton(point, button, action, mods);
 }
 
-void Button::onDragEnded(Widget& widget, vec2 position)
+void Button::onDragEnded(vec2 point)
 {
   m_selected = false;
   invalidate();
+
+  Widget::onDragEnded(point);
 }
 
-void Button::onKey(Widget& widget, Key key, Action action, uint mods)
+void Button::onKey(Key key, Action action, uint mods)
 {
   switch (key)
   {
@@ -147,6 +146,8 @@ void Button::onKey(Widget& widget, Key key, Action action, uint mods)
     default:
       break;
   }
+
+  Widget::onKey(key, action, mods);
 }
 
 ///////////////////////////////////////////////////////////////////////

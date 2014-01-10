@@ -47,10 +47,6 @@ Entry::Entry(Layer& layer, const char* text):
 
   setSize(vec2(em * 10.f, em * 1.5f));
 
-  buttonClickedSignal().connect(*this, &Entry::onMouseButton);
-  keyPressedSignal().connect(*this, &Entry::onKey);
-  charInputSignal().connect(*this, &Entry::onCharacter);
-
   m_controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
   m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
 }
@@ -124,46 +120,51 @@ void Entry::draw() const
   }
 }
 
-void Entry::onMouseButton(Widget& widget,
-                          vec2 point,
+void Entry::onMouseButton(vec2 point,
                           MouseButton button,
                           Action action,
                           uint mods)
 {
-  if (action != PRESSED)
-    return;
-
-  Drawer& drawer = layer().drawer();
-
-  const float em = drawer.currentEM();
-  const float offset = em / 2.f;
-  float position = transformToLocal(point).x - offset;
-
-  std::vector<Rect> layout = drawer.currentFont().layoutOf(m_controller.text().c_str());
-
-  uint index;
-
-  // TODO: Improve this, it sucks.
-
-  for (index = 0;  index < layout.size();  index++)
+  if (action == PRESSED)
   {
-    position -= layout[index].position.x;
-    if (position < 0.f)
-      break;
+    Drawer& drawer = layer().drawer();
+
+    const float em = drawer.currentEM();
+    const float offset = em / 2.f;
+    float position = transformToLocal(point).x - offset;
+
+    std::vector<Rect> layout = drawer.currentFont().layoutOf(m_controller.text().c_str());
+
+    uint index;
+
+    // TODO: Improve this, it sucks.
+
+    for (index = 0;  index < layout.size();  index++)
+    {
+      position -= layout[index].position.x;
+      if (position < 0.f)
+        break;
+    }
+
+    m_controller.setCaretPosition(index);
+    m_caretMovedSignal(*this);
   }
 
-  m_controller.setCaretPosition(index);
-  m_caretMovedSignal(*this);
+  Widget::onMouseButton(point, button, action, mods);
 }
 
-void Entry::onKey(Widget& widget, Key key, Action action, uint mods)
+void Entry::onKey(Key key, Action action, uint mods)
 {
   m_controller.inputKey(key, action, mods);
+
+  Widget::onKey(key, action, mods);
 }
 
-void Entry::onCharacter(Widget& widget, uint32 codepoint, uint mods)
+void Entry::onCharacter(uint32 codepoint, uint mods)
 {
   m_controller.inputCharacter(codepoint, mods);
+
+  Widget::onCharacter(codepoint, mods);
 }
 
 void Entry::onTextChanged()
