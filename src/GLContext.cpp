@@ -34,8 +34,7 @@
 #include <wendy/GLProgram.hpp>
 #include <wendy/GLContext.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
 
@@ -118,13 +117,13 @@ void errorCallback(int error, const char* message)
   logError("GLFW reported error: %s", message);
 }
 
-void APIENTRY debugCallback(GLenum source,
-                            GLenum type,
-                            GLuint id,
-                            GLenum severity,
-                            GLsizei length,
-                            const GLchar* message,
-                            GLvoid* userParam)
+void GLAPIENTRY debugCallback(GLenum source,
+                              GLenum type,
+                              GLuint id,
+                              GLenum severity,
+                              GLsizei length,
+                              const GLchar* message,
+                              const GLvoid* userParam)
 {
   if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
   {
@@ -388,7 +387,7 @@ Limits::Limits(Context& context)
   maxTextureCoords = getInteger(GL_MAX_TEXTURE_COORDS);
   maxVertexAttributes = getInteger(GL_MAX_VERTEX_ATTRIBS);
 
-  if (GLEW_EXT_texture_filter_anisotropic)
+  if (GREG_EXT_texture_filter_anisotropic)
     maxTextureAnisotropy = getFloat(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
   else
     maxTextureAnisotropy = 1.f;
@@ -1149,6 +1148,18 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwSetWindowUserPointer(m_handle, this);
     glfwMakeContextCurrent(m_handle);
 
+    m_window.init(m_handle);
+    m_window.frameSignal().connect(*this, &Context::onFrame);
+  }
+
+  // Initialize greg and check extensions
+  {
+    if (!gregInit())
+    {
+      logError("Failed to load OpenGL functions");
+      return false;
+    }
+
     log("OpenGL context version %i.%i created",
         glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MAJOR),
         glfwGetWindowAttrib(m_handle, GLFW_CONTEXT_VERSION_MINOR));
@@ -1160,19 +1171,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
 
-    m_window.init(m_handle);
-    m_window.frameSignal().connect(*this, &Context::onFrame);
-  }
-
-  // Initialize GLEW and check extensions
-  {
-    if (glewInit() != GLEW_OK)
-    {
-      logError("Failed to initialize GLEW");
-      return false;
-    }
-
-    if (cc.debug && GLEW_ARB_debug_output)
+    if (cc.debug && GREG_ARB_debug_output)
     {
       glDebugMessageCallbackARB(debugCallback, nullptr);
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);

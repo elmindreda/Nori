@@ -30,8 +30,7 @@
 #include <wendy/GLProgram.hpp>
 #include <wendy/GLContext.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
 
@@ -502,7 +501,7 @@ void Texture::setMaxAnisotropy(float newMax)
 {
   if (newMax != m_maxAnisotropy)
   {
-    if (!GLEW_EXT_texture_filter_anisotropic)
+    if (!GREG_EXT_texture_filter_anisotropic)
     {
       logError("Cannot set max anisotropy: "
                "GL_EXT_texture_filter_anisotropic is missing");

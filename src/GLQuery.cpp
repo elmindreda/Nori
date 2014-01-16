@@ -29,8 +29,7 @@
 #include <wendy/GLBuffer.hpp>
 #include <wendy/GLQuery.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
 

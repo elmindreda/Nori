@@ -32,8 +32,7 @@
 #include <wendy/GLProgram.hpp>
 #include <wendy/GLContext.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
 

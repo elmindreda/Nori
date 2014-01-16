@@ -30,8 +30,7 @@
 #include <wendy/GLProgram.hpp>
 #include <wendy/GLContext.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
 
@@ -226,7 +225,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
       {
         case PixelFormat::L:
         {
-          if (!GLEW_ARB_texture_float)
+          if (!GREG_ARB_texture_float)
           {
             logError("Half-precision floating point textures not supported; "
                      "cannot convert pixel format");
@@ -238,7 +237,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
         case PixelFormat::LA:
         {
-          if (!GLEW_ARB_texture_float)
+          if (!GREG_ARB_texture_float)
           {
             logError("Half-precision floating point textures not supported; "
                      "cannot convert pixel format");
@@ -265,7 +264,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
       {
         case PixelFormat::L:
         {
-          if (!GLEW_ARB_texture_float)
+          if (!GREG_ARB_texture_float)
           {
             logError("Floating point textures not supported; cannot convert pixel format");
             return 0;
@@ -276,7 +275,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
 
         case PixelFormat::LA:
         {
-          if (!GLEW_ARB_texture_float)
+          if (!GREG_ARB_texture_float)
           {
             logError("Floating point textures not supported; cannot convert pixel format");
             return 0;

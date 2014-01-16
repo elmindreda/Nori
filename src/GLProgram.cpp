@@ -30,8 +30,7 @@
 #include <wendy/GLProgram.hpp>
 #include <wendy/GLContext.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
 #include <internal/GLParser.hpp>
@@ -106,7 +105,7 @@ bool isSupportedSamplerType(GLenum type)
     case GL_SAMPLER_1D:
     case GL_SAMPLER_2D:
     case GL_SAMPLER_3D:
-    case GL_SAMPLER_2D_RECT_ARB:
+    case GL_SAMPLER_2D_RECT:
     case GL_SAMPLER_CUBE:
       return true;
   }
@@ -124,7 +123,7 @@ SamplerType convertSamplerType(GLenum type)
       return SAMPLER_2D;
     case GL_SAMPLER_3D:
       return SAMPLER_3D;
-    case GL_SAMPLER_2D_RECT_ARB:
+    case GL_SAMPLER_2D_RECT:
       return SAMPLER_RECT;
     case GL_SAMPLER_CUBE:
       return SAMPLER_CUBE;
