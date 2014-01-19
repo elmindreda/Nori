@@ -26,7 +26,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#if defined(_GREG_USE_GLFW3)
+#if defined(_GREG_USE_EGL)
+  #include <EGL/egl.h>
+#elif defined(_GREG_USE_GLFW3)
   #include <GLFW/glfw3.h>
 #elif defined(_GREG_USE_SDL2)
   #include <SDL/SDL.h>
@@ -46,9 +48,7 @@ static struct
   int major;
   int minor;
 
-#if defined(_GREG_USE_GLFW3)
-#elif defined(_GREG_USE_SDL2)
-#elif defined(_WIN32)
+#if defined(_WIN32)
   struct
   {
     HINSTANCE instance;
@@ -753,30 +753,35 @@ PFNGLWINDOWPOS3SPROC greg_glWindowPos3s;
 PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 
 
+static GLboolean gregHasContext(void)
+{
+#if defined(_GREG_USE_EGL)
+  return eglGetCurrentContext() != EGL_NO_CONTEXT;
+#elif defined(_GREG_USE_GLFW3)
+  return glfwGetCurrentContext() != NULL;
+#elif defined(_GREG_USE_SDL2)
+  return SDL_GL_GetCurrentContext() != NULL;
+#elif defined(_WIN32)
+  return wglGetCurrentContext() != NULL;
+#elif defined(__linux__)
+  return glXGetCurrentContext() != NULL;
+#elif defined(__APPLE__)
+  return CGLGetCurrentContext() != NULL;
+#endif
+}
+
 static GLboolean gregLoadLibrary(void)
 {
-#if defined(_GREG_USE_GLFW3)
-  if (!glfwGetCurrentContext())
-    return GL_FALSE;
-#elif defined(_GREG_USE_SDL2)
+#if defined(_GREG_USE_SDL2)
   if (SDL_GL_LoadLibrary(NULL) != 0)
-    return GL_FALSE;
-  if (!SDL_GL_GetCurrentContext())
     return GL_FALSE;
 #elif defined(_WIN32)
   _greg.wgl.instance = LoadLibraryA("opengl32.dll");
   if (!_greg.wgl.instance)
     return GL_FALSE;
-  if (!wglGetCurrentContext())
-    return GL_FALSE;
-#elif defined(__linux__)
-  if (!glXGetCurrentContext())
-    return GL_FALSE;
 #elif defined(__APPLE__)
   _greg.nsgl.framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
   if (!_greg.nsgl.framework)
-    return GL_FALSE;
-  if (!CGLGetCurrentContext())
     return GL_FALSE;
 #endif
 
@@ -785,15 +790,11 @@ static GLboolean gregLoadLibrary(void)
 
 static void gregFreeLibrary(void)
 {
-#if defined(_GREG_USE_GLFW3)
-  // Nothing to do here
-#elif defined(_GREG_USE_SDL2)
+#if defined(_GREG_USE_SDL2)
   SDL_GL_UnloadLibrary();
 #elif defined(_WIN32)
   if (_greg.wgl.instance)
     FreeLibrary(_greg.wgl.instance);
-#elif defined(__linux__)
-  // Nothing to do here
 #elif defined(__APPLE__)
   if (_greg.nsgl.framework)
     CFRelease(_greg.nsgl.framework);
@@ -804,7 +805,9 @@ static GREGglproc gregGetProcAddress(const char* name)
 {
   GREGglproc proc;
 
-#if defined(_GREG_USE_GLFW3)
+#if defined(_GREG_USE_EGL)
+  proc = (GREGglproc) eglGetProcAddress(name);
+#elif defined(_GREG_USE_GLFW3)
   proc = (GREGglproc) glfwGetProcAddress(name);
 #elif defined(_GREG_USE_SDL2)
   proc = (GREGglproc) SDL_GL_GetProcAddress(name);
@@ -926,7 +929,7 @@ int gregInit(void)
 {
   memset(&_greg, 0, sizeof(_greg));
 
-  if (!gregLoadLibrary())
+  if (!gregHasContext() || !gregLoadLibrary())
   {
     gregFreeLibrary();
     return GL_FALSE;
