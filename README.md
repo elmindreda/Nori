@@ -20,9 +20,9 @@ Wendy currently lives on [GitHub](https://github.com/elmindreda/Wendy).
 License and copyright
 ---------------------
 
-Copyright (c) Camilla Löwy Berglund <elmindreda@elmindreda.org>
+Copyright © Camilla Löwy Berglund <elmindreda@elmindreda.org>
 
-Some parts copyright (c) Tapio Vierros <tapiovierros@gmail.com>
+Some parts are Copyright © Tapio Vierros <tapiovierros@gmail.com>
 
 Wendy is licensed under the
 [zlib/libpng license](http://opensource.org/licenses/Zlib), which can be found
