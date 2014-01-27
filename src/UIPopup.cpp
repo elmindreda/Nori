@@ -146,7 +146,7 @@ const ItemList& Popup::items() const
   return m_menu->items();
 }
 
-SignalProxy2<void, Popup&, uint> Popup::itemSelectedSignal()
+SignalProxy<void, Popup&, uint> Popup::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
 }

@@ -33,18 +33,18 @@ namespace wendy
 
 ////////////////////////////////////////////////////////////////////////
 
-SignalSlot::SignalSlot(Trackable* initObject):
+SignalSlotBase::SignalSlotBase(Trackable* initObject):
   object(initObject)
 {
   if (object)
     object->slots.push_back(this);
 }
 
-SignalSlot::~SignalSlot()
+SignalSlotBase::~SignalSlotBase()
 {
   if (object)
   {
-    Trackable::SlotList& slots = object->slots;
+    auto& slots = object->slots;
     slots.erase(std::find(slots.begin(), slots.end(), this));
   }
 }

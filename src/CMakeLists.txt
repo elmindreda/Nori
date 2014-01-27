@@ -78,7 +78,3 @@ file(GLOB_RECURSE wendy_HEADERS ${CMAKE_SOURCE_DIR}/include/*.hpp)
 add_library(wendy STATIC ${wendy_SOURCES} ${wendy_HEADERS})
 set_target_properties(wendy PROPERTIES COMPILE_DEFINITIONS_DEBUG WENDY_DEBUG)
 
-if (UNIX)
-  add_dependencies(wendy signal)
-endif()
-

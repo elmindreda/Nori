@@ -72,12 +72,12 @@ void Entry::setCaretPosition(uint newPosition)
   m_controller.setCaretPosition(newPosition);
 }
 
-SignalProxy1<void, Entry&> Entry::textChangedSignal()
+SignalProxy<void, Entry&> Entry::textChangedSignal()
 {
   return m_textChangedSignal;
 }
 
-SignalProxy1<void, Entry&> Entry::caretMovedSignal()
+SignalProxy<void, Entry&> Entry::caretMovedSignal()
 {
   return m_caretMovedSignal;
 }

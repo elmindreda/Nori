@@ -228,7 +228,7 @@ const ItemList& List::items() const
   return m_items;
 }
 
-SignalProxy1<void, List&> List::itemSelectedSignal()
+SignalProxy<void, List&> List::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
 }

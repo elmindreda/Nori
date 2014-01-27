@@ -47,7 +47,7 @@ public:
   void setStepSize(float newSize);
   float value() const { return m_value; }
   void setValue(float newValue);
-  SignalProxy1<void, Slider&> valueChangedSignal();
+  SignalProxy<void, Slider&> valueChangedSignal();
 protected:
   void draw() const;
 private:
@@ -60,7 +60,7 @@ private:
   void onDragMoved(vec2 point);
   void setValue(const vec2& position);
   void setValue(float newValue, bool notify);
-  Signal1<void, Slider&> m_valueChangedSignal;
+  Signal<void, Slider&> m_valueChangedSignal;
   float m_minValue;
   float m_maxValue;
   float m_stepSize;

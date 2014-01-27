@@ -197,19 +197,19 @@ public:
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
-  SignalProxy1<void, Widget&> destroyedSignal();
-  SignalProxy1<void, Widget&> areaChangedSignal();
-  SignalProxy2<void, Widget&, bool> focusChangedSignal();
-  SignalProxy4<void, Widget&, Key, Action, uint> keySignal();
-  SignalProxy3<void, Widget&, uint32, uint> characterSignal();
-  SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal();
-  SignalProxy2<void, Widget&, vec2> scrollSignal();
-  SignalProxy2<void, Widget&, vec2> cursorPosSignal();
-  SignalProxy1<void, Widget&> cursorEnteredSignal();
-  SignalProxy1<void, Widget&> cursorLeftSignal();
-  SignalProxy2<void, Widget&, vec2> dragBegunSignal();
-  SignalProxy2<void, Widget&, vec2> dragMovedSignal();
-  SignalProxy2<void, Widget&, vec2> dragEndedSignal();
+  SignalProxy<void, Widget&> destroyedSignal();
+  SignalProxy<void, Widget&> areaChangedSignal();
+  SignalProxy<void, Widget&, bool> focusChangedSignal();
+  SignalProxy<void, Widget&, Key, Action, uint> keySignal();
+  SignalProxy<void, Widget&, uint32, uint> characterSignal();
+  SignalProxy<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal();
+  SignalProxy<void, Widget&, vec2> scrollSignal();
+  SignalProxy<void, Widget&, vec2> cursorPosSignal();
+  SignalProxy<void, Widget&> cursorEnteredSignal();
+  SignalProxy<void, Widget&> cursorLeftSignal();
+  SignalProxy<void, Widget&, vec2> dragBegunSignal();
+  SignalProxy<void, Widget&, vec2> dragMovedSignal();
+  SignalProxy<void, Widget&, vec2> dragEndedSignal();
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -235,19 +235,19 @@ protected:
   virtual void onDragMoved(vec2 point);
   virtual void onDragEnded(vec2 point);
 private:
-  Signal1<void, Widget&> m_destroyedSignal;
-  Signal1<void, Widget&> m_areaChangedSignal;
-  Signal2<void, Widget&, bool> m_focusChangedSignal;
-  Signal4<void, Widget&, Key, Action, uint> m_keySignal;
-  Signal3<void, Widget&, uint32, uint> m_characterSignal;
-  Signal5<void, Widget&, vec2, MouseButton, Action, uint> m_mouseButtonSignal;
-  Signal2<void, Widget&, vec2> m_scrollSignal;
-  Signal2<void, Widget&, vec2> m_cursorPosSignal;
-  Signal1<void, Widget&> m_cursorEnteredSignal;
-  Signal1<void, Widget&> m_cursorLeftSignal;
-  Signal2<void, Widget&, vec2> m_dragBegunSignal;
-  Signal2<void, Widget&, vec2> m_dragMovedSignal;
-  Signal2<void, Widget&, vec2> m_dragEndedSignal;
+  Signal<void, Widget&> m_destroyedSignal;
+  Signal<void, Widget&> m_areaChangedSignal;
+  Signal<void, Widget&, bool> m_focusChangedSignal;
+  Signal<void, Widget&, Key, Action, uint> m_keySignal;
+  Signal<void, Widget&, uint32, uint> m_characterSignal;
+  Signal<void, Widget&, vec2, MouseButton, Action, uint> m_mouseButtonSignal;
+  Signal<void, Widget&, vec2> m_scrollSignal;
+  Signal<void, Widget&, vec2> m_cursorPosSignal;
+  Signal<void, Widget&> m_cursorEnteredSignal;
+  Signal<void, Widget&> m_cursorLeftSignal;
+  Signal<void, Widget&, vec2> m_dragBegunSignal;
+  Signal<void, Widget&, vec2> m_dragMovedSignal;
+  Signal<void, Widget&, vec2> m_dragEndedSignal;
   Layer& m_layer;
   Widget* m_parent;
   WidgetList m_children;

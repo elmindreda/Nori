@@ -189,7 +189,7 @@ void Layer::setActiveWidget(Widget* widget)
   invalidate();
 }
 
-SignalProxy1<void, Layer&> Layer::sizeChangedSignal()
+SignalProxy<void, Layer&> Layer::sizeChangedSignal()
 {
   return m_sizeChangedSignal;
 }

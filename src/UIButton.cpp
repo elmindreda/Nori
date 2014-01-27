@@ -68,7 +68,7 @@ void Button::setText(const char* newText)
   invalidate();
 }
 
-SignalProxy1<void, Button&> Button::pushedSignal()
+SignalProxy<void, Button&> Button::pushedSignal()
 {
   return m_pushedSignal;
 }

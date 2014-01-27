@@ -41,7 +41,7 @@ public:
   Button(Layer& layer, const char* text = "");
   const String& text() const;
   void setText(const char* newText);
-  SignalProxy1<void, Button&> pushedSignal();
+  SignalProxy<void, Button&> pushedSignal();
 protected:
   void draw() const;
   void onMouseButton(vec2 point,
@@ -51,7 +51,7 @@ protected:
   void onDragEnded(vec2 point) override;
   void onKey(Key key, Action action, uint mods) override;
 private:
-  Signal1<void, Button&> m_pushedSignal;
+  Signal<void, Button&> m_pushedSignal;
   bool m_selected;
   String m_text;
 };

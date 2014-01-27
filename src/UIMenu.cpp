@@ -172,7 +172,7 @@ void Menu::sortItems()
   std::sort(m_items.begin(), m_items.end(), comparator);
 }
 
-SignalProxy2<void, Menu&, uint> Menu::itemSelectedSignal()
+SignalProxy<void, Menu&, uint> Menu::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
 }

@@ -419,7 +419,7 @@ void Window::setClipboardText(const String& newText)
   glfwSetClipboardString(m_handle, newText.c_str());
 }
 
-SignalProxy0<void> Window::frameSignal()
+SignalProxy<void> Window::frameSignal()
 {
   return m_frameSignal;
 }

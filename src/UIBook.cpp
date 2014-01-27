@@ -76,7 +76,7 @@ void Book::setActivePage(Page* newPage)
   setActivePage(newPage, false);
 }
 
-SignalProxy1<void, Book&> Book::pageChangedSignal()
+SignalProxy<void, Book&> Book::pageChangedSignal()
 {
   return m_pageChangedSignal;
 }

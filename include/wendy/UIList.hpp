@@ -59,7 +59,7 @@ public:
   Item* item(uint index);
   const Item* item(uint index) const;
   const ItemList& items() const;
-  SignalProxy1<void, List&> itemSelectedSignal();
+  SignalProxy<void, List&> itemSelectedSignal();
 protected:
   void draw() const;
 private:
@@ -80,7 +80,7 @@ private:
   void updateScroller();
   bool isSelectionVisible() const;
   void setSelection(uint newSelection, bool notify);
-  Signal1<void, List&> m_itemSelectedSignal;
+  Signal<void, List&> m_itemSelectedSignal;
   bool m_editable;
   bool m_editing;
   ItemList m_items;

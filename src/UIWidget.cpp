@@ -332,67 +332,67 @@ void Widget::setDraggable(bool newState)
     cancelDragging();
 }
 
-SignalProxy1<void, Widget&> Widget::destroyedSignal()
+SignalProxy<void, Widget&> Widget::destroyedSignal()
 {
   return m_destroyedSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::areaChangedSignal()
+SignalProxy<void, Widget&> Widget::areaChangedSignal()
 {
   return m_areaChangedSignal;
 }
 
-SignalProxy2<void, Widget&, bool> Widget::focusChangedSignal()
+SignalProxy<void, Widget&, bool> Widget::focusChangedSignal()
 {
   return m_focusChangedSignal;
 }
 
-SignalProxy4<void, Widget&, Key, Action, uint> Widget::keySignal()
+SignalProxy<void, Widget&, Key, Action, uint> Widget::keySignal()
 {
   return m_keySignal;
 }
 
-SignalProxy3<void, Widget&, uint32, uint> Widget::characterSignal()
+SignalProxy<void, Widget&, uint32, uint> Widget::characterSignal()
 {
   return m_characterSignal;
 }
 
-SignalProxy5<void, Widget&, vec2, MouseButton, Action, uint> Widget::mouseButtonSignal()
+SignalProxy<void, Widget&, vec2, MouseButton, Action, uint> Widget::mouseButtonSignal()
 {
   return m_mouseButtonSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::scrollSignal()
+SignalProxy<void, Widget&, vec2> Widget::scrollSignal()
 {
   return m_scrollSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::cursorPosSignal()
+SignalProxy<void, Widget&, vec2> Widget::cursorPosSignal()
 {
   return m_cursorPosSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::cursorEnteredSignal()
+SignalProxy<void, Widget&> Widget::cursorEnteredSignal()
 {
   return m_cursorEnteredSignal;
 }
 
-SignalProxy1<void, Widget&> Widget::cursorLeftSignal()
+SignalProxy<void, Widget&> Widget::cursorLeftSignal()
 {
   return m_cursorLeftSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::dragBegunSignal()
+SignalProxy<void, Widget&, vec2> Widget::dragBegunSignal()
 {
   return m_dragBegunSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::dragMovedSignal()
+SignalProxy<void, Widget&, vec2> Widget::dragMovedSignal()
 {
   return m_dragMovedSignal;
 }
 
-SignalProxy2<void, Widget&, vec2> Widget::dragEndedSignal()
+SignalProxy<void, Widget&, vec2> Widget::dragEndedSignal()
 {
   return m_dragEndedSignal;
 }

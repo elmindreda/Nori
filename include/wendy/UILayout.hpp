@@ -61,7 +61,7 @@ private:
   float m_borderSize;
   Orientation m_orientation;
   bool m_expanding;
-  Ptr<SignalSlot> m_parentAreaSlot;
+  Ptr<SignalSlotBase> m_parentAreaSlot;
 };
 
 ///////////////////////////////////////////////////////////////////////

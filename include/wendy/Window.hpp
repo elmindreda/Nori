@@ -474,7 +474,7 @@ public:
   void setClipboardText(const String& newText);
   /*! @return The signal for per-frame post-render clean-up.
    */
-  SignalProxy0<void> frameSignal();
+  SignalProxy<void> frameSignal();
   EventHook* hook() const { return m_hook; }
   void setHook(EventHook* newHook);
   EventTarget* target() const { return m_target; }
@@ -499,7 +499,7 @@ private:
   RefreshMode m_refreshMode;
   EventHook* m_hook;
   EventTarget* m_target;
-  Signal0<void> m_frameSignal;
+  Signal<void> m_frameSignal;
   Ptr<Gamepad> m_gamepad;
 };
 
@@ -553,13 +553,13 @@ public:
   size_t length() const;
   size_t caretPosition() const { return m_caretPosition; }
   void setCaretPosition(size_t newPosition);
-  SignalProxy0<void> caretMovedSignal() { return m_caretMovedSignal; }
-  SignalProxy0<void> textChangedSignal() { return m_textChangedSignal; }
+  SignalProxy<void> caretMovedSignal() { return m_caretMovedSignal; }
+  SignalProxy<void> textChangedSignal() { return m_textChangedSignal; }
 private:
   String m_text;
   size_t m_caretPosition;
-  Signal0<void> m_textChangedSignal;
-  Signal0<void> m_caretMovedSignal;
+  Signal<void> m_textChangedSignal;
+  Signal<void> m_caretMovedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

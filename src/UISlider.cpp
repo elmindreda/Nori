@@ -80,7 +80,7 @@ void Slider::setStepSize(float newSize)
   m_stepSize = max(newSize, 0.f);
 }
 
-SignalProxy1<void, Slider&> Slider::valueChangedSignal()
+SignalProxy<void, Slider&> Slider::valueChangedSignal()
 {
   return m_valueChangedSignal;
 }

@@ -94,7 +94,7 @@ public:
   Widget* hoveredWidget() { return m_hoveredWidget; }
   void setActiveWidget(Widget* widget);
   LayerStack* stack() const { return m_stack; }
-  SignalProxy1<void, Layer&> sizeChangedSignal();
+  SignalProxy<void, Layer&> sizeChangedSignal();
 private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
@@ -114,7 +114,7 @@ private:
   Widget* m_hoveredWidget;
   Widget* m_captureWidget;
   LayerStack* m_stack;
-  Signal1<void, Layer&> m_sizeChangedSignal;
+  Signal<void, Layer&> m_sizeChangedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

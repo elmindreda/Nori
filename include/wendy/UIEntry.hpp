@@ -43,8 +43,8 @@ public:
   void setText(const char* newText);
   uint caretPosition() const;
   void setCaretPosition(uint newPosition);
-  SignalProxy1<void, Entry&> textChangedSignal();
-  SignalProxy1<void, Entry&> caretMovedSignal();
+  SignalProxy<void, Entry&> textChangedSignal();
+  SignalProxy<void, Entry&> caretMovedSignal();
 protected:
   void draw() const;
 private:
@@ -57,8 +57,8 @@ private:
   void onTextChanged();
   void onCaretMoved();
   void setCaretPosition(uint newPosition, bool notify);
-  Signal1<void, Entry&> m_textChangedSignal;
-  Signal1<void, Entry&> m_caretMovedSignal;
+  Signal<void, Entry&> m_textChangedSignal;
+  Signal<void, Entry&> m_caretMovedSignal;
   TextController m_controller;
 };
 

@@ -44,7 +44,7 @@ Canvas::Canvas(Layer& layer):
 {
 }
 
-SignalProxy1<void, const Canvas&> Canvas::drawSignal()
+SignalProxy<void, const Canvas&> Canvas::drawSignal()
 {
   return m_drawSignal;
 }

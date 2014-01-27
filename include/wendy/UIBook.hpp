@@ -59,7 +59,7 @@ public:
   Book(Layer& layer);
   Page* activePage() const;
   void setActivePage(Page* newPage);
-  SignalProxy1<void, Book&> pageChangedSignal();
+  SignalProxy<void, Book&> pageChangedSignal();
 protected:
   void draw() const;
   void onChildAdded(Widget& child) override;
@@ -72,7 +72,7 @@ protected:
                      uint mods) override;
 private:
   void setActivePage(Page* newPage, bool notify);
-  Signal1<void, Book&> m_pageChangedSignal;
+  Signal<void, Book&> m_pageChangedSignal;
   Page* m_activePage;
   std::vector<Page*> m_pages;
 };

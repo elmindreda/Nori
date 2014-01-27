@@ -56,7 +56,7 @@ public:
   Item* item(uint index);
   const Item* item(uint index) const;
   const ItemList& items() const;
-  SignalProxy2<void, Popup&, uint> itemSelectedSignal();
+  SignalProxy<void, Popup&, uint> itemSelectedSignal();
 protected:
   void draw() const;
 private:
@@ -68,7 +68,7 @@ private:
   void onKey(Key key, Action action, uint mods) override;
   void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
-  Signal2<void, Popup&, uint> m_itemSelectedSignal;
+  Signal<void, Popup&, uint> m_itemSelectedSignal;
   uint m_selection;
   Menu* m_menu;
 };

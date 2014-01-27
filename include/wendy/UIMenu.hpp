@@ -55,7 +55,7 @@ public:
   Item* item(uint index) { return m_items[index]; }
   const Item* item(uint index) const { return m_items[index]; }
   const ItemList& items() const { return m_items; }
-  SignalProxy2<void, Menu&, uint> itemSelectedSignal();
+  SignalProxy<void, Menu&, uint> itemSelectedSignal();
 private:
   void draw() const;
   void onFocusChanged(bool activated) override;
@@ -70,7 +70,7 @@ private:
   void sizeToFit();
   ItemList m_items;
   uint m_selection;
-  Signal2<void, Menu&, uint> m_itemSelectedSignal;
+  Signal<void, Menu&, uint> m_itemSelectedSignal;
 };
 
 ///////////////////////////////////////////////////////////////////////

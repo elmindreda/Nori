@@ -82,7 +82,7 @@ void Scroller::setPercentage(float newPercentage)
   invalidate();
 }
 
-SignalProxy1<void, Scroller&> Scroller::valueChangedSignal()
+SignalProxy<void, Scroller&> Scroller::valueChangedSignal()
 {
   return m_valueChangedSignal;
 }

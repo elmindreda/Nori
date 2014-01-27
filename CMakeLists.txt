@@ -55,21 +55,6 @@ else()
   set(WENDY_SYSTEM_LINUX 1)
 endif()
 
-if (UNIX)
-  find_package(Ruby REQUIRED)
-
-  set(SIGNAL_INPUT ${wendy_SOURCE_DIR}/build/makesignal.rb)
-  set(SIGNAL_OUTPUT ${wendy_BINARY_DIR}/include/wendy/Signal.hpp)
-
-  add_custom_command(OUTPUT ${SIGNAL_OUTPUT}
-                     COMMAND ${RUBY_EXECUTABLE} ${SIGNAL_INPUT} ${SIGNAL_OUTPUT} 5
-                     MAIN_DEPENDENCY ${SIGNAL_INPUT}
-                     COMMENT "Creating ${SIGNAL_OUTPUT}"
-                     VERBATIM)
-   
-  add_custom_target(signal ALL DEPENDS ${SIGNAL_OUTPUT})
-endif()
-
 if (WENDY_BUILD_DOCUMENTATION)
   find_package(Doxygen)
 endif()
@@ -108,10 +93,6 @@ endif()
 if (WENDY_INCLUDE_BULLET)
   list(APPEND wendy_CORE_LIBRARIES bullet)
   list(APPEND wendy_INCLUDE_DIRS ${bullet_SOURCE_DIR})
-endif()
-
-if (WIN32)
-  list(APPEND wendy_INCLUDE_DIRS ${wendy_SOURCE_DIR}/build/windows)
 endif()
 
 set(WENDY_CORE_LIBRARIES ${wendy_CORE_LIBRARIES} CACHE STRING
