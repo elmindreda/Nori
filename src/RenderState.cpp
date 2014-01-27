@@ -24,6 +24,8 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.hpp>
+#include <wendy/Core.hpp>
+#include <wendy/ID.hpp>
 
 #include <wendy/Core.hpp>
 #include <wendy/Primitive.hpp>
@@ -50,6 +52,8 @@ bool samplerTypeMatchesTextureType(GL::SamplerType samplerType,
 {
   return (int) samplerType == (int) textureType;
 }
+
+IDPool<StateID> stateIDs;
 
 } /*namespace*/
 
@@ -442,12 +446,12 @@ SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
 ///////////////////////////////////////////////////////////////////////
 
 ProgramState::ProgramState():
-  m_ID(allocateID())
+  m_ID(stateIDs.allocateID())
 {
 }
 
 ProgramState::ProgramState(const ProgramState& source):
-  m_ID(allocateID()),
+  m_ID(stateIDs.allocateID()),
   m_program(source.m_program),
   m_floats(source.m_floats),
   m_textures(source.m_textures)
@@ -456,7 +460,7 @@ ProgramState::ProgramState(const ProgramState& source):
 
 ProgramState::~ProgramState()
 {
-  releaseID(m_ID);
+  stateIDs.releaseID(m_ID);
 }
 
 void ProgramState::apply() const
@@ -723,21 +727,6 @@ void ProgramState::setProgram(GL::Program* newProgram)
   m_textures.resize(textureCount);
 }
 
-StateID ProgramState::allocateID()
-{
-  if (m_usedIDs.empty())
-    return m_nextID++;
-
-  const StateID ID = m_usedIDs.back();
-  m_usedIDs.pop_back();
-  return ID;
-}
-
-void ProgramState::releaseID(StateID ID)
-{
-  m_usedIDs.push_front(ID);
-}
-
 void* ProgramState::data(const char* name, GL::UniformType type)
 {
   if (!m_program)
@@ -897,10 +886,6 @@ GL::UniformType ProgramState::uniformType<mat4>()
 {
   return GL::UNIFORM_MAT4;
 }
-
-ProgramState::IDQueue ProgramState::m_usedIDs;
-
-StateID ProgramState::m_nextID = 0;
 
 ///////////////////////////////////////////////////////////////////////
 

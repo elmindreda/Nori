@@ -279,21 +279,16 @@ public:
   void setProgram(GL::Program* newProgram);
   StateID ID() const { return m_ID; }
 private:
-  static StateID allocateID();
-  static void releaseID(StateID ID);
   template <typename T>
   static GL::UniformType uniformType();
   void* data(const char* name, GL::UniformType type);
   const void* data(const char* name, GL::UniformType type) const;
   void* data(UniformStateIndex index, GL::UniformType type);
   const void* data(UniformStateIndex index, GL::UniformType type) const;
-  typedef std::deque<StateID> IDQueue;
   StateID m_ID;
   Ref<GL::Program> m_program;
   std::vector<float> m_floats;
   GL::TextureList m_textures;
-  static IDQueue m_usedIDs;
-  static StateID m_nextID;
 };
 
 ///////////////////////////////////////////////////////////////////////

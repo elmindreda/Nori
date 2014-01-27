@@ -28,6 +28,9 @@
 
 #include <list>
 
+#include <wendy/Core.hpp>
+#include <wendy/ID.hpp>
+
 //////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -103,17 +106,6 @@ enum PacketType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup net
- */
-enum IDBucket
-{
-  ID_BUCKET_ALLOCATED,
-  ID_BUCKET_RELEASED,
-  ID_BUCKET_UNUSED
-};
-
-///////////////////////////////////////////////////////////////////////
-
 enum
 {
   EVENT_CUSTOM_BASE,
@@ -140,52 +132,6 @@ bool initialize();
  *  @ingroup net
  */
 void shutdown();
-
-///////////////////////////////////////////////////////////////////////
-
-/*! Generic ID pool.
- *  @ingroup net
- */
-template <typename T, uint margin = 100>
-class IDPool
-{
-public:
-  IDPool(T first = 0):
-    next(first)
-  {
-  }
-  T allocateID()
-  {
-    if (released.size() > margin)
-    {
-      const T ID = released.back();
-      released.pop_back();
-      return ID;
-    }
-
-    return next++;
-  }
-  void releaseID(T ID)
-  {
-    released.insert(released.begin(), ID);
-  }
-  IDBucket bucketOf(T ID)
-  {
-    if (ID >= next)
-      return ID_BUCKET_UNUSED;
-
-    for (auto r = released.begin();  r != released.end();  r++)
-    {
-      if (ID == *r)
-        return ID_BUCKET_RELEASED;
-    }
-
-    return ID_BUCKET_ALLOCATED;
-  }
-private:
-  std::vector<T> released;
-  T next;
-};
 
 ///////////////////////////////////////////////////////////////////////
 
