@@ -48,6 +48,8 @@ protected:
                      MouseButton button,
                      Action action,
                      uint mods) override;
+  void onCursorEntered() override;
+  void onCursorLeft() override;
   void onDragEnded(vec2 point) override;
   void onKey(Key key, Action action, uint mods) override;
 private:

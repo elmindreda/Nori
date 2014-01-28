@@ -116,6 +116,18 @@ void Button::onMouseButton(vec2 point,
   Widget::onMouseButton(point, button, action, mods);
 }
 
+void Button::onCursorEntered()
+{
+  if (m_selected)
+    invalidate();
+}
+
+void Button::onCursorLeft()
+{
+  if (m_selected)
+    invalidate();
+}
+
 void Button::onDragEnded(vec2 point)
 {
   m_selected = false;
