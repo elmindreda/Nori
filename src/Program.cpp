@@ -25,10 +25,10 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
@@ -45,8 +45,6 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -197,7 +195,7 @@ Shader::~Shader()
 }
 
 Ref<Shader> Shader::create(const ResourceInfo& info,
-                          Context& context,
+                          RenderContext& context,
                           ShaderType type,
                           const String& text)
 {
@@ -208,9 +206,9 @@ Ref<Shader> Shader::create(const ResourceInfo& info,
   return shader;
 }
 
-Ref<Shader> Shader::read(Context& context,
-                        ShaderType type,
-                        const String& name)
+Ref<Shader> Shader::read(RenderContext& context,
+                         ShaderType type,
+                         const String& name)
 {
   ResourceCache& cache = context.cache();
 
@@ -243,7 +241,7 @@ Ref<Shader> Shader::read(Context& context,
 }
 
 Shader::Shader(const ResourceInfo& info,
-               Context& context,
+               RenderContext& context,
                ShaderType type):
   Resource(info),
   m_context(context),
@@ -537,7 +535,7 @@ Program::~Program()
   if (m_programID)
     glDeleteProgram(m_programID);
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->removeProgram();
 }
 
@@ -640,13 +638,13 @@ const Uniform& Program::uniform(uint index) const
   return m_uniforms[index];
 }
 
-Context& Program::context() const
+RenderContext& Program::context() const
 {
   return m_context;
 }
 
 Ref<Program> Program::create(const ResourceInfo& info,
-                             Context& context,
+                             RenderContext& context,
                              Shader& vertexShader,
                              Shader& fragmentShader)
 {
@@ -657,7 +655,7 @@ Ref<Program> Program::create(const ResourceInfo& info,
   return program;
 }
 
-Ref<Program> Program::read(Context& context,
+Ref<Program> Program::read(RenderContext& context,
                            const String& vertexShaderName,
                            const String& fragmentShaderName)
 {
@@ -690,12 +688,12 @@ Ref<Program> Program::read(Context& context,
                 *fragmentShader);
 }
 
-Program::Program(const ResourceInfo& info, Context& context):
+Program::Program(const ResourceInfo& info, RenderContext& context):
   Resource(info),
   m_context(context),
   m_programID(0)
 {
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->addProgram();
 }
 
@@ -1091,7 +1089,6 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

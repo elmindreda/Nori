@@ -25,10 +25,10 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
@@ -40,8 +40,6 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -402,7 +400,7 @@ Texture::~Texture()
   if (m_textureID)
     glDeleteTextures(1, &m_textureID);
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->removeTexture(size());
 }
 
@@ -548,7 +546,7 @@ const TextureImage& Texture::image(uint level, CubeFace face) const
 }
 
 Ref<Texture> Texture::create(const ResourceInfo& info,
-                             Context& context,
+                             RenderContext& context,
                              const TextureParams& params,
                              const TextureData& data)
 {
@@ -559,7 +557,7 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
   return texture;
 }
 
-Ref<Texture> Texture::read(Context& context,
+Ref<Texture> Texture::read(RenderContext& context,
                            const TextureParams& params,
                            const String& imageName)
 {
@@ -586,7 +584,7 @@ Ref<Texture> Texture::read(Context& context,
   return create(ResourceInfo(cache, name), context, params, *data);
 }
 
-Texture::Texture(const ResourceInfo& info, Context& context):
+Texture::Texture(const ResourceInfo& info, RenderContext& context):
   Resource(info),
   m_context(context),
   m_textureID(0),
@@ -811,7 +809,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
     return false;
   }
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->addTexture(size());
 
   return true;
@@ -873,7 +871,6 @@ void Texture::applyDefaults()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

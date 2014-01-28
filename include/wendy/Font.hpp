@@ -38,8 +38,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -101,7 +99,7 @@ private:
   float m_width;
   float m_height;
   ivec2 m_position;
-  Ref<GL::Texture> m_texture;
+  Ref<Texture> m_texture;
   Pass m_pass;
   UniformStateIndex m_colorIndex;
   std::vector<Vertex2ft2fv> m_vertices;
@@ -143,7 +141,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

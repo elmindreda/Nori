@@ -25,10 +25,10 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <wendy/RenderPool.hpp>
 
@@ -36,15 +36,13 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-GL::VertexRange VertexPool::allocate(uint count, const VertexFormat& format)
+VertexRange VertexPool::allocate(uint count, const VertexFormat& format)
 {
   if (!count)
-    return GL::VertexRange();
+    return VertexRange();
 
   Slot* slot = nullptr;
 
@@ -64,14 +62,14 @@ GL::VertexRange VertexPool::allocate(uint count, const VertexFormat& format)
 
     const uint actualCount = m_granularity * ((count + m_granularity - 1) / m_granularity);
 
-    slot->buffer = GL::VertexBuffer::create(m_context,
-                                            actualCount,
-                                            format,
-                                            GL::USAGE_DYNAMIC);
+    slot->buffer = VertexBuffer::create(m_context,
+                                        actualCount,
+                                        format,
+                                        USAGE_DYNAMIC);
     if (!slot->buffer)
     {
       m_slots.pop_back();
-      return GL::VertexRange();
+      return VertexRange();
     }
 
     log("Allocated vertex pool of size %u format %s",
@@ -85,10 +83,10 @@ GL::VertexRange VertexPool::allocate(uint count, const VertexFormat& format)
 
   slot->available -= count;
 
-  return GL::VertexRange(*(slot->buffer), start, count);
+  return VertexRange(*(slot->buffer), start, count);
 }
 
-Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
+Ref<VertexPool> VertexPool::create(RenderContext& context, size_t granularity)
 {
   Ref<VertexPool> pool(new VertexPool(context));
   if (!pool->init(granularity))
@@ -97,7 +95,7 @@ Ref<VertexPool> VertexPool::create(GL::Context& context, size_t granularity)
   return pool;
 }
 
-VertexPool::VertexPool(GL::Context& context):
+VertexPool::VertexPool(RenderContext& context):
   m_context(context),
   m_granularity(0)
 {
@@ -121,7 +119,6 @@ void VertexPool::onFrame()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

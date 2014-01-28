@@ -109,11 +109,11 @@ Interface::Interface(Window& window, UI::Drawer& drawer):
 
 void Interface::update()
 {
-  GL::Stats* stats = drawer().context().stats();
+  RenderStats* stats = drawer().context().stats();
 
   if (stats)
   {
-    const GL::Stats::Frame& frame = stats->currentFrame();
+    const RenderStats::Frame& frame = stats->currentFrame();
 
     updateCountItem(ITEM_FRAMERATE, "fps", (size_t) (stats->frameRate() + 0.5f));
     updateCountItem(ITEM_STATECHANGES, "states / f", frame.stateChangeCount);
@@ -146,12 +146,12 @@ void Interface::update()
 
 void Interface::draw()
 {
-  GL::Context& context = drawer().context();
+  RenderContext& context = drawer().context();
 
-  GL::Framebuffer& framebuffer = context.currentFramebuffer();
+  Framebuffer& framebuffer = context.currentFramebuffer();
   root->setSize(vec2(150.f, float(framebuffer.height())));
 
-  GL::Stats* previous = context.stats();
+  RenderStats* previous = context.stats();
   context.setStats(nullptr);
 
   UI::Layer::draw();

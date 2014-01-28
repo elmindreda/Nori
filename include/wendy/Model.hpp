@@ -36,8 +36,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -52,10 +50,10 @@ class ModelSection
 public:
   /*! Constructor.
    */
-  ModelSection(const GL::IndexRange& range, Material* material);
+  ModelSection(const IndexRange& range, Material* material);
   /*! @return The range of indices used by this geometry.
    */
-  const GL::IndexRange& indexRange() const { return m_range; }
+  const IndexRange& indexRange() const { return m_range; }
   /*! @return The %render material used by this geometry.
    */
   Material* material() const { return m_material; }
@@ -63,7 +61,7 @@ public:
    */
   void setMaterial(Material* newMaterial);
 private:
-  GL::IndexRange m_range;
+  IndexRange m_range;
   Ref<Material> m_material;
 };
 
@@ -100,16 +98,16 @@ public:
   const ModelSectionList& sections() { return m_sections; }
   /*! @return The vertex buffer used by this model.
    */
-  GL::VertexBuffer& vertexBuffer() { return *m_vertexBuffer; }
+  VertexBuffer& vertexBuffer() { return *m_vertexBuffer; }
   /*! @return The vertex buffer used by this model.
    */
-  const GL::VertexBuffer& vertexBuffer() const { return *m_vertexBuffer; }
+  const VertexBuffer& vertexBuffer() const { return *m_vertexBuffer; }
   /*! @return The index buffer used by this model.
    */
-  GL::IndexBuffer& indexBuffer() { return *m_indexBuffer; }
+  IndexBuffer& indexBuffer() { return *m_indexBuffer; }
   /*! @return The index buffer used by this model.
    */
-  const GL::IndexBuffer& indexBuffer() const { return *m_indexBuffer; }
+  const IndexBuffer& indexBuffer() const { return *m_indexBuffer; }
   /*! Creates a model from the specified mesh.
    *  @param[in] info The resource info for the texture.
    *  @param[in] system The render system within which to create the texture.
@@ -119,7 +117,7 @@ public:
    *  occurred.
    */
   static Ref<Model> create(const ResourceInfo& info,
-                           System& system,
+                           RenderSystem& system,
                            const Mesh& data,
                            const MaterialMap& materials);
   /*! Creates a model specification using the specified file.
@@ -127,15 +125,15 @@ public:
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created model, or @c nullptr if an error occurred.
    */
-  static Ref<Model> read(System& system, const String& name);
+  static Ref<Model> read(RenderSystem& system, const String& name);
 private:
   Model(const ResourceInfo& info);
   Model(const Model&) = delete;
-  bool init(System& system, const Mesh& data, const MaterialMap& materials);
+  bool init(RenderSystem& system, const Mesh& data, const MaterialMap& materials);
   Model& operator = (const Model&) = delete;
   ModelSectionList m_sections;
-  Ref<GL::VertexBuffer> m_vertexBuffer;
-  Ref<GL::IndexBuffer> m_indexBuffer;
+  Ref<VertexBuffer> m_vertexBuffer;
+  Ref<IndexBuffer> m_indexBuffer;
   Sphere m_boundingSphere;
   AABB m_boundingAABB;
 };
@@ -145,16 +143,15 @@ private:
 class ModelReader : public ResourceReader<Model>
 {
 public:
-  ModelReader(System& system);
+  ModelReader(RenderSystem& system);
   using ResourceReader<Model>::read;
   Ref<Model> read(const String& name, const Path& path);
 private:
-  System& system;
+  RenderSystem& system;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

@@ -35,9 +35,8 @@
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
-#include <wendy/RenderSprite.hpp>
 
 #include <wendy/Forward.hpp>
 
@@ -50,14 +49,14 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Config::Config(render::VertexPool& initPool):
+Config::Config(VertexPool& initPool):
   pool(&initPool)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::render(const render::Scene& scene, const Camera& camera)
+void Renderer::render(const Scene& scene, const Camera& camera)
 {
   ProfileNodeCall call("forward::Renderer::render");
 
@@ -100,8 +99,8 @@ Ref<Renderer> Renderer::create(const Config& config)
   return renderer.detachObject();
 }
 
-Renderer::Renderer(render::VertexPool& pool):
-  render::System(pool, render::System::FORWARD)
+Renderer::Renderer(VertexPool& pool):
+  RenderSystem(pool, RenderSystem::FORWARD)
 {
 }
 
@@ -116,14 +115,14 @@ bool Renderer::init(const Config& config)
   return true;
 }
 
-void Renderer::renderOperations(const render::Queue& queue)
+void Renderer::renderOperations(const RenderQueue& queue)
 {
-  const render::OperationList& operations = queue.operations();
+  const auto& operations = queue.operations();
 
   for (auto k : queue.keys())
   {
-    const render::SortKey key(k);
-    const render::Operation& op = operations[key.index];
+    const RenderOpKey key(k);
+    const RenderOp& op = operations[key.index];
 
     m_state->setModelMatrix(op.transform);
     op.state->apply();

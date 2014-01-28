@@ -25,9 +25,9 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLQuery.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/RenderQuery.hpp>
 
 #include <GREG/greg.h>
 
@@ -37,8 +37,6 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -124,7 +122,7 @@ uint OcclusionQuery::result() const
   return result;
 }
 
-OcclusionQuery* OcclusionQuery::create(Context& context)
+OcclusionQuery* OcclusionQuery::create(RenderContext& context)
 {
   Ptr<OcclusionQuery> query(new OcclusionQuery(context));
   if (!query->init())
@@ -133,7 +131,7 @@ OcclusionQuery* OcclusionQuery::create(Context& context)
   return query.detachObject();
 }
 
-OcclusionQuery::OcclusionQuery(Context& context):
+OcclusionQuery::OcclusionQuery(RenderContext& context):
   m_context(context),
   m_queryID(0),
   m_active(false)
@@ -152,7 +150,6 @@ bool OcclusionQuery::init()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

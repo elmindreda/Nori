@@ -102,7 +102,7 @@ void Entry::draw() const
     {
       float position = 0.f;
 
-      render::Font& font = drawer.currentFont();
+      Font& font = drawer.currentFont();
       const Rect bounds = font.boundsOf(text.substr(0, m_controller.caretPosition()).c_str());
       position = bounds.size.x;
 

@@ -25,10 +25,10 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
@@ -38,8 +38,6 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -346,7 +344,6 @@ GLfloat getFloat(GLenum token)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

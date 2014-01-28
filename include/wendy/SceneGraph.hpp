@@ -28,8 +28,6 @@
 
 namespace wendy
 {
-  namespace scene
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -38,7 +36,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Graph;
+class SceneGraph;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -48,22 +46,22 @@ class Graph;
  *  This is the base class for all kinds of nodes in a scene graph. It provides
  *  local and world transforms, and a set of callbacks for scene graph events.
  */
-class Node
+class SceneNode
 {
-  friend class Graph;
+  friend class SceneGraph;
 public:
   /*! Constructor.
    */
-  Node();
+  SceneNode();
   /*! Destructor.
    */
-  ~Node();
+  ~SceneNode();
   /*! Attaches the specified node as a child to this node.
    *  @param[in] child The node to attach to this node.
    *  @return @c true if successful, or false if the specified node was a
    *  parent of this node.
    */
-  bool addChild(Node& child);
+  bool addChild(SceneNode& child);
   /*! Removes the specified child node from this node.
    *  @param[in] child The child node to remove.
    */
@@ -74,17 +72,17 @@ public:
   /*! @return @c true if the specified node is a parent of this node, otherwise
    * @c false.
    */
-  bool isChildOf(const Node& node) const;
+  bool isChildOf(const SceneNode& node) const;
   /*! @return @c true if this node has any children, otherwise @c false.
    */
   bool hasChildren() const { return !m_children.empty(); }
-  Graph* graph() const { return m_graph; }
+  SceneGraph* graph() const { return m_graph; }
   /*! @return The parent of this node.
    */
-  Node* parent() const { return m_parent; }
+  SceneNode* parent() const { return m_parent; }
   /*! @return The list of children of this node.
    */
-  const std::vector<Node*>& children() const { return m_children; }
+  const std::vector<SceneNode*>& children() const { return m_children; }
   /*! @return The local-to-parent transform of this scene node.
    */
   const Transform3& localTransform() const { return m_local; }
@@ -108,8 +106,8 @@ public:
    *  child nodes.
    */
   const Sphere& totalBounds() const;
-  render::Renderable* renderable() const { return m_renderable; }
-  void setRenderable(render::Renderable* newRenderable);
+  Renderable* renderable() const { return m_renderable; }
+  void setRenderable(Renderable* newRenderable);
   Camera* camera() const { return m_camera; }
   void setCamera(Camera* newCamera);
 protected:
@@ -122,23 +120,23 @@ protected:
    *  specified render queue.
    *  @param[in,out] queue The render queue for collecting operations.
    */
-  void enqueue(render::Scene& scene, const Camera& camera) const;
+  void enqueue(Scene& scene, const Camera& camera) const;
 private:
-  Node(const Node&) = delete;
+  SceneNode(const SceneNode&) = delete;
   void invalidateBounds();
   void invalidateWorldTransform();
-  Node& operator = (const Node&) = delete;
-  void setGraph(Graph* newGraph);
-  Node* m_parent;
-  Graph* m_graph;
-  std::vector<Node*> m_children;
+  SceneNode& operator = (const SceneNode&) = delete;
+  void setGraph(SceneGraph* newGraph);
+  SceneNode* m_parent;
+  SceneGraph* m_graph;
+  std::vector<SceneNode*> m_children;
   Transform3 m_local;
   mutable Transform3 m_world;
   mutable bool m_dirtyWorld;
   Sphere m_localBounds;
   mutable Sphere m_totalBounds;
   mutable bool m_dirtyBounds;
-  Ref<render::Renderable> m_renderable;
+  Ref<Renderable> m_renderable;
   Ref<Camera> m_camera;
 };
 
@@ -150,26 +148,25 @@ private:
  *  This class represents a single scene graph, and is a logical tree root node,
  *  although it doesn't have a transform or bounds.
  */
-class Graph
+class SceneGraph
 {
-  friend class Node;
+  friend class SceneNode;
 public:
-  ~Graph();
+  ~SceneGraph();
   void update();
-  void enqueue(render::Scene& scene, const Camera& camera) const;
-  void query(const Sphere& sphere, std::vector<Node*>& nodes) const;
-  void query(const Frustum& frustum, std::vector<Node*>& nodes) const;
-  void addRootNode(Node& node);
+  void enqueue(Scene& scene, const Camera& camera) const;
+  void query(const Sphere& sphere, std::vector<SceneNode*>& nodes) const;
+  void query(const Frustum& frustum, std::vector<SceneNode*>& nodes) const;
+  void addRootNode(SceneNode& node);
   void destroyRootNodes();
-  const std::vector<Node*>& roots() const { return m_roots; }
+  const std::vector<SceneNode*>& roots() const { return m_roots; }
 private:
-  std::vector<Node*> m_roots;
-  std::vector<Node*> m_updated;
+  std::vector<SceneNode*> m_roots;
+  std::vector<SceneNode*> m_updated;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace scene*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

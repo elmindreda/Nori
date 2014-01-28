@@ -26,9 +26,9 @@
 #define WENDY_RENDERSTYLE_HPP
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -38,12 +38,10 @@ namespace pugi { class xml_node; }
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class System;
+class RenderSystem;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -62,7 +60,7 @@ enum Phase
 
 ///////////////////////////////////////////////////////////////////////
 
-bool parsePass(System& system, Pass& pass, pugi::xml_node root);
+bool parsePass(RenderSystem& system, Pass& pass, pugi::xml_node root);
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -112,14 +110,14 @@ public:
   /*! Sets all samplers in all passes in all techniques in this material
    *  matching the specified name to the specified texture.
    */
-  void setSamplerStates(const char* name, GL::Texture* newTexture);
+  void setSamplerStates(const char* name, Texture* newTexture);
   /*! Creates a material.
    *  @param[in] info The resource info for the texture.
    *  @param[in] system The OpenGL context within which to create the texture.
    *  @return The newly created material, or @c nullptr if an error
    *  occurred.
    */
-  static Ref<Material> create(const ResourceInfo& info, System& system);
+  static Ref<Material> create(const ResourceInfo& info, RenderSystem& system);
   /*! Loads a material from the specified path using the specified system, or
    *  returns the already loaded material if it's already present in the
    *  resource cache of the system.
@@ -127,7 +125,7 @@ public:
    *  @param[in] path The path of the material.
    *  @return The loaded material, or @c nullptr if an error occurred.
    */
-  static Ref<Material> read(System& system, const String& name);
+  static Ref<Material> read(RenderSystem& system, const String& name);
 private:
   Material(const ResourceInfo& info);
   Technique m_techniques[2];
@@ -141,16 +139,15 @@ private:
 class MaterialReader : public ResourceReader<Material>
 {
 public:
-  MaterialReader(System& system);
+  MaterialReader(RenderSystem& system);
   using ResourceReader<Material>::read;
   Ref<Material> read(const String& name, const Path& path);
 private:
-  System& system;
+  RenderSystem& system;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

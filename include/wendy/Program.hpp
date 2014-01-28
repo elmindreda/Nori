@@ -35,12 +35,10 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Context;
+class RenderContext;
 class Program;
 
 ///////////////////////////////////////////////////////////////////////
@@ -67,18 +65,18 @@ public:
   bool isVertexShader() const { return m_type == VERTEX_SHADER; }
   bool isFragmentShader() const { return m_type == FRAGMENT_SHADER; }
   ShaderType type() const { return m_type; }
-  Context& context() const { return m_context; }
+  RenderContext& context() const { return m_context; }
   static Ref<Shader> create(const ResourceInfo& info,
-                            Context& context,
+                            RenderContext& context,
                             ShaderType type,
                             const String& text);
-  static Ref<Shader> read(Context& context,
+  static Ref<Shader> read(RenderContext& context,
                           ShaderType type,
                           const String& name);
 private:
-  Shader(const ResourceInfo& info, Context& context, ShaderType type);
+  Shader(const ResourceInfo& info, RenderContext& context, ShaderType type);
   bool init(const String& text);
-  Context& m_context;
+  RenderContext& m_context;
   ShaderType m_type;
   uint m_shaderID;
 };
@@ -104,7 +102,7 @@ enum AttributeType
 class Attribute
 {
   friend class Program;
-  friend class Context;
+  friend class RenderContext;
 public:
   /*! Binds this attribute to the specified stride and offset of the
    *  current vertex buffer.
@@ -275,7 +273,7 @@ private:
  */
 class Program : public Resource, public RefObject
 {
-  friend class Context;
+  friend class RenderContext;
 public:
   ~Program();
   Attribute* findAttribute(const char* name);
@@ -293,16 +291,16 @@ public:
   uint uniformCount() const;
   Uniform& uniform(uint index);
   const Uniform& uniform(uint index) const;
-  Context& context() const;
+  RenderContext& context() const;
   static Ref<Program> create(const ResourceInfo& info,
-                             Context& context,
+                             RenderContext& context,
                              Shader& vertexShader,
                              Shader& fragmentShader);
-  static Ref<Program> read(Context& context,
+  static Ref<Program> read(RenderContext& context,
                            const String& vertexShaderName,
                            const String& fragmentShaderName);
 private:
-  Program(const ResourceInfo& info, Context& context);
+  Program(const ResourceInfo& info, RenderContext& context);
   Program(const Program&) = delete;
   bool init(Shader& vertexShader, Shader& fragmentShader);
   bool retrieveUniforms();
@@ -312,7 +310,7 @@ private:
   Program& operator = (const Program&) = delete;
   bool isValid() const;
   String infoLog() const;
-  Context& m_context;
+  RenderContext& m_context;
   Ref<Shader> m_vertexShader;
   Ref<Shader> m_fragmentShader;
   uint m_programID;
@@ -374,7 +372,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

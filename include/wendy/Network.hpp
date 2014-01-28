@@ -35,12 +35,10 @@
 
 namespace wendy
 {
-  namespace net
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Object;
+class NetworkObject;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -62,7 +60,7 @@ typedef uint8 EventID;
 /*! Network object ID.
  *  @ingroup net
  */
-typedef uint16 ObjectID;
+typedef uint16 NetworkObjectID;
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -120,18 +118,6 @@ enum
   OBJECT_ID_LEVEL,
   OBJECT_ID_POOL_BASE,
 };
-
-///////////////////////////////////////////////////////////////////////
-
-/*! Initialize the network layer.
- *  @ingroup net
- */
-bool initialize();
-
-/*! Terminate the network layer.
- *  @ingroup net
- */
-void shutdown();
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -198,11 +184,11 @@ private:
 /*! Network host event listener.
  *  @ingroup net
  */
-class Observer
+class HostObserver
 {
   friend class Host;
 public:
-  virtual ~Observer();
+  virtual ~HostObserver();
 protected:
   virtual void onPeerConnected(Peer& client) = 0;
   virtual void onPeerDisconnected(Peer& client, uint32 reason) = 0;
@@ -216,7 +202,7 @@ protected:
  */
 class Host
 {
-  friend class Object;
+  friend class NetworkObject;
 public:
   ~Host();
   bool sendPacketTo(TargetID targetID,
@@ -226,8 +212,8 @@ public:
   bool update(Time timeout);
   void* allocatePacketData(size_t size);
   Peer* findPeer(TargetID targetID);
-  Object* findObject(ObjectID ID);
-  PacketData createEvent(EventID eventID, ObjectID recipientID);
+  NetworkObject* findObject(NetworkObjectID ID);
+  PacketData createEvent(EventID eventID, NetworkObjectID recipientID);
   bool dispatchEvent(TargetID sourceID, PacketData& data);
   bool isClient() const;
   bool isServer() const;
@@ -235,7 +221,7 @@ public:
   uint totalOutgoingBytes() const;
   uint incomingBytesPerSecond() const;
   uint outgoingBytesPerSecond() const;
-  void setObserver(Observer* newObserver);
+  void setObserver(HostObserver* newObserver);
   static Host* create(uint16 port, size_t maxClientCount, uint8 maxChannelCount = 0);
   static Host* connect(const String& name, uint16 port, uint8 maxChannelCount = 0);
 private:
@@ -247,38 +233,39 @@ private:
   Host& operator = (const Host&) = delete;
   void* m_object;
   std::list<Peer> m_peers;
-  Observer* m_observer;
+  HostObserver* m_observer;
   IDPool<TargetID> m_clientIDs;
-  IDPool<ObjectID> m_objectIDs;
-  std::vector<Object*> m_objects;
+  IDPool<NetworkObjectID> m_objectIDs;
+  std::vector<NetworkObject*> m_objects;
   size_t m_allocated;
   uint8 m_buffer[65536];
   bool m_server;
+  static uint m_count;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Network object.
  */
-class Object
+class NetworkObject
 {
   friend class Host;
 public:
-  Object(Host& host, ObjectID ID = OBJECT_ID_INVALID);
-  virtual ~Object();
+  NetworkObject(Host& host, NetworkObjectID ID = OBJECT_ID_INVALID);
+  virtual ~NetworkObject();
   virtual void synchronize();
   bool isOnServer() const { return m_host.isServer(); }
   bool isOnClient() const { return m_host.isClient(); }
-  ObjectID getID() const { return m_ID; }
+  NetworkObjectID getID() const { return m_ID; }
   Host& host() const { return m_host; }
 protected:
-  PacketData createEvent(EventID eventID, ObjectID recipientID) const;
+  PacketData createEvent(EventID eventID, NetworkObjectID recipientID) const;
   bool broadcastEvent(ChannelID channelID,
                       PacketType type,
                       PacketData& data) const;
   bool broadcastEvent(ChannelID channelID,
                       PacketType type,
-                      ObjectID recipientID,
+                      NetworkObjectID recipientID,
                       EventID eventID) const;
   bool sendEvent(TargetID targetID,
                  ChannelID channelID,
@@ -287,19 +274,18 @@ protected:
   bool sendEvent(TargetID targetID,
                  ChannelID channelID,
                  PacketType type,
-                 ObjectID recipientID,
+                 NetworkObjectID recipientID,
                  EventID eventID) const;
   virtual void receiveEvent(TargetID senderID,
                             PacketData& data,
                             EventID eventID);
 private:
-  ObjectID m_ID;
+  NetworkObjectID m_ID;
   Host& m_host;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace net*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

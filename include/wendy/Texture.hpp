@@ -37,13 +37,11 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 class Texture;
-class Context;
+class RenderContext;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -231,7 +229,7 @@ private:
  */
 class Texture : public Resource, public RefObject
 {
-  friend class Context;
+  friend class RenderContext;
   friend class TextureImage;
 public:
   /*! Destructor.
@@ -316,7 +314,7 @@ public:
   size_t size() const;
   /*! @return The context used to create this texture.
    */
-  Context& context() const { return m_context; }
+  RenderContext& context() const { return m_context; }
   /*! Creates a texture from the specified image.
    *  @param[in] context The OpenGL context within which to create the
    *  texture.
@@ -325,21 +323,21 @@ public:
    *  @return The newly created texture object.
    */
   static Ref<Texture> create(const ResourceInfo& info,
-                             Context &context,
+                             RenderContext &context,
                              const TextureParams& params,
                              const TextureData& data);
-  static Ref<Texture> read(Context& context,
+  static Ref<Texture> read(RenderContext& context,
                            const TextureParams& params,
                            const String& imageName);
 private:
-  Texture(const ResourceInfo& info, Context& context);
+  Texture(const ResourceInfo& info, RenderContext& context);
   Texture(const Texture&) = delete;
   bool init(const TextureParams& params, const TextureData& data);
   void retrieveImages();
   uint retrieveTargetImages(uint target, CubeFace face);
   void applyDefaults();
   Texture& operator = (const Texture&) = delete;
-  Context& m_context;
+  RenderContext& m_context;
   TextureType m_type;
   uint m_textureID;
   uint m_levels;
@@ -358,7 +356,6 @@ typedef std::vector<Ref<Texture>> TextureList;
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

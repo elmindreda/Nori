@@ -23,8 +23,8 @@ set(wendy_SOURCES
     Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Regex.cpp Resource.cpp
     Sample.cpp Signal.cpp Timer.cpp Transform.cpp Vertex.cpp
 
-    GLBuffer.cpp GLContext.cpp GLHelper.cpp GLParser.cpp GLProgram.cpp
-    GLQuery.cpp GLTexture.cpp
+    RenderContext.cpp GLHelper.cpp GLParser.cpp Program.cpp RenderQuery.cpp
+    RenderBuffer.cpp Texture.cpp
 
     Window.cpp)
 
@@ -40,8 +40,8 @@ endif()
 
 if (WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES
-       RenderFont.cpp RenderModel.cpp RenderMaterial.cpp RenderPool.cpp
-       RenderScene.cpp RenderSprite.cpp RenderState.cpp RenderSystem.cpp
+       Font.cpp Model.cpp Material.cpp RenderPool.cpp
+       RenderScene.cpp Sprite.cpp RenderState.cpp RenderSystem.cpp
 
        Forward.cpp)
 endif()

@@ -25,10 +25,10 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderSystem.hpp>
@@ -37,32 +37,30 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-ResourceCache& System::cache() const
+ResourceCache& RenderSystem::cache() const
 {
   return m_pool->context().cache();
 }
 
-GL::Context& System::context() const
+RenderContext& RenderSystem::context() const
 {
   return m_pool->context();
 }
 
-VertexPool& System::vertexPool() const
+VertexPool& RenderSystem::vertexPool() const
 {
   return *m_pool;
 }
 
-System::Type System::type() const
+RenderSystem::Type RenderSystem::type() const
 {
   return m_type;
 }
 
-System::System(VertexPool& pool, Type type):
+RenderSystem::RenderSystem(VertexPool& pool, Type type):
   m_pool(&pool),
   m_type(type)
 {
@@ -70,7 +68,6 @@ System::System(VertexPool& pool, Type type):
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

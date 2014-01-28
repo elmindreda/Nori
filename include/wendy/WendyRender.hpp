@@ -35,12 +35,12 @@
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
-#include <wendy/RenderFont.hpp>
+#include <wendy/Font.hpp>
 #include <wendy/RenderSystem.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
-#include <wendy/RenderSprite.hpp>
-#include <wendy/RenderModel.hpp>
+#include <wendy/Sprite.hpp>
+#include <wendy/Model.hpp>
 
 #include <wendy/Forward.hpp>
 

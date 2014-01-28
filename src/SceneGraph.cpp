@@ -33,16 +33,16 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
-#include <wendy/RenderModel.hpp>
+#include <wendy/Model.hpp>
 
 #include <wendy/SceneGraph.hpp>
 
@@ -52,12 +52,10 @@
 
 namespace wendy
 {
-  namespace scene
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-Node::Node():
+SceneNode::SceneNode():
   m_parent(nullptr),
   m_graph(nullptr),
   m_dirtyWorld(false),
@@ -65,13 +63,13 @@ Node::Node():
 {
 }
 
-Node::~Node()
+SceneNode::~SceneNode()
 {
   destroyChildren();
   removeFromParent();
 }
 
-bool Node::addChild(Node& child)
+bool SceneNode::addChild(SceneNode& child)
 {
   if (isChildOf(child))
     return false;
@@ -87,7 +85,7 @@ bool Node::addChild(Node& child)
   return true;
 }
 
-void Node::removeFromParent()
+void SceneNode::removeFromParent()
 {
   if (m_parent || m_graph)
   {
@@ -111,13 +109,13 @@ void Node::removeFromParent()
   }
 }
 
-void Node::destroyChildren()
+void SceneNode::destroyChildren()
 {
   while (!m_children.empty())
     delete m_children.back();
 }
 
-bool Node::isChildOf(const Node& node) const
+bool SceneNode::isChildOf(const SceneNode& node) const
 {
   if (m_parent)
   {
@@ -130,7 +128,7 @@ bool Node::isChildOf(const Node& node) const
   return false;
 }
 
-void Node::setLocalTransform(const Transform3& newTransform)
+void SceneNode::setLocalTransform(const Transform3& newTransform)
 {
   m_local = newTransform;
 
@@ -140,7 +138,7 @@ void Node::setLocalTransform(const Transform3& newTransform)
   invalidateWorldTransform();
 }
 
-void Node::setLocalPosition(const vec3& newPosition)
+void SceneNode::setLocalPosition(const vec3& newPosition)
 {
   m_local.position = newPosition;
 
@@ -150,7 +148,7 @@ void Node::setLocalPosition(const vec3& newPosition)
   invalidateWorldTransform();
 }
 
-void Node::setLocalRotation(const quat& newRotation)
+void SceneNode::setLocalRotation(const quat& newRotation)
 {
   m_local.rotation = newRotation;
 
@@ -160,7 +158,7 @@ void Node::setLocalRotation(const quat& newRotation)
   invalidateWorldTransform();
 }
 
-void Node::setLocalScale(float newScale)
+void SceneNode::setLocalScale(float newScale)
 {
   m_local.scale = newScale;
 
@@ -170,7 +168,7 @@ void Node::setLocalScale(float newScale)
   invalidateWorldTransform();
 }
 
-const Transform3& Node::worldTransform() const
+const Transform3& SceneNode::worldTransform() const
 {
   if (m_dirtyWorld)
   {
@@ -185,18 +183,18 @@ const Transform3& Node::worldTransform() const
   return m_world;
 }
 
-const Sphere& Node::localBounds() const
+const Sphere& SceneNode::localBounds() const
 {
   return m_localBounds;
 }
 
-void Node::setLocalBounds(const Sphere& newBounds)
+void SceneNode::setLocalBounds(const Sphere& newBounds)
 {
   m_localBounds = newBounds;
   invalidateBounds();
 }
 
-const Sphere& Node::totalBounds() const
+const Sphere& SceneNode::totalBounds() const
 {
   if (m_dirtyBounds)
   {
@@ -215,7 +213,7 @@ const Sphere& Node::totalBounds() const
   return m_totalBounds;
 }
 
-void Node::setRenderable(render::Renderable* newRenderable)
+void SceneNode::setRenderable(Renderable* newRenderable)
 {
   m_renderable = newRenderable;
 
@@ -225,7 +223,7 @@ void Node::setRenderable(render::Renderable* newRenderable)
     setLocalBounds(Sphere());
 }
 
-void Node::setCamera(Camera* newCamera)
+void SceneNode::setCamera(Camera* newCamera)
 {
   if (m_graph)
   {
@@ -241,13 +239,13 @@ void Node::setCamera(Camera* newCamera)
   m_camera = newCamera;
 }
 
-void Node::update()
+void SceneNode::update()
 {
   if (m_camera)
     m_camera->setTransform(worldTransform());
 }
 
-void Node::enqueue(render::Scene& scene, const Camera& camera) const
+void SceneNode::enqueue(Scene& scene, const Camera& camera) const
 {
   if (m_renderable)
     m_renderable->enqueue(scene, camera, worldTransform());
@@ -256,13 +254,13 @@ void Node::enqueue(render::Scene& scene, const Camera& camera) const
     c->enqueue(scene, camera);
 }
 
-void Node::invalidateBounds()
+void SceneNode::invalidateBounds()
 {
-  for (Node* node = this;  node;  node = node->parent())
+  for (SceneNode* node = this;  node;  node = node->parent())
     node->m_dirtyBounds = true;
 }
 
-void Node::invalidateWorldTransform()
+void SceneNode::invalidateWorldTransform()
 {
   m_dirtyWorld = true;
 
@@ -270,7 +268,7 @@ void Node::invalidateWorldTransform()
     c->invalidateWorldTransform();
 }
 
-void Node::setGraph(Graph* newGraph)
+void SceneNode::setGraph(SceneGraph* newGraph)
 {
   if (m_graph && m_camera)
   {
@@ -289,20 +287,20 @@ void Node::setGraph(Graph* newGraph)
 
 ///////////////////////////////////////////////////////////////////////
 
-Graph::~Graph()
+SceneGraph::~SceneGraph()
 {
   destroyRootNodes();
 }
 
-void Graph::update()
+void SceneGraph::update()
 {
   for (auto n : m_updated)
     n->update();
 }
 
-void Graph::enqueue(render::Scene& scene, const Camera& camera) const
+void SceneGraph::enqueue(Scene& scene, const Camera& camera) const
 {
-  ProfileNodeCall call("scene::Graph::enqueue");
+  ProfileNodeCall call("SceneGraph::enqueue");
 
   const Frustum& frustum = camera.frustum();
 
@@ -316,7 +314,7 @@ void Graph::enqueue(render::Scene& scene, const Camera& camera) const
   }
 }
 
-void Graph::query(const Sphere& sphere, std::vector<Node*>& nodes) const
+void SceneGraph::query(const Sphere& sphere, std::vector<SceneNode*>& nodes) const
 {
   for (auto r : m_roots)
   {
@@ -328,7 +326,7 @@ void Graph::query(const Sphere& sphere, std::vector<Node*>& nodes) const
   }
 }
 
-void Graph::query(const Frustum& frustum, std::vector<Node*>& nodes) const
+void SceneGraph::query(const Frustum& frustum, std::vector<SceneNode*>& nodes) const
 {
   for (auto r : m_roots)
   {
@@ -340,14 +338,14 @@ void Graph::query(const Frustum& frustum, std::vector<Node*>& nodes) const
   }
 }
 
-void Graph::addRootNode(Node& node)
+void SceneGraph::addRootNode(SceneNode& node)
 {
   node.removeFromParent();
   m_roots.push_back(&node);
   node.setGraph(this);
 }
 
-void Graph::destroyRootNodes()
+void SceneGraph::destroyRootNodes()
 {
   while (!m_roots.empty())
     delete m_roots.back();
@@ -355,7 +353,6 @@ void Graph::destroyRootNodes()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace scene*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

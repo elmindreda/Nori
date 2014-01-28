@@ -33,9 +33,9 @@
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
-#include <wendy/RenderSprite.hpp>
+#include <wendy/Sprite.hpp>
 
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -45,8 +45,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -131,13 +129,13 @@ void Sprite2::render(VertexPool& pool) const
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  GL::VertexRange range = pool.allocate(4, Vertex2ft2fv::format);
+  VertexRange range = pool.allocate(4, Vertex2ft2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
 
-  pool.context().render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  pool.context().render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
 void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
@@ -181,7 +179,7 @@ void Sprite3::enqueue(Scene& scene,
     return;
   }
 
-  GL::VertexRange range = scene.vertexPool().allocate(4, Vertex2ft3fv::format);
+  VertexRange range = scene.vertexPool().allocate(4, Vertex2ft3fv::format);
   if (range.isEmpty())
     return;
 
@@ -193,7 +191,7 @@ void Sprite3::enqueue(Scene& scene,
   range.copyFrom(vertices);
 
   scene.createOperations(Transform3::IDENTITY,
-                         GL::PrimitiveRange(GL::TRIANGLE_FAN, range),
+                         PrimitiveRange(TRIANGLE_FAN, range),
                          *material,
                          camera.normalizedDepth(spritePos));
 }
@@ -205,7 +203,6 @@ Sphere Sprite3::bounds() const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

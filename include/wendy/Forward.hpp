@@ -40,15 +40,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Shared program state for the forward renderer.
- *  @ingroup renderer
- */
-class SharedProgramState : public render::SharedProgramState
-{
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Forward renderer configuration.
  *  @ingroup renderer
  */
@@ -58,10 +49,10 @@ public:
   /*! Constructor.
    *  @param[in] pool The geometry pool to use.
    */
-  Config(render::VertexPool& pool);
+  Config(VertexPool& pool);
   /*! The geometry pool to be used by the renderer.
    */
-  Ref<render::VertexPool> pool;
+  Ref<VertexPool> pool;
   /*! The shared program state to be used by the renderer.
    */
   Ref<SharedProgramState> state;
@@ -72,13 +63,13 @@ public:
 /*! @brief Forward renderer.
  *  @ingroup renderer
  */
-class Renderer : public render::System
+class Renderer : public RenderSystem
 {
 public:
   /*! Renders the specified scene to the current framebuffer using the
    *  specified camera.
    */
-  void render(const render::Scene& scene, const Camera& camera);
+  void render(const Scene& scene, const Camera& camera);
   /*! @return The shared program state object used by this renderer.
    */
   SharedProgramState& sharedProgramState() { return *m_state; }
@@ -89,9 +80,9 @@ public:
    */
   static Ref<Renderer> create(const Config& config);
 private:
-  Renderer(render::VertexPool& pool);
+  Renderer(VertexPool& pool);
   bool init(const Config& config);
-  void renderOperations(const render::Queue& queue);
+  void renderOperations(const RenderQueue& queue);
   Ref<SharedProgramState> m_state;
 };
 

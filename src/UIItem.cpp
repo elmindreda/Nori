@@ -140,7 +140,7 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 ///////////////////////////////////////////////////////////////////////
 
 TextureItem::TextureItem(Layer& layer,
-                         GL::Texture& texture,
+                         Texture& texture,
                          const char* name,
                          ItemID ID):
   Item(layer, name, ID),
@@ -158,7 +158,7 @@ float TextureItem::height() const
   return m_layer.drawer().currentEM() * 3.f;
 }
 
-GL::Texture& TextureItem::texture() const
+Texture& TextureItem::texture() const
 {
   return *m_texture;
 }

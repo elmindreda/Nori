@@ -88,7 +88,7 @@ Theme::Theme(const ResourceInfo& info):
 {
 }
 
-Ref<Theme> Theme::read(render::VertexPool& pool, const String& name)
+Ref<Theme> Theme::read(VertexPool& pool, const String& name)
 {
   ThemeReader reader(pool);
   return reader.read(name);
@@ -96,7 +96,7 @@ Ref<Theme> Theme::read(render::VertexPool& pool, const String& name)
 
 ///////////////////////////////////////////////////////////////////////
 
-ThemeReader::ThemeReader(render::VertexPool& initPool):
+ThemeReader::ThemeReader(VertexPool& initPool):
   ResourceReader<Theme>(initPool.context().cache()),
   pool(&initPool)
 {
@@ -145,9 +145,9 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  const GL::TextureParams params(GL::TEXTURE_RECT, GL::TF_NONE);
+  const TextureParams params(TEXTURE_RECT, TF_NONE);
 
-  theme->texture = GL::Texture::read(pool->context(), params, imageName);
+  theme->texture = Texture::read(pool->context(), params, imageName);
   if (!theme->texture)
   {
     logError("Failed to create texture for UI theme %s", name.c_str());
@@ -161,7 +161,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  theme->font = render::Font::read(*pool, fontName);
+  theme->font = Font::read(*pool, fontName);
   if (!theme->font)
   {
     logError("Failed to load font for UI theme %s", name.c_str());
@@ -214,7 +214,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
 void Drawer::begin()
 {
-  GL::Framebuffer& framebuffer = m_context.currentFramebuffer();
+  Framebuffer& framebuffer = m_context.currentFramebuffer();
   const uint width = framebuffer.width();
   const uint height = framebuffer.height();
 
@@ -245,7 +245,7 @@ void Drawer::popClipArea()
 {
   m_clipAreaStack.pop();
 
-  GL::Framebuffer& framebuffer = m_context.currentFramebuffer();
+  Framebuffer& framebuffer = m_context.currentFramebuffer();
 
   Recti area;
 
@@ -265,13 +265,13 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   Vertex2fv vertex;
   vertex.position = point;
 
-  GL::VertexRange range = m_pool->allocate(1, Vertex2fv::format);
+  VertexRange range = m_pool->allocate(1, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(&vertex);
   setDrawingState(color, true);
-  m_context.render(GL::PrimitiveRange(GL::POINT_LIST, range));
+  m_context.render(PrimitiveRange(POINT_LIST, range));
 }
 
 void Drawer::drawLine(vec2 start, vec2 end, const vec4& color)
@@ -280,13 +280,13 @@ void Drawer::drawLine(vec2 start, vec2 end, const vec4& color)
   vertices[0].position = start;
   vertices[1].position = end;
 
-  GL::VertexRange range = m_pool->allocate(2, Vertex2fv::format);
+  VertexRange range = m_pool->allocate(2, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
   setDrawingState(color, true);
-  m_context.render(GL::PrimitiveRange(GL::LINE_LIST, range));
+  m_context.render(PrimitiveRange(LINE_LIST, range));
 }
 
 void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
@@ -303,13 +303,13 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range = m_pool->allocate(4, Vertex2fv::format);
+  VertexRange range = m_pool->allocate(4, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
   setDrawingState(color, true);
-  m_context.render(GL::PrimitiveRange(GL::LINE_LOOP, range));
+  m_context.render(PrimitiveRange(LINE_LOOP, range));
 }
 
 void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
@@ -326,16 +326,16 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range = m_pool->allocate(4, Vertex2fv::format);
+  VertexRange range = m_pool->allocate(4, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
   setDrawingState(color, false);
-  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
-void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
+void Drawer::blitTexture(const Rect& area, Texture& texture)
 {
   float minX, minY, maxX, maxY;
   area.bounds(minX, minY, maxX, maxY);
@@ -353,21 +353,21 @@ void Drawer::blitTexture(const Rect& area, GL::Texture& texture)
   vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
-  GL::VertexRange range = m_pool->allocate(4, Vertex2ft2fv::format);
+  VertexRange range = m_pool->allocate(4, Vertex2ft2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
 
   if (texture.format().semantic() == PixelFormat::RGBA)
-    m_blitPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_blitPass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   else
-    m_blitPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
+    m_blitPass.setBlendFactors(BLEND_ONE, BLEND_ZERO);
 
   m_blitPass.setSamplerState("image", &texture);
   m_blitPass.apply();
 
-  m_context.render(GL::PrimitiveRange(GL::TRIANGLE_FAN, range));
+  m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
 
   m_blitPass.setSamplerState("image", nullptr);
 }
@@ -466,22 +466,22 @@ const Theme& Drawer::theme() const
   return *m_theme;
 }
 
-GL::Context& Drawer::context()
+RenderContext& Drawer::context()
 {
   return m_context;
 }
 
-render::VertexPool& Drawer::vertexPool()
+VertexPool& Drawer::vertexPool()
 {
   return *m_pool;
 }
 
-render::Font& Drawer::currentFont()
+Font& Drawer::currentFont()
 {
   return *m_font;
 }
 
-void Drawer::setCurrentFont(render::Font* newFont)
+void Drawer::setCurrentFont(Font* newFont)
 {
   if (newFont)
     m_font = newFont;
@@ -494,7 +494,7 @@ float Drawer::currentEM() const
   return m_font->height();
 }
 
-Ref<Drawer> Drawer::create(render::VertexPool& pool)
+Ref<Drawer> Drawer::create(VertexPool& pool)
 {
   Ptr<Drawer> drawer(new Drawer(pool));
   if (!drawer->init())
@@ -503,7 +503,7 @@ Ref<Drawer> Drawer::create(render::VertexPool& pool)
   return drawer.detachObject();
 }
 
-Drawer::Drawer(render::VertexPool& pool):
+Drawer::Drawer(VertexPool& pool):
   m_context(pool.context()),
   m_pool(&pool)
 {
@@ -511,13 +511,13 @@ Drawer::Drawer(render::VertexPool& pool):
 
 bool Drawer::init()
 {
-  m_state = new render::SharedProgramState();
+  m_state = new SharedProgramState();
   if (!m_state->reserveSupported(m_context))
     return false;
 
   // Set up element geometry
   {
-    m_vertexBuffer = GL::VertexBuffer::create(m_context, 16, ElementVertex::format, GL::USAGE_STATIC);
+    m_vertexBuffer = VertexBuffer::create(m_context, 16, ElementVertex::format, USAGE_STATIC);
     if (!m_vertexBuffer)
       return false;
 
@@ -560,7 +560,7 @@ bool Drawer::init()
 
     m_vertexBuffer->copyFrom(vertices, 16);
 
-    m_indexBuffer = GL::IndexBuffer::create(m_context, 54, GL::INDEX_UINT8, GL::USAGE_STATIC);
+    m_indexBuffer = IndexBuffer::create(m_context, 54, INDEX_UINT8, USAGE_STATIC);
     if (!m_indexBuffer)
       return false;
 
@@ -585,9 +585,9 @@ bool Drawer::init()
 
     m_indexBuffer->copyFrom(indices, 54);
 
-    m_range = GL::PrimitiveRange(GL::TRIANGLE_LIST,
-                                 *m_vertexBuffer,
-                                 *m_indexBuffer);
+    m_range = PrimitiveRange(TRIANGLE_LIST,
+                             *m_vertexBuffer,
+                             *m_indexBuffer);
   }
 
   // Load default theme
@@ -606,21 +606,21 @@ bool Drawer::init()
 
   // Set up solid pass
   {
-    Ref<GL::Program> program = GL::Program::read(m_context,
-                                                 "wendy/UIElement.vs",
-                                                 "wendy/UIElement.fs");
+    Ref<Program> program = Program::read(m_context,
+                                         "wendy/UIElement.vs",
+                                         "wendy/UIElement.fs");
     if (!program)
     {
       logError("Failed to load UI element program");
       return false;
     }
 
-    GL::ProgramInterface interface;
-    interface.addUniform("elementPos", GL::UNIFORM_VEC2);
-    interface.addUniform("elementSize", GL::UNIFORM_VEC2);
-    interface.addUniform("texPos", GL::UNIFORM_VEC2);
-    interface.addUniform("texSize", GL::UNIFORM_VEC2);
-    interface.addSampler("image", GL::SAMPLER_RECT);
+    ProgramInterface interface;
+    interface.addUniform("elementPos", UNIFORM_VEC2);
+    interface.addUniform("elementSize", UNIFORM_VEC2);
+    interface.addUniform("texPos", UNIFORM_VEC2);
+    interface.addUniform("texSize", UNIFORM_VEC2);
+    interface.addSampler("image", SAMPLER_RECT);
     interface.addAttributes(ElementVertex::format);
 
     if (!interface.matches(*program, true))
@@ -634,7 +634,7 @@ bool Drawer::init()
     m_elementPass.setDepthTesting(false);
     m_elementPass.setDepthWriting(false);
     m_elementPass.setSamplerState("image", m_theme->texture);
-    m_elementPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_elementPass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
     m_elementPass.setMultisampling(false);
 
     m_elementPosIndex = m_elementPass.uniformStateIndex("elementPos");
@@ -645,17 +645,17 @@ bool Drawer::init()
 
   // Set up solid pass
   {
-    Ref<GL::Program> program = GL::Program::read(m_context,
-                                                 "wendy/UIDrawSolid.vs",
-                                                 "wendy/UIDrawSolid.fs");
+    Ref<Program> program = Program::read(m_context,
+                                         "wendy/UIDrawSolid.vs",
+                                         "wendy/UIDrawSolid.fs");
     if (!program)
     {
       logError("Failed to load UI drawing shader program");
       return false;
     }
 
-    GL::ProgramInterface interface;
-    interface.addUniform("color", GL::UNIFORM_VEC4);
+    ProgramInterface interface;
+    interface.addUniform("color", UNIFORM_VEC4);
     interface.addAttributes(Vertex2fv::format);
 
     if (!interface.matches(*program, true))
@@ -666,7 +666,7 @@ bool Drawer::init()
     }
 
     m_drawPass.setProgram(program);
-    m_drawPass.setCullMode(GL::CULL_NONE);
+    m_drawPass.setCullMode(CULL_NONE);
     m_drawPass.setDepthTesting(false);
     m_drawPass.setDepthWriting(false);
     m_drawPass.setMultisampling(false);
@@ -674,17 +674,17 @@ bool Drawer::init()
 
   // Set up blitting pass
   {
-    Ref<GL::Program> program = GL::Program::read(m_context,
-                                                 "wendy/UIDrawMapped.vs",
-                                                 "wendy/UIDrawMapped.fs");
+    Ref<Program> program = Program::read(m_context,
+                                         "wendy/UIDrawMapped.vs",
+                                         "wendy/UIDrawMapped.fs");
     if (!program)
     {
       logError("Failed to load UI blitting shader program");
       return false;
     }
 
-    GL::ProgramInterface interface;
-    interface.addSampler("image", GL::SAMPLER_2D);
+    ProgramInterface interface;
+    interface.addSampler("image", SAMPLER_2D);
     interface.addAttributes(Vertex2ft2fv::format);
 
     if (!interface.matches(*program, true))
@@ -695,7 +695,7 @@ bool Drawer::init()
     }
 
     m_blitPass.setProgram(program);
-    m_blitPass.setCullMode(GL::CULL_NONE);
+    m_blitPass.setCullMode(CULL_NONE);
     m_blitPass.setDepthTesting(false);
     m_blitPass.setDepthWriting(false);
     m_blitPass.setMultisampling(false);
@@ -720,9 +720,9 @@ void Drawer::setDrawingState(const vec4& color, bool wireframe)
   m_drawPass.setUniformState("color", color);
 
   if (color.a == 1.f)
-    m_drawPass.setBlendFactors(GL::BLEND_ONE, GL::BLEND_ZERO);
+    m_drawPass.setBlendFactors(BLEND_ONE, BLEND_ZERO);
   else
-    m_drawPass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_drawPass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
 
   m_drawPass.setWireframe(wireframe);
   m_drawPass.apply();

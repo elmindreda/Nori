@@ -34,8 +34,6 @@
 
 namespace wendy
 {
-  namespace net
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -45,18 +43,6 @@ namespace
 const size_t MAX_EVENT_SIZE = 1024;
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
-bool initialize()
-{
-  return enet_initialize() == 0;
-}
-
-void shutdown()
-{
-  enet_deinitialize();
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -247,7 +233,7 @@ Peer::Peer(void* peer, TargetID ID, const char* name):
 
 ///////////////////////////////////////////////////////////////////////
 
-Observer::~Observer()
+HostObserver::~HostObserver()
 {
 }
 
@@ -266,6 +252,10 @@ Host::~Host()
     enet_host_destroy((ENetHost*) m_object);
     m_object = nullptr;
   }
+
+  m_count--;
+  if (!m_count)
+    enet_deinitialize();
 }
 
 bool Host::sendPacketTo(TargetID targetID,
@@ -434,15 +424,15 @@ Peer* Host::findPeer(TargetID targetID)
   return nullptr;
 }
 
-Object* Host::findObject(ObjectID ID)
+NetworkObject* Host::findObject(NetworkObjectID ID)
 {
   assert(ID < m_objects.size());
   return m_objects[ID];
 }
 
-PacketData Host::createEvent(EventID eventID, ObjectID recipientID)
+PacketData Host::createEvent(EventID eventID, NetworkObjectID recipientID)
 {
-  const size_t size = MAX_EVENT_SIZE + sizeof(EventID) + sizeof(ObjectID);
+  const size_t size = MAX_EVENT_SIZE + sizeof(EventID) + sizeof(NetworkObjectID);
 
   PacketData data(allocatePacketData(size), size);
   data.write16(recipientID);
@@ -453,10 +443,10 @@ PacketData Host::createEvent(EventID eventID, ObjectID recipientID)
 
 bool Host::dispatchEvent(TargetID sourceID, PacketData& data)
 {
-  const ObjectID recipientID = data.read16();
+  const NetworkObjectID recipientID = data.read16();
   const EventID eventID = data.read8();
 
-  Object* object = findObject(recipientID);
+  NetworkObject* object = findObject(recipientID);
   if (!object)
   {
     if (isClient() || m_objectIDs.bucketOf(recipientID) == ID_BUCKET_UNUSED)
@@ -499,7 +489,7 @@ uint Host::outgoingBytesPerSecond() const
   return ((ENetHost*) m_object)->outgoingBandwidth;
 }
 
-void Host::setObserver(Observer* newObserver)
+void Host::setObserver(HostObserver* newObserver)
 {
   m_observer = newObserver;
 }
@@ -533,6 +523,13 @@ Host::Host():
 
 bool Host::init(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
 {
+  if (!m_count)
+  {
+    if (enet_initialize())
+      return false;
+  }
+
+  m_count++;
   m_server = true;
 
   ENetAddress address;
@@ -557,6 +554,13 @@ bool Host::init(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
 
 bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
 {
+  if (!m_count)
+  {
+    if (enet_initialize())
+      return false;
+  }
+
+  m_count++;
   m_server = false;
 
   m_object = enet_host_create(nullptr, 1, maxChannelCount, 0, 0);
@@ -625,9 +629,11 @@ bool Host::broadcast(ChannelID channel, PacketType type, const PacketData& data)
   return true;
 }
 
+uint Host::m_count = 0;
+
 ///////////////////////////////////////////////////////////////////////
 
-Object::Object(Host& host, ObjectID ID):
+NetworkObject::NetworkObject(Host& host, NetworkObjectID ID):
   m_ID(ID),
   m_host(host)
 {
@@ -650,7 +656,7 @@ Object::Object(Host& host, ObjectID ID):
   objects[m_ID] = this;
 }
 
-Object::~Object()
+NetworkObject::~NetworkObject()
 {
   if (isOnServer() && m_ID >= OBJECT_ID_POOL_BASE)
     m_host.m_objectIDs.releaseID(m_ID);
@@ -658,57 +664,56 @@ Object::~Object()
   m_host.m_objects[m_ID] = nullptr;
 }
 
-void Object::synchronize()
+void NetworkObject::synchronize()
 {
 }
 
-PacketData Object::createEvent(EventID eventID, ObjectID recipientID) const
+PacketData NetworkObject::createEvent(EventID eventID, NetworkObjectID recipientID) const
 {
   return m_host.createEvent(eventID, recipientID);
 }
 
-bool Object::broadcastEvent(ChannelID channelID,
-                            PacketType type,
-                            PacketData& data) const
+bool NetworkObject::broadcastEvent(ChannelID channelID,
+                                   PacketType type,
+                                   PacketData& data) const
 {
   return sendEvent(BROADCAST, channelID, type, data);
 }
 
-bool Object::broadcastEvent(ChannelID channelID,
-                            PacketType type,
-                            ObjectID recipientID,
-                            EventID eventID) const
+bool NetworkObject::broadcastEvent(ChannelID channelID,
+                                   PacketType type,
+                                   NetworkObjectID recipientID,
+                                   EventID eventID) const
 {
   return sendEvent(BROADCAST, channelID, type, recipientID, eventID);
 }
 
-bool Object::sendEvent(TargetID targetID,
-                       ChannelID channelID,
-                       PacketType type,
-                       PacketData& data) const
+bool NetworkObject::sendEvent(TargetID targetID,
+                              ChannelID channelID,
+                              PacketType type,
+                              PacketData& data) const
 {
   return m_host.sendPacketTo(targetID, channelID, type, data);
 }
 
-bool Object::sendEvent(TargetID targetID,
-                       ChannelID channelID,
-                       PacketType type,
-                       ObjectID recipientID,
-                       EventID eventID) const
+bool NetworkObject::sendEvent(TargetID targetID,
+                              ChannelID channelID,
+                              PacketType type,
+                              NetworkObjectID recipientID,
+                              EventID eventID) const
 {
   PacketData event = createEvent(eventID, recipientID);
   return sendEvent(targetID, channelID, type, event);
 }
 
-void Object::receiveEvent(TargetID senderID,
-                          PacketData& data,
-                          EventID eventID)
+void NetworkObject::receiveEvent(TargetID senderID,
+                                 PacketData& data,
+                                 EventID eventID)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace net*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

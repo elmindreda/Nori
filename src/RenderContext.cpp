@@ -28,15 +28,19 @@
 #include <wendy/Core.hpp>
 #include <wendy/Timer.hpp>
 #include <wendy/Profile.hpp>
+#include <wendy/Primitive.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
 #include <internal/GLHelper.hpp>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define GLFW_NO_GLU
 #include <GLFW/glfw3.h>
@@ -47,8 +51,6 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -334,11 +336,11 @@ void setBooleanState(uint state, bool value)
 
 ///////////////////////////////////////////////////////////////////////
 
-ContextConfig::ContextConfig(uint initColorBits,
-                             uint initDepthBits,
-                             uint initStencilBits,
-                             uint initSamples,
-                             bool initDebug):
+RenderConfig::RenderConfig(uint initColorBits,
+                           uint initDepthBits,
+                           uint initStencilBits,
+                           uint initSamples,
+                           bool initDebug):
   colorBits(initColorBits),
   depthBits(initDepthBits),
   stencilBits(initStencilBits),
@@ -373,7 +375,7 @@ RenderState::RenderState():
 
 ///////////////////////////////////////////////////////////////////////
 
-Limits::Limits(Context& context)
+RenderLimits::RenderLimits(RenderContext& context)
 {
   maxColorAttachments = getInteger(GL_MAX_COLOR_ATTACHMENTS);
   maxDrawBuffers = getInteger(GL_MAX_DRAW_BUFFERS);
@@ -395,7 +397,7 @@ Limits::Limits(Context& context)
 
 ///////////////////////////////////////////////////////////////////////
 
-Stats::Stats():
+RenderStats::RenderStats():
   m_frameCount(0),
   m_frameRate(0.f),
   m_textureCount(0),
@@ -410,7 +412,7 @@ Stats::Stats():
   m_timer.start();
 }
 
-void Stats::addFrame()
+void RenderStats::addFrame()
 {
   m_frameCount++;
   m_frameRate = 0.f;
@@ -433,13 +435,13 @@ void Stats::addFrame()
     m_frames.pop_back();
 }
 
-void Stats::addStateChange()
+void RenderStats::addStateChange()
 {
   Frame& frame = m_frames.front();
   frame.stateChangeCount++;
 }
 
-void Stats::addPrimitives(PrimitiveType type, uint vertexCount)
+void RenderStats::addPrimitives(PrimitiveType type, uint vertexCount)
 {
   Frame& frame = m_frames.front();
   frame.vertexCount += vertexCount;
@@ -470,55 +472,55 @@ void Stats::addPrimitives(PrimitiveType type, uint vertexCount)
   }
 }
 
-void Stats::addTexture(size_t size)
+void RenderStats::addTexture(size_t size)
 {
   m_textureCount++;
   m_textureSize += size;
 }
 
-void Stats::removeTexture(size_t size)
+void RenderStats::removeTexture(size_t size)
 {
   m_textureCount--;
   m_textureSize -= size;
 }
 
-void Stats::addVertexBuffer(size_t size)
+void RenderStats::addVertexBuffer(size_t size)
 {
   m_vertexBufferCount++;
   m_vertexBufferSize += size;
 }
 
-void Stats::removeVertexBuffer(size_t size)
+void RenderStats::removeVertexBuffer(size_t size)
 {
   m_vertexBufferCount--;
   m_vertexBufferSize -= size;
 }
 
-void Stats::addIndexBuffer(size_t size)
+void RenderStats::addIndexBuffer(size_t size)
 {
   m_indexBufferCount++;
   m_indexBufferSize += size;
 }
 
-void Stats::removeIndexBuffer(size_t size)
+void RenderStats::removeIndexBuffer(size_t size)
 {
   m_indexBufferCount--;
   m_indexBufferSize -= size;
 }
 
-void Stats::addProgram()
+void RenderStats::addProgram()
 {
   m_programCount++;
 }
 
-void Stats::removeProgram()
+void RenderStats::removeProgram()
 {
   m_programCount--;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Stats::Frame::Frame():
+RenderStats::Frame::Frame():
   stateChangeCount(0),
   operationCount(0),
   vertexCount(0),
@@ -531,7 +533,365 @@ Stats::Frame::Frame():
 
 ///////////////////////////////////////////////////////////////////////
 
-class Context::SharedSampler
+SharedProgramState::SharedProgramState():
+  m_dirtyModelView(true),
+  m_dirtyViewProj(true),
+  m_dirtyModelViewProj(true),
+  m_dirtyInvModel(true),
+  m_dirtyInvView(true),
+  m_dirtyInvProj(true),
+  m_dirtyInvModelView(true),
+  m_dirtyInvViewProj(true),
+  m_dirtyInvModelViewProj(true),
+  m_cameraNearZ(0.f),
+  m_cameraFarZ(0.f),
+  m_cameraAspect(0.f),
+  m_cameraFOV(0.f),
+  m_viewportWidth(0.f),
+  m_viewportHeight(0.f),
+  m_time(0.f)
+{
+}
+
+bool SharedProgramState::reserveSupported(RenderContext& context) const
+{
+  context.createSharedUniform("wyM", UNIFORM_MAT4, SHARED_MODEL_MATRIX);
+  context.createSharedUniform("wyV", UNIFORM_MAT4, SHARED_VIEW_MATRIX);
+  context.createSharedUniform("wyP", UNIFORM_MAT4, SHARED_PROJECTION_MATRIX);
+  context.createSharedUniform("wyMV", UNIFORM_MAT4, SHARED_MODELVIEW_MATRIX);
+  context.createSharedUniform("wyVP", UNIFORM_MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyMVP", UNIFORM_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
+
+  context.createSharedUniform("wyInvM", UNIFORM_MAT4, SHARED_INVERSE_MODEL_MATRIX);
+  context.createSharedUniform("wyInvV", UNIFORM_MAT4, SHARED_INVERSE_VIEW_MATRIX);
+  context.createSharedUniform("wyInvP", UNIFORM_MAT4, SHARED_INVERSE_PROJECTION_MATRIX);
+  context.createSharedUniform("wyInvMV", UNIFORM_MAT4, SHARED_INVERSE_MODELVIEW_MATRIX);
+  context.createSharedUniform("wyInvVP", UNIFORM_MAT4, SHARED_INVERSE_VIEWPROJECTION_MATRIX);
+  context.createSharedUniform("wyInvMVP", UNIFORM_MAT4, SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX);
+
+  context.createSharedUniform("wyCameraNearZ", UNIFORM_FLOAT, SHARED_CAMERA_NEAR_Z);
+  context.createSharedUniform("wyCameraFarZ", UNIFORM_FLOAT, SHARED_CAMERA_FAR_Z);
+  context.createSharedUniform("wyCameraAspectRatio", UNIFORM_FLOAT, SHARED_CAMERA_ASPECT_RATIO);
+  context.createSharedUniform("wyCameraFOV", UNIFORM_FLOAT, SHARED_CAMERA_FOV);
+  context.createSharedUniform("wyCameraPosition", UNIFORM_VEC3, SHARED_CAMERA_POSITION);
+
+  context.createSharedUniform("wyViewportWidth", UNIFORM_FLOAT, SHARED_VIEWPORT_WIDTH);
+  context.createSharedUniform("wyViewportHeight", UNIFORM_FLOAT, SHARED_VIEWPORT_HEIGHT);
+
+  context.createSharedUniform("wyTime", UNIFORM_FLOAT, SHARED_TIME);
+
+  return true;
+}
+
+void SharedProgramState::cameraProperties(vec3& position,
+                                          float& FOV,
+                                          float& aspect,
+                                          float& nearZ,
+                                          float& farZ) const
+{
+  position = m_cameraPos;
+  FOV = m_cameraFOV;
+  aspect = m_cameraAspect;
+  nearZ = m_cameraNearZ;
+  farZ = m_cameraFarZ;
+}
+
+void SharedProgramState::setModelMatrix(const mat4& newMatrix)
+{
+  m_modelMatrix = newMatrix;
+  m_dirtyModelView = m_dirtyModelViewProj = true;
+  m_dirtyInvModel = m_dirtyInvModelView = m_dirtyInvModelViewProj = true;
+}
+
+void SharedProgramState::setViewMatrix(const mat4& newMatrix)
+{
+  m_viewMatrix = newMatrix;
+  m_dirtyModelView = m_dirtyViewProj = m_dirtyModelViewProj = true;
+  m_dirtyInvView = m_dirtyInvModelView = m_dirtyInvViewProj = m_dirtyInvModelViewProj = true;
+}
+
+void SharedProgramState::setProjectionMatrix(const mat4& newMatrix)
+{
+  m_projectionMatrix = newMatrix;
+  m_dirtyViewProj = m_dirtyModelViewProj = true;
+  m_dirtyInvProj = m_dirtyInvViewProj = m_dirtyInvModelViewProj = true;
+}
+
+void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
+{
+  setProjectionMatrix(ortho(0.f, width, 0.f, height));
+}
+
+void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
+{
+  float minX, minY, minZ, maxX, maxY, maxZ;
+  volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
+
+  setProjectionMatrix(ortho(minX, maxX, minY, maxY, minZ, maxZ));
+}
+
+void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
+                                                        float aspect,
+                                                        float nearZ,
+                                                        float farZ)
+{
+  setProjectionMatrix(perspective(FOV, aspect, nearZ, farZ));
+}
+
+void SharedProgramState::setCameraProperties(const vec3& position,
+                                             float FOV,
+                                             float aspect,
+                                             float nearZ,
+                                             float farZ)
+{
+  m_cameraPos = position;
+  m_cameraFOV = FOV;
+  m_cameraAspect = aspect;
+  m_cameraNearZ = nearZ;
+  m_cameraFarZ = farZ;
+}
+
+void SharedProgramState::setViewportSize(float newWidth, float newHeight)
+{
+  m_viewportWidth = newWidth;
+  m_viewportHeight = newHeight;
+}
+
+void SharedProgramState::setTime(float newTime)
+{
+  m_time = newTime;
+}
+
+void SharedProgramState::updateTo(Sampler& sampler)
+{
+  logError("Unknown shared sampler uniform %s requested",
+           sampler.name().c_str());
+}
+
+void SharedProgramState::updateTo(Uniform& uniform)
+{
+  switch (uniform.sharedID())
+  {
+    case SHARED_MODEL_MATRIX:
+    {
+      uniform.copyFrom(value_ptr(m_modelMatrix));
+      return;
+    }
+
+    case SHARED_VIEW_MATRIX:
+    {
+      uniform.copyFrom(value_ptr(m_viewMatrix));
+      return;
+    }
+
+    case SHARED_PROJECTION_MATRIX:
+    {
+      uniform.copyFrom(value_ptr(m_projectionMatrix));
+      return;
+    }
+
+    case SHARED_MODELVIEW_MATRIX:
+    {
+      if (m_dirtyModelView)
+      {
+        m_modelViewMatrix = m_viewMatrix;
+        m_modelViewMatrix *= m_modelMatrix;
+        m_dirtyModelView = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_modelViewMatrix));
+      return;
+    }
+
+    case SHARED_VIEWPROJECTION_MATRIX:
+    {
+      if (m_dirtyViewProj)
+      {
+        m_viewProjMatrix = m_projectionMatrix;
+        m_viewProjMatrix *= m_viewMatrix;
+        m_dirtyViewProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_viewProjMatrix));
+      return;
+    }
+
+    case SHARED_MODELVIEWPROJECTION_MATRIX:
+    {
+      if (m_dirtyModelViewProj)
+      {
+        if (m_dirtyViewProj)
+        {
+          m_viewProjMatrix = m_projectionMatrix;
+          m_viewProjMatrix *= m_viewMatrix;
+          m_dirtyViewProj = false;
+        }
+
+        m_modelViewProjMatrix = m_viewProjMatrix;
+        m_modelViewProjMatrix *= m_modelMatrix;
+        m_dirtyModelViewProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_modelViewProjMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_MODEL_MATRIX:
+    {
+      if (m_dirtyInvModel)
+      {
+        m_invModelMatrix = inverse(m_modelMatrix);
+        m_dirtyInvModel = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_invModelMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_VIEW_MATRIX:
+    {
+      if (m_dirtyInvView)
+      {
+        m_invViewMatrix = inverse(m_viewMatrix);
+        m_dirtyInvView = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_invViewMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_PROJECTION_MATRIX:
+    {
+      if (m_dirtyInvProj)
+      {
+        m_invProjMatrix = inverse(m_projectionMatrix);
+        m_dirtyInvProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_invProjMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_MODELVIEW_MATRIX:
+    {
+      if (m_dirtyInvModelView)
+      {
+        if (m_dirtyModelView)
+        {
+          m_modelViewMatrix = m_viewMatrix;
+          m_modelViewMatrix *= m_modelMatrix;
+          m_dirtyModelView = false;
+        }
+
+        m_invModelViewMatrix = inverse(m_modelViewMatrix);
+        m_dirtyInvModelView = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_invModelViewMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_VIEWPROJECTION_MATRIX:
+    {
+      if (m_dirtyInvViewProj)
+      {
+        if (m_dirtyViewProj)
+        {
+          m_viewProjMatrix = m_projectionMatrix;
+          m_viewProjMatrix *= m_viewMatrix;
+          m_dirtyViewProj = false;
+        }
+
+        m_invViewProjMatrix = inverse(m_viewProjMatrix);
+        m_dirtyInvViewProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_invViewProjMatrix));
+      return;
+    }
+
+    case SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX:
+    {
+      if (m_dirtyInvModelViewProj)
+      {
+        if (m_dirtyModelViewProj)
+        {
+          if (m_dirtyViewProj)
+          {
+            m_viewProjMatrix = m_projectionMatrix;
+            m_viewProjMatrix *= m_viewMatrix;
+            m_dirtyViewProj = false;
+          }
+
+          m_modelViewProjMatrix = m_viewProjMatrix;
+          m_modelViewProjMatrix *= m_modelMatrix;
+          m_dirtyModelViewProj = false;
+        }
+
+        m_invModelViewProjMatrix = inverse(m_modelViewProjMatrix);
+        m_dirtyInvModelViewProj = false;
+      }
+
+      uniform.copyFrom(value_ptr(m_invModelViewProjMatrix));
+      return;
+    }
+
+    case SHARED_CAMERA_POSITION:
+    {
+      uniform.copyFrom(value_ptr(m_cameraPos));
+      return;
+    }
+
+    case SHARED_CAMERA_NEAR_Z:
+    {
+      uniform.copyFrom(&m_cameraNearZ);
+      return;
+    }
+
+    case SHARED_CAMERA_FAR_Z:
+    {
+      uniform.copyFrom(&m_cameraFarZ);
+      return;
+    }
+
+    case SHARED_CAMERA_ASPECT_RATIO:
+    {
+      uniform.copyFrom(&m_cameraAspect);
+      return;
+    }
+
+    case SHARED_CAMERA_FOV:
+    {
+      uniform.copyFrom(&m_cameraFOV);
+      return;
+    }
+
+    case SHARED_VIEWPORT_WIDTH:
+    {
+      uniform.copyFrom(&m_viewportWidth);
+      return;
+    }
+
+    case SHARED_VIEWPORT_HEIGHT:
+    {
+      uniform.copyFrom(&m_viewportHeight);
+      return;
+    }
+
+    case SHARED_TIME:
+    {
+      uniform.copyFrom(&m_time);
+      return;
+    }
+  }
+
+  logError("Unknown shared uniform %s requested",
+           uniform.name().c_str());
+}
+
+///////////////////////////////////////////////////////////////////////
+
+class RenderContext::SharedSampler
 {
 public:
   SharedSampler(const char* name, SamplerType type, int ID):
@@ -547,7 +907,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-class Context::SharedUniform
+class RenderContext::SharedUniform
 {
 public:
   SharedUniform(const char* name, UniformType type, int ID):
@@ -563,7 +923,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-Context::~Context()
+RenderContext::~RenderContext()
 {
   if (m_defaultFramebuffer)
     setDefaultFramebufferCurrent();
@@ -585,7 +945,7 @@ Context::~Context()
   }
 }
 
-void Context::clearColorBuffer(const vec4& color)
+void RenderContext::clearColorBuffer(const vec4& color)
 {
   const RenderState previousState = m_currentState;
 
@@ -603,7 +963,7 @@ void Context::clearColorBuffer(const vec4& color)
   applyState(previousState);
 }
 
-void Context::clearDepthBuffer(float depth)
+void RenderContext::clearDepthBuffer(float depth)
 {
   const RenderState previousState = m_currentState;
 
@@ -621,7 +981,7 @@ void Context::clearDepthBuffer(float depth)
   applyState(previousState);
 }
 
-void Context::clearStencilBuffer(uint value)
+void RenderContext::clearStencilBuffer(uint value)
 {
   const RenderState previousState = m_currentState;
 
@@ -639,7 +999,7 @@ void Context::clearStencilBuffer(uint value)
   applyState(previousState);
 }
 
-void Context::clearBuffers(const vec4& color, float depth, uint value)
+void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 {
   const RenderState previousState = m_currentState;
 
@@ -662,7 +1022,7 @@ void Context::clearBuffers(const vec4& color, float depth, uint value)
   applyState(previousState);
 }
 
-void Context::render(const PrimitiveRange& range)
+void RenderContext::render(const PrimitiveRange& range)
 {
   if (range.isEmpty())
   {
@@ -677,9 +1037,9 @@ void Context::render(const PrimitiveRange& range)
   render(range.type(), range.start(), range.count(), range.base());
 }
 
-void Context::render(PrimitiveType type, uint start, uint count, uint base)
+void RenderContext::render(PrimitiveType type, uint start, uint count, uint base)
 {
-  ProfileNodeCall call("GL::Context::render");
+  ProfileNodeCall call("RenderContext::render");
 
   if (!m_currentProgram)
   {
@@ -753,7 +1113,7 @@ void Context::render(PrimitiveType type, uint start, uint count, uint base)
     m_stats->addPrimitives(type, count);
 }
 
-void Context::createSharedSampler(const char* name, SamplerType type, int ID)
+void RenderContext::createSharedSampler(const char* name, SamplerType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
 
@@ -765,7 +1125,7 @@ void Context::createSharedSampler(const char* name, SamplerType type, int ID)
   m_samplers.push_back(SharedSampler(name, type, ID));
 }
 
-void Context::createSharedUniform(const char* name, UniformType type, int ID)
+void RenderContext::createSharedUniform(const char* name, UniformType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
 
@@ -777,7 +1137,7 @@ void Context::createSharedUniform(const char* name, UniformType type, int ID)
   m_uniforms.push_back(SharedUniform(name, type, ID));
 }
 
-int Context::sharedSamplerID(const char* name, SamplerType type) const
+int RenderContext::sharedSamplerID(const char* name, SamplerType type) const
 {
   for (auto& s : m_samplers)
   {
@@ -788,7 +1148,7 @@ int Context::sharedSamplerID(const char* name, SamplerType type) const
   return INVALID_SHARED_STATE_ID;
 }
 
-int Context::sharedUniformID(const char* name, UniformType type) const
+int RenderContext::sharedUniformID(const char* name, UniformType type) const
 {
   for (auto& u : m_uniforms)
   {
@@ -799,43 +1159,43 @@ int Context::sharedUniformID(const char* name, UniformType type) const
   return INVALID_SHARED_STATE_ID;
 }
 
-SharedProgramState* Context::currentSharedProgramState() const
+SharedProgramState* RenderContext::currentSharedProgramState() const
 {
   return m_currentSharedState;
 }
 
-void Context::setCurrentSharedProgramState(SharedProgramState* newState)
+void RenderContext::setCurrentSharedProgramState(SharedProgramState* newState)
 {
   m_currentSharedState = newState;
 }
 
-const char* Context::sharedProgramStateDeclaration() const
+const char* RenderContext::sharedProgramStateDeclaration() const
 {
   return m_declaration.c_str();
 }
 
-int Context::swapInterval() const
+int RenderContext::swapInterval() const
 {
   return m_swapInterval;
 }
 
-void Context::setSwapInterval(int newInterval)
+void RenderContext::setSwapInterval(int newInterval)
 {
   glfwSwapInterval(newInterval);
   m_swapInterval = newInterval;
 }
 
-const Recti& Context::scissorArea() const
+const Recti& RenderContext::scissorArea() const
 {
   return m_scissorArea;
 }
 
-const Recti& Context::viewportArea() const
+const Recti& RenderContext::viewportArea() const
 {
   return m_viewportArea;
 }
 
-void Context::setScissorArea(const Recti& newArea)
+void RenderContext::setScissorArea(const Recti& newArea)
 {
   m_scissorArea = newArea;
 
@@ -854,7 +1214,7 @@ void Context::setScissorArea(const Recti& newArea)
   }
 }
 
-void Context::setViewportArea(const Recti& newArea)
+void RenderContext::setViewportArea(const Recti& newArea)
 {
   m_viewportArea = newArea;
 
@@ -864,22 +1224,22 @@ void Context::setViewportArea(const Recti& newArea)
              m_viewportArea.size.y);
 }
 
-Framebuffer& Context::currentFramebuffer() const
+Framebuffer& RenderContext::currentFramebuffer() const
 {
   return *m_currentFramebuffer;
 }
 
-DefaultFramebuffer& Context::defaultFramebuffer() const
+DefaultFramebuffer& RenderContext::defaultFramebuffer() const
 {
   return *m_defaultFramebuffer;
 }
 
-void Context::setDefaultFramebufferCurrent()
+void RenderContext::setDefaultFramebufferCurrent()
 {
   setCurrentFramebuffer(*m_defaultFramebuffer);
 }
 
-bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
+bool RenderContext::setCurrentFramebuffer(Framebuffer& newFramebuffer)
 {
   m_currentFramebuffer = &newFramebuffer;
   m_currentFramebuffer->apply();
@@ -898,12 +1258,12 @@ bool Context::setCurrentFramebuffer(Framebuffer& newFramebuffer)
   return true;
 }
 
-Program* Context::currentProgram() const
+Program* RenderContext::currentProgram() const
 {
   return m_currentProgram;
 }
 
-void Context::setCurrentProgram(Program* newProgram)
+void RenderContext::setCurrentProgram(Program* newProgram)
 {
   if (newProgram != m_currentProgram)
   {
@@ -920,12 +1280,12 @@ void Context::setCurrentProgram(Program* newProgram)
   }
 }
 
-VertexBuffer* Context::currentVertexBuffer() const
+VertexBuffer* RenderContext::currentVertexBuffer() const
 {
   return m_currentVertexBuffer;
 }
 
-void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
+void RenderContext::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
 {
   if (newVertexBuffer != m_currentVertexBuffer)
   {
@@ -944,12 +1304,12 @@ void Context::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
   }
 }
 
-IndexBuffer* Context::currentIndexBuffer() const
+IndexBuffer* RenderContext::currentIndexBuffer() const
 {
   return m_currentIndexBuffer;
 }
 
-void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
+void RenderContext::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
 {
   if (newIndexBuffer != m_currentIndexBuffer)
   {
@@ -968,12 +1328,12 @@ void Context::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
   }
 }
 
-Texture* Context::currentTexture() const
+Texture* RenderContext::currentTexture() const
 {
   return m_textureUnits[m_activeTextureUnit];
 }
 
-void Context::setCurrentTexture(Texture* newTexture)
+void RenderContext::setCurrentTexture(Texture* newTexture)
 {
   if (m_textureUnits[m_activeTextureUnit] != newTexture)
   {
@@ -1012,17 +1372,17 @@ void Context::setCurrentTexture(Texture* newTexture)
   }
 }
 
-uint Context::textureUnitCount() const
+uint RenderContext::textureUnitCount() const
 {
   return (uint) m_textureUnits.size();
 }
 
-uint Context::activeTextureUnit() const
+uint RenderContext::activeTextureUnit() const
 {
   return m_activeTextureUnit;
 }
 
-void Context::setActiveTextureUnit(uint unit)
+void RenderContext::setActiveTextureUnit(uint unit)
 {
   if (m_activeTextureUnit != unit)
   {
@@ -1036,63 +1396,63 @@ void Context::setActiveTextureUnit(uint unit)
   }
 }
 
-bool Context::isCullingInverted()
+bool RenderContext::isCullingInverted()
 {
   return m_cullingInverted;
 }
 
-void Context::setCullingInversion(bool newState)
+void RenderContext::setCullingInversion(bool newState)
 {
   m_cullingInverted = newState;
 }
 
-const RenderState& Context::currentRenderState() const
+const RenderState& RenderContext::currentRenderState() const
 {
   return m_currentState;
 }
 
-void Context::setCurrentRenderState(const RenderState& newState)
+void RenderContext::setCurrentRenderState(const RenderState& newState)
 {
   applyState(newState);
 }
 
-Stats* Context::stats() const
+RenderStats* RenderContext::stats() const
 {
   return m_stats;
 }
 
-void Context::setStats(Stats* newStats)
+void RenderContext::setStats(RenderStats* newStats)
 {
   m_stats = newStats;
 }
 
-ResourceCache& Context::cache() const
+ResourceCache& RenderContext::cache() const
 {
   return m_cache;
 }
 
-Window& Context::window()
+Window& RenderContext::window()
 {
   return m_window;
 }
 
-const Limits& Context::limits() const
+const RenderLimits& RenderContext::limits() const
 {
   return *m_limits;
 }
 
-Context* Context::create(ResourceCache& cache,
-                         const WindowConfig& wc,
-                         const ContextConfig& cc)
+RenderContext* RenderContext::create(ResourceCache& cache,
+                                     const WindowConfig& wc,
+                                     const RenderConfig& rc)
 {
-  Ptr<Context> context(new Context(cache));
-  if (!context->init(wc, cc))
+  Ptr<RenderContext> context(new RenderContext(cache));
+  if (!context->init(wc, rc))
     return nullptr;
 
   return context.detachObject();
 }
 
-Context::Context(ResourceCache& cache):
+RenderContext::RenderContext(ResourceCache& cache):
   m_cache(cache),
   m_handle(nullptr),
   m_dirtyBinding(true),
@@ -1103,7 +1463,7 @@ Context::Context(ResourceCache& cache):
 {
 }
 
-bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
+bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
 {
   glfwSetErrorCallback(errorCallback);
 
@@ -1117,19 +1477,19 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Create context and window
   {
-    const uint colorBits = min(cc.colorBits, 24u);
+    const uint colorBits = min(rc.colorBits, 24u);
 
     glfwWindowHint(GLFW_RED_BITS, colorBits / 3);
     glfwWindowHint(GLFW_GREEN_BITS, colorBits / 3);
     glfwWindowHint(GLFW_BLUE_BITS, colorBits / 3);
-    glfwWindowHint(GLFW_DEPTH_BITS, cc.depthBits);
-    glfwWindowHint(GLFW_STENCIL_BITS, cc.stencilBits);
-    glfwWindowHint(GLFW_SAMPLES, cc.samples);
+    glfwWindowHint(GLFW_DEPTH_BITS, rc.depthBits);
+    glfwWindowHint(GLFW_STENCIL_BITS, rc.stencilBits);
+    glfwWindowHint(GLFW_SAMPLES, rc.samples);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, cc.debug);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, rc.debug);
 
     glfwWindowHint(GLFW_RESIZABLE, wc.resizable);
 
@@ -1149,7 +1509,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
     glfwMakeContextCurrent(m_handle);
 
     m_window.init(m_handle);
-    m_window.frameSignal().connect(*this, &Context::onFrame);
+    m_window.frameSignal().connect(*this, &RenderContext::onFrame);
   }
 
   // Initialize greg and check extensions
@@ -1171,7 +1531,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
 
-    if (cc.debug && GREG_ARB_debug_output)
+    if (rc.debug && GREG_ARB_debug_output)
     {
       glDebugMessageCallbackARB(debugCallback, nullptr);
       glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
@@ -1180,7 +1540,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
 
   // Retrieve context limits and set up dependent caches
   {
-    m_limits = new Limits(*this);
+    m_limits = new RenderLimits(*this);
 
     const uint unitCount = max(m_limits->maxCombinedTextureImageUnits,
                                m_limits->maxTextureCoords);
@@ -1220,7 +1580,7 @@ bool Context::init(const WindowConfig& wc, const ContextConfig& cc)
   return true;
 }
 
-void Context::applyState(const RenderState& newState)
+void RenderContext::applyState(const RenderState& newState)
 {
   if (m_stats)
     m_stats->addStateChange();
@@ -1373,7 +1733,7 @@ void Context::applyState(const RenderState& newState)
 #endif
 }
 
-void Context::forceState(const RenderState& newState)
+void RenderContext::forceState(const RenderState& newState)
 {
   m_currentState = newState;
 
@@ -1426,7 +1786,7 @@ void Context::forceState(const RenderState& newState)
   m_dirtyState = false;
 }
 
-void Context::onFrame()
+void RenderContext::onFrame()
 {
 #if WENDY_DEBUG
   checkGL("Uncaught OpenGL error during last frame");
@@ -1451,7 +1811,6 @@ void Context::onFrame()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

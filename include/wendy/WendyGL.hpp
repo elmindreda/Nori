@@ -31,11 +31,11 @@
 
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/GLQuery.hpp>
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/RenderQuery.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 #endif /*WENDY_WENDYGL_HPP*/

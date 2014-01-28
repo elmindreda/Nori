@@ -25,12 +25,10 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/Bimap.hpp>
-
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
@@ -40,8 +38,6 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -124,7 +120,7 @@ VertexBuffer::~VertexBuffer()
   if (m_bufferID)
     glDeleteBuffers(1, &m_bufferID);
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->removeVertexBuffer(size());
 }
 
@@ -178,7 +174,7 @@ void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
 #endif
 }
 
-Ref<VertexBuffer> VertexBuffer::create(Context& context,
+Ref<VertexBuffer> VertexBuffer::create(RenderContext& context,
                                        size_t count,
                                        const VertexFormat& format,
                                        BufferUsage usage)
@@ -190,7 +186,7 @@ Ref<VertexBuffer> VertexBuffer::create(Context& context,
   return buffer;
 }
 
-VertexBuffer::VertexBuffer(Context& context):
+VertexBuffer::VertexBuffer(RenderContext& context):
   m_context(context),
   m_bufferID(0),
   m_count(0),
@@ -220,7 +216,7 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, BufferUsage us
     return false;
   }
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->addVertexBuffer(size());
 
   return true;
@@ -233,7 +229,7 @@ IndexBuffer::~IndexBuffer()
   if (m_bufferID)
     glDeleteBuffers(1, &m_bufferID);
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->removeIndexBuffer(size());
 }
 
@@ -278,7 +274,7 @@ size_t IndexBuffer::size() const
   return m_count * typeSize(m_type);
 }
 
-Ref<IndexBuffer> IndexBuffer::create(Context& context,
+Ref<IndexBuffer> IndexBuffer::create(RenderContext& context,
                                      size_t count,
                                      IndexBufferType type,
                                      BufferUsage usage)
@@ -305,7 +301,7 @@ size_t IndexBuffer::typeSize(IndexBufferType type)
   panic("Invalid index buffer type %u", type);
 }
 
-IndexBuffer::IndexBuffer(Context& context):
+IndexBuffer::IndexBuffer(RenderContext& context):
   m_context(context),
   m_type(INDEX_UINT8),
   m_usage(USAGE_STATIC),
@@ -336,7 +332,7 @@ bool IndexBuffer::init(size_t count, IndexBufferType type, BufferUsage usage)
     return false;
   }
 
-  if (Stats* stats = m_context.stats())
+  if (RenderStats* stats = m_context.stats())
     stats->addIndexBuffer(size());
 
   return true;
@@ -563,7 +559,7 @@ void Framebuffer::setSRGB(bool enabled)
   previous.apply();
 }
 
-Framebuffer::Framebuffer(Context& context):
+Framebuffer::Framebuffer(RenderContext& context):
   m_context(context),
   m_sRGB(false)
 {
@@ -571,7 +567,7 @@ Framebuffer::Framebuffer(Context& context):
 
 ///////////////////////////////////////////////////////////////////////
 
-DefaultFramebuffer::DefaultFramebuffer(Context& context):
+DefaultFramebuffer::DefaultFramebuffer(RenderContext& context):
   Framebuffer(context)
 {
 }
@@ -658,7 +654,7 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage
 {
   if (isColorAttachment(attachment))
   {
-    const Limits& limits = m_context.limits();
+    const RenderLimits& limits = m_context.limits();
     const uint index = attachment - COLOR_BUFFER0;
 
     if (index >= limits.maxColorAttachments)
@@ -691,7 +687,7 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage
   return true;
 }
 
-Ref<TextureFramebuffer> TextureFramebuffer::create(Context& context)
+Ref<TextureFramebuffer> TextureFramebuffer::create(RenderContext& context)
 {
   Ref<TextureFramebuffer> framebuffer(new TextureFramebuffer(context));
   if (!framebuffer->init())
@@ -700,7 +696,7 @@ Ref<TextureFramebuffer> TextureFramebuffer::create(Context& context)
   return framebuffer;
 }
 
-TextureFramebuffer::TextureFramebuffer(Context& context):
+TextureFramebuffer::TextureFramebuffer(RenderContext& context):
   Framebuffer(context),
   m_bufferID(0)
 {
@@ -745,7 +741,6 @@ void TextureFramebuffer::apply() const
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

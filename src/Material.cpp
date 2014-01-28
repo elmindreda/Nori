@@ -27,15 +27,15 @@
 
 #include <wendy/Bimap.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderSystem.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 
 #include <algorithm>
 
@@ -45,24 +45,22 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace
 {
 
-Bimap<String, GL::CullMode> cullModeMap;
-Bimap<String, GL::BlendFactor> blendFactorMap;
-Bimap<String, GL::Function> functionMap;
-Bimap<String, GL::StencilOp> operationMap;
-Bimap<String, GL::FilterMode> filterModeMap;
-Bimap<String, GL::AddressMode> addressModeMap;
-Bimap<String, System::Type> systemTypeMap;
+Bimap<String, CullMode> cullModeMap;
+Bimap<String, BlendFactor> blendFactorMap;
+Bimap<String, Function> functionMap;
+Bimap<String, StencilOp> operationMap;
+Bimap<String, FilterMode> filterModeMap;
+Bimap<String, AddressMode> addressModeMap;
+Bimap<String, RenderSystem::Type> systemTypeMap;
 Bimap<String, Phase> phaseMap;
 
-Bimap<GL::SamplerType, GL::TextureType> textureTypeMap;
+Bimap<SamplerType, TextureType> textureTypeMap;
 
 const uint MATERIAL_XML_VERSION = 9;
 
@@ -70,75 +68,75 @@ void initializeMaps()
 {
   if (cullModeMap.isEmpty())
   {
-    cullModeMap["none"] = GL::CULL_NONE;
-    cullModeMap["front"] = GL::CULL_FRONT;
-    cullModeMap["back"] = GL::CULL_BACK;
-    cullModeMap["both"] = GL::CULL_BOTH;
+    cullModeMap["none"] = CULL_NONE;
+    cullModeMap["front"] = CULL_FRONT;
+    cullModeMap["back"] = CULL_BACK;
+    cullModeMap["both"] = CULL_BOTH;
   }
 
   if (blendFactorMap.isEmpty())
   {
-    blendFactorMap["zero"] = GL::BLEND_ZERO;
-    blendFactorMap["one"] = GL::BLEND_ONE;
-    blendFactorMap["src color"] = GL::BLEND_SRC_COLOR;
-    blendFactorMap["dst color"] = GL::BLEND_DST_COLOR;
-    blendFactorMap["src alpha"] = GL::BLEND_SRC_ALPHA;
-    blendFactorMap["dst alpha"] = GL::BLEND_DST_ALPHA;
-    blendFactorMap["one minus src color"] = GL::BLEND_ONE_MINUS_SRC_COLOR;
-    blendFactorMap["one minus dst color"] = GL::BLEND_ONE_MINUS_DST_COLOR;
-    blendFactorMap["one minus src alpha"] = GL::BLEND_ONE_MINUS_SRC_ALPHA;
-    blendFactorMap["one minus dst alpha"] = GL::BLEND_ONE_MINUS_DST_ALPHA;
+    blendFactorMap["zero"] = BLEND_ZERO;
+    blendFactorMap["one"] = BLEND_ONE;
+    blendFactorMap["src color"] = BLEND_SRC_COLOR;
+    blendFactorMap["dst color"] = BLEND_DST_COLOR;
+    blendFactorMap["src alpha"] = BLEND_SRC_ALPHA;
+    blendFactorMap["dst alpha"] = BLEND_DST_ALPHA;
+    blendFactorMap["one minus src color"] = BLEND_ONE_MINUS_SRC_COLOR;
+    blendFactorMap["one minus dst color"] = BLEND_ONE_MINUS_DST_COLOR;
+    blendFactorMap["one minus src alpha"] = BLEND_ONE_MINUS_SRC_ALPHA;
+    blendFactorMap["one minus dst alpha"] = BLEND_ONE_MINUS_DST_ALPHA;
   }
 
   if (functionMap.isEmpty())
   {
-    functionMap["never"] = GL::ALLOW_NEVER;
-    functionMap["always"] = GL::ALLOW_ALWAYS;
-    functionMap["equal"] = GL::ALLOW_EQUAL;
-    functionMap["not equal"] = GL::ALLOW_NOT_EQUAL;
-    functionMap["lesser"] = GL::ALLOW_LESSER;
-    functionMap["lesser or equal"] = GL::ALLOW_LESSER_EQUAL;
-    functionMap["greater"] = GL::ALLOW_GREATER;
-    functionMap["greater or equal"] = GL::ALLOW_GREATER_EQUAL;
+    functionMap["never"] = ALLOW_NEVER;
+    functionMap["always"] = ALLOW_ALWAYS;
+    functionMap["equal"] = ALLOW_EQUAL;
+    functionMap["not equal"] = ALLOW_NOT_EQUAL;
+    functionMap["lesser"] = ALLOW_LESSER;
+    functionMap["lesser or equal"] = ALLOW_LESSER_EQUAL;
+    functionMap["greater"] = ALLOW_GREATER;
+    functionMap["greater or equal"] = ALLOW_GREATER_EQUAL;
   }
 
   if (operationMap.isEmpty())
   {
-    operationMap["keep"] = GL::OP_KEEP;
-    operationMap["zero"] = GL::OP_ZERO;
-    operationMap["replace"] = GL::OP_REPLACE;
-    operationMap["increase"] = GL::OP_INCREASE;
-    operationMap["decrease"] = GL::OP_DECREASE;
-    operationMap["invert"] = GL::OP_INVERT;
-    operationMap["increase wrap"] = GL::OP_INCREASE_WRAP;
-    operationMap["decrease wrap"] = GL::OP_DECREASE_WRAP;
+    operationMap["keep"] = OP_KEEP;
+    operationMap["zero"] = OP_ZERO;
+    operationMap["replace"] = OP_REPLACE;
+    operationMap["increase"] = OP_INCREASE;
+    operationMap["decrease"] = OP_DECREASE;
+    operationMap["invert"] = OP_INVERT;
+    operationMap["increase wrap"] = OP_INCREASE_WRAP;
+    operationMap["decrease wrap"] = OP_DECREASE_WRAP;
   }
 
   if (addressModeMap.isEmpty())
   {
-    addressModeMap["wrap"] = GL::ADDRESS_WRAP;
-    addressModeMap["clamp"] = GL::ADDRESS_CLAMP;
+    addressModeMap["wrap"] = ADDRESS_WRAP;
+    addressModeMap["clamp"] = ADDRESS_CLAMP;
   }
 
   if (filterModeMap.isEmpty())
   {
-    filterModeMap["nearest"] = GL::FILTER_NEAREST;
-    filterModeMap["bilinear"] = GL::FILTER_BILINEAR;
-    filterModeMap["trilinear"] = GL::FILTER_TRILINEAR;
+    filterModeMap["nearest"] = FILTER_NEAREST;
+    filterModeMap["bilinear"] = FILTER_BILINEAR;
+    filterModeMap["trilinear"] = FILTER_TRILINEAR;
   }
 
   if (textureTypeMap.isEmpty())
   {
-    textureTypeMap[GL::SAMPLER_1D] = GL::TEXTURE_1D;
-    textureTypeMap[GL::SAMPLER_2D] = GL::TEXTURE_2D;
-    textureTypeMap[GL::SAMPLER_3D] = GL::TEXTURE_3D;
-    textureTypeMap[GL::SAMPLER_RECT] = GL::TEXTURE_RECT;
-    textureTypeMap[GL::SAMPLER_CUBE] = GL::TEXTURE_CUBE;
+    textureTypeMap[SAMPLER_1D] = TEXTURE_1D;
+    textureTypeMap[SAMPLER_2D] = TEXTURE_2D;
+    textureTypeMap[SAMPLER_3D] = TEXTURE_3D;
+    textureTypeMap[SAMPLER_RECT] = TEXTURE_RECT;
+    textureTypeMap[SAMPLER_CUBE] = TEXTURE_CUBE;
   }
 
   if (systemTypeMap.isEmpty())
   {
-    systemTypeMap["forward"] = System::FORWARD;
+    systemTypeMap["forward"] = RenderSystem::FORWARD;
   }
 
   if (phaseMap.isEmpty())
@@ -153,11 +151,11 @@ void initializeMaps()
 
 ///////////////////////////////////////////////////////////////////////
 
-bool parsePass(System& system, Pass& pass, pugi::xml_node root)
+bool parsePass(RenderSystem& system, Pass& pass, pugi::xml_node root)
 {
   initializeMaps();
 
-  GL::Context& context = system.context();
+  RenderContext& context = system.context();
   ResourceCache& cache = system.cache();
 
   if (pugi::xml_node node = root.child("blending"))
@@ -312,9 +310,9 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
       return false;
     }
 
-    Ref<GL::Program> program = GL::Program::read(context,
-                                                 vertexShaderName,
-                                                 fragmentShaderName);
+    Ref<Program> program = Program::read(context,
+                                         vertexShaderName,
+                                         fragmentShaderName);
     if (!program)
     {
       logError("Failed to load program");
@@ -334,7 +332,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         continue;
       }
 
-      GL::Sampler* sampler = program->findSampler(samplerName.c_str());
+      Sampler* sampler = program->findSampler(samplerName.c_str());
       if (!sampler)
       {
         logWarning("Program %s does not have sampler uniform %s",
@@ -344,22 +342,22 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         continue;
       }
 
-      Ref<GL::Texture> texture;
+      Ref<Texture> texture;
 
       if (pugi::xml_attribute a = s.attribute("image"))
       {
-        GL::TextureParams params(textureTypeMap[sampler->type()], GL::TF_NONE);
+        TextureParams params(textureTypeMap[sampler->type()], TF_NONE);
 
         if (s.attribute("mipmapped").as_bool())
-          params.flags |= GL::TF_MIPMAPPED;
+          params.flags |= TF_MIPMAPPED;
 
         if (s.attribute("sRGB").as_bool())
-          params.flags |= GL::TF_SRGB;
+          params.flags |= TF_SRGB;
 
-        texture = GL::Texture::read(context, params, a.value());
+        texture = Texture::read(context, params, a.value());
       }
       else if (pugi::xml_attribute a = s.attribute("texture"))
-        texture = cache.find<GL::Texture>(a.value());
+        texture = cache.find<Texture>(a.value());
       else
       {
         logError("No texture specified for sampler %s of program %s",
@@ -417,7 +415,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
         continue;
       }
 
-      const GL::Uniform* uniform = program->findUniform(uniformName.c_str());
+      const Uniform* uniform = program->findUniform(uniformName.c_str());
       if (!uniform)
       {
         logWarning("Program %s does not have uniform %s",
@@ -439,25 +437,25 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
 
       switch (uniform->type())
       {
-        case GL::UNIFORM_FLOAT:
+        case UNIFORM_FLOAT:
           pass.setUniformState(uniformName.c_str(), attribute.as_float());
           break;
-        case GL::UNIFORM_VEC2:
+        case UNIFORM_VEC2:
           pass.setUniformState(uniformName.c_str(), vec2Cast(attribute.value()));
           break;
-        case GL::UNIFORM_VEC3:
+        case UNIFORM_VEC3:
           pass.setUniformState(uniformName.c_str(), vec3Cast(attribute.value()));
           break;
-        case GL::UNIFORM_VEC4:
+        case UNIFORM_VEC4:
           pass.setUniformState(uniformName.c_str(), vec4Cast(attribute.value()));
           break;
-        case GL::UNIFORM_MAT2:
+        case UNIFORM_MAT2:
           pass.setUniformState(uniformName.c_str(), mat2Cast(attribute.value()));
           break;
-        case GL::UNIFORM_MAT3:
+        case UNIFORM_MAT3:
           pass.setUniformState(uniformName.c_str(), mat3Cast(attribute.value()));
           break;
-        case GL::UNIFORM_MAT4:
+        case UNIFORM_MAT4:
           pass.setUniformState(uniformName.c_str(), mat4Cast(attribute.value()));
           break;
       }
@@ -469,7 +467,7 @@ bool parsePass(System& system, Pass& pass, pugi::xml_node root)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Material::setSamplerStates(const char* name, GL::Texture* newTexture)
+void Material::setSamplerStates(const char* name, Texture* newTexture)
 {
   for (uint i = 0;  i < 2;  i++)
   {
@@ -481,12 +479,12 @@ void Material::setSamplerStates(const char* name, GL::Texture* newTexture)
   }
 }
 
-Ref<Material> Material::create(const ResourceInfo& info, System& system)
+Ref<Material> Material::create(const ResourceInfo& info, RenderSystem& system)
 {
   return new Material(info);
 }
 
-Ref<Material> Material::read(System& system, const String& name)
+Ref<Material> Material::read(RenderSystem& system, const String& name)
 {
   MaterialReader reader(system);
   return reader.read(name);
@@ -499,7 +497,7 @@ Material::Material(const ResourceInfo& info):
 
 ///////////////////////////////////////////////////////////////////////
 
-MaterialReader::MaterialReader(System& initSystem):
+MaterialReader::MaterialReader(RenderSystem& initSystem):
   ResourceReader<Material>(initSystem.cache()),
   system(initSystem)
 {
@@ -535,7 +533,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
   std::vector<bool> phases(2, false);
 
-  GL::Context& context = system.context();
+  RenderContext& context = system.context();
 
   Ref<Material> material = Material::create(ResourceInfo(cache, name, path), system);
 
@@ -563,7 +561,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       return nullptr;
     }
 
-    const System::Type type = systemTypeMap[typeName];
+    const RenderSystem::Type type = systemTypeMap[typeName];
     if (system.type() != type)
       continue;
 
@@ -589,7 +587,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

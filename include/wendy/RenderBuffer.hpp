@@ -34,12 +34,10 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Context;
+class RenderContext;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -98,7 +96,7 @@ enum BufferUsage
  */
 class VertexBuffer : public RefObject
 {
-  friend class Context;
+  friend class RenderContext;
 public:
   /*! Destructor.
    */
@@ -138,16 +136,16 @@ public:
    *  @param usage The desired usage hint.
    *  @return The newly created vertex buffer, or @c nullptr if an error occurred.
    */
-  static Ref<VertexBuffer> create(Context& context,
+  static Ref<VertexBuffer> create(RenderContext& context,
                                   size_t count,
                                   const VertexFormat& format,
                                   BufferUsage usage);
 private:
-  VertexBuffer(Context& context);
+  VertexBuffer(RenderContext& context);
   VertexBuffer(const VertexBuffer&) = delete;
   bool init(const VertexFormat& format, size_t count, BufferUsage usage);
   VertexBuffer& operator = (const VertexBuffer&) = delete;
-  Context& m_context;
+  RenderContext& m_context;
   VertexFormat m_format;
   uint m_bufferID;
   size_t m_count;
@@ -161,7 +159,7 @@ private:
  */
 class IndexBuffer : public RefObject
 {
-  friend class Context;
+  friend class RenderContext;
 public:
   /*! Destructor.
    */
@@ -199,7 +197,7 @@ public:
    *  @return The newly created index buffer, or @c nullptr if an error
    *  occurred.
    */
-  static Ref<IndexBuffer> create(Context& context,
+  static Ref<IndexBuffer> create(RenderContext& context,
                                  size_t count,
                                  IndexBufferType type,
                                  BufferUsage usage);
@@ -207,11 +205,11 @@ public:
    */
   static size_t typeSize(IndexBufferType type);
 private:
-  IndexBuffer(Context& context);
+  IndexBuffer(RenderContext& context);
   IndexBuffer(const IndexBuffer&) = delete;
   bool init(size_t count, IndexBufferType type, BufferUsage usage);
   IndexBuffer& operator = (const IndexBuffer&) = delete;
-  Context& m_context;
+  RenderContext& m_context;
   IndexBufferType m_type;
   BufferUsage m_usage;
   uint m_bufferID;
@@ -397,7 +395,7 @@ private:
  */
 class Framebuffer : public RefObject
 {
-  friend class Context;
+  friend class RenderContext;
   friend class TextureFramebuffer;
 public:
   /*! Destructor.
@@ -421,18 +419,18 @@ public:
   float aspectRatio() const { return width() / (float) height(); }
   /*! @return The context within which this framebuffer was created.
    */
-  Context& context() const { return m_context; }
+  RenderContext& context() const { return m_context; }
 protected:
   /*! Constructor.
    */
-  Framebuffer(Context& context);
+  Framebuffer(RenderContext& context);
   /*! Called when this framebuffer is to be made current.
    */
   virtual void apply() const = 0;
 private:
   Framebuffer(const Framebuffer&) = delete;
   Framebuffer& operator = (const Framebuffer&) = delete;
-  Context& m_context;
+  RenderContext& m_context;
   bool m_sRGB;
 };
 
@@ -443,7 +441,7 @@ private:
  */
 class DefaultFramebuffer : public Framebuffer
 {
-  friend class Context;
+  friend class RenderContext;
 public:
   /*! @return The default framebuffer color depth, in bits.
    */
@@ -458,7 +456,7 @@ public:
   uint width() const;
   uint height() const;
 private:
-  DefaultFramebuffer(Context& context);
+  DefaultFramebuffer(RenderContext& context);
   void apply() const;
   uint m_colorBits;
   uint m_depthBits;
@@ -539,9 +537,9 @@ public:
   bool setBuffer(Attachment attachment, TextureImage* newImage, uint z = 0);
   /*! Creates an image framebuffer within the specified context.
    */
-  static Ref<TextureFramebuffer> create(Context& context);
+  static Ref<TextureFramebuffer> create(RenderContext& context);
 private:
-  TextureFramebuffer(Context& context);
+  TextureFramebuffer(RenderContext& context);
   bool init();
   void apply() const;
   uint m_bufferID;
@@ -550,7 +548,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

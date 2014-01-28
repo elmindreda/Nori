@@ -32,23 +32,18 @@
 
 #include <wendy/RenderState.hpp>
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace
 {
 
-bool samplerTypeMatchesTextureType(GL::SamplerType samplerType,
-                                   GL::TextureType textureType)
+bool samplerTypeMatchesTextureType(SamplerType samplerType,
+                                   TextureType textureType)
 {
   return (int) samplerType == (int) textureType;
 }
@@ -56,364 +51,6 @@ bool samplerTypeMatchesTextureType(GL::SamplerType samplerType,
 IDPool<StateID> stateIDs;
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
-
-SharedProgramState::SharedProgramState():
-  m_dirtyModelView(true),
-  m_dirtyViewProj(true),
-  m_dirtyModelViewProj(true),
-  m_dirtyInvModel(true),
-  m_dirtyInvView(true),
-  m_dirtyInvProj(true),
-  m_dirtyInvModelView(true),
-  m_dirtyInvViewProj(true),
-  m_dirtyInvModelViewProj(true),
-  m_cameraNearZ(0.f),
-  m_cameraFarZ(0.f),
-  m_cameraAspect(0.f),
-  m_cameraFOV(0.f),
-  m_viewportWidth(0.f),
-  m_viewportHeight(0.f),
-  m_time(0.f)
-{
-}
-
-bool SharedProgramState::reserveSupported(GL::Context& context) const
-{
-  context.createSharedUniform("wyM", GL::UNIFORM_MAT4, SHARED_MODEL_MATRIX);
-  context.createSharedUniform("wyV", GL::UNIFORM_MAT4, SHARED_VIEW_MATRIX);
-  context.createSharedUniform("wyP", GL::UNIFORM_MAT4, SHARED_PROJECTION_MATRIX);
-  context.createSharedUniform("wyMV", GL::UNIFORM_MAT4, SHARED_MODELVIEW_MATRIX);
-  context.createSharedUniform("wyVP", GL::UNIFORM_MAT4, SHARED_VIEWPROJECTION_MATRIX);
-  context.createSharedUniform("wyMVP", GL::UNIFORM_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
-
-  context.createSharedUniform("wyInvM", GL::UNIFORM_MAT4, SHARED_INVERSE_MODEL_MATRIX);
-  context.createSharedUniform("wyInvV", GL::UNIFORM_MAT4, SHARED_INVERSE_VIEW_MATRIX);
-  context.createSharedUniform("wyInvP", GL::UNIFORM_MAT4, SHARED_INVERSE_PROJECTION_MATRIX);
-  context.createSharedUniform("wyInvMV", GL::UNIFORM_MAT4, SHARED_INVERSE_MODELVIEW_MATRIX);
-  context.createSharedUniform("wyInvVP", GL::UNIFORM_MAT4, SHARED_INVERSE_VIEWPROJECTION_MATRIX);
-  context.createSharedUniform("wyInvMVP", GL::UNIFORM_MAT4, SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX);
-
-  context.createSharedUniform("wyCameraNearZ", GL::UNIFORM_FLOAT, SHARED_CAMERA_NEAR_Z);
-  context.createSharedUniform("wyCameraFarZ", GL::UNIFORM_FLOAT, SHARED_CAMERA_FAR_Z);
-  context.createSharedUniform("wyCameraAspectRatio", GL::UNIFORM_FLOAT, SHARED_CAMERA_ASPECT_RATIO);
-  context.createSharedUniform("wyCameraFOV", GL::UNIFORM_FLOAT, SHARED_CAMERA_FOV);
-  context.createSharedUniform("wyCameraPosition", GL::UNIFORM_VEC3, SHARED_CAMERA_POSITION);
-
-  context.createSharedUniform("wyViewportWidth", GL::UNIFORM_FLOAT, SHARED_VIEWPORT_WIDTH);
-  context.createSharedUniform("wyViewportHeight", GL::UNIFORM_FLOAT, SHARED_VIEWPORT_HEIGHT);
-
-  context.createSharedUniform("wyTime", GL::UNIFORM_FLOAT, SHARED_TIME);
-
-  return true;
-}
-
-void SharedProgramState::cameraProperties(vec3& position,
-                                          float& FOV,
-                                          float& aspect,
-                                          float& nearZ,
-                                          float& farZ) const
-{
-  position = m_cameraPos;
-  FOV = m_cameraFOV;
-  aspect = m_cameraAspect;
-  nearZ = m_cameraNearZ;
-  farZ = m_cameraFarZ;
-}
-
-void SharedProgramState::setModelMatrix(const mat4& newMatrix)
-{
-  m_modelMatrix = newMatrix;
-  m_dirtyModelView = m_dirtyModelViewProj = true;
-  m_dirtyInvModel = m_dirtyInvModelView = m_dirtyInvModelViewProj = true;
-}
-
-void SharedProgramState::setViewMatrix(const mat4& newMatrix)
-{
-  m_viewMatrix = newMatrix;
-  m_dirtyModelView = m_dirtyViewProj = m_dirtyModelViewProj = true;
-  m_dirtyInvView = m_dirtyInvModelView = m_dirtyInvViewProj = m_dirtyInvModelViewProj = true;
-}
-
-void SharedProgramState::setProjectionMatrix(const mat4& newMatrix)
-{
-  m_projectionMatrix = newMatrix;
-  m_dirtyViewProj = m_dirtyModelViewProj = true;
-  m_dirtyInvProj = m_dirtyInvViewProj = m_dirtyInvModelViewProj = true;
-}
-
-void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
-{
-  setProjectionMatrix(ortho(0.f, width, 0.f, height));
-}
-
-void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
-{
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
-
-  setProjectionMatrix(ortho(minX, maxX, minY, maxY, minZ, maxZ));
-}
-
-void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
-                                                        float aspect,
-                                                        float nearZ,
-                                                        float farZ)
-{
-  setProjectionMatrix(perspective(FOV, aspect, nearZ, farZ));
-}
-
-void SharedProgramState::setCameraProperties(const vec3& position,
-                                             float FOV,
-                                             float aspect,
-                                             float nearZ,
-                                             float farZ)
-{
-  m_cameraPos = position;
-  m_cameraFOV = FOV;
-  m_cameraAspect = aspect;
-  m_cameraNearZ = nearZ;
-  m_cameraFarZ = farZ;
-}
-
-void SharedProgramState::setViewportSize(float newWidth, float newHeight)
-{
-  m_viewportWidth = newWidth;
-  m_viewportHeight = newHeight;
-}
-
-void SharedProgramState::setTime(float newTime)
-{
-  m_time = newTime;
-}
-
-void SharedProgramState::updateTo(GL::Sampler& sampler)
-{
-  logError("Unknown shared sampler uniform %s requested",
-           sampler.name().c_str());
-}
-
-void SharedProgramState::updateTo(GL::Uniform& uniform)
-{
-  switch (uniform.sharedID())
-  {
-    case SHARED_MODEL_MATRIX:
-    {
-      uniform.copyFrom(value_ptr(m_modelMatrix));
-      return;
-    }
-
-    case SHARED_VIEW_MATRIX:
-    {
-      uniform.copyFrom(value_ptr(m_viewMatrix));
-      return;
-    }
-
-    case SHARED_PROJECTION_MATRIX:
-    {
-      uniform.copyFrom(value_ptr(m_projectionMatrix));
-      return;
-    }
-
-    case SHARED_MODELVIEW_MATRIX:
-    {
-      if (m_dirtyModelView)
-      {
-        m_modelViewMatrix = m_viewMatrix;
-        m_modelViewMatrix *= m_modelMatrix;
-        m_dirtyModelView = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_modelViewMatrix));
-      return;
-    }
-
-    case SHARED_VIEWPROJECTION_MATRIX:
-    {
-      if (m_dirtyViewProj)
-      {
-        m_viewProjMatrix = m_projectionMatrix;
-        m_viewProjMatrix *= m_viewMatrix;
-        m_dirtyViewProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_viewProjMatrix));
-      return;
-    }
-
-    case SHARED_MODELVIEWPROJECTION_MATRIX:
-    {
-      if (m_dirtyModelViewProj)
-      {
-        if (m_dirtyViewProj)
-        {
-          m_viewProjMatrix = m_projectionMatrix;
-          m_viewProjMatrix *= m_viewMatrix;
-          m_dirtyViewProj = false;
-        }
-
-        m_modelViewProjMatrix = m_viewProjMatrix;
-        m_modelViewProjMatrix *= m_modelMatrix;
-        m_dirtyModelViewProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_modelViewProjMatrix));
-      return;
-    }
-
-    case SHARED_INVERSE_MODEL_MATRIX:
-    {
-      if (m_dirtyInvModel)
-      {
-        m_invModelMatrix = inverse(m_modelMatrix);
-        m_dirtyInvModel = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_invModelMatrix));
-      return;
-    }
-
-    case SHARED_INVERSE_VIEW_MATRIX:
-    {
-      if (m_dirtyInvView)
-      {
-        m_invViewMatrix = inverse(m_viewMatrix);
-        m_dirtyInvView = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_invViewMatrix));
-      return;
-    }
-
-    case SHARED_INVERSE_PROJECTION_MATRIX:
-    {
-      if (m_dirtyInvProj)
-      {
-        m_invProjMatrix = inverse(m_projectionMatrix);
-        m_dirtyInvProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_invProjMatrix));
-      return;
-    }
-
-    case SHARED_INVERSE_MODELVIEW_MATRIX:
-    {
-      if (m_dirtyInvModelView)
-      {
-        if (m_dirtyModelView)
-        {
-          m_modelViewMatrix = m_viewMatrix;
-          m_modelViewMatrix *= m_modelMatrix;
-          m_dirtyModelView = false;
-        }
-
-        m_invModelViewMatrix = inverse(m_modelViewMatrix);
-        m_dirtyInvModelView = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_invModelViewMatrix));
-      return;
-    }
-
-    case SHARED_INVERSE_VIEWPROJECTION_MATRIX:
-    {
-      if (m_dirtyInvViewProj)
-      {
-        if (m_dirtyViewProj)
-        {
-          m_viewProjMatrix = m_projectionMatrix;
-          m_viewProjMatrix *= m_viewMatrix;
-          m_dirtyViewProj = false;
-        }
-
-        m_invViewProjMatrix = inverse(m_viewProjMatrix);
-        m_dirtyInvViewProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_invViewProjMatrix));
-      return;
-    }
-
-    case SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX:
-    {
-      if (m_dirtyInvModelViewProj)
-      {
-        if (m_dirtyModelViewProj)
-        {
-          if (m_dirtyViewProj)
-          {
-            m_viewProjMatrix = m_projectionMatrix;
-            m_viewProjMatrix *= m_viewMatrix;
-            m_dirtyViewProj = false;
-          }
-
-          m_modelViewProjMatrix = m_viewProjMatrix;
-          m_modelViewProjMatrix *= m_modelMatrix;
-          m_dirtyModelViewProj = false;
-        }
-
-        m_invModelViewProjMatrix = inverse(m_modelViewProjMatrix);
-        m_dirtyInvModelViewProj = false;
-      }
-
-      uniform.copyFrom(value_ptr(m_invModelViewProjMatrix));
-      return;
-    }
-
-    case SHARED_CAMERA_POSITION:
-    {
-      uniform.copyFrom(value_ptr(m_cameraPos));
-      return;
-    }
-
-    case SHARED_CAMERA_NEAR_Z:
-    {
-      uniform.copyFrom(&m_cameraNearZ);
-      return;
-    }
-
-    case SHARED_CAMERA_FAR_Z:
-    {
-      uniform.copyFrom(&m_cameraFarZ);
-      return;
-    }
-
-    case SHARED_CAMERA_ASPECT_RATIO:
-    {
-      uniform.copyFrom(&m_cameraAspect);
-      return;
-    }
-
-    case SHARED_CAMERA_FOV:
-    {
-      uniform.copyFrom(&m_cameraFOV);
-      return;
-    }
-
-    case SHARED_VIEWPORT_WIDTH:
-    {
-      uniform.copyFrom(&m_viewportWidth);
-      return;
-    }
-
-    case SHARED_VIEWPORT_HEIGHT:
-    {
-      uniform.copyFrom(&m_viewportHeight);
-      return;
-    }
-
-    case SHARED_TIME:
-    {
-      uniform.copyFrom(&m_time);
-      return;
-    }
-  }
-
-  logError("Unknown shared uniform %s requested",
-           uniform.name().c_str());
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -471,10 +108,10 @@ void ProgramState::apply() const
     return;
   }
 
-  GL::Context& context = m_program->context();
+  RenderContext& context = m_program->context();
   context.setCurrentProgram(m_program);
 
-  GL::SharedProgramState* state = context.currentSharedProgramState();
+  SharedProgramState* state = context.currentSharedProgramState();
 
   uint textureIndex = 0, textureUnit = 0;
 
@@ -482,7 +119,7 @@ void ProgramState::apply() const
   {
     context.setActiveTextureUnit(textureUnit);
 
-    GL::Sampler& sampler = m_program->sampler(i);
+    Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
     {
       if (state)
@@ -506,7 +143,7 @@ void ProgramState::apply() const
 
   for (uint i = 0;  i < m_program->uniformCount();  i++)
   {
-    GL::Uniform& uniform = m_program->uniform(i);
+    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
     {
       if (state)
@@ -529,7 +166,7 @@ bool ProgramState::hasUniformState(const char* name) const
   if (!m_program)
     return false;
 
-  GL::Uniform* uniform = m_program->findUniform(name);
+  Uniform* uniform = m_program->findUniform(name);
   if (!uniform)
     return false;
 
@@ -541,14 +178,14 @@ bool ProgramState::hasSamplerState(const char* name) const
   if (!m_program)
     return false;
 
-  GL::Sampler* sampler = m_program->findSampler(name);
+  Sampler* sampler = m_program->findSampler(name);
   if (!sampler)
     return false;
 
   return !sampler->isShared();
 }
 
-GL::Texture* ProgramState::samplerState(const char* name) const
+Texture* ProgramState::samplerState(const char* name) const
 {
   if (!m_program)
   {
@@ -560,7 +197,7 @@ GL::Texture* ProgramState::samplerState(const char* name) const
 
   for (uint i = 0;  i < m_program->samplerCount();  i++)
   {
-    const GL::Sampler& sampler = m_program->sampler(i);
+    const Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
       continue;
 
@@ -576,7 +213,7 @@ GL::Texture* ProgramState::samplerState(const char* name) const
   return nullptr;
 }
 
-GL::Texture* ProgramState::samplerState(SamplerStateIndex index) const
+Texture* ProgramState::samplerState(SamplerStateIndex index) const
 {
   if (!m_program)
   {
@@ -587,7 +224,7 @@ GL::Texture* ProgramState::samplerState(SamplerStateIndex index) const
   return m_textures[index.unit];
 }
 
-void ProgramState::setSamplerState(const char* name, GL::Texture* newTexture)
+void ProgramState::setSamplerState(const char* name, Texture* newTexture)
 {
   if (!m_program)
   {
@@ -599,7 +236,7 @@ void ProgramState::setSamplerState(const char* name, GL::Texture* newTexture)
 
   for (uint i = 0;  i < m_program->samplerCount();  i++)
   {
-    GL::Sampler& sampler = m_program->sampler(i);
+    Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
       continue;
 
@@ -624,7 +261,7 @@ void ProgramState::setSamplerState(const char* name, GL::Texture* newTexture)
   }
 }
 
-void ProgramState::setSamplerState(SamplerStateIndex index, GL::Texture* newTexture)
+void ProgramState::setSamplerState(SamplerStateIndex index, Texture* newTexture)
 {
   if (!m_program)
   {
@@ -632,7 +269,7 @@ void ProgramState::setSamplerState(SamplerStateIndex index, GL::Texture* newText
     return;
   }
 
-  GL::Sampler& sampler = m_program->sampler(index.index);
+  Sampler& sampler = m_program->sampler(index.index);
 
   if (newTexture)
   {
@@ -659,7 +296,7 @@ UniformStateIndex ProgramState::uniformStateIndex(const char* name) const
 
   for (uint i = 0;  i < m_program->uniformCount();  i++)
   {
-    GL::Uniform& uniform = m_program->uniform(i);
+    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
       continue;
 
@@ -684,7 +321,7 @@ SamplerStateIndex ProgramState::samplerStateIndex(const char* name) const
 
   for (uint i = 0;  i < m_program->samplerCount();  i++)
   {
-    GL::Sampler& sampler = m_program->sampler(i);
+    Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
       continue;
 
@@ -697,7 +334,7 @@ SamplerStateIndex ProgramState::samplerStateIndex(const char* name) const
   return SamplerStateIndex();
 }
 
-void ProgramState::setProgram(GL::Program* newProgram)
+void ProgramState::setProgram(Program* newProgram)
 {
   m_floats.clear();
   m_textures.clear();
@@ -711,14 +348,14 @@ void ProgramState::setProgram(GL::Program* newProgram)
 
   for (uint i = 0;  i < m_program->uniformCount();  i++)
   {
-    GL::Uniform& uniform = m_program->uniform(i);
+    Uniform& uniform = m_program->uniform(i);
     if (!uniform.isShared())
       floatCount += uniform.elementCount();
   }
 
   for (uint i = 0;  i < m_program->samplerCount();  i++)
   {
-    GL::Sampler& sampler = m_program->sampler(i);
+    Sampler& sampler = m_program->sampler(i);
     if (!sampler.isShared())
       textureCount++;
   }
@@ -727,7 +364,7 @@ void ProgramState::setProgram(GL::Program* newProgram)
   m_textures.resize(textureCount);
 }
 
-void* ProgramState::data(const char* name, GL::UniformType type)
+void* ProgramState::data(const char* name, UniformType type)
 {
   if (!m_program)
   {
@@ -739,7 +376,7 @@ void* ProgramState::data(const char* name, GL::UniformType type)
 
   for (uint i = 0;  i < m_program->uniformCount();  i++)
   {
-    GL::Uniform& uniform = m_program->uniform(i);
+    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
       continue;
 
@@ -751,7 +388,7 @@ void* ProgramState::data(const char* name, GL::UniformType type)
       logError("Uniform %s of program %s is not of type %s",
                uniform.name().c_str(),
                m_program->name().c_str(),
-               GL::Uniform::typeName(type));
+               Uniform::typeName(type));
       return nullptr;
     }
 
@@ -764,7 +401,7 @@ void* ProgramState::data(const char* name, GL::UniformType type)
   return nullptr;
 }
 
-const void* ProgramState::data(const char* name, GL::UniformType type) const
+const void* ProgramState::data(const char* name, UniformType type) const
 {
   if (!m_program)
   {
@@ -776,7 +413,7 @@ const void* ProgramState::data(const char* name, GL::UniformType type) const
 
   for (uint i = 0;  i < m_program->uniformCount();  i++)
   {
-    GL::Uniform& uniform = m_program->uniform(i);
+    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
       continue;
 
@@ -788,7 +425,7 @@ const void* ProgramState::data(const char* name, GL::UniformType type) const
       logError("Uniform %s of program %s is not of type %s",
                uniform.name().c_str(),
                m_program->name().c_str(),
-               GL::Uniform::typeName(type));
+               Uniform::typeName(type));
       return nullptr;
     }
 
@@ -801,7 +438,7 @@ const void* ProgramState::data(const char* name, GL::UniformType type) const
   return nullptr;
 }
 
-void* ProgramState::data(UniformStateIndex index, GL::UniformType type)
+void* ProgramState::data(UniformStateIndex index, UniformType type)
 {
   if (!m_program)
   {
@@ -809,21 +446,21 @@ void* ProgramState::data(UniformStateIndex index, GL::UniformType type)
     return nullptr;
   }
 
-  GL::Uniform& uniform = m_program->uniform(index.index);
+  Uniform& uniform = m_program->uniform(index.index);
 
   if (uniform.type() != type)
   {
     logError("Uniform %u of program %s is not of type %s",
              index.index,
              m_program->name().c_str(),
-             GL::Uniform::typeName(type));
+             Uniform::typeName(type));
     return nullptr;
   }
 
   return &m_floats[0] + index.offset;
 }
 
-const void* ProgramState::data(UniformStateIndex index, GL::UniformType type) const
+const void* ProgramState::data(UniformStateIndex index, UniformType type) const
 {
   if (!m_program)
   {
@@ -831,14 +468,14 @@ const void* ProgramState::data(UniformStateIndex index, GL::UniformType type) co
     return nullptr;
   }
 
-  GL::Uniform& uniform = m_program->uniform(index.index);
+  Uniform& uniform = m_program->uniform(index.index);
 
   if (uniform.type() != type)
   {
     logError("Uniform %u of program %s is not of type %s",
              index.index,
              m_program->name().c_str(),
-             GL::Uniform::typeName(type));
+             Uniform::typeName(type));
     return nullptr;
   }
 
@@ -846,45 +483,45 @@ const void* ProgramState::data(UniformStateIndex index, GL::UniformType type) co
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<float>()
+UniformType ProgramState::uniformType<float>()
 {
-  return GL::UNIFORM_FLOAT;
+  return UNIFORM_FLOAT;
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<vec2>()
+UniformType ProgramState::uniformType<vec2>()
 {
-  return GL::UNIFORM_VEC2;
+  return UNIFORM_VEC2;
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<vec3>()
+UniformType ProgramState::uniformType<vec3>()
 {
-  return GL::UNIFORM_VEC3;
+  return UNIFORM_VEC3;
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<vec4>()
+UniformType ProgramState::uniformType<vec4>()
 {
-  return GL::UNIFORM_VEC4;
+  return UNIFORM_VEC4;
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<mat2>()
+UniformType ProgramState::uniformType<mat2>()
 {
-  return GL::UNIFORM_MAT2;
+  return UNIFORM_MAT2;
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<mat3>()
+UniformType ProgramState::uniformType<mat3>()
 {
-  return GL::UNIFORM_MAT3;
+  return UNIFORM_MAT3;
 }
 
 template <>
-GL::UniformType ProgramState::uniformType<mat4>()
+UniformType ProgramState::uniformType<mat4>()
 {
-  return GL::UNIFORM_MAT4;
+  return UNIFORM_MAT4;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -897,7 +534,7 @@ void Pass::apply() const
     return;
   }
 
-  GL::Context& context = program()->context();
+  RenderContext& context = program()->context();
   context.setCurrentRenderState(m_data);
 
   ProgramState::apply();
@@ -905,12 +542,12 @@ void Pass::apply() const
 
 bool Pass::isCulling() const
 {
-  return m_data.cullMode != GL::CULL_NONE;
+  return m_data.cullMode != CULL_NONE;
 }
 
 bool Pass::isBlending() const
 {
-  return m_data.srcFactor != GL::BLEND_ONE || m_data.dstFactor != GL::BLEND_ZERO;
+  return m_data.srcFactor != BLEND_ONE || m_data.dstFactor != BLEND_ZERO;
 }
 
 bool Pass::isDepthTesting() const
@@ -953,42 +590,42 @@ float Pass::lineWidth() const
   return m_data.lineWidth;
 }
 
-GL::CullMode Pass::cullMode() const
+CullMode Pass::cullMode() const
 {
   return m_data.cullMode;
 }
 
-GL::BlendFactor Pass::srcFactor() const
+BlendFactor Pass::srcFactor() const
 {
   return m_data.srcFactor;
 }
 
-GL::BlendFactor Pass::dstFactor() const
+BlendFactor Pass::dstFactor() const
 {
   return m_data.dstFactor;
 }
 
-GL::Function Pass::depthFunction() const
+Function Pass::depthFunction() const
 {
   return m_data.depthFunction;
 }
 
-GL::Function Pass::stencilFunction() const
+Function Pass::stencilFunction() const
 {
   return m_data.stencilFunction;
 }
 
-GL::StencilOp Pass::stencilFailOperation() const
+StencilOp Pass::stencilFailOperation() const
 {
   return m_data.stencilFailOp;
 }
 
-GL::StencilOp Pass::depthFailOperation() const
+StencilOp Pass::depthFailOperation() const
 {
   return m_data.depthFailOp;
 }
 
-GL::StencilOp Pass::depthPassOperation() const
+StencilOp Pass::depthPassOperation() const
 {
   return m_data.depthPassOp;
 }
@@ -1018,23 +655,23 @@ void Pass::setStencilTesting(bool enable)
   m_data.stencilTesting = enable;
 }
 
-void Pass::setCullMode(GL::CullMode mode)
+void Pass::setCullMode(CullMode mode)
 {
   m_data.cullMode = mode;
 }
 
-void Pass::setBlendFactors(GL::BlendFactor src, GL::BlendFactor dst)
+void Pass::setBlendFactors(BlendFactor src, BlendFactor dst)
 {
   m_data.srcFactor = src;
   m_data.dstFactor = dst;
 }
 
-void Pass::setDepthFunction(GL::Function function)
+void Pass::setDepthFunction(Function function)
 {
   m_data.depthFunction = function;
 }
 
-void Pass::setStencilFunction(GL::Function newFunction)
+void Pass::setStencilFunction(Function newFunction)
 {
   m_data.stencilFunction = newFunction;
 }
@@ -1049,17 +686,17 @@ void Pass::setStencilWriteMask(uint newMask)
   m_data.stencilMask = newMask;
 }
 
-void Pass::setStencilFailOperation(GL::StencilOp newOperation)
+void Pass::setStencilFailOperation(StencilOp newOperation)
 {
   m_data.stencilFailOp = newOperation;
 }
 
-void Pass::setDepthFailOperation(GL::StencilOp newOperation)
+void Pass::setDepthFailOperation(StencilOp newOperation)
 {
   m_data.depthFailOp = newOperation;
 }
 
-void Pass::setDepthPassOperation(GL::StencilOp newOperation)
+void Pass::setDepthPassOperation(StencilOp newOperation)
 {
   m_data.depthPassOp = newOperation;
 }
@@ -1091,7 +728,6 @@ void Pass::setLineWidth(float newWidth)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

@@ -31,17 +31,17 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderSystem.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
-#include <wendy/RenderModel.hpp>
+#include <wendy/Model.hpp>
 
 #include <pugixml.hpp>
 
@@ -49,8 +49,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -63,7 +61,7 @@ const uint MODEL_XML_VERSION = 3;
 
 ///////////////////////////////////////////////////////////////////////
 
-ModelSection::ModelSection(const GL::IndexRange& range,
+ModelSection::ModelSection(const IndexRange& range,
                            Material* material):
   m_range(range),
   m_material(material)
@@ -85,7 +83,7 @@ void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transf
     if (!s.material())
       continue;
 
-    GL::PrimitiveRange range(GL::TRIANGLE_LIST, *m_vertexBuffer, s.indexRange());
+    PrimitiveRange range(TRIANGLE_LIST, *m_vertexBuffer, s.indexRange());
 
     float depth = camera.normalizedDepth(transform.position + m_boundingSphere.center);
 
@@ -99,7 +97,7 @@ Sphere Model::bounds() const
 }
 
 Ref<Model> Model::create(const ResourceInfo& info,
-                         System& system,
+                         RenderSystem& system,
                          const Mesh& data,
                          const MaterialMap& materials)
 {
@@ -115,7 +113,7 @@ Model::Model(const ResourceInfo& info):
 {
 }
 
-bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
+bool Model::init(RenderSystem& system, const Mesh& data, const MaterialMap& materials)
 {
   if (!data.isValid())
   {
@@ -136,16 +134,16 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
     }
   }
 
-  GL::Context& context = system.context();
+  RenderContext& context = system.context();
 
   VertexFormat format;
   if (!format.createComponents("3f:vPosition 3f:vNormal 2f:vTexCoord"))
     return false;
 
-  m_vertexBuffer = GL::VertexBuffer::create(context,
-                                            data.vertices.size(),
-                                            format,
-                                            GL::USAGE_STATIC);
+  m_vertexBuffer = VertexBuffer::create(context,
+                                        data.vertices.size(),
+                                        format,
+                                        USAGE_STATIC);
   if (!m_vertexBuffer)
     return false;
 
@@ -153,18 +151,18 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
   const size_t indexCount = data.triangleCount() * 3;
 
-  GL::IndexBufferType indexType;
+  IndexBufferType indexType;
   if (indexCount <= (1 << 8))
-    indexType = GL::INDEX_UINT8;
+    indexType = INDEX_UINT8;
   else if (indexCount <= (1 << 16))
-    indexType = GL::INDEX_UINT16;
+    indexType = INDEX_UINT16;
   else
-    indexType = GL::INDEX_UINT32;
+    indexType = INDEX_UINT32;
 
-  m_indexBuffer = GL::IndexBuffer::create(context,
-                                          indexCount,
-                                          indexType,
-                                          GL::USAGE_STATIC);
+  m_indexBuffer = IndexBuffer::create(context,
+                                      indexCount,
+                                      indexType,
+                                      USAGE_STATIC);
   if (!m_indexBuffer)
     return false;
 
@@ -173,11 +171,11 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
   for (auto& s : data.sections)
   {
     const size_t count = s.triangles.size() * 3;
-    GL::IndexRange range(*m_indexBuffer, start, count);
+    IndexRange range(*m_indexBuffer, start, count);
 
     m_sections.push_back(ModelSection(range, materials.find(s.materialName)->second));
 
-    if (indexType == GL::INDEX_UINT8)
+    if (indexType == INDEX_UINT8)
     {
       std::vector<uint8> indices(range.count());
 
@@ -192,7 +190,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
 
       range.copyFrom(&indices[0]);
     }
-    else if (indexType == GL::INDEX_UINT16)
+    else if (indexType == INDEX_UINT16)
     {
       std::vector<uint16> indices(range.count());
 
@@ -231,7 +229,7 @@ bool Model::init(System& system, const Mesh& data, const MaterialMap& materials)
   return true;
 }
 
-Ref<Model> Model::read(System& system, const String& name)
+Ref<Model> Model::read(RenderSystem& system, const String& name)
 {
   ModelReader reader(system);
   return reader.read(name);
@@ -239,7 +237,7 @@ Ref<Model> Model::read(System& system, const String& name)
 
 ///////////////////////////////////////////////////////////////////////
 
-ModelReader::ModelReader(System& initSystem):
+ModelReader::ModelReader(RenderSystem& initSystem):
   ResourceReader<Model>(initSystem.cache()),
   system(initSystem)
 {
@@ -322,7 +320,6 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

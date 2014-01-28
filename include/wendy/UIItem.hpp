@@ -96,16 +96,16 @@ class TextureItem : public Item
 {
 public:
   TextureItem(Layer& layer,
-              GL::Texture& texture,
+              Texture& texture,
               const char* name = "",
               ItemID ID = 0);
   float width() const override;
   float height() const override;
-  GL::Texture& texture() const;
+  Texture& texture() const;
 protected:
   void draw(const Rect& area, WidgetState state) const;
 private:
-  Ref<GL::Texture> m_texture;
+  Ref<Texture> m_texture;
 };
 
 ///////////////////////////////////////////////////////////////////////

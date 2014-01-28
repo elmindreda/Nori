@@ -25,14 +25,14 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
-#include <wendy/RenderFont.hpp>
+#include <wendy/Font.hpp>
 
 #include <pugixml.hpp>
 
@@ -42,8 +42,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -105,7 +103,7 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
   if (!vertexCount)
     return;
 
-  GL::VertexRange range = m_pool->allocate(vertexCount, Vertex2ft2fv::format);
+  VertexRange range = m_pool->allocate(vertexCount, Vertex2ft2fv::format);
   if (range.isEmpty())
   {
     logError("Failed to allocate vertices for text drawing");
@@ -117,7 +115,7 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
   m_pass.setUniformState(m_colorIndex, color);
   m_pass.apply();
 
-  m_pool->context().render(GL::PrimitiveRange(GL::TRIANGLE_LIST, range));
+  m_pool->context().render(PrimitiveRange(TRIANGLE_LIST, range));
 }
 
 Rect Font::boundsOf(const char* text)
@@ -187,7 +185,7 @@ Font::Font(const ResourceInfo& info, VertexPool& pool):
 
 bool Font::init(Face& face, uint height)
 {
-  GL::Context& context = m_pool->context();
+  RenderContext& context = m_pool->context();
 
   m_face = &face;
 
@@ -210,18 +208,18 @@ bool Font::init(Face& face, uint height)
 
   // Create render pass
   {
-    Ref<GL::Program> program = GL::Program::read(context,
-                                                 "wendy/RenderFont.vs",
-                                                 "wendy/RenderFont.fs");
+    Ref<Program> program = Program::read(context,
+                                         "wendy/RenderFont.vs",
+                                         "wendy/RenderFont.fs");
     if (!program)
     {
       logError("Failed to read program for font %s", name().c_str());
       return false;
     }
 
-    GL::ProgramInterface interface;
-    interface.addSampler("glyphs", GL::SAMPLER_RECT);
-    interface.addUniform("color", GL::UNIFORM_VEC4);
+    ProgramInterface interface;
+    interface.addSampler("glyphs", SAMPLER_RECT);
+    interface.addUniform("color", UNIFORM_VEC4);
     interface.addAttributes(Vertex2ft2fv::format);
 
     if (!interface.matches(*program, true))
@@ -236,7 +234,7 @@ bool Font::init(Face& face, uint height)
     m_pass.setMultisampling(false);
     m_pass.setDepthTesting(false);
     m_pass.setDepthWriting(false);
-    m_pass.setBlendFactors(GL::BLEND_SRC_ALPHA, GL::BLEND_ONE_MINUS_SRC_ALPHA);
+    m_pass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
     m_pass.setUniformState("color", vec4(1.f));
 
     m_colorIndex = m_pass.uniformStateIndex("color");
@@ -304,7 +302,7 @@ const Font::Glyph* Font::findGlyph(uint32 codepoint)
 
 bool Font::addGlyphTextureRow()
 {
-  GL::Context& context = m_pool->context();
+  RenderContext& context = m_pool->context();
 
   Ref<Image> glyphs;
   uint textureWidth = context.limits().maxTextureSize;
@@ -324,10 +322,10 @@ bool Font::addGlyphTextureRow()
     return false;
   }
 
-  GL::TextureData data(PixelFormat::L8, textureWidth, textureHeight);
-  GL::TextureParams params(GL::TEXTURE_RECT, GL::TF_NONE);
+  TextureData data(PixelFormat::L8, textureWidth, textureHeight);
+  TextureParams params(TEXTURE_RECT, TF_NONE);
 
-  m_texture = GL::Texture::create(cache(), context, params, data);
+  m_texture = Texture::create(cache(), context, params, data);
   if (!m_texture)
   {
     logError("Failed to create glyph texture for font %s", name().c_str());
@@ -337,7 +335,7 @@ bool Font::addGlyphTextureRow()
   if (glyphs)
     m_texture->image().copyFrom(*glyphs);
 
-  m_texture->setFilterMode(GL::FILTER_NEAREST);
+  m_texture->setFilterMode(FILTER_NEAREST);
 
   m_pass.setSamplerState("glyphs", m_texture);
   return true;
@@ -396,7 +394,6 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

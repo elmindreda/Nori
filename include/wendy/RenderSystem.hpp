@@ -26,22 +26,20 @@
 #define WENDY_RENDERSYSTEM_HPP
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup renderer
  */
-class System : public RefObject
+class RenderSystem : public RefObject
 {
 public:
   enum Type
@@ -49,21 +47,20 @@ public:
     FORWARD
   };
   ResourceCache& cache() const;
-  GL::Context& context() const;
+  RenderContext& context() const;
   VertexPool& vertexPool() const;
   Type type() const;
 protected:
-  System(VertexPool& pool, Type type);
+  RenderSystem(VertexPool& pool, Type type);
 private:
-  System(const System&) = delete;
-  System& operator = (const System&) = delete;
+  RenderSystem(const RenderSystem&) = delete;
+  RenderSystem& operator = (const RenderSystem&) = delete;
   Ref<VertexPool> m_pool;
   Type m_type;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

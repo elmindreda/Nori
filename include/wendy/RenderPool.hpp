@@ -29,15 +29,13 @@
 #include <wendy/Core.hpp>
 #include <wendy/Signal.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -55,18 +53,18 @@ public:
    *  @remarks The allocated vertex range is only valid until the end of the
    *  current frame.
    */
-  GL::VertexRange allocate(uint count, const VertexFormat& format);
+  VertexRange allocate(uint count, const VertexFormat& format);
   /*! @return The OpenGL context used by this pool.
    */
-  GL::Context& context() const { return m_context; }
+  RenderContext& context() const { return m_context; }
   /*! Creates a vertex pool.
    *  @param[in] context The OpenGL context to be used.
    *  @param[in] granularity The desired allocation granularity.
    *  @return The newly created vertex pool.
    */
-  static Ref<VertexPool> create(GL::Context& context, size_t granularity = 1024);
+  static Ref<VertexPool> create(RenderContext& context, size_t granularity = 1024);
 private:
-  VertexPool(GL::Context& context);
+  VertexPool(RenderContext& context);
   VertexPool(const VertexPool&) = delete;
   bool init(size_t granularity);
   VertexPool& operator = (const VertexPool&) = delete;
@@ -74,18 +72,17 @@ private:
    */
   struct Slot
   {
-    Ref<GL::VertexBuffer> buffer;
+    Ref<VertexBuffer> buffer;
     uint available;
   };
   void onFrame();
-  GL::Context& m_context;
+  RenderContext& m_context;
   size_t m_granularity;
   std::vector<Slot> m_slots;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

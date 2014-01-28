@@ -52,7 +52,7 @@ SignalProxy<void, const Canvas&> Canvas::drawSignal()
 void Canvas::draw() const
 {
   UI::Drawer& drawer = layer().drawer();
-  GL::Context& context = drawer.context();
+  RenderContext& context = drawer.context();
 
   const Recti area(0, 0, int(width()), int(height()));
 

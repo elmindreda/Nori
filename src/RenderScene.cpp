@@ -35,7 +35,7 @@
 
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
-#include <wendy/RenderMaterial.hpp>
+#include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
 
 #include <algorithm>
@@ -44,8 +44,6 @@
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -93,9 +91,9 @@ void Light::setColor(const vec3& newColor)
 
 ///////////////////////////////////////////////////////////////////////
 
-SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
+RenderOpKey RenderOpKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
 {
-  SortKey key;
+  RenderOpKey key;
   key.layer = layer;
   key.state = state;
   key.depth = (unsigned) (((1 << 24) - 1) * clamp(depth, 0.f, 1.f));
@@ -103,9 +101,9 @@ SortKey SortKey::makeOpaqueKey(uint8 layer, uint16 state, float depth)
   return key;
 }
 
-SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
+RenderOpKey RenderOpKey::makeBlendedKey(uint8 layer, float depth)
 {
-  SortKey key;
+  RenderOpKey key;
   key.layer = layer;
   key.depth = (unsigned) (((1 << 24) - 1) * (1.f - clamp(depth, 0.f, 1.f)));
 
@@ -114,19 +112,19 @@ SortKey SortKey::makeBlendedKey(uint8 layer, float depth)
 
 ///////////////////////////////////////////////////////////////////////
 
-Operation::Operation():
+RenderOp::RenderOp():
   state(nullptr)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Queue::Queue():
+RenderQueue::RenderQueue():
   m_sorted(true)
 {
 }
 
-void Queue::addOperation(const Operation& operation, SortKey key)
+void RenderQueue::addOperation(const RenderOp& operation, RenderOpKey key)
 {
   key.index = (uint16) m_operations.size();
   m_keys.push_back(key);
@@ -134,14 +132,14 @@ void Queue::addOperation(const Operation& operation, SortKey key)
   m_sorted = false;
 }
 
-void Queue::removeOperations()
+void RenderQueue::removeOperations()
 {
   m_operations.clear();
   m_keys.clear();
   m_sorted = true;
 }
 
-const SortKeyList& Queue::keys() const
+const std::vector<uint64>& RenderQueue::keys() const
 {
   if (!m_sorted)
   {
@@ -160,26 +158,26 @@ Scene::Scene(VertexPool& pool, Phase phase):
 {
 }
 
-void Scene::addOperation(const Operation& operation, float depth, uint8 layer)
+void Scene::addOperation(const RenderOp& operation, float depth, uint8 layer)
 {
   if (operation.state->isBlending())
   {
-    SortKey key = SortKey::makeBlendedKey(layer, depth);
+    RenderOpKey key = RenderOpKey::makeBlendedKey(layer, depth);
     m_blendedQueue.addOperation(operation, key);
   }
   else
   {
-    SortKey key = SortKey::makeOpaqueKey(layer, operation.state->ID(), depth);
+    RenderOpKey key = RenderOpKey::makeOpaqueKey(layer, operation.state->ID(), depth);
     m_opaqueQueue.addOperation(operation, key);
   }
 }
 
 void Scene::createOperations(const mat4& transform,
-                             const GL::PrimitiveRange& range,
+                             const PrimitiveRange& range,
                              const Material& material,
                              float depth)
 {
-  Operation operation;
+  RenderOp operation;
   operation.range = range;
   operation.transform = transform;
 
@@ -226,7 +224,6 @@ Renderable::~Renderable()
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

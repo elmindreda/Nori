@@ -26,16 +26,14 @@
 #define WENDY_RENDERQUEUE_HPP
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/GLContext.hpp>
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
+#include <wendy/RenderContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace render
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -124,13 +122,13 @@ private:
 
 /*! @ingroup renderer
  */
-class SortKey
+class RenderOpKey
 {
 public:
-  static SortKey makeOpaqueKey(uint8 layer, uint16 state, float depth);
-  static SortKey makeBlendedKey(uint8 layer, float depth);
-  SortKey(): value(0) { }
-  SortKey(uint64 value): value(value) { }
+  static RenderOpKey makeOpaqueKey(uint8 layer, uint16 state, float depth);
+  static RenderOpKey makeBlendedKey(uint8 layer, float depth);
+  RenderOpKey(): value(0) { }
+  RenderOpKey(uint64 value): value(value) { }
   operator uint64 () const { return value; }
   union
   {
@@ -149,12 +147,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
-typedef std::vector<uint64> SortKeyList;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render operation in the 3D pipeline.
  *  @ingroup renderer
  *
@@ -164,15 +156,15 @@ typedef std::vector<uint64> SortKeyList;
  *  @remarks Note that this class does not include any references to a camera.
  *  The camera transformation is handled by the Camera class.
  */
-class Operation
+class RenderOp
 {
 public:
   /*! Constructor.
    */
-  Operation();
+  RenderOp();
   /*! The primitive range to render.
    */
-  GL::PrimitiveRange range;
+  PrimitiveRange range;
   /*! The render technique to use.
    */
   const Pass* state;
@@ -184,12 +176,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
-typedef std::vector<Operation> OperationList;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render operation queue.
  *  @ingroup renderer
  *
@@ -198,27 +184,27 @@ typedef std::vector<Operation> OperationList;
  *
  *  @remarks Each queue can only contain 65536 render operations.
  */
-class Queue
+class RenderQueue
 {
 public:
   /*! Constructor.
    */
-  Queue();
+  RenderQueue();
   /*! Adds a render operation in this render queue.
    */
-  void addOperation(const Operation& operation, SortKey key);
+  void addOperation(const RenderOp& operation, RenderOpKey key);
   /*! Destroys all render operations in this render queue.
    */
   void removeOperations();
   /*! @return The render operations in this render queue.
    */
-  const OperationList& operations() const { return m_operations; }
+  const std::vector<RenderOp>& operations() const { return m_operations; }
   /*! @return The sor keys in this render queue.
    */
-  const SortKeyList& keys() const;
+  const std::vector<uint64>& keys() const;
 private:
-  OperationList m_operations;
-  mutable SortKeyList m_keys;
+  std::vector<RenderOp> m_operations;
+  mutable std::vector<uint64> m_keys;
   mutable bool m_sorted;
 };
 
@@ -230,9 +216,9 @@ class Scene
 {
 public:
   Scene(VertexPool& pool, Phase phase = PHASE_DEFAULT);
-  void addOperation(const Operation& operation, float depth, uint8 layer = 0);
+  void addOperation(const RenderOp& operation, float depth, uint8 layer = 0);
   void createOperations(const mat4& transform,
-                        const GL::PrimitiveRange& range,
+                        const PrimitiveRange& range,
                         const Material& material,
                         float depth);
   void removeOperations();
@@ -242,24 +228,23 @@ public:
   const vec3& ambientIntensity() const { return m_ambient; }
   void setAmbientIntensity(const vec3& newIntensity);
   VertexPool& vertexPool() const { return *m_pool; }
-  Queue& opaqueQueue() { return m_opaqueQueue; }
-  const Queue& opaqueQueue() const { return m_opaqueQueue; }
-  Queue& blendedQueue() { return m_blendedQueue; }
-  const Queue& blendedQueue() const { return m_blendedQueue; }
+  RenderQueue& opaqueQueue() { return m_opaqueQueue; }
+  const RenderQueue& opaqueQueue() const { return m_opaqueQueue; }
+  RenderQueue& blendedQueue() { return m_blendedQueue; }
+  const RenderQueue& blendedQueue() const { return m_blendedQueue; }
   Phase phase() const { return m_phase; }
   void setPhase(Phase newPhase);
 private:
   Ref<VertexPool> m_pool;
   Phase m_phase;
-  Queue m_opaqueQueue;
-  Queue m_blendedQueue;
+  RenderQueue m_opaqueQueue;
+  RenderQueue m_blendedQueue;
   std::vector<LightData> m_lights;
   vec3 m_ambient;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace render*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

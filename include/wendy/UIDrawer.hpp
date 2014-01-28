@@ -28,15 +28,14 @@
 
 #include <wendy/Core.hpp>
 
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
-
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 #include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderSystem.hpp>
-#include <wendy/RenderFont.hpp>
+#include <wendy/Font.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -111,7 +110,7 @@ class Theme : public Resource, public RefObject
 {
 public:
   Theme(const ResourceInfo& info);
-  static Ref<Theme> read(render::VertexPool& pool, const String& name);
+  static Ref<Theme> read(VertexPool& pool, const String& name);
   Rect buttonElements[4];
   Rect handleElements[4];
   Rect frameElements[4];
@@ -120,8 +119,8 @@ public:
   vec3 textColors[4];
   vec3 backColors[4];
   vec3 caretColors[4];
-  Ref<GL::Texture> texture;
-  Ref<render::Font> font;
+  Ref<Texture> texture;
+  Ref<Font> font;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -131,11 +130,11 @@ public:
 class ThemeReader : public ResourceReader<Theme>
 {
 public:
-  ThemeReader(render::VertexPool& pool);
+  ThemeReader(VertexPool& pool);
   using ResourceReader<Theme>::read;
   Ref<Theme> read(const String& name, const Path& path);
 private:
-  Ref<render::VertexPool> pool;
+  Ref<VertexPool> pool;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -176,7 +175,7 @@ public:
   void drawLine(vec2 start, vec2 end, const vec4& color);
   void drawRectangle(const Rect& rectangle, const vec4& color);
   void fillRectangle(const Rect& rectangle, const vec4& color);
-  void blitTexture(const Rect& area, GL::Texture& texture);
+  void blitTexture(const Rect& area, Texture& texture);
   void drawText(const Rect& area,
                 const char* text,
                 Alignment alignment,
@@ -191,33 +190,33 @@ public:
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& theme() const;
-  GL::Context& context();
-  render::VertexPool& vertexPool();
-  render::Font& currentFont();
-  void setCurrentFont(render::Font* newFont);
+  RenderContext& context();
+  VertexPool& vertexPool();
+  Font& currentFont();
+  void setCurrentFont(Font* newFont);
   float currentEM() const;
-  static Ref<Drawer> create(render::VertexPool& pool);
+  static Ref<Drawer> create(VertexPool& pool);
 private:
-  Drawer(render::VertexPool& pool);
+  Drawer(VertexPool& pool);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
   RectClipStackf m_clipAreaStack;
-  Ref<GL::VertexBuffer> m_vertexBuffer;
-  Ref<GL::IndexBuffer> m_indexBuffer;
-  GL::PrimitiveRange m_range;
+  Ref<VertexBuffer> m_vertexBuffer;
+  Ref<IndexBuffer> m_indexBuffer;
+  PrimitiveRange m_range;
   Ref<Theme> m_theme;
-  GL::Context& m_context;
-  Ref<render::VertexPool> m_pool;
-  Ref<render::Font> m_font;
-  render::Pass m_drawPass;
-  render::Pass m_blitPass;
-  render::Pass m_elementPass;
-  render::UniformStateIndex m_elementPosIndex;
-  render::UniformStateIndex m_elementSizeIndex;
-  render::UniformStateIndex m_texPosIndex;
-  render::UniformStateIndex m_texSizeIndex;
-  Ref<render::SharedProgramState> m_state;
+  RenderContext& m_context;
+  Ref<VertexPool> m_pool;
+  Ref<Font> m_font;
+  Pass m_drawPass;
+  Pass m_blitPass;
+  Pass m_elementPass;
+  UniformStateIndex m_elementPosIndex;
+  UniformStateIndex m_elementSizeIndex;
+  UniformStateIndex m_texPosIndex;
+  UniformStateIndex m_texSizeIndex;
+  Ref<SharedProgramState> m_state;
 };
 
 ///////////////////////////////////////////////////////////////////////

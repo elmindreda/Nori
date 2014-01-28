@@ -29,11 +29,10 @@
 #include <wendy/Timer.hpp>
 #include <wendy/Profile.hpp>
 #include <wendy/Window.hpp>
-
-#include <wendy/GLTexture.hpp>
-#include <wendy/GLBuffer.hpp>
-#include <wendy/GLProgram.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -59,7 +58,7 @@ namespace
 
 Window& windowFromHandle(GLFWwindow* handle)
 {
-  return ((GL::Context*) glfwGetWindowUserPointer(handle))->window();
+  return ((RenderContext*) glfwGetWindowUserPointer(handle))->window();
 }
 
 } /*namespace*/

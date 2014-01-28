@@ -39,14 +39,13 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
+class AABB;
 class VertexBuffer;
 class IndexBuffer;
-class Context;
+class RenderContext;
 class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
@@ -131,22 +130,54 @@ enum Function
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Context configuration.
+enum
+{
+  SHARED_MODEL_MATRIX,
+  SHARED_VIEW_MATRIX,
+  SHARED_PROJECTION_MATRIX,
+  SHARED_MODELVIEW_MATRIX,
+  SHARED_VIEWPROJECTION_MATRIX,
+  SHARED_MODELVIEWPROJECTION_MATRIX,
+
+  SHARED_INVERSE_MODEL_MATRIX,
+  SHARED_INVERSE_VIEW_MATRIX,
+  SHARED_INVERSE_PROJECTION_MATRIX,
+  SHARED_INVERSE_MODELVIEW_MATRIX,
+  SHARED_INVERSE_VIEWPROJECTION_MATRIX,
+  SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX,
+
+  SHARED_CAMERA_NEAR_Z,
+  SHARED_CAMERA_FAR_Z,
+  SHARED_CAMERA_ASPECT_RATIO,
+  SHARED_CAMERA_FOV,
+  SHARED_CAMERA_POSITION,
+
+  SHARED_VIEWPORT_WIDTH,
+  SHARED_VIEWPORT_HEIGHT,
+
+  SHARED_TIME,
+
+  SHARED_STATE_CUSTOM_BASE
+};
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @brief Render context configuration.
  *  @ingroup opengl
  *
  *  This class provides the settings parameters available for OpenGL
- *  context creation, as provided through Context::create.
+ *  context creation, as provided through RenderContext::create.
  */
-class ContextConfig
+class RenderConfig
 {
 public:
   /*! Constructor.
    */
-  ContextConfig(uint colorBits = 32,
-                uint depthBits = 24,
-                uint stencilBits = 0,
-                uint samples = 0,
-                bool debug = false);
+  RenderConfig(uint colorBits = 32,
+               uint depthBits = 24,
+               uint stencilBits = 0,
+               uint samples = 0,
+               bool debug = false);
   /*! The desired color buffer bit depth.
    */
   uint colorBits;
@@ -166,7 +197,7 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! OpenGL render state.
+/*! Render state.
  *  @ingroup opengl
  */
 class RenderState
@@ -195,15 +226,15 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! OpenGL limits data.
+/*! Render context limits data.
  *  @ingroup opengl
  */
-class Limits
+class RenderLimits
 {
 public:
   /*! Constructor.
    */
-  Limits(Context& context);
+  RenderLimits(RenderContext& context);
   /*! The maximum number of color buffers that can be attached to to an image
    *  framebuffer (FBO).
    */
@@ -248,7 +279,7 @@ public:
 /*! @brief %Render statistics.
  *  @ingroup opengl
  */
-class Stats
+class RenderStats
 {
 public:
   class Frame
@@ -263,7 +294,7 @@ public:
     uint triangleCount;
     Time duration;
   };
-  Stats();
+  RenderStats();
   void addFrame();
   void addStateChange();
   void addPrimitives(PrimitiveType type, uint vertexCount);
@@ -301,14 +332,105 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Interface for global GLSL program state requests.
- *  @ingroup opengl
- */
 class SharedProgramState : public RefObject
 {
 public:
-  virtual void updateTo(Uniform& uniform) = 0;
-  virtual void updateTo(Sampler& uniform) = 0;
+  /*! Constructor.
+   */
+  SharedProgramState();
+  /*! Reserves the supported uniform and sampler signatures as shared in the
+   *  specified context.
+   */
+  virtual bool reserveSupported(RenderContext& context) const;
+  virtual void updateTo(Uniform& uniform);
+  virtual void updateTo(Sampler& uniform);
+  /*! @return The current model matrix.
+   */
+  const mat4& modelMatrix() const { return m_modelMatrix; }
+  /*! @return The current view matrix.
+   */
+  const mat4& viewMatrix() const { return m_viewMatrix; }
+  /*! @return The current projection matrix.
+   */
+  const mat4& projectionMatrix() const { return m_projectionMatrix; }
+  void cameraProperties(vec3& position,
+                        float& FOV,
+                        float& aspect,
+                        float& nearZ,
+                        float& farZ) const;
+  float viewportWidth() const { return m_viewportWidth; }
+  float viewportHeight() const { return m_viewportHeight; }
+  float time() const { return m_time; }
+  /*! Sets the model matrix.
+   *  @param[in] newMatrix The desired model matrix.
+   */
+  virtual void setModelMatrix(const mat4& newMatrix);
+  /*! Sets the view matrix.
+   *  @param[in] newMatrix The desired view matrix.
+   */
+  virtual void setViewMatrix(const mat4& newMatrix);
+  /*! Sets the projection matrix.
+   *  @param[in] newMatrix The desired projection matrix.
+   */
+  virtual void setProjectionMatrix(const mat4& newMatrix);
+  /*! Sets an orthographic projection matrix as ([0..width], [0..height],
+   *  [-1, 1]).
+   *  @param[in] width The desired width of the clipspace volume.
+   *  @param[in] height The desired height of the clipspace volume.
+   */
+  virtual void setOrthoProjectionMatrix(float width, float height);
+  /*! Sets an orthographic projection matrix as ([minX..maxX], [minY..maxY],
+   *  [minZ, maxZ]).
+   *  @param[in] volume The desired projection volume.
+   */
+  virtual void setOrthoProjectionMatrix(const AABB& volume);
+  /*! Sets a perspective projection matrix.
+   *  @param[in] FOV The desired field of view of the projection.
+   *  @param[in] aspect The desired aspect ratio of the projection.
+   *  @param[in] nearZ The desired near plane distance of the projection.
+   *  @param[in] farZ The desired far plane distance of the projection.
+   */
+  virtual void setPerspectiveProjectionMatrix(float FOV,
+                                              float aspect,
+                                              float nearZ,
+                                              float farZ);
+  virtual void setCameraProperties(const vec3& position,
+                                   float FOV,
+                                   float aspect,
+                                   float nearZ,
+                                   float farZ);
+  virtual void setViewportSize(float newWidth, float newHeight);
+  virtual void setTime(float newTime);
+private:
+  bool m_dirtyModelView;
+  bool m_dirtyViewProj;
+  bool m_dirtyModelViewProj;
+  bool m_dirtyInvModel;
+  bool m_dirtyInvView;
+  bool m_dirtyInvProj;
+  bool m_dirtyInvModelView;
+  bool m_dirtyInvViewProj;
+  bool m_dirtyInvModelViewProj;
+  mat4 m_modelMatrix;
+  mat4 m_viewMatrix;
+  mat4 m_projectionMatrix;
+  mat4 m_modelViewMatrix;
+  mat4 m_viewProjMatrix;
+  mat4 m_modelViewProjMatrix;
+  mat4 m_invModelMatrix;
+  mat4 m_invViewMatrix;
+  mat4 m_invProjMatrix;
+  mat4 m_invModelViewMatrix;
+  mat4 m_invViewProjMatrix;
+  mat4 m_invModelViewProjMatrix;
+  float m_cameraNearZ;
+  float m_cameraFarZ;
+  float m_cameraAspect;
+  float m_cameraFOV;
+  vec3 m_cameraPos;
+  float m_viewportWidth;
+  float m_viewportHeight;
+  float m_time;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -320,12 +442,12 @@ public:
  *
  *  @remarks Yes, it's big.
  */
-class Context : public Trackable
+class RenderContext : public Trackable
 {
 public:
   /*! Destructor.
    */
-  ~Context();
+  ~RenderContext();
   /*! Clears the color buffers of the current framebuffer with the specified
    *  color.
    *  @param[in] color The color value to use.
@@ -459,11 +581,11 @@ public:
   void setCullingInversion(bool newState);
   const RenderState& currentRenderState() const;
   void setCurrentRenderState(const RenderState& newState);
-  Stats* stats() const;
-  void setStats(Stats* newStats);
+  RenderStats* stats() const;
+  void setStats(RenderStats* newStats);
   /*! @return The limits of this context.
    */
-  const Limits& limits() const;
+  const RenderLimits& limits() const;
   /*! @return The resource cache used by this context.
    */
   ResourceCache& cache() const;
@@ -476,23 +598,23 @@ public:
    *  @param[in] ctxconfig The desired context configuration.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static Context* create(ResourceCache& cache,
-                         const WindowConfig& wc = WindowConfig(),
-                         const ContextConfig& cc = ContextConfig());
+  static RenderContext* create(ResourceCache& cache,
+                               const WindowConfig& wc = WindowConfig(),
+                               const RenderConfig& rc = RenderConfig());
 private:
-  Context(ResourceCache& cache);
-  Context(const Context&) = delete;
-  bool init(const WindowConfig& wc, const ContextConfig& cc);
+  RenderContext(ResourceCache& cache);
+  RenderContext(const RenderContext&) = delete;
+  bool init(const WindowConfig& wc, const RenderConfig& rc);
   void applyState(const RenderState& newState);
   void forceState(const RenderState& newState);
-  Context& operator = (const Context&) = delete;
+  RenderContext& operator = (const RenderContext&) = delete;
   void onFrame();
   class SharedSampler;
   class SharedUniform;
   ResourceCache& m_cache;
   Window m_window;
   GLFWwindow* m_handle;
-  Ptr<Limits> m_limits;
+  Ptr<RenderLimits> m_limits;
   int m_swapInterval;
   Recti m_scissorArea;
   Recti m_viewportArea;
@@ -511,12 +633,11 @@ private:
   std::vector<SharedSampler> m_samplers;
   std::vector<SharedUniform> m_uniforms;
   String m_declaration;
-  Stats* m_stats;
+  RenderStats* m_stats;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

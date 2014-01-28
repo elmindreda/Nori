@@ -28,12 +28,10 @@
 
 namespace wendy
 {
-  namespace GL
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Context;
+class RenderContext;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -68,26 +66,25 @@ public:
   uint result() const;
   /*! @return The context within which this query was created.
    */
-  Context& context() const { return m_context; }
+  RenderContext& context() const { return m_context; }
   /*! Creates an occlusion query.
    *  @param[in] context The context within which to create the query.
    *  @return The newly created query object, or @c nullptr if an error
    *  occurred.
    */
-  static OcclusionQuery* create(Context& context);
+  static OcclusionQuery* create(RenderContext& context);
 private:
-  OcclusionQuery(Context& context);
+  OcclusionQuery(RenderContext& context);
   OcclusionQuery(const OcclusionQuery&) = delete;
   bool init();
   OcclusionQuery& operator = (const OcclusionQuery&) = delete;
-  Context& m_context;
+  RenderContext& m_context;
   uint m_queryID;
   bool m_active;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace GL*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

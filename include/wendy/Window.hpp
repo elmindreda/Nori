@@ -38,16 +38,6 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace wendy
 {
-  namespace GL
-  {
-    class Context;
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-
-namespace wendy
-{
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -424,7 +414,7 @@ public:
 class Window
 {
 public:
-  friend GL::Context;
+  friend class RenderContext;
   /*! Destructor.
    */
   virtual ~Window();
