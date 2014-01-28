@@ -66,7 +66,7 @@
 #endif
 
 #if WENDY_INCLUDE_AUDIO
-#include <wendy/WendyAL.hpp>
+#include <wendy/WendyAudio.hpp>
 #endif
 
 #if WENDY_INCLUDE_RENDERER
