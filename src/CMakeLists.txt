@@ -23,7 +23,7 @@ set(wendy_SOURCES
     Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Regex.cpp Resource.cpp
     Sample.cpp Signal.cpp Timer.cpp Transform.cpp Vertex.cpp
 
-    RenderContext.cpp GLHelper.cpp GLParser.cpp Program.cpp RenderQuery.cpp
+    RenderContext.cpp OpenGL.cpp Program.cpp RenderQuery.cpp
     RenderBuffer.cpp Texture.cpp
 
     Window.cpp)

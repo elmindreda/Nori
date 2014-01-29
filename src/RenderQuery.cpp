@@ -31,7 +31,7 @@
 
 #include <GREG/greg.h>
 
-#include <internal/GLHelper.hpp>
+#include <internal/OpenGL.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -32,8 +32,7 @@
 
 #include <GREG/greg.h>
 
-#include <internal/GLHelper.hpp>
-#include <internal/GLParser.hpp>
+#include <internal/OpenGL.hpp>
 
 #include <algorithm>
 
