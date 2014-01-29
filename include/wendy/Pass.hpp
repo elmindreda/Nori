@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERSTATE_HPP
-#define WENDY_RENDERSTATE_HPP
+#ifndef WENDY_PASS_HPP
+#define WENDY_PASS_HPP
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.hpp>
@@ -152,10 +152,10 @@ public:
   BlendFactor dstFactor() const;
   /*! @return The depth buffer testing function used by this render state.
    */
-  Function depthFunction() const;
+  FragmentFunction depthFunction() const;
   /*! @return The stencil buffer testing function used by this render state.
    */
-  Function stencilFunction() const;
+  FragmentFunction stencilFunction() const;
   /*! @return The operation to perform when the stencil test fails.
    */
   StencilOp stencilFailOperation() const;
@@ -189,11 +189,11 @@ public:
   /*! Sets the depth buffer testing function for this render state.
    *  @param[in] function The desired depth testing function.
    */
-  void setDepthFunction(Function function);
+  void setDepthFunction(FragmentFunction function);
   /*! Sets the stencil test function for this render state.
    *  @param[in] newFunction The desired stencil testing function.
    */
-  void setStencilFunction(Function newFunction);
+  void setStencilFunction(FragmentFunction newFunction);
   /*! Sets the stencil test reference value for this render state.
    *  @param[in] newReference The desired stencil test reference value.
    */
@@ -300,5 +300,5 @@ typedef std::vector<Pass> PassList;
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERSTATE_HPP*/
+#endif /*WENDY_PASS_HPP*/
 ///////////////////////////////////////////////////////////////////////

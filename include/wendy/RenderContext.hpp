@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_GLCONTEXT_HPP
-#define WENDY_GLCONTEXT_HPP
+#ifndef WENDY_RENDERCONTEXT_HPP
+#define WENDY_RENDERCONTEXT_HPP
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.hpp>
@@ -101,14 +101,14 @@ enum BlendFactor
  */
 enum StencilOp
 {
-  OP_KEEP,
-  OP_ZERO,
-  OP_REPLACE,
-  OP_INCREASE,
-  OP_DECREASE,
-  OP_INVERT,
-  OP_INCREASE_WRAP,
-  OP_DECREASE_WRAP
+  STENCIL_KEEP,
+  STENCIL_ZERO,
+  STENCIL_REPLACE,
+  STENCIL_INCREASE,
+  STENCIL_DECREASE,
+  STENCIL_INVERT,
+  STENCIL_INCREASE_WRAP,
+  STENCIL_DECREASE_WRAP
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ enum StencilOp
 /*! Comparison function enumeration.
  *  @ingroup opengl
  */
-enum Function
+enum FragmentFunction
 {
   ALLOW_NEVER,
   ALLOW_ALWAYS,
@@ -215,8 +215,8 @@ public:
   CullMode cullMode;
   BlendFactor srcFactor;
   BlendFactor dstFactor;
-  Function depthFunction;
-  Function stencilFunction;
+  FragmentFunction depthFunction;
+  FragmentFunction stencilFunction;
   uint stencilRef;
   uint stencilMask;
   StencilOp stencilFailOp;
@@ -656,5 +656,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_GLCONTEXT_HPP*/
+#endif /*WENDY_RENDERCONTEXT_HPP*/
 ///////////////////////////////////////////////////////////////////////

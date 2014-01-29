@@ -27,7 +27,7 @@
 
 #include <wendy/Texture.hpp>
 #include <wendy/RenderBuffer.hpp>
-#include <wendy/RenderQuery.hpp>
+#include <wendy/Query.hpp>
 
 #include <GREG/greg.h>
 

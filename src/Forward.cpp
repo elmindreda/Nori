@@ -35,7 +35,7 @@
 
 #include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 
 #include <wendy/Forward.hpp>
 
@@ -55,7 +55,7 @@ Config::Config(RenderContext& context):
 
 ///////////////////////////////////////////////////////////////////////
 
-void Renderer::render(const Scene& scene, const Camera& camera)
+void Renderer::render(const RenderQueue& queue, const Camera& camera)
 {
   ProfileNodeCall call("forward::Renderer::render");
 
@@ -77,8 +77,8 @@ void Renderer::render(const Scene& scene, const Camera& camera)
                                  camera.farZ());
   }
 
-  renderOperations(scene.opaqueQueue());
-  renderOperations(scene.blendedQueue());
+  renderOperations(queue.opaqueBucket());
+  renderOperations(queue.blendedBucket());
 
   context().setCurrentSharedProgramState(nullptr);
 }
@@ -108,11 +108,11 @@ bool Renderer::init(const Config& config)
   return true;
 }
 
-void Renderer::renderOperations(const RenderQueue& queue)
+void Renderer::renderOperations(const RenderBucket& bucket)
 {
-  const auto& operations = queue.operations();
+  const auto& operations = bucket.operations();
 
-  for (auto k : queue.keys())
+  for (auto k : bucket.keys())
   {
     const RenderOpKey key(k);
     const RenderOp& op = operations[key.index];

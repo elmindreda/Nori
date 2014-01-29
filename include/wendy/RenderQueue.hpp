@@ -37,7 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class Scene;
+class RenderQueue;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -54,12 +54,12 @@ public:
    */
   virtual ~Renderable();
   /*! Queries this renderable for render operations.
-   *  @param[in,out] scene The render scene where the operations are to
+   *  @param[in,out] queue The render queue where the operations are to
    *  be created.
    *  @param[in] camera The camera for which operations are requested.
    *  @param[in] transform The local-to-world transform.
    */
-  virtual void enqueue(Scene& scene,
+  virtual void enqueue(RenderQueue& queue,
                        const Camera& camera,
                        const Transform3& transform) const = 0;
   /*! Returns the local space bounds of this renderable.
@@ -99,7 +99,7 @@ class Light : public Renderable
 {
 public:
   Light();
-  void enqueue(Scene& scene,
+  void enqueue(RenderQueue& queue,
                const Camera& camera,
                const Transform3& transform) const override;
   Sphere bounds() const override;
@@ -175,20 +175,17 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Render operation queue.
+/*! @brief Render operation bucket.
  *  @ingroup renderer
- *
- *  @remarks To avoid thrashing the heap, keep your queue objects around
- *  between frames when possible.
  *
  *  @remarks Each queue can only contain 65536 render operations.
  */
-class RenderQueue
+class RenderBucket
 {
 public:
   /*! Constructor.
    */
-  RenderQueue();
+  RenderBucket();
   /*! Adds a render operation in this render queue.
    */
   void addOperation(const RenderOp& operation, RenderOpKey key);
@@ -209,12 +206,16 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
+/*! @brief Render operation queue.
+ *  @ingroup renderer
+ *
+ *  @remarks To avoid thrashing the heap, keep your bucket objects around
+ *  between frames when possible.
  */
-class Scene
+class RenderQueue
 {
 public:
-  Scene(RenderContext& context, Phase phase = PHASE_DEFAULT);
+  RenderQueue(RenderContext& context, RenderPhase phase = RENDER_DEFAULT);
   void addOperation(const RenderOp& operation, float depth, uint8 layer = 0);
   void createOperations(const mat4& transform,
                         const PrimitiveRange& range,
@@ -227,17 +228,17 @@ public:
   const vec3& ambientIntensity() const { return m_ambient; }
   void setAmbientIntensity(const vec3& newIntensity);
   RenderContext& context() const { return m_context; }
-  RenderQueue& opaqueQueue() { return m_opaqueQueue; }
-  const RenderQueue& opaqueQueue() const { return m_opaqueQueue; }
-  RenderQueue& blendedQueue() { return m_blendedQueue; }
-  const RenderQueue& blendedQueue() const { return m_blendedQueue; }
-  Phase phase() const { return m_phase; }
-  void setPhase(Phase newPhase);
+  RenderBucket& opaqueBucket() { return m_opaqueBucket; }
+  const RenderBucket& opaqueBucket() const { return m_opaqueBucket; }
+  RenderBucket& blendedBucket() { return m_blendedBucket; }
+  const RenderBucket& blendedBucket() const { return m_blendedBucket; }
+  RenderPhase phase() const { return m_phase; }
+  void setPhase(RenderPhase newPhase);
 private:
   RenderContext& m_context;
-  Phase m_phase;
-  RenderQueue m_opaqueQueue;
-  RenderQueue m_blendedQueue;
+  RenderPhase m_phase;
+  RenderBucket m_opaqueBucket;
+  RenderBucket m_blendedBucket;
   std::vector<LightData> m_lights;
   vec3 m_ambient;
 };

@@ -21,12 +21,7 @@ set(wendy_SOURCES
 
     Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp Path.cpp
     Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Regex.cpp Resource.cpp
-    Sample.cpp Signal.cpp Timer.cpp Transform.cpp Vertex.cpp
-
-    RenderContext.cpp OpenGL.cpp Program.cpp RenderQuery.cpp
-    RenderBuffer.cpp Texture.cpp
-
-    Window.cpp)
+    Sample.cpp Signal.cpp Timer.cpp Transform.cpp Vertex.cpp)
 
 if (WENDY_INCLUDE_NETWORK)
   include_directories(${enet_SOURCE_DIR})
@@ -39,11 +34,10 @@ if (WENDY_INCLUDE_AUDIO)
 endif()
 
 if (WENDY_INCLUDE_RENDERER)
-  list(APPEND wendy_SOURCES
-       Font.cpp Model.cpp Material.cpp RenderScene.cpp Pass.cpp Sprite.cpp
-       RenderSystem.cpp
-
-       Forward.cpp)
+  list(APPEND wendy_SOURCES Font.cpp Forward.cpp Material.cpp Model.cpp
+                            OpenGL.cpp Pass.cpp Program.cpp Query.cpp
+                            RenderBuffer.cpp RenderContext.cpp RenderQueue.cpp
+                            RenderSystem.cpp Sprite.cpp Texture.cpp Window.cpp)
 endif()
 
 if (WENDY_INCLUDE_SQUIRREL)

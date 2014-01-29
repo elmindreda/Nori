@@ -39,7 +39,7 @@
 #include <wendy/Pass.hpp>
 #include <wendy/RenderSystem.hpp>
 #include <wendy/Material.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 #include <wendy/Model.hpp>
 
 #include <pugixml.hpp>
@@ -74,7 +74,7 @@ void ModelSection::setMaterial(Material* newMaterial)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transform) const
+void Model::enqueue(RenderQueue& queue, const Camera& camera, const Transform3& transform) const
 {
   for (auto& s : m_sections)
   {
@@ -86,7 +86,7 @@ void Model::enqueue(Scene& scene, const Camera& camera, const Transform3& transf
 
     float depth = camera.normalizedDepth(transform.position + m_boundingSphere.center);
 
-    scene.createOperations(transform, range, *material, depth);
+    queue.createOperations(transform, range, *material, depth);
   }
 }
 

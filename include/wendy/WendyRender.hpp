@@ -33,11 +33,18 @@
 
 #if WENDY_INCLUDE_RENDERER
 
+#include <wendy/Window.hpp>
+
+#include <wendy/Query.hpp>
+#include <wendy/Texture.hpp>
+#include <wendy/RenderBuffer.hpp>
+#include <wendy/Program.hpp>
+#include <wendy/RenderContext.hpp>
 #include <wendy/Pass.hpp>
 #include <wendy/Font.hpp>
 #include <wendy/RenderSystem.hpp>
 #include <wendy/Material.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 #include <wendy/Sprite.hpp>
 #include <wendy/Model.hpp>
 

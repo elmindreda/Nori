@@ -249,12 +249,12 @@ BlendFactor Pass::dstFactor() const
   return m_state.dstFactor;
 }
 
-Function Pass::depthFunction() const
+FragmentFunction Pass::depthFunction() const
 {
   return m_state.depthFunction;
 }
 
-Function Pass::stencilFunction() const
+FragmentFunction Pass::stencilFunction() const
 {
   return m_state.stencilFunction;
 }
@@ -310,12 +310,12 @@ void Pass::setBlendFactors(BlendFactor src, BlendFactor dst)
   m_state.dstFactor = dst;
 }
 
-void Pass::setDepthFunction(Function function)
+void Pass::setDepthFunction(FragmentFunction function)
 {
   m_state.depthFunction = function;
 }
 
-void Pass::setStencilFunction(Function newFunction)
+void Pass::setStencilFunction(FragmentFunction newFunction)
 {
   m_state.stencilFunction = newFunction;
 }

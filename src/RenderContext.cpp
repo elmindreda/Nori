@@ -257,7 +257,7 @@ GLenum convertToGL(BlendFactor factor)
   panic("Invalid blend factor %u", factor);
 }
 
-GLenum convertToGL(Function function)
+GLenum convertToGL(FragmentFunction function)
 {
   switch (function)
   {
@@ -286,21 +286,21 @@ GLenum convertToGL(StencilOp operation)
 {
   switch (operation)
   {
-    case OP_KEEP:
+    case STENCIL_KEEP:
       return GL_KEEP;
-    case OP_ZERO:
+    case STENCIL_ZERO:
       return GL_ZERO;
-    case OP_REPLACE:
+    case STENCIL_REPLACE:
       return GL_REPLACE;
-    case OP_INCREASE:
+    case STENCIL_INCREASE:
       return GL_INCR;
-    case OP_DECREASE:
+    case STENCIL_DECREASE:
       return GL_DECR;
-    case OP_INVERT:
+    case STENCIL_INVERT:
       return GL_INVERT;
-    case OP_INCREASE_WRAP:
+    case STENCIL_INCREASE_WRAP:
       return GL_INCR_WRAP;
-    case OP_DECREASE_WRAP:
+    case STENCIL_DECREASE_WRAP:
       return GL_DECR_WRAP;
   }
 
@@ -367,9 +367,9 @@ RenderState::RenderState():
   stencilFunction(ALLOW_ALWAYS),
   stencilRef(0),
   stencilMask(~0u),
-  stencilFailOp(OP_KEEP),
-  depthFailOp(OP_KEEP),
-  depthPassOp(OP_KEEP)
+  stencilFailOp(STENCIL_KEEP),
+  depthFailOp(STENCIL_KEEP),
+  depthPassOp(STENCIL_KEEP)
 {
 }
 
@@ -1690,7 +1690,7 @@ void RenderContext::applyState(const RenderState& newState)
     {
       // NOTE: Special case; depth buffer filling.
       //       Set specific depth buffer function.
-      const Function depthFunction = ALLOW_ALWAYS;
+      const FragmentFunction depthFunction = ALLOW_ALWAYS;
 
       if (m_currentState.depthFunction != depthFunction)
       {
@@ -1803,7 +1803,7 @@ void RenderContext::forceState(const RenderState& newState)
 
   if (newState.depthWriting && !newState.depthTesting)
   {
-    const Function depthFunction = ALLOW_ALWAYS;
+    const FragmentFunction depthFunction = ALLOW_ALWAYS;
     glDepthFunc(convertToGL(depthFunction));
     m_currentState.depthFunction = depthFunction;
   }

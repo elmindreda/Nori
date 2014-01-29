@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERMODEL_HPP
-#define WENDY_RENDERMODEL_HPP
+#ifndef WENDY_MODEL_HPP
+#define WENDY_MODEL_HPP
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.hpp>
@@ -83,7 +83,7 @@ class Model : public Renderable, public Resource
 {
 public:
   typedef std::map<String, Ref<Material>> MaterialMap;
-  void enqueue(Scene& scene,
+  void enqueue(RenderQueue& queue,
                const Camera& camera,
                const Transform3& transform) const override;
   Sphere bounds() const override;
@@ -155,5 +155,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERMODEL_HPP*/
+#endif /*WENDY_MODEL_HPP*/
 ///////////////////////////////////////////////////////////////////////

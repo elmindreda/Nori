@@ -33,7 +33,7 @@
 
 #include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 #include <wendy/Sprite.hpp>
 
 #include <glm/gtx/rotate_vector.hpp>
@@ -168,7 +168,7 @@ Sprite3::Sprite3():
 {
 }
 
-void Sprite3::enqueue(Scene& scene,
+void Sprite3::enqueue(RenderQueue& queue,
                       const Camera& camera,
                       const Transform3& transform) const
 {
@@ -178,7 +178,7 @@ void Sprite3::enqueue(Scene& scene,
     return;
   }
 
-  VertexRange range = scene.context().allocateVertices(4, Vertex2ft3fv::format);
+  VertexRange range = queue.context().allocateVertices(4, Vertex2ft3fv::format);
   if (range.isEmpty())
     return;
 
@@ -189,7 +189,7 @@ void Sprite3::enqueue(Scene& scene,
   realizeSpriteVertices(vertices, cameraPos, spritePos, size, angle, type);
   range.copyFrom(vertices);
 
-  scene.createOperations(Transform3::IDENTITY,
+  queue.createOperations(Transform3::IDENTITY,
                          PrimitiveRange(TRIANGLE_FAN, range),
                          *material,
                          camera.normalizedDepth(spritePos));

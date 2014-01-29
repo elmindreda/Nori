@@ -28,7 +28,7 @@
 
 #include <wendy/RenderSystem.hpp>
 #include <wendy/Pass.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ public:
   /*! Renders the specified scene to the current framebuffer using the
    *  specified camera.
    */
-  void render(const Scene& scene, const Camera& camera);
+  void render(const RenderQueue& queue, const Camera& camera);
   /*! @return The shared program state object used by this renderer.
    */
   SharedProgramState& sharedProgramState() { return *m_state; }
@@ -81,7 +81,7 @@ public:
 private:
   Renderer(RenderContext& context);
   bool init(const Config& config);
-  void renderOperations(const RenderQueue& queue);
+  void renderOperations(const RenderBucket& bucket);
   Ref<SharedProgramState> m_state;
 };
 

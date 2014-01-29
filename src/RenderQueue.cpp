@@ -35,7 +35,7 @@
 
 #include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 
 #include <algorithm>
 
@@ -53,7 +53,7 @@ Light::Light():
 {
 }
 
-void Light::enqueue(Scene& scene,
+void Light::enqueue(RenderQueue& queue,
                     const Camera& camera,
                     const Transform3& transform) const
 {
@@ -65,7 +65,7 @@ void Light::enqueue(Scene& scene,
   data.direction = transform.rotation * vec3(0.f, 0.f, -1.f);
   data.position = transform.position;
 
-  scene.addLight(data);
+  queue.addLight(data);
 }
 
 Sphere Light::bounds() const
@@ -118,12 +118,12 @@ RenderOp::RenderOp():
 
 ///////////////////////////////////////////////////////////////////////
 
-RenderQueue::RenderQueue():
+RenderBucket::RenderBucket():
   m_sorted(true)
 {
 }
 
-void RenderQueue::addOperation(const RenderOp& operation, RenderOpKey key)
+void RenderBucket::addOperation(const RenderOp& operation, RenderOpKey key)
 {
   key.index = (uint16) m_operations.size();
   m_keys.push_back(key);
@@ -131,14 +131,14 @@ void RenderQueue::addOperation(const RenderOp& operation, RenderOpKey key)
   m_sorted = false;
 }
 
-void RenderQueue::removeOperations()
+void RenderBucket::removeOperations()
 {
   m_operations.clear();
   m_keys.clear();
   m_sorted = true;
 }
 
-const std::vector<uint64>& RenderQueue::keys() const
+const std::vector<uint64>& RenderBucket::keys() const
 {
   if (!m_sorted)
   {
@@ -151,30 +151,30 @@ const std::vector<uint64>& RenderQueue::keys() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Scene::Scene(RenderContext& context, Phase phase):
+RenderQueue::RenderQueue(RenderContext& context, RenderPhase phase):
   m_context(context),
   m_phase(phase)
 {
 }
 
-void Scene::addOperation(const RenderOp& operation, float depth, uint8 layer)
+void RenderQueue::addOperation(const RenderOp& operation, float depth, uint8 layer)
 {
   if (operation.state->isBlending())
   {
     RenderOpKey key = RenderOpKey::makeBlendedKey(layer, depth);
-    m_blendedQueue.addOperation(operation, key);
+    m_blendedBucket.addOperation(operation, key);
   }
   else
   {
     RenderOpKey key = RenderOpKey::makeOpaqueKey(layer, operation.state->ID(), depth);
-    m_opaqueQueue.addOperation(operation, key);
+    m_opaqueBucket.addOperation(operation, key);
   }
 }
 
-void Scene::createOperations(const mat4& transform,
-                             const PrimitiveRange& range,
-                             const Material& material,
-                             float depth)
+void RenderQueue::createOperations(const mat4& transform,
+                                   const PrimitiveRange& range,
+                                   const Material& material,
+                                   float depth)
 {
   RenderOp operation;
   operation.range = range;
@@ -189,28 +189,28 @@ void Scene::createOperations(const mat4& transform,
   }
 }
 
-void Scene::removeOperations()
+void RenderQueue::removeOperations()
 {
-  m_opaqueQueue.removeOperations();
-  m_blendedQueue.removeOperations();
+  m_opaqueBucket.removeOperations();
+  m_blendedBucket.removeOperations();
 }
 
-void Scene::addLight(const LightData& light)
+void RenderQueue::addLight(const LightData& light)
 {
   m_lights.push_back(light);
 }
 
-void Scene::removeLights()
+void RenderQueue::removeLights()
 {
   m_lights.clear();
 }
 
-void Scene::setAmbientIntensity(const vec3& newIntensity)
+void RenderQueue::setAmbientIntensity(const vec3& newIntensity)
 {
   m_ambient = newIntensity;
 }
 
-void Scene::setPhase(Phase newPhase)
+void RenderQueue::setPhase(RenderPhase newPhase)
 {
   m_phase = newPhase;
 }

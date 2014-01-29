@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERSTYLE_HPP
-#define WENDY_RENDERSTYLE_HPP
+#ifndef WENDY_MATERIAL_HPP
+#define WENDY_MATERIAL_HPP
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Texture.hpp>
@@ -48,14 +48,14 @@ class RenderSystem;
 /*! @brief Render phase enumeration.
  *  @ingroup renderer
  */
-enum Phase
+enum RenderPhase
 {
   /*! Normal forward rendering or G-buffer filling.
    */
-  PHASE_DEFAULT,
+  RENDER_DEFAULT,
   /*! Shadow map rendering.
    */
-  PHASE_SHADOWMAP
+  RENDER_SHADOWMAP
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -85,10 +85,10 @@ class Material : public Resource, public RefObject
 public:
   /*! @return The technique for the specified phase.
    */
-  Technique& technique(Phase phase) { return m_techniques[phase]; }
+  Technique& technique(RenderPhase phase) { return m_techniques[phase]; }
   /*! @return The technique for the specified phase.
    */
-  const Technique& technique(Phase phase) const { return m_techniques[phase]; }
+  const Technique& technique(RenderPhase phase) const { return m_techniques[phase]; }
   template <typename T>
   void setUniformStates(const char* name, const T& newValue)
   {
@@ -151,5 +151,5 @@ private:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERSTYLE_HPP*/
+#endif /*WENDY_MATERIAL_HPP*/
 ///////////////////////////////////////////////////////////////////////

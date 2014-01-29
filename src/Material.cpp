@@ -52,12 +52,12 @@ namespace
 
 Bimap<String, CullMode> cullModeMap;
 Bimap<String, BlendFactor> blendFactorMap;
-Bimap<String, Function> functionMap;
+Bimap<String, FragmentFunction> functionMap;
 Bimap<String, StencilOp> operationMap;
 Bimap<String, FilterMode> filterModeMap;
 Bimap<String, AddressMode> addressModeMap;
 Bimap<String, RenderSystem::Type> systemTypeMap;
-Bimap<String, Phase> phaseMap;
+Bimap<String, RenderPhase> phaseMap;
 
 Bimap<SamplerType, TextureType> textureTypeMap;
 
@@ -101,14 +101,14 @@ void initializeMaps()
 
   if (operationMap.isEmpty())
   {
-    operationMap["keep"] = OP_KEEP;
-    operationMap["zero"] = OP_ZERO;
-    operationMap["replace"] = OP_REPLACE;
-    operationMap["increase"] = OP_INCREASE;
-    operationMap["decrease"] = OP_DECREASE;
-    operationMap["invert"] = OP_INVERT;
-    operationMap["increase wrap"] = OP_INCREASE_WRAP;
-    operationMap["decrease wrap"] = OP_DECREASE_WRAP;
+    operationMap["keep"] = STENCIL_KEEP;
+    operationMap["zero"] = STENCIL_ZERO;
+    operationMap["replace"] = STENCIL_REPLACE;
+    operationMap["increase"] = STENCIL_INCREASE;
+    operationMap["decrease"] = STENCIL_DECREASE;
+    operationMap["invert"] = STENCIL_INVERT;
+    operationMap["increase wrap"] = STENCIL_INCREASE_WRAP;
+    operationMap["decrease wrap"] = STENCIL_DECREASE_WRAP;
   }
 
   if (addressModeMap.isEmpty())
@@ -140,9 +140,9 @@ void initializeMaps()
 
   if (phaseMap.isEmpty())
   {
-    phaseMap[""] = PHASE_DEFAULT;
-    phaseMap["default"] = PHASE_DEFAULT;
-    phaseMap["shadowmap"] = PHASE_SHADOWMAP;
+    phaseMap[""] = RENDER_DEFAULT;
+    phaseMap["default"] = RENDER_DEFAULT;
+    phaseMap["shadowmap"] = RENDER_SHADOWMAP;
   }
 }
 
@@ -547,7 +547,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       return nullptr;
     }
 
-    const Phase phase = phaseMap[phaseName];
+    const RenderPhase phase = phaseMap[phaseName];
     if (phases[phase])
       continue;
 

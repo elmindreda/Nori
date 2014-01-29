@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_RENDERSPRITE_HPP
-#define WENDY_RENDERSPRITE_HPP
+#ifndef WENDY_SPRITE_HPP
+#define WENDY_SPRITE_HPP
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -62,7 +62,7 @@ class Sprite3 : public Renderable
 {
 public:
   Sprite3();
-  void enqueue(Scene& scene,
+  void enqueue(RenderQueue& queue,
                const Camera& camera,
                const Transform3& transform) const override;
   Sphere bounds() const override;
@@ -77,5 +77,5 @@ public:
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_RENDERSPRITE_HPP*/
+#endif /*WENDY_SPRITE_HPP*/
 ///////////////////////////////////////////////////////////////////////

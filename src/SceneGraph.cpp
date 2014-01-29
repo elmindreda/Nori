@@ -40,7 +40,7 @@
 
 #include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
-#include <wendy/RenderScene.hpp>
+#include <wendy/RenderQueue.hpp>
 #include <wendy/Model.hpp>
 
 #include <wendy/SceneGraph.hpp>
@@ -244,13 +244,13 @@ void SceneNode::update()
     m_camera->setTransform(worldTransform());
 }
 
-void SceneNode::enqueue(Scene& scene, const Camera& camera) const
+void SceneNode::enqueue(RenderQueue& queue, const Camera& camera) const
 {
   if (m_renderable)
-    m_renderable->enqueue(scene, camera, worldTransform());
+    m_renderable->enqueue(queue, camera, worldTransform());
 
   for (auto c : m_children)
-    c->enqueue(scene, camera);
+    c->enqueue(queue, camera);
 }
 
 void SceneNode::invalidateBounds()
@@ -297,7 +297,7 @@ void SceneGraph::update()
     n->update();
 }
 
-void SceneGraph::enqueue(Scene& scene, const Camera& camera) const
+void SceneGraph::enqueue(RenderQueue& queue, const Camera& camera) const
 {
   ProfileNodeCall call("SceneGraph::enqueue");
 
@@ -309,7 +309,7 @@ void SceneGraph::enqueue(Scene& scene, const Camera& camera) const
     worldBounds.transformBy(r->worldTransform());
 
     if (frustum.intersects(worldBounds))
-      r->enqueue(scene, camera);
+      r->enqueue(queue, camera);
   }
 }
 

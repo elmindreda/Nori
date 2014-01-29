@@ -57,10 +57,6 @@
 
 #include <wendy/WendyCore.hpp>
 
-#include <wendy/WendyGL.hpp>
-
-#include <wendy/Window.hpp>
-
 #if WENDY_INCLUDE_NETWORK
 #include <wendy/WendyNetwork.hpp>
 #endif

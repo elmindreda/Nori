@@ -120,7 +120,7 @@ protected:
    *  specified render queue.
    *  @param[in,out] queue The render queue for collecting operations.
    */
-  void enqueue(Scene& scene, const Camera& camera) const;
+  void enqueue(RenderQueue& queue, const Camera& camera) const;
 private:
   SceneNode(const SceneNode&) = delete;
   void invalidateBounds();
@@ -154,7 +154,7 @@ class SceneGraph
 public:
   ~SceneGraph();
   void update();
-  void enqueue(Scene& scene, const Camera& camera) const;
+  void enqueue(RenderQueue& queue, const Camera& camera) const;
   void query(const Sphere& sphere, std::vector<SceneNode*>& nodes) const;
   void query(const Frustum& frustum, std::vector<SceneNode*>& nodes) const;
   void addRootNode(SceneNode& node);
