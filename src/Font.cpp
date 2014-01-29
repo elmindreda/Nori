@@ -30,7 +30,6 @@
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/Font.hpp>
 
@@ -103,7 +102,8 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
   if (!vertexCount)
     return;
 
-  VertexRange range = m_pool->allocate(vertexCount, Vertex2ft2fv::format);
+  VertexRange range = m_context.allocateVertices(vertexCount,
+                                                 Vertex2ft2fv::format);
   if (range.isEmpty())
   {
     logError("Failed to allocate vertices for text drawing");
@@ -115,7 +115,7 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
   m_pass.setUniformState(m_colorIndex, color);
   m_pass.apply();
 
-  m_pool->context().render(PrimitiveRange(TRIANGLE_LIST, range));
+  m_context.render(PrimitiveRange(TRIANGLE_LIST, range));
 }
 
 Rect Font::boundsOf(const char* text)
@@ -160,33 +160,31 @@ std::vector<Rect> Font::layoutOf(const char* text)
 }
 
 Ref<Font> Font::create(const ResourceInfo& info,
-                       VertexPool& pool,
+                       RenderContext& context,
                        Face& face,
                        uint height)
 {
-  Ref<Font> font(new Font(info, pool));
+  Ref<Font> font(new Font(info, context));
   if (!font->init(face, height))
     return nullptr;
 
   return font;
 }
 
-Ref<Font> Font::read(VertexPool& pool, const String& name)
+Ref<Font> Font::read(RenderContext& context, const String& name)
 {
-  FontReader reader(pool);
+  FontReader reader(context);
   return reader.read(name);
 }
 
-Font::Font(const ResourceInfo& info, VertexPool& pool):
+Font::Font(const ResourceInfo& info, RenderContext& context):
   Resource(info),
-  m_pool(&pool)
+  m_context(context)
 {
 }
 
 bool Font::init(Face& face, uint height)
 {
-  RenderContext& context = m_pool->context();
-
   m_face = &face;
 
   m_scale = face.scale(height);
@@ -199,8 +197,8 @@ bool Font::init(Face& face, uint height)
   m_ascender  = ceil(face.ascender(m_scale));
   m_descender = ceil(face.descender(m_scale));
 
-  if (uint(m_width) + 1 > context.limits().maxTextureSize ||
-      uint(m_height) + 1 > context.limits().maxTextureSize)
+  if (uint(m_width) + 1 > m_context.limits().maxTextureSize ||
+      uint(m_height) + 1 > m_context.limits().maxTextureSize)
   {
     logError("Font %s is too large for texture size limits", name().c_str());
     return false;
@@ -208,7 +206,7 @@ bool Font::init(Face& face, uint height)
 
   // Create render pass
   {
-    Ref<Program> program = Program::read(context,
+    Ref<Program> program = Program::read(m_context,
                                          "wendy/RenderFont.vs",
                                          "wendy/RenderFont.fs");
     if (!program)
@@ -302,10 +300,8 @@ const Font::Glyph* Font::findGlyph(uint32 codepoint)
 
 bool Font::addGlyphTextureRow()
 {
-  RenderContext& context = m_pool->context();
-
   Ref<Image> glyphs;
-  uint textureWidth = context.limits().maxTextureSize;
+  uint textureWidth = m_context.limits().maxTextureSize;
   uint textureHeight = 0;
 
   if (m_texture)
@@ -316,7 +312,7 @@ bool Font::addGlyphTextureRow()
 
   textureHeight += uint(m_height) + 1;
 
-  if (textureHeight > context.limits().maxTextureSize)
+  if (textureHeight > m_context.limits().maxTextureSize)
   {
     logError("Glyph texture for font %s is full", name().c_str());
     return false;
@@ -325,7 +321,7 @@ bool Font::addGlyphTextureRow()
   TextureData data(PixelFormat::L8, textureWidth, textureHeight);
   TextureParams params(TEXTURE_RECT, TF_NONE);
 
-  m_texture = Texture::create(cache(), context, params, data);
+  m_texture = Texture::create(cache(), m_context, params, data);
   if (!m_texture)
   {
     logError("Failed to create glyph texture for font %s", name().c_str());
@@ -343,9 +339,9 @@ bool Font::addGlyphTextureRow()
 
 ///////////////////////////////////////////////////////////////////////
 
-FontReader::FontReader(VertexPool& pool):
-  ResourceReader<Font>(pool.context().cache()),
-  m_pool(&pool)
+FontReader::FontReader(RenderContext& context):
+  ResourceReader<Font>(context.cache()),
+  m_context(context)
 {
 }
 
@@ -389,7 +385,7 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
   if (!face)
     return nullptr;
 
-  return Font::create(ResourceInfo(cache, name, path), *m_pool, *face, height);
+  return Font::create(ResourceInfo(cache, name, path), m_context, *face, height);
 }
 
 ///////////////////////////////////////////////////////////////////////

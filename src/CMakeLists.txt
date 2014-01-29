@@ -40,8 +40,8 @@ endif()
 
 if (WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES
-       Font.cpp Model.cpp Material.cpp RenderPool.cpp
-       RenderScene.cpp Sprite.cpp RenderState.cpp RenderSystem.cpp
+       Font.cpp Model.cpp Material.cpp RenderScene.cpp Sprite.cpp
+       RenderState.cpp RenderSystem.cpp
 
        Forward.cpp)
 endif()

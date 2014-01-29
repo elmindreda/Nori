@@ -48,14 +48,13 @@ public:
   };
   ResourceCache& cache() const;
   RenderContext& context() const;
-  VertexPool& vertexPool() const;
   Type type() const;
 protected:
-  RenderSystem(VertexPool& pool, Type type);
+  RenderSystem(RenderContext& context, Type type);
 private:
   RenderSystem(const RenderSystem&) = delete;
   RenderSystem& operator = (const RenderSystem&) = delete;
-  Ref<VertexPool> m_pool;
+  RenderContext& m_context;
   Type m_type;
 };
 

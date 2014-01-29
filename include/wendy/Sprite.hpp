@@ -31,10 +31,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class VertexPool;
-
-///////////////////////////////////////////////////////////////////////
-
 enum SpriteType3
 {
   STATIC_SPRITE,
@@ -50,7 +46,7 @@ class Sprite2
 {
 public:
   Sprite2();
-  void render(VertexPool& pool) const;
+  void render(RenderContext& context) const;
   void realizeVertices(Vertex2ft2fv* vertices) const;
   Rect texArea;
   vec2 position;

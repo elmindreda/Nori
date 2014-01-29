@@ -31,7 +31,6 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
@@ -124,18 +123,18 @@ Sprite2::Sprite2():
 {
 }
 
-void Sprite2::render(VertexPool& pool) const
+void Sprite2::render(RenderContext& context) const
 {
   Vertex2ft2fv vertices[4];
   realizeVertices(vertices);
 
-  VertexRange range = pool.allocate(4, Vertex2ft2fv::format);
+  VertexRange range = context.allocateVertices(4, Vertex2ft2fv::format);
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
 
-  pool.context().render(PrimitiveRange(TRIANGLE_FAN, range));
+  context.render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
 void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
@@ -179,7 +178,7 @@ void Sprite3::enqueue(Scene& scene,
     return;
   }
 
-  VertexRange range = scene.vertexPool().allocate(4, Vertex2ft3fv::format);
+  VertexRange range = scene.context().allocateVertices(4, Vertex2ft3fv::format);
   if (range.isEmpty())
     return;
 

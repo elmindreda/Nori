@@ -33,7 +33,6 @@
 
 #if WENDY_INCLUDE_RENDERER
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/Font.hpp>
 #include <wendy/RenderSystem.hpp>

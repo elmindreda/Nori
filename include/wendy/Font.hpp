@@ -76,20 +76,20 @@ public:
    */
   std::vector<Rect> layoutOf(const char* text);
   static Ref<Font> create(const ResourceInfo& info,
-                          VertexPool& pool,
+                          RenderContext& context,
                           Face& face,
                           uint height);
-  static Ref<Font> read(VertexPool& pool, const String& name);
+  static Ref<Font> read(RenderContext& context, const String& name);
 private:
   class Glyph;
-  Font(const ResourceInfo& info, VertexPool& pool);
+  Font(const ResourceInfo& info, RenderContext& context);
   Font(const Font&) = delete;
   bool init(Face& font, uint height);
   const Glyph* addGlyph(uint32 codepoint);
   const Glyph* findGlyph(uint32 codepoint);
   bool addGlyphTextureRow();
   Font& operator = (const Font&) = delete;
-  Ref<VertexPool> m_pool;
+  RenderContext& m_context;
   Ref<Face> m_face;
   std::vector<Glyph> m_glyphs;
   float m_scale;
@@ -132,11 +132,11 @@ public:
 class FontReader : public ResourceReader<Font>
 {
 public:
-  FontReader(VertexPool& pool);
+  FontReader(RenderContext& context);
   using ResourceReader<Font>::read;
   Ref<Font> read(const String& name, const Path& path);
 private:
-  Ref<VertexPool> m_pool;
+  RenderContext& m_context;
 };
 
 ///////////////////////////////////////////////////////////////////////

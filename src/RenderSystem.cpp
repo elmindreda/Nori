@@ -30,7 +30,6 @@
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderSystem.hpp>
 
 ///////////////////////////////////////////////////////////////////////
@@ -42,17 +41,12 @@ namespace wendy
 
 ResourceCache& RenderSystem::cache() const
 {
-  return m_pool->context().cache();
+  return m_context.cache();
 }
 
 RenderContext& RenderSystem::context() const
 {
-  return m_pool->context();
-}
-
-VertexPool& RenderSystem::vertexPool() const
-{
-  return *m_pool;
+  return m_context;
 }
 
 RenderSystem::Type RenderSystem::type() const
@@ -60,8 +54,8 @@ RenderSystem::Type RenderSystem::type() const
   return m_type;
 }
 
-RenderSystem::RenderSystem(VertexPool& pool, Type type):
-  m_pool(&pool),
+RenderSystem::RenderSystem(RenderContext& context, Type type):
+  m_context(context),
   m_type(type)
 {
 }

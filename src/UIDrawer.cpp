@@ -88,17 +88,17 @@ Theme::Theme(const ResourceInfo& info):
 {
 }
 
-Ref<Theme> Theme::read(VertexPool& pool, const String& name)
+Ref<Theme> Theme::read(RenderContext& context, const String& name)
 {
-  ThemeReader reader(pool);
+  ThemeReader reader(context);
   return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ThemeReader::ThemeReader(VertexPool& initPool):
-  ResourceReader<Theme>(initPool.context().cache()),
-  pool(&initPool)
+ThemeReader::ThemeReader(RenderContext& context):
+  ResourceReader<Theme>(context.cache()),
+  m_context(context)
 {
   if (widgetStateMap.isEmpty())
   {
@@ -147,7 +147,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
   const TextureParams params(TEXTURE_RECT, TF_NONE);
 
-  theme->texture = Texture::read(pool->context(), params, imageName);
+  theme->texture = Texture::read(m_context, params, imageName);
   if (!theme->texture)
   {
     logError("Failed to create texture for UI theme %s", name.c_str());
@@ -161,7 +161,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  theme->font = Font::read(*pool, fontName);
+  theme->font = Font::read(m_context, fontName);
   if (!theme->font)
   {
     logError("Failed to load font for UI theme %s", name.c_str());
@@ -265,7 +265,7 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   Vertex2fv vertex;
   vertex.position = point;
 
-  VertexRange range = m_pool->allocate(1, Vertex2fv::format);
+  VertexRange range = m_context.allocateVertices(1, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
@@ -280,7 +280,7 @@ void Drawer::drawLine(vec2 start, vec2 end, const vec4& color)
   vertices[0].position = start;
   vertices[1].position = end;
 
-  VertexRange range = m_pool->allocate(2, Vertex2fv::format);
+  VertexRange range = m_context.allocateVertices(2, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
@@ -303,7 +303,7 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  VertexRange range = m_pool->allocate(4, Vertex2fv::format);
+  VertexRange range = m_context.allocateVertices(4, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
@@ -326,7 +326,7 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  VertexRange range = m_pool->allocate(4, Vertex2fv::format);
+  VertexRange range = m_context.allocateVertices(4, Vertex2fv::format);
   if (range.isEmpty())
     return;
 
@@ -353,7 +353,7 @@ void Drawer::blitTexture(const Rect& area, Texture& texture)
   vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
-  VertexRange range = m_pool->allocate(4, Vertex2ft2fv::format);
+  VertexRange range = m_context.allocateVertices(4, Vertex2ft2fv::format);
   if (range.isEmpty())
     return;
 
@@ -471,11 +471,6 @@ RenderContext& Drawer::context()
   return m_context;
 }
 
-VertexPool& Drawer::vertexPool()
-{
-  return *m_pool;
-}
-
 Font& Drawer::currentFont()
 {
   return *m_font;
@@ -494,18 +489,17 @@ float Drawer::currentEM() const
   return m_font->height();
 }
 
-Ref<Drawer> Drawer::create(VertexPool& pool)
+Ref<Drawer> Drawer::create(RenderContext& context)
 {
-  Ptr<Drawer> drawer(new Drawer(pool));
+  Ptr<Drawer> drawer(new Drawer(context));
   if (!drawer->init())
     return nullptr;
 
   return drawer.detachObject();
 }
 
-Drawer::Drawer(VertexPool& pool):
-  m_context(pool.context()),
-  m_pool(&pool)
+Drawer::Drawer(RenderContext& context):
+  m_context(context)
 {
 }
 
@@ -594,7 +588,7 @@ bool Drawer::init()
   {
     const String themeName("wendy/UIDefault.theme");
 
-    m_theme = Theme::read(*m_pool, themeName);
+    m_theme = Theme::read(m_context, themeName);
     if (!m_theme)
     {
       logError("Failed to load default UI theme %s", themeName.c_str());

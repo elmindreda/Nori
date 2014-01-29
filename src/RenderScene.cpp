@@ -33,7 +33,6 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
@@ -152,8 +151,8 @@ const std::vector<uint64>& RenderQueue::keys() const
 
 ///////////////////////////////////////////////////////////////////////
 
-Scene::Scene(VertexPool& pool, Phase phase):
-  m_pool(&pool),
+Scene::Scene(RenderContext& context, Phase phase):
+  m_context(context),
   m_phase(phase)
 {
 }

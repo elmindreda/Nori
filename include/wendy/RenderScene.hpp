@@ -37,7 +37,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class VertexPool;
 class Scene;
 
 ///////////////////////////////////////////////////////////////////////
@@ -215,7 +214,7 @@ private:
 class Scene
 {
 public:
-  Scene(VertexPool& pool, Phase phase = PHASE_DEFAULT);
+  Scene(RenderContext& context, Phase phase = PHASE_DEFAULT);
   void addOperation(const RenderOp& operation, float depth, uint8 layer = 0);
   void createOperations(const mat4& transform,
                         const PrimitiveRange& range,
@@ -227,7 +226,7 @@ public:
   const std::vector<LightData>& lights() const { return m_lights; }
   const vec3& ambientIntensity() const { return m_ambient; }
   void setAmbientIntensity(const vec3& newIntensity);
-  VertexPool& vertexPool() const { return *m_pool; }
+  RenderContext& context() const { return m_context; }
   RenderQueue& opaqueQueue() { return m_opaqueQueue; }
   const RenderQueue& opaqueQueue() const { return m_opaqueQueue; }
   RenderQueue& blendedQueue() { return m_blendedQueue; }
@@ -235,7 +234,7 @@ public:
   Phase phase() const { return m_phase; }
   void setPhase(Phase newPhase);
 private:
-  Ref<VertexPool> m_pool;
+  RenderContext& m_context;
   Phase m_phase;
   RenderQueue m_opaqueQueue;
   RenderQueue m_blendedQueue;

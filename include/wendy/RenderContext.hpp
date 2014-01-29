@@ -476,6 +476,15 @@ public:
    *  @pre A GLSL program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
+  /*! Allocates a range of temporary vertices of the specified format.
+   *  @param[in] count The number of vertices to allocate.
+   *  @param[in] format The format of vertices to allocate.
+   *  @return @c The newly allocated vertex range.
+   *
+   *  @remarks The allocated vertex range is only valid until the end of the
+   *  current frame.
+   */
+  VertexRange allocateVertices(uint count, const VertexFormat& format);
   /*! Renders the specified primitive range to the current framebuffer, using
    *  the current GLSL program.
    *  @pre A GLSL program must be set before calling this method.
@@ -609,6 +618,11 @@ private:
   void forceState(const RenderState& newState);
   RenderContext& operator = (const RenderContext&) = delete;
   void onFrame();
+  struct Slot
+  {
+    Ref<VertexBuffer> buffer;
+    uint available;
+  };
   class SharedSampler;
   class SharedUniform;
   ResourceCache& m_cache;
@@ -632,6 +646,7 @@ private:
   Ref<DefaultFramebuffer> m_defaultFramebuffer;
   std::vector<SharedSampler> m_samplers;
   std::vector<SharedUniform> m_uniforms;
+  std::vector<Slot> m_slots;
   String m_declaration;
   RenderStats* m_stats;
 };

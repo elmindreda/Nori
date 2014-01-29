@@ -32,7 +32,6 @@
 #include <wendy/RenderBuffer.hpp>
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderSystem.hpp>
 #include <wendy/Font.hpp>
@@ -110,7 +109,7 @@ class Theme : public Resource, public RefObject
 {
 public:
   Theme(const ResourceInfo& info);
-  static Ref<Theme> read(VertexPool& pool, const String& name);
+  static Ref<Theme> read(RenderContext& context, const String& name);
   Rect buttonElements[4];
   Rect handleElements[4];
   Rect frameElements[4];
@@ -130,11 +129,11 @@ public:
 class ThemeReader : public ResourceReader<Theme>
 {
 public:
-  ThemeReader(VertexPool& pool);
+  ThemeReader(RenderContext& context);
   using ResourceReader<Theme>::read;
   Ref<Theme> read(const String& name, const Path& path);
 private:
-  Ref<VertexPool> pool;
+  RenderContext& m_context;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -191,13 +190,12 @@ public:
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& theme() const;
   RenderContext& context();
-  VertexPool& vertexPool();
   Font& currentFont();
   void setCurrentFont(Font* newFont);
   float currentEM() const;
-  static Ref<Drawer> create(VertexPool& pool);
+  static Ref<Drawer> create(RenderContext& context);
 private:
-  Drawer(VertexPool& pool);
+  Drawer(RenderContext& context);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(const vec4& color, bool wireframe);
@@ -207,7 +205,6 @@ private:
   PrimitiveRange m_range;
   Ref<Theme> m_theme;
   RenderContext& m_context;
-  Ref<VertexPool> m_pool;
   Ref<Font> m_font;
   Pass m_drawPass;
   Pass m_blitPass;

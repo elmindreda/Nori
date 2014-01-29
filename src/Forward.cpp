@@ -33,7 +33,6 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
@@ -49,8 +48,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Config::Config(VertexPool& initPool):
-  pool(&initPool)
+Config::Config(RenderContext& context):
+  context(context)
 {
 }
 
@@ -86,21 +85,15 @@ void Renderer::render(const Scene& scene, const Camera& camera)
 
 Ref<Renderer> Renderer::create(const Config& config)
 {
-  if (!config.pool)
-  {
-    logError("Cannot create forward renderer without a geometry pool");
-    return nullptr;
-  }
-
-  Ptr<Renderer> renderer(new Renderer(*config.pool));
+  Ptr<Renderer> renderer(new Renderer(config.context));
   if (!renderer->init(config))
     return nullptr;
 
   return renderer.detachObject();
 }
 
-Renderer::Renderer(VertexPool& pool):
-  RenderSystem(pool, RenderSystem::FORWARD)
+Renderer::Renderer(RenderContext& context):
+  RenderSystem(context, RenderSystem::FORWARD)
 {
 }
 

@@ -1113,6 +1113,55 @@ void RenderContext::render(PrimitiveType type, uint start, uint count, uint base
     m_stats->addPrimitives(type, count);
 }
 
+VertexRange RenderContext::allocateVertices(uint count, const VertexFormat& format)
+{
+  if (!count)
+    return VertexRange();
+
+  Slot* slot = nullptr;
+
+  for (auto& s : m_slots)
+  {
+    if (s.buffer->format() == format && s.available >= count)
+    {
+      slot = &s;
+      break;
+    }
+  }
+
+  if (!slot)
+  {
+    m_slots.push_back(Slot());
+    slot = &(m_slots.back());
+
+    const size_t granularity = 16384;
+
+    const uint actualCount = granularity * ((count + granularity - 1) / granularity);
+
+    slot->buffer = VertexBuffer::create(*this,
+                                        actualCount,
+                                        format,
+                                        USAGE_DYNAMIC);
+    if (!slot->buffer)
+    {
+      m_slots.pop_back();
+      return VertexRange();
+    }
+
+    log("Allocated vertex pool of size %u format %s",
+        actualCount,
+        format.asString().c_str());
+
+    slot->available = slot->buffer->count();
+  }
+
+  const uint start = slot->buffer->count() - slot->available;
+
+  slot->available -= count;
+
+  return VertexRange(*(slot->buffer), start, count);
+}
+
 void RenderContext::createSharedSampler(const char* name, SamplerType type, int ID)
 {
   assert(ID != INVALID_SHARED_STATE_ID);
@@ -1803,6 +1852,12 @@ void RenderContext::onFrame()
       setActiveTextureUnit(i);
       setCurrentTexture(nullptr);
     }
+  }
+
+  for (auto& s : m_slots)
+  {
+    s.available = s.buffer->count();
+    s.buffer->discard();
   }
 
   if (m_stats)

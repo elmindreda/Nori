@@ -38,7 +38,6 @@
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>

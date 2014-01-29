@@ -26,7 +26,6 @@
 #define WENDY_FORWARD_HPP
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/RenderPool.hpp>
 #include <wendy/RenderSystem.hpp>
 #include <wendy/RenderState.hpp>
 #include <wendy/RenderScene.hpp>
@@ -47,12 +46,12 @@ class Config
 {
 public:
   /*! Constructor.
-   *  @param[in] pool The geometry pool to use.
+   *  @param[in] context The render context to use.
    */
-  Config(VertexPool& pool);
-  /*! The geometry pool to be used by the renderer.
+  Config(RenderContext& context);
+  /*! The render context to be used by the renderer.
    */
-  Ref<VertexPool> pool;
+  RenderContext& context;
   /*! The shared program state to be used by the renderer.
    */
   Ref<SharedProgramState> state;
@@ -73,14 +72,14 @@ public:
   /*! @return The shared program state object used by this renderer.
    */
   SharedProgramState& sharedProgramState() { return *m_state; }
-  /*! Creates a renderer object using the specified geometry pool and the
+  /*! Creates a renderer object using the specified render context and the
    *  specified configuration.
    *  @return The newly constructed renderer object, or @c nullptr if an error
    *  occurred.
    */
   static Ref<Renderer> create(const Config& config);
 private:
-  Renderer(VertexPool& pool);
+  Renderer(RenderContext& context);
   bool init(const Config& config);
   void renderOperations(const RenderQueue& queue);
   Ref<SharedProgramState> m_state;
