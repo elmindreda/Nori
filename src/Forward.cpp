@@ -33,7 +33,7 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/RenderState.hpp>
+#include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderScene.hpp>
 

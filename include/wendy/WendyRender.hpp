@@ -33,7 +33,7 @@
 
 #if WENDY_INCLUDE_RENDERER
 
-#include <wendy/RenderState.hpp>
+#include <wendy/Pass.hpp>
 #include <wendy/Font.hpp>
 #include <wendy/RenderSystem.hpp>
 #include <wendy/Material.hpp>

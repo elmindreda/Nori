@@ -46,7 +46,7 @@ class RenderSystem;
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef uint16 StateID;
+typedef uint16 PassID;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -55,7 +55,7 @@ typedef uint16 StateID;
  */
 class UniformStateIndex
 {
-  friend class ProgramState;
+  friend class Pass;
 public:
   UniformStateIndex();
 private:
@@ -71,7 +71,7 @@ private:
  */
 class SamplerStateIndex
 {
-  friend class ProgramState;
+  friend class Pass;
 public:
   SamplerStateIndex();
 private:
@@ -82,85 +82,25 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL program state.
+/*! @brief Render state object.
  *  @ingroup renderer
+ *
+ *  This class and its associated classes encapsulates most rendering state.
+ *
+ *  @remarks Yes, it's big.
  */
-class ProgramState
+class Pass
 {
 public:
   /*! Constructor.
    */
-  ProgramState();
+  Pass();
   /*! Copy constructor.
    */
-  ProgramState(const ProgramState& source);
-  /*! Destructor.
-   */
-  ~ProgramState();
-  /*! Applies this GLSL program state to the current context.
-   */
-  void apply() const;
+  Pass(const Pass& source);
+  ~Pass();
   bool hasUniformState(const char* name) const;
   bool hasSamplerState(const char* name) const;
-  template <typename T>
-  void uniformState(const char* name, T& result) const
-  {
-    std::memcpy(&result, data(name, uniformType<T>()), sizeof(T));
-  }
-  template <typename T>
-  void uniformState(UniformStateIndex index, T& result) const
-  {
-    std::memcpy(&result, data(index, uniformType<T>()), sizeof(T));
-  }
-  template <typename T>
-  void setUniformState(const char* name, const T& newValue)
-  {
-    std::memcpy(data(name, uniformType<T>()), &newValue, sizeof(T));
-  }
-  template <typename T>
-  void setUniformState(UniformStateIndex index, const T& newValue)
-  {
-    std::memcpy(data(index, uniformType<T>()), &newValue, sizeof(T));
-  }
-  Texture* samplerState(const char* name) const;
-  Texture* samplerState(SamplerStateIndex index) const;
-  void setSamplerState(const char* name, Texture* newTexture);
-  void setSamplerState(SamplerStateIndex index, Texture* newTexture);
-  UniformStateIndex uniformStateIndex(const char* name) const;
-  SamplerStateIndex samplerStateIndex(const char* name) const;
-  Program* program() const { return m_program; }
-  /*! Sets the GLSL program used by this state object.
-   *  @param[in] newProgram The desired GLSL program, or @c nullptr to detach
-   *  the current program.
-   */
-  void setProgram(Program* newProgram);
-  StateID ID() const { return m_ID; }
-private:
-  template <typename T>
-  static UniformType uniformType();
-  void* data(const char* name, UniformType type);
-  const void* data(const char* name, UniformType type) const;
-  void* data(UniformStateIndex index, UniformType type);
-  const void* data(UniformStateIndex index, UniformType type) const;
-  StateID m_ID;
-  Ref<Program> m_program;
-  std::vector<float> m_floats;
-  TextureList m_textures;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Render state object.
- *  @ingroup renderer
- *
- *  This class and its associated classes encapsulates most rendering state,
- *  notable exceptions being the transformation and stencil buffer state.
- *
- *  @remarks Yes, it's big.
- */
-class Pass : public ProgramState
-{
-public:
   /*! Applies this render state to the current context.
    */
   void apply() const;
@@ -302,8 +242,51 @@ public:
    *  @param[in] dst The desired destination factor.
    */
   void setBlendFactors(BlendFactor src, BlendFactor dst);
+  template <typename T>
+  void uniformState(const char* name, T& result) const
+  {
+    std::memcpy(&result, data(name, uniformType<T>()), sizeof(T));
+  }
+  template <typename T>
+  void uniformState(UniformStateIndex index, T& result) const
+  {
+    std::memcpy(&result, data(index, uniformType<T>()), sizeof(T));
+  }
+  template <typename T>
+  void setUniformState(const char* name, const T& newValue)
+  {
+    std::memcpy(data(name, uniformType<T>()), &newValue, sizeof(T));
+  }
+  template <typename T>
+  void setUniformState(UniformStateIndex index, const T& newValue)
+  {
+    std::memcpy(data(index, uniformType<T>()), &newValue, sizeof(T));
+  }
+  Texture* samplerState(const char* name) const;
+  Texture* samplerState(SamplerStateIndex index) const;
+  void setSamplerState(const char* name, Texture* newTexture);
+  void setSamplerState(SamplerStateIndex index, Texture* newTexture);
+  UniformStateIndex uniformStateIndex(const char* name) const;
+  SamplerStateIndex samplerStateIndex(const char* name) const;
+  Program* program() const { return m_program; }
+  /*! Sets the GLSL program used by this state object.
+   *  @param[in] newProgram The desired GLSL program, or @c nullptr to detach
+   *  the current program.
+   */
+  void setProgram(Program* newProgram);
+  PassID ID() const { return m_ID; }
 private:
-  RenderState m_data;
+  template <typename T>
+  static UniformType uniformType();
+  void* data(const char* name, UniformType type);
+  const void* data(const char* name, UniformType type) const;
+  void* data(UniformStateIndex index, UniformType type);
+  const void* data(UniformStateIndex index, UniformType type) const;
+  PassID m_ID;
+  Ref<Program> m_program;
+  std::vector<float> m_floats;
+  TextureList m_textures;
+  RenderState m_state;
 };
 
 ///////////////////////////////////////////////////////////////////////

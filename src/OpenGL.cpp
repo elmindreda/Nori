@@ -28,7 +28,7 @@
 #include <wendy/Texture.hpp>
 #include <wendy/RenderBuffer.hpp>
 #include <wendy/Program.hpp>
-#include <wendy/GLContext.hpp>
+#include <wendy/RenderContext.hpp>
 
 #include <GREG/greg.h>
 

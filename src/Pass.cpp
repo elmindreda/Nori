@@ -24,13 +24,11 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Config.hpp>
+
 #include <wendy/Core.hpp>
 #include <wendy/ID.hpp>
-
-#include <wendy/Core.hpp>
 #include <wendy/Primitive.hpp>
-
-#include <wendy/RenderState.hpp>
+#include <wendy/Pass.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -48,7 +46,7 @@ bool samplerTypeMatchesTextureType(SamplerType samplerType,
   return (int) samplerType == (int) textureType;
 }
 
-IDPool<StateID> stateIDs;
+IDPool<PassID> passIDs;
 
 } /*namespace*/
 
@@ -82,25 +80,25 @@ SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
 
 ///////////////////////////////////////////////////////////////////////
 
-ProgramState::ProgramState():
-  m_ID(stateIDs.allocateID())
+Pass::Pass():
+  m_ID(passIDs.allocateID())
 {
 }
 
-ProgramState::ProgramState(const ProgramState& source):
-  m_ID(stateIDs.allocateID()),
+Pass::Pass(const Pass& source):
+  m_ID(passIDs.allocateID()),
   m_program(source.m_program),
   m_floats(source.m_floats),
   m_textures(source.m_textures)
 {
 }
 
-ProgramState::~ProgramState()
+Pass::~Pass()
 {
-  stateIDs.releaseID(m_ID);
+  passIDs.releaseID(m_ID);
 }
 
-void ProgramState::apply() const
+void Pass::apply() const
 {
   if (!m_program)
   {
@@ -110,6 +108,7 @@ void ProgramState::apply() const
 
   RenderContext& context = m_program->context();
   context.setCurrentProgram(m_program);
+  context.setCurrentRenderState(m_state);
 
   SharedProgramState* state = context.currentSharedProgramState();
 
@@ -161,7 +160,52 @@ void ProgramState::apply() const
   }
 }
 
-bool ProgramState::hasUniformState(const char* name) const
+bool Pass::isCulling() const
+{
+  return m_state.cullMode != CULL_NONE;
+}
+
+bool Pass::isBlending() const
+{
+  return m_state.srcFactor != BLEND_ONE || m_state.dstFactor != BLEND_ZERO;
+}
+
+bool Pass::isDepthTesting() const
+{
+  return m_state.depthTesting;
+}
+
+bool Pass::isDepthWriting() const
+{
+  return m_state.depthWriting;
+}
+
+bool Pass::isColorWriting() const
+{
+  return m_state.colorWriting;
+}
+
+bool Pass::isStencilTesting() const
+{
+  return m_state.stencilTesting;
+}
+
+bool Pass::isWireframe() const
+{
+  return m_state.wireframe;
+}
+
+bool Pass::isLineSmoothing() const
+{
+  return m_state.lineSmoothing;
+}
+
+bool Pass::isMultisampling() const
+{
+  return m_state.multisampling;
+}
+
+bool Pass::hasUniformState(const char* name) const
 {
   if (!m_program)
     return false;
@@ -173,7 +217,7 @@ bool ProgramState::hasUniformState(const char* name) const
   return !uniform->isShared();
 }
 
-bool ProgramState::hasSamplerState(const char* name) const
+bool Pass::hasSamplerState(const char* name) const
 {
   if (!m_program)
     return false;
@@ -185,7 +229,148 @@ bool ProgramState::hasSamplerState(const char* name) const
   return !sampler->isShared();
 }
 
-Texture* ProgramState::samplerState(const char* name) const
+float Pass::lineWidth() const
+{
+  return m_state.lineWidth;
+}
+
+CullMode Pass::cullMode() const
+{
+  return m_state.cullMode;
+}
+
+BlendFactor Pass::srcFactor() const
+{
+  return m_state.srcFactor;
+}
+
+BlendFactor Pass::dstFactor() const
+{
+  return m_state.dstFactor;
+}
+
+Function Pass::depthFunction() const
+{
+  return m_state.depthFunction;
+}
+
+Function Pass::stencilFunction() const
+{
+  return m_state.stencilFunction;
+}
+
+StencilOp Pass::stencilFailOperation() const
+{
+  return m_state.stencilFailOp;
+}
+
+StencilOp Pass::depthFailOperation() const
+{
+  return m_state.depthFailOp;
+}
+
+StencilOp Pass::depthPassOperation() const
+{
+  return m_state.depthPassOp;
+}
+
+uint Pass::stencilReference() const
+{
+  return m_state.stencilRef;
+}
+
+uint Pass::stencilWriteMask() const
+{
+  return m_state.stencilMask;
+}
+
+void Pass::setDepthTesting(bool enable)
+{
+  m_state.depthTesting = enable;
+}
+
+void Pass::setDepthWriting(bool enable)
+{
+  m_state.depthWriting = enable;
+}
+
+void Pass::setStencilTesting(bool enable)
+{
+  m_state.stencilTesting = enable;
+}
+
+void Pass::setCullMode(CullMode mode)
+{
+  m_state.cullMode = mode;
+}
+
+void Pass::setBlendFactors(BlendFactor src, BlendFactor dst)
+{
+  m_state.srcFactor = src;
+  m_state.dstFactor = dst;
+}
+
+void Pass::setDepthFunction(Function function)
+{
+  m_state.depthFunction = function;
+}
+
+void Pass::setStencilFunction(Function newFunction)
+{
+  m_state.stencilFunction = newFunction;
+}
+
+void Pass::setStencilReference(uint newReference)
+{
+  m_state.stencilRef = newReference;
+}
+
+void Pass::setStencilWriteMask(uint newMask)
+{
+  m_state.stencilMask = newMask;
+}
+
+void Pass::setStencilFailOperation(StencilOp newOperation)
+{
+  m_state.stencilFailOp = newOperation;
+}
+
+void Pass::setDepthFailOperation(StencilOp newOperation)
+{
+  m_state.depthFailOp = newOperation;
+}
+
+void Pass::setDepthPassOperation(StencilOp newOperation)
+{
+  m_state.depthPassOp = newOperation;
+}
+
+void Pass::setColorWriting(bool enabled)
+{
+  m_state.colorWriting = enabled;
+}
+
+void Pass::setWireframe(bool enabled)
+{
+  m_state.wireframe = enabled;
+}
+
+void Pass::setLineSmoothing(bool enabled)
+{
+  m_state.lineSmoothing = enabled;
+}
+
+void Pass::setMultisampling(bool enabled)
+{
+  m_state.multisampling = enabled;
+}
+
+void Pass::setLineWidth(float newWidth)
+{
+  m_state.lineWidth = newWidth;
+}
+
+Texture* Pass::samplerState(const char* name) const
 {
   if (!m_program)
   {
@@ -213,7 +398,7 @@ Texture* ProgramState::samplerState(const char* name) const
   return nullptr;
 }
 
-Texture* ProgramState::samplerState(SamplerStateIndex index) const
+Texture* Pass::samplerState(SamplerStateIndex index) const
 {
   if (!m_program)
   {
@@ -224,7 +409,7 @@ Texture* ProgramState::samplerState(SamplerStateIndex index) const
   return m_textures[index.unit];
 }
 
-void ProgramState::setSamplerState(const char* name, Texture* newTexture)
+void Pass::setSamplerState(const char* name, Texture* newTexture)
 {
   if (!m_program)
   {
@@ -261,7 +446,7 @@ void ProgramState::setSamplerState(const char* name, Texture* newTexture)
   }
 }
 
-void ProgramState::setSamplerState(SamplerStateIndex index, Texture* newTexture)
+void Pass::setSamplerState(SamplerStateIndex index, Texture* newTexture)
 {
   if (!m_program)
   {
@@ -284,7 +469,7 @@ void ProgramState::setSamplerState(SamplerStateIndex index, Texture* newTexture)
     m_textures[index.unit] = nullptr;
 }
 
-UniformStateIndex ProgramState::uniformStateIndex(const char* name) const
+UniformStateIndex Pass::uniformStateIndex(const char* name) const
 {
   if (!m_program)
   {
@@ -309,7 +494,7 @@ UniformStateIndex ProgramState::uniformStateIndex(const char* name) const
   return UniformStateIndex();
 }
 
-SamplerStateIndex ProgramState::samplerStateIndex(const char* name) const
+SamplerStateIndex Pass::samplerStateIndex(const char* name) const
 {
   if (!m_program)
   {
@@ -334,7 +519,7 @@ SamplerStateIndex ProgramState::samplerStateIndex(const char* name) const
   return SamplerStateIndex();
 }
 
-void ProgramState::setProgram(Program* newProgram)
+void Pass::setProgram(Program* newProgram)
 {
   m_floats.clear();
   m_textures.clear();
@@ -364,7 +549,7 @@ void ProgramState::setProgram(Program* newProgram)
   m_textures.resize(textureCount);
 }
 
-void* ProgramState::data(const char* name, UniformType type)
+void* Pass::data(const char* name, UniformType type)
 {
   if (!m_program)
   {
@@ -401,7 +586,7 @@ void* ProgramState::data(const char* name, UniformType type)
   return nullptr;
 }
 
-const void* ProgramState::data(const char* name, UniformType type) const
+const void* Pass::data(const char* name, UniformType type) const
 {
   if (!m_program)
   {
@@ -438,7 +623,7 @@ const void* ProgramState::data(const char* name, UniformType type) const
   return nullptr;
 }
 
-void* ProgramState::data(UniformStateIndex index, UniformType type)
+void* Pass::data(UniformStateIndex index, UniformType type)
 {
   if (!m_program)
   {
@@ -460,7 +645,7 @@ void* ProgramState::data(UniformStateIndex index, UniformType type)
   return &m_floats[0] + index.offset;
 }
 
-const void* ProgramState::data(UniformStateIndex index, UniformType type) const
+const void* Pass::data(UniformStateIndex index, UniformType type) const
 {
   if (!m_program)
   {
@@ -483,247 +668,45 @@ const void* ProgramState::data(UniformStateIndex index, UniformType type) const
 }
 
 template <>
-UniformType ProgramState::uniformType<float>()
+UniformType Pass::uniformType<float>()
 {
   return UNIFORM_FLOAT;
 }
 
 template <>
-UniformType ProgramState::uniformType<vec2>()
+UniformType Pass::uniformType<vec2>()
 {
   return UNIFORM_VEC2;
 }
 
 template <>
-UniformType ProgramState::uniformType<vec3>()
+UniformType Pass::uniformType<vec3>()
 {
   return UNIFORM_VEC3;
 }
 
 template <>
-UniformType ProgramState::uniformType<vec4>()
+UniformType Pass::uniformType<vec4>()
 {
   return UNIFORM_VEC4;
 }
 
 template <>
-UniformType ProgramState::uniformType<mat2>()
+UniformType Pass::uniformType<mat2>()
 {
   return UNIFORM_MAT2;
 }
 
 template <>
-UniformType ProgramState::uniformType<mat3>()
+UniformType Pass::uniformType<mat3>()
 {
   return UNIFORM_MAT3;
 }
 
 template <>
-UniformType ProgramState::uniformType<mat4>()
+UniformType Pass::uniformType<mat4>()
 {
   return UNIFORM_MAT4;
-}
-
-///////////////////////////////////////////////////////////////////////
-
-void Pass::apply() const
-{
-  if (!program())
-  {
-    logError("Applying render state with no program set");
-    return;
-  }
-
-  RenderContext& context = program()->context();
-  context.setCurrentRenderState(m_data);
-
-  ProgramState::apply();
-}
-
-bool Pass::isCulling() const
-{
-  return m_data.cullMode != CULL_NONE;
-}
-
-bool Pass::isBlending() const
-{
-  return m_data.srcFactor != BLEND_ONE || m_data.dstFactor != BLEND_ZERO;
-}
-
-bool Pass::isDepthTesting() const
-{
-  return m_data.depthTesting;
-}
-
-bool Pass::isDepthWriting() const
-{
-  return m_data.depthWriting;
-}
-
-bool Pass::isColorWriting() const
-{
-  return m_data.colorWriting;
-}
-
-bool Pass::isStencilTesting() const
-{
-  return m_data.stencilTesting;
-}
-
-bool Pass::isWireframe() const
-{
-  return m_data.wireframe;
-}
-
-bool Pass::isLineSmoothing() const
-{
-  return m_data.lineSmoothing;
-}
-
-bool Pass::isMultisampling() const
-{
-  return m_data.multisampling;
-}
-
-float Pass::lineWidth() const
-{
-  return m_data.lineWidth;
-}
-
-CullMode Pass::cullMode() const
-{
-  return m_data.cullMode;
-}
-
-BlendFactor Pass::srcFactor() const
-{
-  return m_data.srcFactor;
-}
-
-BlendFactor Pass::dstFactor() const
-{
-  return m_data.dstFactor;
-}
-
-Function Pass::depthFunction() const
-{
-  return m_data.depthFunction;
-}
-
-Function Pass::stencilFunction() const
-{
-  return m_data.stencilFunction;
-}
-
-StencilOp Pass::stencilFailOperation() const
-{
-  return m_data.stencilFailOp;
-}
-
-StencilOp Pass::depthFailOperation() const
-{
-  return m_data.depthFailOp;
-}
-
-StencilOp Pass::depthPassOperation() const
-{
-  return m_data.depthPassOp;
-}
-
-uint Pass::stencilReference() const
-{
-  return m_data.stencilRef;
-}
-
-uint Pass::stencilWriteMask() const
-{
-  return m_data.stencilMask;
-}
-
-void Pass::setDepthTesting(bool enable)
-{
-  m_data.depthTesting = enable;
-}
-
-void Pass::setDepthWriting(bool enable)
-{
-  m_data.depthWriting = enable;
-}
-
-void Pass::setStencilTesting(bool enable)
-{
-  m_data.stencilTesting = enable;
-}
-
-void Pass::setCullMode(CullMode mode)
-{
-  m_data.cullMode = mode;
-}
-
-void Pass::setBlendFactors(BlendFactor src, BlendFactor dst)
-{
-  m_data.srcFactor = src;
-  m_data.dstFactor = dst;
-}
-
-void Pass::setDepthFunction(Function function)
-{
-  m_data.depthFunction = function;
-}
-
-void Pass::setStencilFunction(Function newFunction)
-{
-  m_data.stencilFunction = newFunction;
-}
-
-void Pass::setStencilReference(uint newReference)
-{
-  m_data.stencilRef = newReference;
-}
-
-void Pass::setStencilWriteMask(uint newMask)
-{
-  m_data.stencilMask = newMask;
-}
-
-void Pass::setStencilFailOperation(StencilOp newOperation)
-{
-  m_data.stencilFailOp = newOperation;
-}
-
-void Pass::setDepthFailOperation(StencilOp newOperation)
-{
-  m_data.depthFailOp = newOperation;
-}
-
-void Pass::setDepthPassOperation(StencilOp newOperation)
-{
-  m_data.depthPassOp = newOperation;
-}
-
-void Pass::setColorWriting(bool enabled)
-{
-  m_data.colorWriting = enabled;
-}
-
-void Pass::setWireframe(bool enabled)
-{
-  m_data.wireframe = enabled;
-}
-
-void Pass::setLineSmoothing(bool enabled)
-{
-  m_data.lineSmoothing = enabled;
-}
-
-void Pass::setMultisampling(bool enabled)
-{
-  m_data.multisampling = enabled;
-}
-
-void Pass::setLineWidth(float newWidth)
-{
-  m_data.lineWidth = newWidth;
 }
 
 ///////////////////////////////////////////////////////////////////////

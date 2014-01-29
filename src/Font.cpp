@@ -30,7 +30,7 @@
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
 
-#include <wendy/RenderState.hpp>
+#include <wendy/Pass.hpp>
 #include <wendy/Font.hpp>
 
 #include <pugixml.hpp>
