@@ -553,36 +553,6 @@ SharedProgramState::SharedProgramState():
 {
 }
 
-bool SharedProgramState::reserveSupported(RenderContext& context) const
-{
-  context.createSharedUniform("wyM", UNIFORM_MAT4, SHARED_MODEL_MATRIX);
-  context.createSharedUniform("wyV", UNIFORM_MAT4, SHARED_VIEW_MATRIX);
-  context.createSharedUniform("wyP", UNIFORM_MAT4, SHARED_PROJECTION_MATRIX);
-  context.createSharedUniform("wyMV", UNIFORM_MAT4, SHARED_MODELVIEW_MATRIX);
-  context.createSharedUniform("wyVP", UNIFORM_MAT4, SHARED_VIEWPROJECTION_MATRIX);
-  context.createSharedUniform("wyMVP", UNIFORM_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
-
-  context.createSharedUniform("wyInvM", UNIFORM_MAT4, SHARED_INVERSE_MODEL_MATRIX);
-  context.createSharedUniform("wyInvV", UNIFORM_MAT4, SHARED_INVERSE_VIEW_MATRIX);
-  context.createSharedUniform("wyInvP", UNIFORM_MAT4, SHARED_INVERSE_PROJECTION_MATRIX);
-  context.createSharedUniform("wyInvMV", UNIFORM_MAT4, SHARED_INVERSE_MODELVIEW_MATRIX);
-  context.createSharedUniform("wyInvVP", UNIFORM_MAT4, SHARED_INVERSE_VIEWPROJECTION_MATRIX);
-  context.createSharedUniform("wyInvMVP", UNIFORM_MAT4, SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX);
-
-  context.createSharedUniform("wyCameraNearZ", UNIFORM_FLOAT, SHARED_CAMERA_NEAR_Z);
-  context.createSharedUniform("wyCameraFarZ", UNIFORM_FLOAT, SHARED_CAMERA_FAR_Z);
-  context.createSharedUniform("wyCameraAspectRatio", UNIFORM_FLOAT, SHARED_CAMERA_ASPECT_RATIO);
-  context.createSharedUniform("wyCameraFOV", UNIFORM_FLOAT, SHARED_CAMERA_FOV);
-  context.createSharedUniform("wyCameraPosition", UNIFORM_VEC3, SHARED_CAMERA_POSITION);
-
-  context.createSharedUniform("wyViewportWidth", UNIFORM_FLOAT, SHARED_VIEWPORT_WIDTH);
-  context.createSharedUniform("wyViewportHeight", UNIFORM_FLOAT, SHARED_VIEWPORT_HEIGHT);
-
-  context.createSharedUniform("wyTime", UNIFORM_FLOAT, SHARED_TIME);
-
-  return true;
-}
-
 void SharedProgramState::cameraProperties(vec3& position,
                                           float& FOV,
                                           float& aspect,
@@ -1625,6 +1595,31 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   }
+
+  createSharedUniform("wyM", UNIFORM_MAT4, SHARED_MODEL_MATRIX);
+  createSharedUniform("wyV", UNIFORM_MAT4, SHARED_VIEW_MATRIX);
+  createSharedUniform("wyP", UNIFORM_MAT4, SHARED_PROJECTION_MATRIX);
+  createSharedUniform("wyMV", UNIFORM_MAT4, SHARED_MODELVIEW_MATRIX);
+  createSharedUniform("wyVP", UNIFORM_MAT4, SHARED_VIEWPROJECTION_MATRIX);
+  createSharedUniform("wyMVP", UNIFORM_MAT4, SHARED_MODELVIEWPROJECTION_MATRIX);
+
+  createSharedUniform("wyInvM", UNIFORM_MAT4, SHARED_INVERSE_MODEL_MATRIX);
+  createSharedUniform("wyInvV", UNIFORM_MAT4, SHARED_INVERSE_VIEW_MATRIX);
+  createSharedUniform("wyInvP", UNIFORM_MAT4, SHARED_INVERSE_PROJECTION_MATRIX);
+  createSharedUniform("wyInvMV", UNIFORM_MAT4, SHARED_INVERSE_MODELVIEW_MATRIX);
+  createSharedUniform("wyInvVP", UNIFORM_MAT4, SHARED_INVERSE_VIEWPROJECTION_MATRIX);
+  createSharedUniform("wyInvMVP", UNIFORM_MAT4, SHARED_INVERSE_MODELVIEWPROJECTION_MATRIX);
+
+  createSharedUniform("wyCameraNearZ", UNIFORM_FLOAT, SHARED_CAMERA_NEAR_Z);
+  createSharedUniform("wyCameraFarZ", UNIFORM_FLOAT, SHARED_CAMERA_FAR_Z);
+  createSharedUniform("wyCameraAspectRatio", UNIFORM_FLOAT, SHARED_CAMERA_ASPECT_RATIO);
+  createSharedUniform("wyCameraFOV", UNIFORM_FLOAT, SHARED_CAMERA_FOV);
+  createSharedUniform("wyCameraPosition", UNIFORM_VEC3, SHARED_CAMERA_POSITION);
+
+  createSharedUniform("wyViewportWidth", UNIFORM_FLOAT, SHARED_VIEWPORT_WIDTH);
+  createSharedUniform("wyViewportHeight", UNIFORM_FLOAT, SHARED_VIEWPORT_HEIGHT);
+
+  createSharedUniform("wyTime", UNIFORM_FLOAT, SHARED_TIME);
 
   return true;
 }

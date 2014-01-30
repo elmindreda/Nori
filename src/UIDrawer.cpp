@@ -506,8 +506,6 @@ Drawer::Drawer(RenderContext& context):
 bool Drawer::init()
 {
   m_state = new SharedProgramState();
-  if (!m_state->reserveSupported(m_context))
-    return false;
 
   // Set up element geometry
   {

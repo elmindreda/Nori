@@ -104,7 +104,6 @@ bool Renderer::init(const Config& config)
   else
     m_state = new SharedProgramState();
 
-  m_state->reserveSupported(m_context);
   return true;
 }
 

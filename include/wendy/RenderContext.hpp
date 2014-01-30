@@ -338,10 +338,6 @@ public:
   /*! Constructor.
    */
   SharedProgramState();
-  /*! Reserves the supported uniform and sampler signatures as shared in the
-   *  specified context.
-   */
-  virtual bool reserveSupported(RenderContext& context) const;
   virtual void updateTo(Uniform& uniform);
   virtual void updateTo(Sampler& uniform);
   /*! @return The current model matrix.
