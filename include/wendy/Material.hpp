@@ -60,53 +60,18 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root);
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Multipass %render technique.
- *  @ingroup renderer
- */
-class Technique
-{
-public:
-  /*! The %render passes in this technique.
-   */
-  PassList passes;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Multi-technique material descriptor.
  *  @ingroup renderer
  */
 class Material : public Resource, public RefObject
 {
 public:
-  /*! @return The technique for the specified phase.
+  /*! @return The pass for the specified render phase.
    */
-  Technique& technique(RenderPhase phase) { return m_techniques[phase]; }
-  /*! @return The technique for the specified phase.
+  Pass& pass(RenderPhase phase) { return m_passes[phase]; }
+  /*! @return The pass for the specified render phase.
    */
-  const Technique& technique(RenderPhase phase) const { return m_techniques[phase]; }
-  template <typename T>
-  void setUniformStates(const char* name, const T& newValue)
-  {
-    for (uint i = 0;  i < 2;  i++)
-    {
-      for (auto& p : m_techniques[i].passes)
-        p.setUniformState(name, newValue);
-    }
-  }
-  template <typename T>
-  void setUniformStates(UniformStateIndex index, const T& newValue)
-  {
-    for (uint i = 0;  i < 2;  i++)
-    {
-      for (auto& p : m_techniques[i].passes)
-        p.setUniformState(index, newValue);
-    }
-  }
-  /*! Sets all samplers in all passes in all techniques in this material
-   *  matching the specified name to the specified texture.
-   */
-  void setSamplerStates(const char* name, Texture* newTexture);
+  const Pass& pass(RenderPhase phase) const { return m_passes[phase]; }
   /*! Creates a material.
    *  @param[in] info The resource info for the texture.
    *  @param[in] context The render context within which to create the texture.
@@ -124,7 +89,7 @@ public:
   static Ref<Material> read(RenderContext& context, const String& name);
 private:
   Material(const ResourceInfo& info);
-  Technique m_techniques[2];
+  Pass m_passes[2];
 };
 
 ///////////////////////////////////////////////////////////////////////

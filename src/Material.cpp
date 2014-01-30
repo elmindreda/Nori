@@ -58,7 +58,7 @@ Bimap<String, RenderPhase> phaseMap;
 
 Bimap<SamplerType, TextureType> textureTypeMap;
 
-const uint MATERIAL_XML_VERSION = 9;
+const uint MATERIAL_XML_VERSION = 10;
 
 void initializeMaps()
 {
@@ -457,18 +457,6 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Material::setSamplerStates(const char* name, Texture* newTexture)
-{
-  for (uint i = 0;  i < 2;  i++)
-  {
-    for (auto& p : m_techniques[i].passes)
-    {
-      if (p.hasSamplerState(name))
-        p.setSamplerState(name, newTexture);
-    }
-  }
-}
-
 Ref<Material> Material::create(const ResourceInfo& info, RenderContext& context)
 {
   return new Material(info);
@@ -521,13 +509,11 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  std::vector<bool> phases(2, false);
-
   Ref<Material> material = Material::create(ResourceInfo(cache, name, path), m_context);
 
-  for (auto t : root.children("technique"))
+  for (auto pn : root.children("pass"))
   {
-    const String phaseName(t.attribute("phase").value());
+    const String phaseName(pn.attribute("phase").value());
     if (!phaseMap.hasKey(phaseName))
     {
       logError("Invalid render phase %s in material %s",
@@ -536,24 +522,10 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       return nullptr;
     }
 
-    const RenderPhase phase = phaseMap[phaseName];
-    if (phases[phase])
-      continue;
-
-    Technique& technique = material->technique(phase);
-
-    for (auto p : t.children("pass"))
+    if (!parsePass(m_context, material->pass(phaseMap[phaseName]), pn))
     {
-      technique.passes.push_back(Pass());
-      Pass& pass = technique.passes.back();
-
-      if (!parsePass(m_context, pass, p))
-      {
-        logError("Failed to parse pass for material %s", name.c_str());
-        return nullptr;
-      }
-
-      phases[phase] = true;
+      logError("Failed to parse pass for material %s", name.c_str());
+      return nullptr;
     }
   }
 

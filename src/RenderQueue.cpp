@@ -180,13 +180,8 @@ void RenderQueue::createOperations(const mat4& transform,
   operation.range = range;
   operation.transform = transform;
 
-  uint8 layer = 0;
-
-  for (auto& p : material.technique(m_phase).passes)
-  {
-    operation.state = &p;
-    addOperation(operation, depth, layer++);
-  }
+  operation.state = &material.pass(m_phase);
+  addOperation(operation, depth, 0);
 }
 
 void RenderQueue::removeOperations()
