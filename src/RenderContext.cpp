@@ -1594,6 +1594,7 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
     forceState(m_currentState);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glEnable(GL_PROGRAM_POINT_SIZE);
   }
 
   createSharedUniform("wyM", UNIFORM_MAT4, SHARED_MODEL_MATRIX);
