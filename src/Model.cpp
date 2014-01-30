@@ -308,6 +308,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
       logError("Failed to load material for alias %s of model %s",
                materialAlias.c_str(),
                materialName.c_str());
+      return nullptr;
     }
 
     materials[materialAlias] = material;
