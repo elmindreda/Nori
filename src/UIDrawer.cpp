@@ -491,11 +491,11 @@ float Drawer::currentEM() const
 
 Ref<Drawer> Drawer::create(RenderContext& context)
 {
-  Ptr<Drawer> drawer(new Drawer(context));
+  Ref<Drawer> drawer(new Drawer(context));
   if (!drawer->init())
     return nullptr;
 
-  return drawer.detachObject();
+  return drawer;
 }
 
 Drawer::Drawer(RenderContext& context):
