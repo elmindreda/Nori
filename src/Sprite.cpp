@@ -115,51 +115,6 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
 
 ///////////////////////////////////////////////////////////////////////
 
-Sprite2::Sprite2():
-  texArea(vec2(0.f), vec2(1.f)),
-  position(0.f),
-  size(1.f),
-  angle(0.f)
-{
-}
-
-void Sprite2::render(RenderContext& context) const
-{
-  Vertex2ft2fv vertices[4];
-  realizeVertices(vertices);
-
-  VertexRange range = context.allocateVertices(4, Vertex2ft2fv::format);
-  if (range.isEmpty())
-    return;
-
-  range.copyFrom(vertices);
-
-  context.render(PrimitiveRange(TRIANGLE_FAN, range));
-}
-
-void Sprite2::realizeVertices(Vertex2ft2fv* vertices) const
-{
-  const vec2 offset(size.x / 2.f, size.y / 2.f);
-
-  vertices[0].texcoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y + texArea.size.y);
-  vertices[1].texcoord = vec2(texArea.position.x, texArea.position.y + texArea.size.y);
-  vertices[2].texcoord = vec2(texArea.position.x, texArea.position.y);
-  vertices[3].texcoord = vec2(texArea.position.x + texArea.size.x, texArea.position.y);
-
-  vertices[0].position = vec2( offset.x,  offset.y);
-  vertices[1].position = vec2(-offset.x,  offset.y);
-  vertices[2].position = vec2(-offset.x, -offset.y);
-  vertices[3].position = vec2( offset.x, -offset.y);
-
-  for (uint i = 0;  i < 4;  i++)
-  {
-    vertices[i].position = rotate(vertices[i].position, degrees(angle));
-    vertices[i].position += position;
-  }
-}
-
-///////////////////////////////////////////////////////////////////////
-
 Sprite3::Sprite3():
   size(1.f),
   angle(0.f),

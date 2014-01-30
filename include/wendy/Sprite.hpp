@@ -42,22 +42,6 @@ enum SpriteType3
 
 /*! @ingroup renderer
  */
-class Sprite2
-{
-public:
-  Sprite2();
-  void render(RenderContext& context) const;
-  void realizeVertices(Vertex2ft2fv* vertices) const;
-  Rect texArea;
-  vec2 position;
-  vec2 size;
-  float angle;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup renderer
- */
 class Sprite3 : public Renderable
 {
 public:
