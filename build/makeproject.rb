@@ -62,11 +62,13 @@ EOF
     File.open(@path + '/src/CMakeLists.txt', 'wb') do |file|
       file.print <<EOF
 
-if (CMAKE_COMPILER_IS_GNUCXX)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_definitions(-std=c++0x)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  add_definitions(-std=c++11)
 endif()
 
-set(#{@name}_SOURCES #{@type}.cpp)
+set(#{@name}_SOURCES #{@type}.cpp #{@type}.hpp)
 
 add_executable(#{@name} WIN32 MACOSX_BUNDLE ${#{@name}_SOURCES})
 target_link_libraries(#{@name} wendy ${#{@name}_LIBRARIES})
@@ -85,7 +87,7 @@ EOF
   end
 
   def build_header()
-    File.open(@path + "/src/#{@type}.h", 'wb') do |file|
+    File.open(@path + "/src/#{@type}.hpp", 'wb') do |file|
       file.print <<EOF
 
 namespace #{@name}
@@ -102,9 +104,8 @@ public:
   void run();
 private:
   ResourceCache cache;
-  Ptr<GL::Context> context;
+  Ptr<RenderContext> renderContext;
   Ptr<AudioContext> audioContext;
-  Ref<render::VertexPool> pool;
 };
 
 } /*namespace #{@name}*/
@@ -118,11 +119,11 @@ EOF
     File.open(@path + "/src/#{@type}.cpp", 'wb') do |file|
       file.print <<EOF
 
-#include <wendy/Wendy.h>
+#include <wendy/Wendy.hpp>
 
 #include <cstdlib>
 
-#include "#{@type}.h"
+#include "#{@type}.hpp"
 
 namespace #{@name}
 {
@@ -135,8 +136,7 @@ using namespace wendy;
 
 #{@type}::~#{@type}()
 {
-  pool = nullptr;
-  context = nullptr;
+  renderContext = nullptr;
   audioContext = nullptr;
 }
 
@@ -156,19 +156,12 @@ bool #{@type}::init()
   }
 
   WindowConfig wc("#{@name.capitalize}");
-  GL::ContextConfig cc;
+  RenderConfig rc;
 
-  context = GL::Context::create(cache, wc, cc);
-  if (!context)
+  renderContext = RenderContext::create(cache, wc, rc);
+  if (!renderContext)
   {
-    logError("Failed to create OpenGL context");
-    return false;
-  }
-
-  pool = render::VertexPool::create(*context);
-  if (!pool)
-  {
-    logError("Failed to create vertex pool");
+    logError("Failed to create render context");
     return false;
   }
 
@@ -177,11 +170,11 @@ bool #{@type}::init()
 
 void #{@type}::run()
 {
-  Window& window = context->window();
+  Window& window = renderContext->window();
 
   do
   {
-    context->clearBuffers();
+    renderContext->clearBuffers();
   }
   while (window.update());
 }
