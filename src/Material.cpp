@@ -31,9 +31,7 @@
 #include <wendy/RenderBuffer.hpp>
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
-
 #include <wendy/Pass.hpp>
-#include <wendy/RenderSystem.hpp>
 #include <wendy/Material.hpp>
 
 #include <algorithm>
@@ -56,7 +54,6 @@ Bimap<String, FragmentFunction> functionMap;
 Bimap<String, StencilOp> operationMap;
 Bimap<String, FilterMode> filterModeMap;
 Bimap<String, AddressMode> addressModeMap;
-Bimap<String, RenderSystem::Type> systemTypeMap;
 Bimap<String, RenderPhase> phaseMap;
 
 Bimap<SamplerType, TextureType> textureTypeMap;
@@ -133,11 +130,6 @@ void initializeMaps()
     textureTypeMap[SAMPLER_CUBE] = TEXTURE_CUBE;
   }
 
-  if (systemTypeMap.isEmpty())
-  {
-    systemTypeMap["forward"] = RenderSystem::FORWARD;
-  }
-
   if (phaseMap.isEmpty())
   {
     phaseMap[""] = RENDER_DEFAULT;
@@ -150,12 +142,11 @@ void initializeMaps()
 
 ///////////////////////////////////////////////////////////////////////
 
-bool parsePass(RenderSystem& system, Pass& pass, pugi::xml_node root)
+bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 {
   initializeMaps();
 
-  RenderContext& context = system.context();
-  ResourceCache& cache = system.cache();
+  ResourceCache& cache = context.cache();
 
   if (pugi::xml_node node = root.child("blending"))
   {
@@ -478,14 +469,14 @@ void Material::setSamplerStates(const char* name, Texture* newTexture)
   }
 }
 
-Ref<Material> Material::create(const ResourceInfo& info, RenderSystem& system)
+Ref<Material> Material::create(const ResourceInfo& info, RenderContext& context)
 {
   return new Material(info);
 }
 
-Ref<Material> Material::read(RenderSystem& system, const String& name)
+Ref<Material> Material::read(RenderContext& context, const String& name)
 {
-  MaterialReader reader(system);
+  MaterialReader reader(context);
   return reader.read(name);
 }
 
@@ -496,9 +487,9 @@ Material::Material(const ResourceInfo& info):
 
 ///////////////////////////////////////////////////////////////////////
 
-MaterialReader::MaterialReader(RenderSystem& initSystem):
-  ResourceReader<Material>(initSystem.cache()),
-  system(initSystem)
+MaterialReader::MaterialReader(RenderContext& context):
+  ResourceReader<Material>(context.cache()),
+  m_context(context)
 {
   initializeMaps();
 }
@@ -532,9 +523,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
   std::vector<bool> phases(2, false);
 
-  RenderContext& context = system.context();
-
-  Ref<Material> material = Material::create(ResourceInfo(cache, name, path), system);
+  Ref<Material> material = Material::create(ResourceInfo(cache, name, path), m_context);
 
   for (auto t : root.children("technique"))
   {
@@ -551,19 +540,6 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
     if (phases[phase])
       continue;
 
-    const String typeName(t.attribute("type").value());
-    if (!systemTypeMap.hasKey(typeName))
-    {
-      logError("Invalid render system type %s in material %s",
-               typeName.c_str(),
-               name.c_str());
-      return nullptr;
-    }
-
-    const RenderSystem::Type type = systemTypeMap[typeName];
-    if (system.type() != type)
-      continue;
-
     Technique& technique = material->technique(phase);
 
     for (auto p : t.children("pass"))
@@ -571,7 +547,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
       technique.passes.push_back(Pass());
       Pass& pass = technique.passes.back();
 
-      if (!parsePass(system, pass, p))
+      if (!parsePass(m_context, pass, p))
       {
         logError("Failed to parse pass for material %s", name.c_str());
         return nullptr;

@@ -41,10 +41,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-class RenderSystem;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Render phase enumeration.
  *  @ingroup renderer
  */
@@ -60,7 +56,7 @@ enum RenderPhase
 
 ///////////////////////////////////////////////////////////////////////
 
-bool parsePass(RenderSystem& system, Pass& pass, pugi::xml_node root);
+bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root);
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -113,19 +109,19 @@ public:
   void setSamplerStates(const char* name, Texture* newTexture);
   /*! Creates a material.
    *  @param[in] info The resource info for the texture.
-   *  @param[in] system The OpenGL context within which to create the texture.
+   *  @param[in] context The render context within which to create the texture.
    *  @return The newly created material, or @c nullptr if an error
    *  occurred.
    */
-  static Ref<Material> create(const ResourceInfo& info, RenderSystem& system);
-  /*! Loads a material from the specified path using the specified system, or
-   *  returns the already loaded material if it's already present in the
-   *  resource cache of the system.
-   *  @param[in] system The system to use.
+  static Ref<Material> create(const ResourceInfo& info, RenderContext& context);
+  /*! Loads a material from the specified path using the specified render
+   *  context, or returns the already loaded material if it's already present in
+   *  the resource cache of the context.
+   *  @param[in] context The render context to use.
    *  @param[in] path The path of the material.
    *  @return The loaded material, or @c nullptr if an error occurred.
    */
-  static Ref<Material> read(RenderSystem& system, const String& name);
+  static Ref<Material> read(RenderContext& context, const String& name);
 private:
   Material(const ResourceInfo& info);
   Technique m_techniques[2];
@@ -139,11 +135,11 @@ private:
 class MaterialReader : public ResourceReader<Material>
 {
 public:
-  MaterialReader(RenderSystem& system);
+  MaterialReader(RenderContext& context);
   using ResourceReader<Material>::read;
   Ref<Material> read(const String& name, const Path& path);
 private:
-  RenderSystem& system;
+  RenderContext& m_context;
 };
 
 ///////////////////////////////////////////////////////////////////////

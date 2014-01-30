@@ -42,7 +42,6 @@
 #include <wendy/RenderContext.hpp>
 #include <wendy/Pass.hpp>
 #include <wendy/Font.hpp>
-#include <wendy/RenderSystem.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderQueue.hpp>
 #include <wendy/Sprite.hpp>

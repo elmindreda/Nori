@@ -26,7 +26,6 @@
 #define WENDY_FORWARD_HPP
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/RenderSystem.hpp>
 #include <wendy/Pass.hpp>
 #include <wendy/RenderQueue.hpp>
 
@@ -62,7 +61,7 @@ public:
 /*! @brief Forward renderer.
  *  @ingroup renderer
  */
-class Renderer : public RenderSystem
+class Renderer : public RefObject
 {
 public:
   /*! Renders the specified scene to the current framebuffer using the
@@ -82,6 +81,7 @@ private:
   Renderer(RenderContext& context);
   bool init(const Config& config);
   void renderOperations(const RenderBucket& bucket);
+  RenderContext& m_context;
   Ref<SharedProgramState> m_state;
 };
 

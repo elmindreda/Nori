@@ -59,9 +59,9 @@ void Renderer::render(const RenderQueue& queue, const Camera& camera)
 {
   ProfileNodeCall call("forward::Renderer::render");
 
-  context().setCurrentSharedProgramState(m_state);
+  m_context.setCurrentSharedProgramState(m_state);
 
-  const Recti& viewportArea = context().viewportArea();
+  const Recti& viewportArea = m_context.viewportArea();
   m_state->setViewportSize(float(viewportArea.size.x),
                            float(viewportArea.size.y));
 
@@ -80,7 +80,7 @@ void Renderer::render(const RenderQueue& queue, const Camera& camera)
   renderOperations(queue.opaqueBucket());
   renderOperations(queue.blendedBucket());
 
-  context().setCurrentSharedProgramState(nullptr);
+  m_context.setCurrentSharedProgramState(nullptr);
 }
 
 Ref<Renderer> Renderer::create(const Config& config)
@@ -93,7 +93,7 @@ Ref<Renderer> Renderer::create(const Config& config)
 }
 
 Renderer::Renderer(RenderContext& context):
-  RenderSystem(context, RenderSystem::FORWARD)
+  m_context(context)
 {
 }
 
@@ -104,7 +104,7 @@ bool Renderer::init(const Config& config)
   else
     m_state = new SharedProgramState();
 
-  m_state->reserveSupported(context());
+  m_state->reserveSupported(m_context);
   return true;
 }
 
@@ -120,7 +120,7 @@ void Renderer::renderOperations(const RenderBucket& bucket)
     m_state->setModelMatrix(op.transform);
     op.state->apply();
 
-    context().render(op.range);
+    m_context.render(op.range);
   }
 }
 

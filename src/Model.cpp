@@ -37,7 +37,6 @@
 #include <wendy/RenderContext.hpp>
 
 #include <wendy/Pass.hpp>
-#include <wendy/RenderSystem.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderQueue.hpp>
 #include <wendy/Model.hpp>
@@ -96,12 +95,12 @@ Sphere Model::bounds() const
 }
 
 Ref<Model> Model::create(const ResourceInfo& info,
-                         RenderSystem& system,
+                         RenderContext& context,
                          const Mesh& data,
                          const MaterialMap& materials)
 {
   Ref<Model> model(new Model(info));
-  if (!model->init(system, data, materials))
+  if (!model->init(context, data, materials))
     return nullptr;
 
   return model;
@@ -112,7 +111,7 @@ Model::Model(const ResourceInfo& info):
 {
 }
 
-bool Model::init(RenderSystem& system, const Mesh& data, const MaterialMap& materials)
+bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& materials)
 {
   if (!data.isValid())
   {
@@ -132,8 +131,6 @@ bool Model::init(RenderSystem& system, const Mesh& data, const MaterialMap& mate
       return false;
     }
   }
-
-  RenderContext& context = system.context();
 
   VertexFormat format;
   if (!format.createComponents("3f:vPosition 3f:vNormal 2f:vTexCoord"))
@@ -228,17 +225,17 @@ bool Model::init(RenderSystem& system, const Mesh& data, const MaterialMap& mate
   return true;
 }
 
-Ref<Model> Model::read(RenderSystem& system, const String& name)
+Ref<Model> Model::read(RenderContext& context, const String& name)
 {
-  ModelReader reader(system);
+  ModelReader reader(context);
   return reader.read(name);
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-ModelReader::ModelReader(RenderSystem& initSystem):
-  ResourceReader<Model>(initSystem.cache()),
-  system(initSystem)
+ModelReader::ModelReader(RenderContext& context):
+  ResourceReader<Model>(context.cache()),
+  m_context(context)
 {
 }
 
@@ -303,7 +300,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
       return nullptr;
     }
 
-    Ref<Material> material = Material::read(system, materialName);
+    Ref<Material> material = Material::read(m_context, materialName);
     if (!material)
     {
       logError("Failed to load material for alias %s of model %s",
@@ -314,7 +311,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
     materials[materialAlias] = material;
   }
 
-  return Model::create(ResourceInfo(cache, name, path), system, *mesh, materials);
+  return Model::create(ResourceInfo(cache, name, path), m_context, *mesh, materials);
 }
 
 ///////////////////////////////////////////////////////////////////////

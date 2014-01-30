@@ -110,14 +110,14 @@ public:
   const IndexBuffer& indexBuffer() const { return *m_indexBuffer; }
   /*! Creates a model from the specified mesh.
    *  @param[in] info The resource info for the texture.
-   *  @param[in] system The render system within which to create the texture.
+   *  @param[in] context The render context within which to create the texture.
    *  @param[in] data The mesh to use.
    *  @param[in] materials The materials to use.
    *  @return The newly created model, or @c nullptr if an error
    *  occurred.
    */
   static Ref<Model> create(const ResourceInfo& info,
-                           RenderSystem& system,
+                           RenderContext& context,
                            const Mesh& data,
                            const MaterialMap& materials);
   /*! Creates a model specification using the specified file.
@@ -125,11 +125,11 @@ public:
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created model, or @c nullptr if an error occurred.
    */
-  static Ref<Model> read(RenderSystem& system, const String& name);
+  static Ref<Model> read(RenderContext& context, const String& name);
 private:
   Model(const ResourceInfo& info);
   Model(const Model&) = delete;
-  bool init(RenderSystem& system, const Mesh& data, const MaterialMap& materials);
+  bool init(RenderContext& context, const Mesh& data, const MaterialMap& materials);
   Model& operator = (const Model&) = delete;
   ModelSectionList m_sections;
   Ref<VertexBuffer> m_vertexBuffer;
@@ -143,11 +143,11 @@ private:
 class ModelReader : public ResourceReader<Model>
 {
 public:
-  ModelReader(RenderSystem& system);
+  ModelReader(RenderContext& context);
   using ResourceReader<Model>::read;
   Ref<Model> read(const String& name, const Path& path);
 private:
-  RenderSystem& system;
+  RenderContext& m_context;
 };
 
 ///////////////////////////////////////////////////////////////////////
