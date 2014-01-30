@@ -46,8 +46,7 @@
 #include <wendy/RenderQueue.hpp>
 #include <wendy/Sprite.hpp>
 #include <wendy/Model.hpp>
-
-#include <wendy/Forward.hpp>
+#include <wendy/Renderer.hpp>
 
 #else
 #error "Render module not enabled"

@@ -36,28 +36,18 @@
 #include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderQueue.hpp>
-
-#include <wendy/Forward.hpp>
+#include <wendy/Renderer.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace forward
-  {
-
-///////////////////////////////////////////////////////////////////////
-
-Config::Config(RenderContext& context):
-  context(context)
-{
-}
 
 ///////////////////////////////////////////////////////////////////////
 
 void Renderer::render(const RenderQueue& queue, const Camera& camera)
 {
-  ProfileNodeCall call("forward::Renderer::render");
+  ProfileNodeCall call("Renderer::render");
 
   m_context.setCurrentSharedProgramState(m_state);
 
@@ -83,13 +73,21 @@ void Renderer::render(const RenderQueue& queue, const Camera& camera)
   m_context.setCurrentSharedProgramState(nullptr);
 }
 
-Ref<Renderer> Renderer::create(const Config& config)
+void Renderer::setSharedProgramState(SharedProgramState* newState)
 {
-  Ptr<Renderer> renderer(new Renderer(config.context));
-  if (!renderer->init(config))
+  if (newState)
+    m_state = newState;
+  else
+    m_state = new SharedProgramState();
+}
+
+Ref<Renderer> Renderer::create(RenderContext& context)
+{
+  Ref<Renderer> renderer(new Renderer(context));
+  if (!renderer->init())
     return nullptr;
 
-  return renderer.detachObject();
+  return renderer;
 }
 
 Renderer::Renderer(RenderContext& context):
@@ -97,13 +95,9 @@ Renderer::Renderer(RenderContext& context):
 {
 }
 
-bool Renderer::init(const Config& config)
+bool Renderer::init()
 {
-  if (config.state)
-    m_state = config.state;
-  else
-    m_state = new SharedProgramState();
-
+  setSharedProgramState(nullptr);
   return true;
 }
 
@@ -125,7 +119,6 @@ void Renderer::renderOperations(const RenderBucket& bucket)
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace forward*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////

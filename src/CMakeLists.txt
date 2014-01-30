@@ -34,9 +34,9 @@ if (WENDY_INCLUDE_AUDIO)
 endif()
 
 if (WENDY_INCLUDE_RENDERER)
-  list(APPEND wendy_SOURCES Font.cpp Forward.cpp Material.cpp Model.cpp
-                            OpenGL.cpp Pass.cpp Program.cpp Query.cpp
-                            RenderBuffer.cpp RenderContext.cpp RenderQueue.cpp
+  list(APPEND wendy_SOURCES Font.cpp Material.cpp Model.cpp OpenGL.cpp Pass.cpp
+                            Program.cpp Query.cpp RenderBuffer.cpp
+                            RenderContext.cpp RenderQueue.cpp Renderer.cpp
                             Sprite.cpp Texture.cpp Window.cpp)
 endif()
 

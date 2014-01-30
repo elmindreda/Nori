@@ -22,8 +22,8 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_FORWARD_HPP
-#define WENDY_FORWARD_HPP
+#ifndef WENDY_RENDERER_HPP
+#define WENDY_RENDERER_HPP
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Pass.hpp>
@@ -33,32 +33,10 @@
 
 namespace wendy
 {
-  namespace forward
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Forward renderer configuration.
- *  @ingroup renderer
- */
-class Config
-{
-public:
-  /*! Constructor.
-   *  @param[in] context The render context to use.
-   */
-  Config(RenderContext& context);
-  /*! The render context to be used by the renderer.
-   */
-  RenderContext& context;
-  /*! The shared program state to be used by the renderer.
-   */
-  Ref<SharedProgramState> state;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Forward renderer.
+/*! @brief %Renderer.
  *  @ingroup renderer
  */
 class Renderer : public RefObject
@@ -71,15 +49,16 @@ public:
   /*! @return The shared program state object used by this renderer.
    */
   SharedProgramState& sharedProgramState() { return *m_state; }
+  void setSharedProgramState(SharedProgramState* newState);
   /*! Creates a renderer object using the specified render context and the
    *  specified configuration.
    *  @return The newly constructed renderer object, or @c nullptr if an error
    *  occurred.
    */
-  static Ref<Renderer> create(const Config& config);
+  static Ref<Renderer> create(RenderContext& context);
 private:
   Renderer(RenderContext& context);
-  bool init(const Config& config);
+  bool init();
   void renderOperations(const RenderBucket& bucket);
   RenderContext& m_context;
   Ref<SharedProgramState> m_state;
@@ -87,9 +66,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace forward*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_FORWARD_HPP*/
+#endif /*WENDY_RENDERER_HPP*/
 ///////////////////////////////////////////////////////////////////////
