@@ -35,6 +35,8 @@
 #include <sqstdstring.h>
 
 #include <sstream>
+#include <fstream>
+
 #include <cstring>
 
 ///////////////////////////////////////////////////////////////////////

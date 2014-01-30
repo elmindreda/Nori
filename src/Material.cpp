@@ -25,6 +25,7 @@
 
 #include <wendy/Config.hpp>
 
+#include <wendy/Core.hpp>
 #include <wendy/Bimap.hpp>
 
 #include <wendy/Texture.hpp>
@@ -35,6 +36,7 @@
 #include <wendy/Material.hpp>
 
 #include <algorithm>
+#include <fstream>
 
 #include <pugixml.hpp>
 

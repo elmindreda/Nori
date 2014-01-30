@@ -32,6 +32,8 @@
 #include <wendy/Resource.hpp>
 #include <wendy/Image.hpp>
 
+#include <fstream>
+
 #include <cstring>
 
 #include <pugixml.hpp>

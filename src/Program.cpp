@@ -35,6 +35,7 @@
 #include <internal/OpenGL.hpp>
 
 #include <algorithm>
+#include <fstream>
 
 #include <cstring>
 

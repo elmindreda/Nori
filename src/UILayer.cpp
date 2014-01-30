@@ -33,8 +33,6 @@
 #include <wendy/UILayer.hpp>
 #include <wendy/UIWidget.hpp>
 
-#include <algorithm>
-
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
