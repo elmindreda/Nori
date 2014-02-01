@@ -25,7 +25,7 @@
 
 #include <wendy/Config.hpp>
 #include <wendy/Core.hpp>
-#include <wendy/Timer.hpp>
+#include <wendy/Time.hpp>
 
 #define GLFW_NO_GLU
 #include <GLFW/glfw3.h>

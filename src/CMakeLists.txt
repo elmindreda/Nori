@@ -21,7 +21,7 @@ set(wendy_SOURCES
 
     Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp Path.cpp
     Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Regex.cpp Resource.cpp
-    Sample.cpp Signal.cpp Timer.cpp Transform.cpp Vertex.cpp)
+    Sample.cpp Signal.cpp Time.cpp Transform.cpp Vertex.cpp)
 
 if (WENDY_INCLUDE_NETWORK)
   include_directories(${enet_SOURCE_DIR})

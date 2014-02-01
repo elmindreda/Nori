@@ -26,7 +26,7 @@
 #include <wendy/Config.hpp>
 
 #include <wendy/Core.hpp>
-#include <wendy/Timer.hpp>
+#include <wendy/Time.hpp>
 #include <wendy/Profile.hpp>
 #include <wendy/Primitive.hpp>
 

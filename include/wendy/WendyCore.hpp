@@ -31,7 +31,7 @@
 #include <wendy/Core.hpp>
 #include <wendy/Bimap.hpp>
 #include <wendy/Signal.hpp>
-#include <wendy/Timer.hpp>
+#include <wendy/Time.hpp>
 #include <wendy/Profile.hpp>
 
 #include <wendy/Transform.hpp>

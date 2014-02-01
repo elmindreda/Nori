@@ -30,7 +30,7 @@
 #include <wendy/Rect.hpp>
 #include <wendy/Pixel.hpp>
 #include <wendy/Signal.hpp>
-#include <wendy/Timer.hpp>
+#include <wendy/Time.hpp>
 #include <wendy/Window.hpp>
 
 #include <deque>
