@@ -164,16 +164,16 @@ class Peer
 public:
   bool sendPacket(ChannelID channel, PacketType type, const PacketData& data);
   void disconnect(uint32 reason);
-  bool isClient() const { return m_ID != SERVER; }
-  bool isServer() const { return m_ID == SERVER; }
-  TargetID targetID() const { return m_ID; }
+  bool isClient() const { return m_id != SERVER; }
+  bool isServer() const { return m_id == SERVER; }
+  TargetID id() const { return m_id; }
   const String& name() const { return m_name; }
   uint32 address() const;
   Time roundTripTime() const;
 private:
-  Peer(void* peer, TargetID ID, const char* name);
+  Peer(void* peer, TargetID targetID, const char* name);
   void* m_peer;
-  TargetID m_ID;
+  TargetID m_id;
   String m_name;
   bool m_disconnecting;
   uint32 m_reason;
@@ -212,7 +212,7 @@ public:
   bool update(Time timeout);
   void* allocatePacketData(size_t size);
   Peer* findPeer(TargetID targetID);
-  NetworkObject* findObject(NetworkObjectID ID);
+  NetworkObject* findObject(NetworkObjectID objectID);
   PacketData createEvent(EventID eventID, NetworkObjectID recipientID);
   bool dispatchEvent(TargetID sourceID, PacketData& data);
   bool isClient() const;
@@ -251,12 +251,12 @@ class NetworkObject
 {
   friend class Host;
 public:
-  NetworkObject(Host& host, NetworkObjectID ID = OBJECT_ID_INVALID);
+  NetworkObject(Host& host, NetworkObjectID objectID = OBJECT_ID_INVALID);
   virtual ~NetworkObject();
   virtual void synchronize();
   bool isOnServer() const { return m_host.isServer(); }
   bool isOnClient() const { return m_host.isClient(); }
-  NetworkObjectID getID() const { return m_ID; }
+  NetworkObjectID id() const { return m_id; }
   Host& host() const { return m_host; }
 protected:
   PacketData createEvent(EventID eventID, NetworkObjectID recipientID) const;
@@ -280,7 +280,7 @@ protected:
                             PacketData& data,
                             EventID eventID);
 private:
-  NetworkObjectID m_ID;
+  NetworkObjectID m_id;
   Host& m_host;
 };
 

@@ -222,9 +222,9 @@ Time Peer::roundTripTime() const
   return (Time) ((ENetPeer*) m_peer)->roundTripTime / 1000.0;
 }
 
-Peer::Peer(void* peer, TargetID ID, const char* name):
+Peer::Peer(void* peer, TargetID targetID, const char* name):
   m_peer(peer),
-  m_ID(ID),
+  m_id(targetID),
   m_name(name),
   m_disconnecting(false),
   m_reason(0)
@@ -352,7 +352,7 @@ bool Host::update(Time timeout)
             if (m_observer)
               m_observer->onPeerDisconnected(*p, reason);
 
-            m_clientIDs.releaseID(p->targetID());
+            m_clientIDs.releaseID(p->id());
 
             m_peers.erase(p);
             break;
@@ -376,7 +376,7 @@ bool Host::update(Time timeout)
                             event.packet->dataLength,
                             event.packet->dataLength);
 
-            m_observer->onPacketReceived(peer->targetID(), data);
+            m_observer->onPacketReceived(peer->id(), data);
           }
         }
 
@@ -417,17 +417,17 @@ Peer* Host::findPeer(TargetID targetID)
 {
   for (auto& p : m_peers)
   {
-    if (p.targetID() == targetID)
+    if (p.id() == targetID)
       return &p;
   }
 
   return nullptr;
 }
 
-NetworkObject* Host::findObject(NetworkObjectID ID)
+NetworkObject* Host::findObject(NetworkObjectID objectID)
 {
-  assert(ID < m_objects.size());
-  return m_objects[ID];
+  assert(objectID < m_objects.size());
+  return m_objects[objectID];
 }
 
 PacketData Host::createEvent(EventID eventID, NetworkObjectID recipientID)
@@ -633,35 +633,35 @@ uint Host::m_count = 0;
 
 ///////////////////////////////////////////////////////////////////////
 
-NetworkObject::NetworkObject(Host& host, NetworkObjectID ID):
-  m_ID(ID),
+NetworkObject::NetworkObject(Host& host, NetworkObjectID objectID):
+  m_id(objectID),
   m_host(host)
 {
   if (isOnServer())
   {
-    if (m_ID == OBJECT_ID_INVALID)
-      m_ID = m_host.m_objectIDs.allocateID();
+    if (m_id == OBJECT_ID_INVALID)
+      m_id = m_host.m_objectIDs.allocateID();
   }
   else
   {
-    if (ID == OBJECT_ID_INVALID)
+    if (m_id == OBJECT_ID_INVALID)
       panic("Object on client created with invalid ID");
   }
 
   auto& objects = m_host.m_objects;
 
-  if (objects.size() <= m_ID)
-    objects.insert(objects.end(), m_ID * 2 - objects.size(), nullptr);
+  if (objects.size() <= m_id)
+    objects.insert(objects.end(), m_id * 2 - objects.size(), nullptr);
 
-  objects[m_ID] = this;
+  objects[m_id] = this;
 }
 
 NetworkObject::~NetworkObject()
 {
-  if (isOnServer() && m_ID >= OBJECT_ID_POOL_BASE)
-    m_host.m_objectIDs.releaseID(m_ID);
+  if (isOnServer() && m_id >= OBJECT_ID_POOL_BASE)
+    m_host.m_objectIDs.releaseID(m_id);
 
-  m_host.m_objects[m_ID] = nullptr;
+  m_host.m_objects[m_id] = nullptr;
 }
 
 void NetworkObject::synchronize()
