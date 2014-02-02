@@ -27,6 +27,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 #include <wendy/Core.hpp>
+#include <wendy/Time.hpp>
 #include <wendy/Path.hpp>
 #include <wendy/Resource.hpp>
 #include <wendy/Sample.hpp>

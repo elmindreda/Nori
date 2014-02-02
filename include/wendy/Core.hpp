@@ -72,10 +72,6 @@ using namespace glm;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! Time value, in seconds.
- */
-typedef double Time;
-
 /*! String type.
  */
 typedef std::string String;

@@ -29,6 +29,7 @@
 #include <list>
 
 #include <wendy/Core.hpp>
+#include <wendy/Time.hpp>
 #include <wendy/ID.hpp>
 
 //////////////////////////////////////////////////////////////////////
