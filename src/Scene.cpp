@@ -37,13 +37,11 @@
 #include <wendy/RenderBuffer.hpp>
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
-
 #include <wendy/Pass.hpp>
 #include <wendy/Material.hpp>
 #include <wendy/RenderQueue.hpp>
 #include <wendy/Model.hpp>
-
-#include <wendy/SceneGraph.hpp>
+#include <wendy/Scene.hpp>
 
 #include <algorithm>
 

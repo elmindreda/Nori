@@ -69,10 +69,6 @@
 #include <wendy/WendyRender.hpp>
 #endif
 
-#if WENDY_INCLUDE_SCENE_GRAPH
-#include <wendy/SceneGraph.hpp>
-#endif
-
 #if WENDY_INCLUDE_UI_SYSTEM
 #include <wendy/WendyUI.hpp>
 #endif

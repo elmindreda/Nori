@@ -37,7 +37,7 @@ if (WENDY_INCLUDE_RENDERER)
   list(APPEND wendy_SOURCES Font.cpp Material.cpp Model.cpp OpenGL.cpp Pass.cpp
                             Program.cpp Query.cpp RenderBuffer.cpp
                             RenderContext.cpp RenderQueue.cpp Renderer.cpp
-                            Sprite.cpp Texture.cpp Window.cpp)
+                            Scene.cpp Sprite.cpp Texture.cpp Window.cpp)
 endif()
 
 if (WENDY_INCLUDE_SQUIRREL)
@@ -48,10 +48,6 @@ endif()
 if (WENDY_INCLUDE_BULLET)
   include_directories(${bullet_SOURCE_DIR})
   list(APPEND wendy_SOURCES Bullet.cpp)
-endif()
-
-if (WENDY_INCLUDE_SCENE_GRAPH)
-  list(APPEND wendy_SOURCES SceneGraph.cpp)
 endif()
 
 if (WENDY_INCLUDE_UI_SYSTEM)

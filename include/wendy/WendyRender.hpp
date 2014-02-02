@@ -46,6 +46,7 @@
 #include <wendy/RenderQueue.hpp>
 #include <wendy/Sprite.hpp>
 #include <wendy/Model.hpp>
+#include <wendy/Scene.hpp>
 #include <wendy/Renderer.hpp>
 
 #else

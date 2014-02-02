@@ -33,8 +33,6 @@
 #cmakedefine WENDY_INCLUDE_RENDERER 1
 /* Define this to 1 to include the audio wrapper */
 #cmakedefine WENDY_INCLUDE_AUDIO 1
-/* Define this to 1 to include the scene graph */
-#cmakedefine WENDY_INCLUDE_SCENE_GRAPH 1
 /* Define this to 1 to include the UI system */
 #cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
 /* Define this to 1 to include the debug interface */
