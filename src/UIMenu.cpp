@@ -294,7 +294,7 @@ void Menu::onKey(Key key, Action action, uint mods)
         if (m_selection > 0)
           m_selection--;
         else
-          m_selection = m_items.size() - 1;
+          m_selection = uint(m_items.size() - 1);
 
         invalidate();
       }

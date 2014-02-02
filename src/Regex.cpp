@@ -67,8 +67,8 @@ bool Regex::matches(const String& text) const
   int results[300];
 
   int pairs = pcre_exec((pcre*) m_object, nullptr,
-                        text.c_str(), text.length(), 0, 0,
-                        results, sizeof(results) / sizeof(int));
+                        text.c_str(), int(text.length()), 0, 0,
+                        results, int(sizeof(results) / sizeof(int)));
   if (pairs < 0)
   {
     if (pairs != PCRE_ERROR_NOMATCH)
@@ -86,7 +86,7 @@ bool Regex::matches(const String& text) const
 
 bool Regex::contains(const String& text) const
 {
-  if (!pcre_exec((pcre*) m_object, nullptr, text.c_str(), text.length(), 0, 0, nullptr, 0))
+  if (!pcre_exec((pcre*) m_object, nullptr, text.c_str(), int(text.length()), 0, 0, nullptr, 0))
     return false;
 
   return true;
@@ -98,8 +98,8 @@ RegexMatch* Regex::match(const String& text) const
   int ranges[300];
 
   int count = pcre_exec((pcre*) m_object, nullptr,
-                        text.c_str(), text.length(), 0, 0,
-                        ranges, sizeof(ranges) / sizeof(int));
+                        text.c_str(), int(text.length()), 0, 0,
+                        ranges, int(sizeof(ranges) / sizeof(int)));
   if (count < 0)
   {
     if (count != PCRE_ERROR_NOMATCH)

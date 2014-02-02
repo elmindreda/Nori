@@ -26,6 +26,7 @@
 #define WENDY_SIGNAL_HPP
 ///////////////////////////////////////////////////////////////////////
 
+#include <vector>
 #include <algorithm>
 
 ///////////////////////////////////////////////////////////////////////
@@ -163,8 +164,6 @@ public:
     object(object),
     function(function)
   {
-    static_assert(std::is_base_of<Trackable, T>(),
-                  "Method slots require the Trackable mixin class");
   }
   /*! Calls the target for this slot.
    */

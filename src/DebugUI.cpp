@@ -50,7 +50,7 @@ uint reduce(size_t value)
   while (value >= 1024)
     value /= 1024;
 
-  return value;
+  return uint(value);
 }
 
 const char* suffix(size_t value)

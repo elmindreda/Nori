@@ -203,7 +203,7 @@ void List::setSelectedItem(Item& newItem)
 {
   auto i = std::find(m_items.begin(), m_items.end(), &newItem);
   assert(i != m_items.end());
-  setSelection(i - m_items.begin(), false);
+  setSelection(uint(i - m_items.begin()), false);
 }
 
 uint List::itemCount() const
@@ -326,7 +326,7 @@ void List::onKey(Key key, Action action, uint mods)
         if (m_selection == NO_ITEM)
         {
           if (!m_items.empty())
-            setSelection(m_items.size() - 1, true);
+            setSelection(uint(m_items.size() - 1), true);
         }
         else if (m_selection > 0)
           setSelection(m_selection - 1, true);
@@ -354,7 +354,7 @@ void List::onKey(Key key, Action action, uint mods)
       case KEY_END:
       {
         if (!m_items.empty())
-          setSelection(m_items.size() - 1, true);
+          setSelection(uint(m_items.size() - 1), true);
         break;
       }
 
@@ -440,7 +440,7 @@ void List::beginEditing()
 
     m_entry->setArea(entryArea);
     m_entry->setText(value.c_str());
-    m_entry->setCaretPosition(value.length());
+    m_entry->setCaretPosition(uint(value.length()));
     m_entry->show();
     m_entry->activate();
     m_editing = true;
@@ -478,7 +478,7 @@ void List::updateScroller()
     visibleItemHeight += (*i)->height();
     if (visibleItemHeight > height())
     {
-      m_maxOffset = m_items.rend() - i;
+      m_maxOffset = uint(m_items.rend() - i);
       break;
     }
   }

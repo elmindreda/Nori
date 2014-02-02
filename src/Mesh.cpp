@@ -131,7 +131,7 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
   }
   else
   {
-    size_t index;
+    uint32 index;
     bool discontinuous = true;
 
     for (auto& l : vertex.layers)

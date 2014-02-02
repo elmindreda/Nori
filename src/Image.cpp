@@ -58,7 +58,7 @@ bool convertToBitDepth(int& result, const PixelFormat& format)
   {
     case PixelFormat::UINT8:
     case PixelFormat::UINT16:
-      result = format.size() * 8;
+      result = int(format.size()) * 8;
       return false;
     default:
       return false;
@@ -295,7 +295,7 @@ Ref<Image> Image::area(const Recti& area) const
   const size_t rowSize = area.size.x * m_format.size();
   Ref<Image> result = create(cache(), m_format, area.size.x, area.size.y);
 
-  for (size_t y = 0;  y < (size_t) area.size.y;  y++)
+  for (uint y = 0;  y < uint(area.size.y);  y++)
   {
     std::memcpy(result->pixel(0, y),
                 pixel(area.position.x, area.position.y + y),
@@ -495,7 +495,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     const size_t rowSize = png_get_rowbytes(context, pngInfo);
     png_byte** rows = png_get_rows(context, pngInfo);
 
-    for (size_t i = 0;  i < height;  i++)
+    for (uint i = 0;  i < height;  i++)
       std::memcpy(result->pixel(0, height - i - 1), rows[i], rowSize);
   }
 
@@ -571,7 +571,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
 
   std::vector<const png_byte*> rows(image.height());
 
-  for (size_t i = 0;  i < image.height();  i++)
+  for (uint i = 0;  i < image.height();  i++)
     rows[i] = (const png_byte*) image.pixel(0, image.height() - i - 1);
 
   png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));

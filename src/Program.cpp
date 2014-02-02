@@ -280,7 +280,7 @@ bool Shader::init(const String& text)
   GLsizei lengths[1];
   const GLchar* strings[1];
 
-  lengths[0] = shader.length();
+  lengths[0] = (GLsizei) shader.length();
   strings[0] = (const GLchar*) shader.c_str();
 
   m_shaderID = glCreateShader(convertToGL(m_type));
@@ -369,7 +369,7 @@ void Attribute::bind(size_t stride, size_t offset)
                         elementCount(),
                         elementTypeOf(m_type),
                         GL_FALSE,
-                        stride,
+                        (GLsizei) stride,
                         (const void*) offset);
 
 #if WENDY_DEBUG
@@ -595,7 +595,7 @@ const Uniform* Program::findUniform(const char* name) const
 
 uint Program::attributeCount() const
 {
-  return m_attributes.size();
+  return uint(m_attributes.size());
 }
 
 Attribute& Program::attribute(uint index)
@@ -610,7 +610,7 @@ const Attribute& Program::attribute(uint index) const
 
 uint Program::samplerCount() const
 {
-  return m_samplers.size();
+  return uint(m_samplers.size());
 }
 
 Sampler& Program::sampler(uint index)
@@ -625,7 +625,7 @@ const Sampler& Program::sampler(uint index) const
 
 uint Program::uniformCount() const
 {
-  return m_uniforms.size();
+  return uint(m_uniforms.size());
 }
 
 Uniform& Program::uniform(uint index)
@@ -1023,7 +1023,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
     }
   }
 
-  for (size_t i = 0;  i < program.attributeCount();  i++)
+  for (uint i = 0;  i < program.attributeCount();  i++)
   {
     const Attribute& attribute = program.attribute(i);
 

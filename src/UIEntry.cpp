@@ -64,7 +64,7 @@ void Entry::setText(const char* newText)
 
 uint Entry::caretPosition() const
 {
-  return m_controller.caretPosition();
+  return uint(m_controller.caretPosition());
 }
 
 void Entry::setCaretPosition(uint newPosition)

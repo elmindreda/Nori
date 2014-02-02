@@ -123,7 +123,7 @@ void Popup::setSelectedItem(Item& newItem)
   auto i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
 
-  m_selection = i - items.begin();
+  m_selection = uint(i - items.begin());
 }
 
 uint Popup::itemCount() const

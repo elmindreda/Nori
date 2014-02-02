@@ -766,7 +766,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, data.width);
 
-    for (size_t i = 0;  i < 6;  i++)
+    for (uint i = 0;  i < 6;  i++)
     {
       glPixelStorei(GL_UNPACK_SKIP_PIXELS, i * width);
 

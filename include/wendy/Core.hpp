@@ -216,8 +216,6 @@ public:
   explicit Ptr(T* object = nullptr):
     m_object(object)
   {
-    static_assert(!std::is_base_of<RefObject, T>(),
-                  "A Ptr may not point at a RefObject");
   }
   /*! Destructor
    */

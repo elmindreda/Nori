@@ -719,7 +719,7 @@ void TextureFramebuffer::apply() const
   glBindFramebuffer(GL_FRAMEBUFFER, m_bufferID);
 
   GLenum enables[5];
-  size_t count = 0;
+  GLsizei count = 0;
 
   for (size_t i = 0;  i < sizeof(enables) / sizeof(enables[0]);  i++)
   {

@@ -902,7 +902,7 @@ RenderContext::~RenderContext()
   setCurrentIndexBuffer(nullptr);
   setCurrentProgram(nullptr);
 
-  for (size_t i = 0;  i < m_textureUnits.size();  i++)
+  for (uint i = 0;  i < m_textureUnits.size();  i++)
   {
     setActiveTextureUnit(i);
     setCurrentTexture(nullptr);

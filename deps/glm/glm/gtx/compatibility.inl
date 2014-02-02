@@ -15,7 +15,7 @@ namespace glm
 		genType const & x)
 	{
 #		if(GLM_COMPILER & GLM_COMPILER_VC)
-			return _finite(x);
+			return _finite(x) ? true : false;
 #		elif(GLM_COMPILER & GLM_COMPILER_GCC)
 #			if(GLM_PLATFORM & GLM_PLATFORM_ANDROID)
 				return _isfinite(x) != 0;
