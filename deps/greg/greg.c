@@ -48,7 +48,10 @@ static struct
   int major;
   int minor;
 
-#if defined(_WIN32)
+#if defined(_GREG_USE_EGL)
+#elif defined(_GREG_USE_GLFW3)
+#elif defined(_GREG_USE_SDL2)
+#elif defined(_WIN32)
   struct
   {
     HINSTANCE instance;
@@ -772,13 +775,16 @@ static GLboolean gregHasContext(void)
 
 static GLboolean gregLoadLibrary(void)
 {
-#if defined(_GREG_USE_SDL2)
+#if defined(_GREG_USE_EGL)
+#elif defined(_GREG_USE_GLFW3)
+#elif defined(_GREG_USE_SDL2)
   if (SDL_GL_LoadLibrary(NULL) != 0)
     return GL_FALSE;
 #elif defined(_WIN32)
   _greg.wgl.instance = LoadLibraryA("opengl32.dll");
   if (!_greg.wgl.instance)
     return GL_FALSE;
+#elif defined(__linux__)
 #elif defined(__APPLE__)
   _greg.nsgl.framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
   if (!_greg.nsgl.framework)
@@ -790,11 +796,14 @@ static GLboolean gregLoadLibrary(void)
 
 static void gregFreeLibrary(void)
 {
-#if defined(_GREG_USE_SDL2)
+#if defined(_GREG_USE_EGL)
+#elif defined(_GREG_USE_GLFW3)
+#elif defined(_GREG_USE_SDL2)
   SDL_GL_UnloadLibrary();
 #elif defined(_WIN32)
   if (_greg.wgl.instance)
     FreeLibrary(_greg.wgl.instance);
+#elif defined(__linux__)
 #elif defined(__APPLE__)
   if (_greg.nsgl.framework)
     CFRelease(_greg.nsgl.framework);
@@ -891,6 +900,8 @@ static GLboolean gregVersionSupported(int major, int minor)
 
 static GLboolean gregExtensionSupported(const char* name)
 {
+  const char* e;
+
 #if defined(GL_VERSION_3_0)
   if (_greg.major >= 3)
   {
@@ -903,11 +914,11 @@ static GLboolean gregExtensionSupported(const char* name)
 
     for (i = 0;  i < count;  i++)
     {
-      const char* en = (const char*) glGetStringi(GL_EXTENSIONS, i);
-      if (!en)
+      e = (const char*) glGetStringi(GL_EXTENSIONS, i);
+      if (!e)
         return GL_FALSE;
 
-      if (strcmp(en, name) == 0)
+      if (strcmp(e, name) == 0)
         return GL_TRUE;
     }
 
@@ -918,11 +929,11 @@ static GLboolean gregExtensionSupported(const char* name)
   if (!glGetString)
     return GL_FALSE;
 
-  const char* extensions = (const char*) glGetString(GL_EXTENSIONS);
-  if (!extensions)
+  e = (const char*) glGetString(GL_EXTENSIONS);
+  if (!e)
     return GL_FALSE;
 
-  return gregStringInExtensionString(name, extensions);
+  return gregStringInExtensionString(name, e);
 }
 
 int gregInit(void)
