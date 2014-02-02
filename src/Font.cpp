@@ -349,7 +349,7 @@ FontReader::FontReader(RenderContext& context):
 
 Ref<Font> FontReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.name().c_str());
+  std::ifstream stream(path.name());
   if (stream.fail())
   {
     logError("Failed to open font %s", name.c_str());

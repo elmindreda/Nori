@@ -405,7 +405,7 @@ ImageReader::ImageReader(ResourceCache& cache):
 
 Ref<Image> ImageReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.name().c_str(), std::ios::in | std::ios::binary);
+  std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
     logError("Failed to open image file %s", path.name().c_str());
@@ -515,7 +515,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
     return false;
   }
 
-  std::ofstream stream(path.name().c_str());
+  std::ofstream stream(path.name());
   if (!stream.is_open())
   {
     logError("Failed to create image file %s", path.name().c_str());

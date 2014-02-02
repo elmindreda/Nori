@@ -372,7 +372,7 @@ void Preprocessor::parse(const char* name)
     throw Exception("Failed to find shader file");
   }
 
-  std::ifstream stream(path.name().c_str());
+  std::ifstream stream(path.name());
   if (stream.fail())
   {
     if (files.empty())

@@ -222,7 +222,7 @@ Ref<Shader> Shader::read(RenderContext& context,
     return nullptr;
   }
 
-  std::ifstream stream(path.name().c_str());
+  std::ifstream stream(path.name());
   if (stream.fail())
   {
     logError("Failed to open shader file %s", path.name().c_str());

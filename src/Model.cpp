@@ -243,7 +243,7 @@ ModelReader::ModelReader(RenderContext& context):
 
 Ref<Model> ModelReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.name().c_str());
+  std::ifstream stream(path.name());
   if (stream.fail())
   {
     logError("Failed to open model %s", name.c_str());

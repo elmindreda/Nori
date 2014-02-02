@@ -486,7 +486,7 @@ MaterialReader::MaterialReader(RenderContext& context):
 
 Ref<Material> MaterialReader::read(const String& name, const Path& path)
 {
-  std::ifstream stream(path.name().c_str());
+  std::ifstream stream(path.name());
   if (stream.fail())
   {
     logError("Failed to open material %s", name.c_str());
