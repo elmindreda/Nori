@@ -136,6 +136,22 @@ Time Timer::currentTime()
 
 ///////////////////////////////////////////////////////////////////////
 
+Ticker::Ticker(Time period):
+  m_period(period),
+  m_remainder(0.0)
+{
+}
+
+uint Ticker::update(Time deltaTime)
+{
+  const Time total = deltaTime + m_remainder;
+  const uint ticks = uint(total / m_period);
+  m_remainder = fmod(total, m_period);
+  return ticks;
+}
+
+///////////////////////////////////////////////////////////////////////
+
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
