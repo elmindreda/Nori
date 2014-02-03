@@ -101,9 +101,12 @@ mat4 Camera::projectionMatrix() const
     return perspective(m_FOV, m_aspectRatio, m_nearZ, m_farZ);
   else
   {
-    float minX, minY, minZ, maxX, maxY, maxZ;
-    m_volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
-    return ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    vec3 minimum, maximum;
+    m_volume.bounds(minimum, maximum);
+
+    return ortho(minimum.x, maximum.x,
+                 minimum.y, maximum.y,
+                 minimum.z, maximum.z);
   }
 }
 
@@ -114,12 +117,12 @@ void Camera::setTransform(const Transform3& newTransform)
   updateInverse();
 }
 
-float Camera::normalizedDepth(const vec3& point) const
+float Camera::normalizedDepth(vec3 point) const
 {
   return length(m_inverse * point) / m_farZ;
 }
 
-Ray3 Camera::viewSpacePickingRay(const vec2& position) const
+Ray3 Camera::viewSpacePickingRay(vec2 position) const
 {
   Ray3 result;
 
@@ -127,12 +130,12 @@ Ray3 Camera::viewSpacePickingRay(const vec2& position) const
   {
     result.direction = vec3(0.f, 0.f, -1.f);
 
-    float minX, minY, minZ, maxX, maxY, maxZ;
-    m_volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
+    vec3 minimum, maximum;
+    m_volume.bounds(minimum, maximum);
 
-    result.origin = vec3(minX + position.x * (maxX - minX),
-                         minY + position.y * (maxY - minY),
-                         maxZ);
+    result.origin = vec3(minimum.x + position.x * (maximum.x - minimum.x),
+                         minimum.y + position.y * (maximum.y - minimum.y),
+                         maximum.z);
   }
   else
   {

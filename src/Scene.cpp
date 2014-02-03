@@ -197,11 +197,7 @@ const Sphere& SceneNode::totalBounds() const
     m_totalBounds = m_localBounds;
 
     for (auto c : m_children)
-    {
-      Sphere childBounds = c->totalBounds();
-      childBounds.transformBy(c->localTransform());
-      m_totalBounds.envelop(childBounds);
-    }
+      m_totalBounds.envelop(c->localTransform() * c->totalBounds());
 
     m_dirtyBounds = false;
   }
@@ -302,10 +298,7 @@ void SceneGraph::enqueue(RenderQueue& queue, const Camera& camera) const
 
   for (auto r : m_roots)
   {
-    Sphere worldBounds = r->totalBounds();
-    worldBounds.transformBy(r->worldTransform());
-
-    if (frustum.intersects(worldBounds))
+    if (frustum.intersects(r->worldTransform() * r->totalBounds()))
       r->enqueue(queue, camera);
   }
 }
@@ -314,10 +307,7 @@ void SceneGraph::query(const Sphere& sphere, std::vector<SceneNode*>& nodes) con
 {
   for (auto r : m_roots)
   {
-    Sphere worldBounds = r->totalBounds();
-    worldBounds.transformBy(r->worldTransform());
-
-    if (sphere.intersects(worldBounds))
+    if (sphere.intersects(r->worldTransform() * r->totalBounds()))
       nodes.push_back(r);
   }
 }
@@ -326,10 +316,7 @@ void SceneGraph::query(const Frustum& frustum, std::vector<SceneNode*>& nodes) c
 {
   for (auto r : m_roots)
   {
-    Sphere worldBounds = r->totalBounds();
-    worldBounds.transformBy(r->worldTransform());
-
-    if (frustum.intersects(worldBounds))
+    if (frustum.intersects(r->worldTransform() * r->totalBounds()))
       nodes.push_back(r);
   }
 }

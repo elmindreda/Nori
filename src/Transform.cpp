@@ -155,11 +155,6 @@ Transform3::operator mat4 () const
   return result;
 }
 
-vec3 Transform3::operator * (vec3 vector) const
-{
-  return rotation * scale * vector + position;
-}
-
 Transform3 Transform3::operator * (const Transform3& other) const
 {
   return Transform3(position + rotation * other.position,

@@ -50,12 +50,6 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! The invalid value for shared program state member IDs.
- */
-const int INVALID_SHARED_STATE_ID = -1;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Cull mode enumeration.
  */
 enum CullMode

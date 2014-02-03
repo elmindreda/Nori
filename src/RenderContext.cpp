@@ -594,10 +594,12 @@ void SharedProgramState::setOrthoProjectionMatrix(float width, float height)
 
 void SharedProgramState::setOrthoProjectionMatrix(const AABB& volume)
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  volume.bounds(minimum, maximum);
 
-  setProjectionMatrix(ortho(minX, maxX, minY, maxY, minZ, maxZ));
+  setProjectionMatrix(ortho(minimum.x, maximum.x,
+                            minimum.y, maximum.y,
+                            minimum.z, maximum.z));
 }
 
 void SharedProgramState::setPerspectiveProjectionMatrix(float FOV,
@@ -1134,9 +1136,9 @@ VertexRange RenderContext::allocateVertices(uint count, const VertexFormat& form
 
 void RenderContext::createSharedSampler(const char* name, SamplerType type, int ID)
 {
-  assert(ID != INVALID_SHARED_STATE_ID);
+  assert(ID != -1);
 
-  if (sharedSamplerID(name, type) != INVALID_SHARED_STATE_ID)
+  if (sharedSamplerID(name, type) != -1)
     return;
 
   m_declaration += format("uniform %s %s;\n", Sampler::typeName(type), name);
@@ -1146,9 +1148,9 @@ void RenderContext::createSharedSampler(const char* name, SamplerType type, int 
 
 void RenderContext::createSharedUniform(const char* name, UniformType type, int ID)
 {
-  assert(ID != INVALID_SHARED_STATE_ID);
+  assert(ID != -1);
 
-  if (sharedUniformID(name, type) != INVALID_SHARED_STATE_ID)
+  if (sharedUniformID(name, type) != -1)
     return;
 
   m_declaration += format("uniform %s %s;\n", Uniform::typeName(type), name);
@@ -1164,7 +1166,7 @@ int RenderContext::sharedSamplerID(const char* name, SamplerType type) const
       return s.ID;
   }
 
-  return INVALID_SHARED_STATE_ID;
+  return -1;
 }
 
 int RenderContext::sharedUniformID(const char* name, UniformType type) const
@@ -1175,7 +1177,7 @@ int RenderContext::sharedUniformID(const char* name, UniformType type) const
       return u.ID;
   }
 
-  return INVALID_SHARED_STATE_ID;
+  return -1;
 }
 
 SharedProgramState* RenderContext::currentSharedProgramState() const

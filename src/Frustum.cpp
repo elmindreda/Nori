@@ -70,14 +70,14 @@ bool Frustum::contains(const Sphere& sphere) const
 
 bool Frustum::contains(const AABB& box) const
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  box.bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  box.bounds(minimum, maximum);
 
   for (size_t i = 0;  i < 6;  i++)
   {
-    const vec3 positive((planes[i].normal.x < 0.f) ? minX : maxX,
-                        (planes[i].normal.y < 0.f) ? minY : maxY,
-                        (planes[i].normal.z < 0.f) ? minZ : maxZ);
+    const vec3 positive((planes[i].normal.x < 0.f) ? minimum.x : maximum.x,
+                        (planes[i].normal.y < 0.f) ? minimum.y : maximum.y,
+                        (planes[i].normal.z < 0.f) ? minimum.z : maximum.z);
 
     if (!planes[i].contains(positive))
       return false;
@@ -99,14 +99,14 @@ bool Frustum::intersects(const Sphere& sphere) const
 
 bool Frustum::intersects(const AABB& box) const
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  box.bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  box.bounds(minimum, maximum);
 
   for (size_t i = 0;  i < 6;  i++)
   {
-    const vec3 negative(planes[i].normal.x < 0.f ? maxX : minX,
-                        planes[i].normal.y < 0.f ? maxY : minY,
-                        planes[i].normal.z < 0.f ? maxZ : minZ);
+    const vec3 negative(planes[i].normal.x < 0.f ? maximum.x : minimum.x,
+                        planes[i].normal.y < 0.f ? maximum.y : minimum.y,
+                        planes[i].normal.z < 0.f ? maximum.z : minimum.z);
 
     if (!planes[i].contains(negative))
       return false;
@@ -118,7 +118,7 @@ bool Frustum::intersects(const AABB& box) const
 void Frustum::transformBy(const Transform3& transform)
 {
   for (size_t i = 0;  i < 6;  i++)
-    planes[i].transformBy(transform);
+    planes[i] = transform * planes[i];
 }
 
 void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float farZ)
@@ -148,24 +148,15 @@ void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float fa
 
 void Frustum::setOrtho(const AABB& volume)
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  volume.bounds(minX, minY, minZ, maxX, maxY, maxZ);
-  setOrtho(minX, minY, minZ, maxX, maxY, maxZ);
-}
+  vec3 minimum, maximum;
+  volume.bounds(minimum, maximum);
 
-void Frustum::setOrtho(float minX, float minY, float minZ,
-                       float maxX, float maxY, float maxZ)
-{
-  assert(minX < maxX);
-  assert(minY < maxY);
-  assert(minZ < maxZ);
-
-  planes[FRUSTUM_TOP].set(vec3(0.f, 1.f, 0.f), maxY);
-  planes[FRUSTUM_RIGHT].set(vec3(1.f, 0.f, 0.f), maxX);
-  planes[FRUSTUM_BOTTOM].set(vec3(0.f, -1.f, 0.f), -minY);
-  planes[FRUSTUM_LEFT].set(vec3(-1.f, 0.f, 0.f), -minX);
-  planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, 1.f), maxZ);
-  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), -minZ);
+  planes[FRUSTUM_TOP].set(vec3(0.f, 1.f, 0.f), maximum.y);
+  planes[FRUSTUM_RIGHT].set(vec3(1.f, 0.f, 0.f), maximum.x);
+  planes[FRUSTUM_BOTTOM].set(vec3(0.f, -1.f, 0.f), -minimum.y);
+  planes[FRUSTUM_LEFT].set(vec3(-1.f, 0.f, 0.f), -minimum.x);
+  planes[FRUSTUM_NEAR].set(vec3(0.f, 0.f, 1.f), maximum.z);
+  planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), -minimum.z);
 }
 
 ///////////////////////////////////////////////////////////////////////

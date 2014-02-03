@@ -297,10 +297,8 @@ void Mesh::generateTriangleNormals()
 
 AABB Mesh::generateBoundingAABB() const
 {
-  AABB bounds;
-
   if (vertices.empty())
-    return bounds;
+    return AABB();
 
   vec3 minimum(std::numeric_limits<float>::max());
   vec3 maximum(std::numeric_limits<float>::min());
@@ -311,10 +309,7 @@ AABB Mesh::generateBoundingAABB() const
     maximum = max(maximum, v.position);
   }
 
-  bounds.setBounds(minimum.x, minimum.y, minimum.z,
-                   maximum.x, maximum.y, maximum.z);
-
-  return bounds;
+  return AABB(minimum, maximum);
 }
 
 Sphere Mesh::generateBoundingSphere() const
@@ -327,6 +322,7 @@ Sphere Mesh::generateBoundingSphere() const
   bounds.center = vertices[0].position;
 
   for (size_t i = 1;  i < vertices.size();  i++)
+
     bounds.envelop(vertices[i].position);
 
   return bounds;

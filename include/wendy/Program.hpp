@@ -165,15 +165,14 @@ public:
    *  @remarks Shared samplers get their values via the currently set shared
    *  program state.
    */
-  bool isShared() const;
+  bool isShared() const { return m_sharedID != -1; }
   /*! @return The type of this sampler.
    */
   SamplerType type() const { return m_type; }
   /*! @return The name of this sampler.
    */
   const String& name() const { return m_name; }
-  /*! @return The shared ID of this sampler, or INVALID_SHARED_STATE_ID if
-   *  it is not shared.
+  /*! @return The shared ID of this sampler, or -1 if it is not shared.
    */
   int sharedID() const { return m_sharedID; }
   /*! @return The GLSL name of the specified sampler type.
@@ -225,7 +224,7 @@ public:
    *  @remarks Shared uniforms get their values via the currently set shared
    *  program state.
    */
-  bool isShared() const;
+  bool isShared() const { return m_sharedID != -1; }
   /*! @return @c true if the type of this uniform is a single value.
    */
   bool isScalar() const { return m_type == UNIFORM_FLOAT; }
@@ -244,8 +243,7 @@ public:
   /*! @return The number of elements in this uniform.
    */
   uint elementCount() const;
-  /*! @return The shared ID of this uniform, or INVALID_SHARED_STATE_ID if
-   *  it is not shared.
+  /*! @return The shared ID of this uniform, or -1 if it is not shared.
    */
   int sharedID() const { return m_sharedID; }
   /*! @return The GLSL name of the specified uniform type.

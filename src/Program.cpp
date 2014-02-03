@@ -405,11 +405,6 @@ void Sampler::bind(uint unit)
 #endif
 }
 
-bool Sampler::isShared() const
-{
-  return m_sharedID != INVALID_SHARED_STATE_ID;
-}
-
 const char* Sampler::typeName(SamplerType type)
 {
   switch (type)
@@ -461,11 +456,6 @@ void Uniform::copyFrom(const void* data)
 #if WENDY_DEBUG
   checkGL("Failed to set uniform %s", m_name.c_str());
 #endif
-}
-
-bool Uniform::isShared() const
-{
-  return m_sharedID != INVALID_SHARED_STATE_ID;
 }
 
 bool Uniform::isVector() const

@@ -64,7 +64,10 @@ public:
   Transform3(const vec3& position, const quat& rotation, float scale = 1.f);
   Transform3 inverse() const;
   operator mat4 () const;
-  vec3 operator * (vec3 vector) const;
+  vec3 operator * (vec3 vector) const
+  {
+    return rotation * scale * vector + position;
+  }
   Transform3 operator * (const Transform3& other) const;
   Transform3& operator *= (const Transform3& other);
   void setIdentity();

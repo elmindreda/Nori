@@ -136,12 +136,12 @@ public:
    *  @return The normalized depth of the point in camera space, within the
    *  depth range of this camera.
    */
-  float normalizedDepth(const vec3& point) const;
+  float normalizedDepth(vec3 point) const;
   /*! @param[in] position The position, in normalized screen coordinates, from
    *  which to construct ray suitable for picking.
    *  @return A view space ray corresponding to the specified screen position.
    */
-  Ray3 viewSpacePickingRay(const vec2& position) const;
+  Ray3 viewSpacePickingRay(vec2 position) const;
 private:
   void updateFrustum();
   void updateInverse();

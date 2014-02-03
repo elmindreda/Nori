@@ -38,41 +38,22 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Ray3::Ray3(const vec3& initOrigin, const vec3& initDirection):
-  origin(initOrigin),
-  direction(initDirection)
-{
-}
-
-void Ray3::transformBy(const Transform3& transform)
-{
-  origin = transform * origin;
-  direction = transform.rotation * direction;
-}
-
 void Ray3::set(const vec3& newOrigin, const vec3& newDirection)
 {
   origin = newOrigin;
   direction = newDirection;
 }
 
-///////////////////////////////////////////////////////////////////////
-
-Plane::Plane(vec3 initNormal, float initDistance):
-  normal(initNormal),
-  distance(initDistance)
+Ray3 operator * (const Transform3& transform, const Ray3& ray)
 {
+  return Ray3(transform * ray.origin, transform.rotation * ray.direction);
 }
+
+///////////////////////////////////////////////////////////////////////
 
 Plane::Plane(const vec3& P0, const vec3& P1, const vec3& P2)
 {
   set(P0, P1, P2);
-}
-
-void Plane::transformBy(const Transform3& transform)
-{
-  normal = transform.rotation * normal;
-  distance += dot(normal, transform.position) * transform.scale;
 }
 
 bool Plane::contains(vec3 point) const
@@ -138,19 +119,14 @@ void Plane::set(const vec3& P0, const vec3& P1, const vec3& P2)
   distance = dot(normal, P0);
 }
 
+Plane operator * (const Transform3& transform, const Plane& plane)
+{
+  const vec3 normal(transform.rotation * plane.normal);
+  const float offset = dot(normal, transform.position) * transform.scale;
+  return Plane(normal, plane.distance + offset);
+}
+
 ///////////////////////////////////////////////////////////////////////
-
-Sphere::Sphere(vec3 initCenter, float initRadius):
-  center(initCenter),
-  radius(initRadius)
-{
-}
-
-void Sphere::transformBy(const Transform3& transform)
-{
-  center += transform.position;
-  radius *= transform.scale;
-}
 
 bool Sphere::contains(vec3 point) const
 {
@@ -242,100 +218,65 @@ void Sphere::set(vec3 newCenter, float newRadius)
   radius = newRadius;
 }
 
+Sphere operator * (const Transform3& transform, const Sphere& sphere)
+{
+  return Sphere(transform * sphere.center, transform.scale * sphere.radius);
+}
+
 ///////////////////////////////////////////////////////////////////////
-
-AABB::AABB(vec3 initCenter, vec3 initSize):
-  center(initCenter),
-  size(initSize)
-{
-}
-
-AABB::AABB(float width, float height, float depth):
-  size(width, height, depth)
-{
-}
 
 bool AABB::contains(vec3 point) const
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  bounds(minimum, maximum);
 
-  if (point.x < minX || point.y < minY || point.z < minZ ||
-      point.x > maxX || point.y > maxY || point.z > maxZ)
-  {
-    return false;
-  }
-
-  return true;
+  return all(lessThanEqual(minimum, point)) && all(greaterThan(maximum, point));
 }
 
 bool AABB::contains(const AABB& other) const
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  bounds(minimum, maximum);
 
-  float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
-  other.bounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
+  vec3 otherMin, otherMax;
+  other.bounds(otherMin, otherMax);
 
-  if (minX > otherMinX || maxX < otherMaxX ||
-      minY > otherMinY || maxY < otherMaxY ||
-      minZ > otherMinZ || maxZ < otherMaxZ)
-  {
-    return false;
-  }
-
-  return true;
+  return all(lessThanEqual(minimum, otherMin)) &&
+         all(greaterThan(maximum, otherMax));
 }
 
 bool AABB::intersects(const AABB& other) const
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  bounds(minimum, maximum);
 
-  float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
-  other.bounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
+  vec3 otherMin, otherMax;
+  other.bounds(otherMin, otherMax);
 
-  if (minX > otherMaxX || maxX < otherMinX ||
-      minY > otherMaxY || maxY < otherMinY ||
-      minZ > otherMaxZ || maxZ < otherMinZ)
-  {
-    return false;
-  }
-
-  return true;
+  return all(lessThanEqual(minimum, otherMax)) &&
+         all(greaterThan(maximum, otherMin));
 }
 
 void AABB::envelop(const AABB& other)
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  bounds(minimum, maximum);
 
-  float otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ;
-  other.bounds(otherMinX, otherMinY, otherMinZ, otherMaxX, otherMaxY, otherMaxZ);
+  vec3 otherMin, otherMax;
+  other.bounds(otherMin, otherMax);
 
-  minX = min(minX, otherMinX);
-  minY = min(minY, otherMinY);
-  minZ = min(minZ, otherMinZ);
-  maxX = max(maxX, otherMaxX);
-  maxY = max(maxY, otherMaxY);
-  maxZ = max(maxZ, otherMaxZ);
-
-  setBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  setBounds(min(minimum, otherMin), max(maximum, otherMax));
 }
 
 void AABB::envelop(vec3 point)
 {
-  float minX, minY, minZ, maxX, maxY, maxZ;
-  bounds(minX, minY, minZ, maxX, maxY, maxZ);
+  vec3 minimum, maximum;
+  bounds(minimum, maximum);
 
-  minX = min(minX, point.x);
-  minY = min(minY, point.y);
-  minZ = min(minZ, point.z);
-  maxX = max(maxX, point.x);
-  maxY = max(maxY, point.y);
-  maxZ = max(maxZ, point.z);
+  minimum = min(minimum, point);
+  maximum = max(maximum, point);
 
-  setBounds(minX, minY, minZ, maxX, maxY, maxZ);
+  setBounds(minimum, maximum);
 }
 
 void AABB::normalize()
@@ -343,22 +284,17 @@ void AABB::normalize()
   size = abs(size);
 }
 
-void AABB::bounds(float& minX, float& minY, float& minZ,
-                  float& maxX, float& maxY, float& maxZ) const
+void AABB::bounds(vec3& minimum, vec3& maximum) const
 {
-  minX = center.x - abs(size.x);
-  minY = center.y - abs(size.y);
-  minZ = center.z - abs(size.z);
-  maxX = center.x + abs(size.x);
-  maxY = center.y + abs(size.y);
-  maxZ = center.z + abs(size.z);
+  const vec3 half(abs(size / 2.f));
+  minimum = center - half;
+  maximum = center + half;
 }
 
-void AABB::setBounds(float minX, float minY, float minZ,
-                     float maxX, float maxY, float maxZ)
+void AABB::setBounds(vec3 minimum, vec3 maximum)
 {
-  center = (vec3(minX, minY, minZ) + vec3(maxX, maxY, maxZ)) / 2.f;
-  size = vec3(maxX - minX, maxY - minY, maxZ - minZ);
+  center = (minimum + maximum) / 2.f;
+  size = maximum - minimum;
 }
 
 void AABB::set(vec3 newCenter, vec3 newSize)

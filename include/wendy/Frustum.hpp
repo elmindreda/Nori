@@ -97,11 +97,6 @@ public:
    *  volume.
    */
   void setOrtho(const AABB& volume);
-  /*! Sets this frustum to a non-rotated orthographic frustum with the specified
-   *  volume.
-   */
-  void setOrtho(float minX, float minY, float minZ,
-                float maxX, float maxY, float maxZ);
   /*! The planes of this frustum.
    */
   Plane planes[6];
