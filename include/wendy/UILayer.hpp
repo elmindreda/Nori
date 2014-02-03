@@ -42,12 +42,6 @@ class LayerStack;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup ui
- */
-typedef std::vector<Widget*> WidgetList;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Root object for widgets.
  *  @ingroup ui
  */
@@ -86,7 +80,7 @@ public:
   Window& window() const { return m_window; }
   /*! @return The root widgets of this layer.
    */
-  const WidgetList& roots() const { return m_roots; }
+  const std::vector<Widget*>& roots() const { return m_roots; }
   /*! @return The active widget, or @c nullptr if no widget is active.
    */
   Widget* activeWidget() { return m_activeWidget; }
@@ -108,7 +102,7 @@ private:
   Window& m_window;
   Drawer& m_drawer;
   bool m_dragging;
-  WidgetList m_roots;
+  std::vector<Widget*> m_roots;
   Widget* m_activeWidget;
   Widget* m_draggedWidget;
   Widget* m_hoveredWidget;

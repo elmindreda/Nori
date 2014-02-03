@@ -282,13 +282,9 @@ private:
   PassID m_ID;
   Ref<Program> m_program;
   std::vector<float> m_floats;
-  TextureList m_textures;
+  std::vector<Ref<Texture>> m_textures;
   RenderState m_state;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-typedef std::vector<Pass> PassList;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -158,7 +158,7 @@ public:
   Widget* parent() const { return m_parent; }
   /*! @return The child widgets of this widget.
    */
-  const WidgetList& children() const { return m_children; }
+  const std::vector<Widget*>& children() const { return m_children; }
   WidgetState state() const;
   /*! @return The width of this widget.
    */
@@ -250,7 +250,7 @@ private:
   Signal<void, Widget&, vec2> m_dragEndedSignal;
   Layer& m_layer;
   Widget* m_parent;
-  WidgetList m_children;
+  std::vector<Widget*> m_children;
   bool m_enabled;
   bool m_visible;
   bool m_draggable;

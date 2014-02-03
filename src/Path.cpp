@@ -221,77 +221,77 @@ Path Path::parent() const
   return Path(m_string.substr(0, offset + 1));
 }
 
-PathList Path::children() const
+std::vector<Path> Path::children() const
 {
-  PathList children;
+  std::vector<Path> children;
 
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
   search = FindFirstFile(m_string.c_str(), &data);
-  if (search == INVALID_HANDLE_VALUE)
-    return PathList();
-
-  do
+  if (search != INVALID_HANDLE_VALUE)
   {
-    children.push_back(operator + (data.cFileName));
-  }
-  while (FindNextFile(search, &data));
+    do
+    {
+      children.push_back(operator + (data.cFileName));
+    }
+    while (FindNextFile(search, &data));
 
-  FindClose(search);
+    FindClose(search);
+  }
 #else
   DIR* stream;
   dirent* entry;
 
   stream = opendir(m_string.c_str());
-  if (!stream)
-    return PathList();
+  if (stream)
+  {
+    while ((entry = readdir(stream)))
+      children.push_back(operator + (entry->d_name));
 
-  while ((entry = readdir(stream)))
-    children.push_back(operator + (entry->d_name));
-
-  closedir(stream);
+    closedir(stream);
+  }
 #endif
 
   return children;
 }
 
-PathList Path::childrenMatching(const Regex& regex) const
+std::vector<Path> Path::childrenMatching(const Regex& regex) const
 {
-  PathList children;
+  std::vector<Path> children;
 
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
   search = FindFirstFile(m_string.c_str(), &data);
-  if (search == INVALID_HANDLE_VALUE)
-    return PathList();
-
-  do
+  if (search != INVALID_HANDLE_VALUE)
   {
-    if (regex.matches(data.cFileName))
-      children.push_back(operator + (data.cFileName));
-  }
-  while (FindNextFile(search, &data));
+    do
+    {
+      if (regex.matches(data.cFileName))
+        children.push_back(operator + (data.cFileName));
+    }
+    while (FindNextFile(search, &data));
 
-  FindClose(search);
+    FindClose(search);
+  }
 #else
   DIR* stream;
   dirent* entry;
 
   stream = opendir(m_string.c_str());
-  if (!stream)
-    return PathList();
-
-  while ((entry = readdir(stream)))
+  if (stream)
   {
-    if (regex.matches(entry->d_name))
-      children.push_back(operator + (entry->d_name));
-  }
+    while ((entry = readdir(stream)))
+    {
+      if (regex.matches(entry->d_name))
+        children.push_back(operator + (entry->d_name));
+    }
 
-  closedir(stream);
+    closedir(stream);
+  }
 #endif
 
   return children;

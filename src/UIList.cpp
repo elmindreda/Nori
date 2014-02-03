@@ -223,7 +223,7 @@ const Item* List::item(uint index) const
   return m_items[index];
 }
 
-const ItemList& List::items() const
+const std::vector<Item*>& List::items() const
 {
   return m_items;
 }

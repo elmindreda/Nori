@@ -58,12 +58,12 @@ public:
     MERGE_NORMALS
   };
   VertexTool();
-  VertexTool(const Mesh::VertexList& vertices);
-  void importPositions(const Mesh::VertexList& vertices);
+  VertexTool(const std::vector<MeshVertex>& vertices);
+  void importPositions(const std::vector<MeshVertex>& vertices);
   uint32 addAttributeLayer(uint32 vertexIndex,
                            const vec3& normal,
                            const vec2& texcoord = vec2(0.f));
-  void realizeVertices(Mesh::VertexList& result) const;
+  void realizeVertices(std::vector<MeshVertex>& result) const;
   void setNormalMode(NormalMode newMode);
 private:
   struct VertexLayer
@@ -77,8 +77,7 @@ private:
     vec3 position;
     std::vector<VertexLayer> layers;
   };
-  typedef std::vector<Vertex> VertexList;
-  VertexList vertices;
+  std::vector<Vertex> vertices;
   uint32 targetCount;
   NormalMode mode;
 };
@@ -89,14 +88,14 @@ VertexTool::VertexTool():
 {
 }
 
-VertexTool::VertexTool(const Mesh::VertexList& initVertices):
+VertexTool::VertexTool(const std::vector<MeshVertex>& initVertices):
   targetCount(0),
   mode(PRESERVE_NORMALS)
 {
   importPositions(initVertices);
 }
 
-void VertexTool::importPositions(const Mesh::VertexList& initVertices)
+void VertexTool::importPositions(const std::vector<MeshVertex>& initVertices)
 {
   vertices.resize(initVertices.size());
   for (size_t i = 0;  i < vertices.size();  i++)
@@ -160,7 +159,7 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
   }
 }
 
-void VertexTool::realizeVertices(Mesh::VertexList& result) const
+void VertexTool::realizeVertices(std::vector<MeshVertex>& result) const
 {
   result.resize(targetCount);
 
@@ -206,11 +205,9 @@ struct Face
   Triplet p[3];
 };
 
-typedef std::vector<Face> FaceList;
-
 struct FaceGroup
 {
-  FaceList faces;
+  std::vector<Face> faces;
   String name;
 };
 
@@ -563,7 +560,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
     mesh->sections.push_back(MeshSection());
     MeshSection& geometry = mesh->sections.back();
 
-    const FaceList& faces = g.faces;
+    const std::vector<Face>& faces = g.faces;
 
     geometry.materialName = g.name;
     geometry.triangles.resize(faces.size());

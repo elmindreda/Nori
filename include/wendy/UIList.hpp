@@ -58,7 +58,7 @@ public:
   uint itemCount() const;
   Item* item(uint index);
   const Item* item(uint index) const;
-  const ItemList& items() const;
+  const std::vector<Item*>& items() const;
   SignalProxy<void, List&> itemSelectedSignal();
 protected:
   void draw() const;
@@ -83,7 +83,7 @@ private:
   Signal<void, List&> m_itemSelectedSignal;
   bool m_editable;
   bool m_editing;
-  ItemList m_items;
+  std::vector<Item*> m_items;
   uint m_offset;
   uint m_maxOffset;
   uint m_selection;

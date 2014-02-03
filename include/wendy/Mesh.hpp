@@ -119,13 +119,12 @@ public:
    */
   size_t triangleCount() const;
   static Ref<Mesh> read(ResourceCache& cache, const String& name);
-  typedef std::vector<MeshVertex> VertexList;
   /*! The list of sections in this mesh.
    */
   std::vector<MeshSection> sections;
   /*! The list of vertices in this mesh.
    */
-  VertexList vertices;
+  std::vector<MeshVertex> vertices;
 };
 
 ///////////////////////////////////////////////////////////////////////

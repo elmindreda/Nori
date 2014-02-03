@@ -66,10 +66,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-typedef std::vector<ModelSection> ModelSectionList;
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Triangle mesh model.
  *
  *  This class represents a single model consisting of one or more
@@ -91,7 +87,7 @@ public:
   const Sphere& boundingSphere() const { return m_boundingSphere; }
   /*! @return The list of geometries in this model.
    */
-  const ModelSectionList& sections() { return m_sections; }
+  const std::vector<ModelSection>& sections() { return m_sections; }
   /*! @return The vertex buffer used by this model.
    */
   VertexBuffer& vertexBuffer() { return *m_vertexBuffer; }
@@ -127,7 +123,7 @@ private:
   Model(const Model&) = delete;
   bool init(RenderContext& context, const Mesh& data, const MaterialMap& materials);
   Model& operator = (const Model&) = delete;
-  ModelSectionList m_sections;
+  std::vector<ModelSection> m_sections;
   Ref<VertexBuffer> m_vertexBuffer;
   Ref<IndexBuffer> m_indexBuffer;
   Sphere m_boundingSphere;

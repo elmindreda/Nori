@@ -56,7 +56,7 @@ public:
   const String& getOutput() const;
   const String& getVersion() const;
   const String& getNameList() const;
-  const PathList& getPaths() const;
+  const std::vector<Path>& getPaths() const;
 private:
   void addLine();
   void advance(size_t offset);
@@ -85,12 +85,10 @@ private:
   bool isFirstOnLine() const;
   void setFirstOnLine(bool newState);
   class File;
-  typedef std::vector<String> NameList;
-  typedef std::vector<File> FileList;
   ResourceCache& cache;
-  FileList files;
-  NameList names;
-  PathList paths;
+  std::vector<File> files;
+  std::vector<String> names;
+  std::vector<Path> paths;
   String output;
   String version;
   String list;

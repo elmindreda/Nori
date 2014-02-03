@@ -72,12 +72,6 @@ private:
 
 /*! @ingroup ui
  */
-typedef std::vector<Item*> ItemList;
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @ingroup ui
- */
 class SeparatorItem : public Item
 {
 public:

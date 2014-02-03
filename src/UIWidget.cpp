@@ -83,7 +83,7 @@ void Widget::destroyChildren()
 
 void Widget::removeFromParent()
 {
-  WidgetList* siblings;
+  std::vector<Widget*>* siblings;
 
   if (m_parent)
     siblings = &(m_parent->m_children);
@@ -185,7 +185,7 @@ void Widget::activate()
 
 void Widget::bringToFront()
 {
-  WidgetList* siblings;
+  std::vector<Widget*>* siblings;
 
   if (m_parent)
     siblings = &(m_parent->m_children);
@@ -200,7 +200,7 @@ void Widget::bringToFront()
 
 void Widget::sendToBack()
 {
-  WidgetList* siblings;
+  std::vector<Widget*>* siblings;
 
   if (m_parent)
     siblings = &(m_parent->m_children);

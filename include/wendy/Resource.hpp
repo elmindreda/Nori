@@ -91,9 +91,9 @@ public:
     return cast;
   }
   Path findFile(const String& name) const;
-  const PathList& searchPaths() const { return m_paths; }
+  const std::vector<Path>& searchPaths() const { return m_paths; }
 private:
-  PathList m_paths;
+  std::vector<Path> m_paths;
   std::vector<Resource*> m_resources;
 };
 

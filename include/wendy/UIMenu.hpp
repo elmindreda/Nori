@@ -54,7 +54,7 @@ public:
   uint itemCount() const { return (uint) m_items.size(); }
   Item* item(uint index) { return m_items[index]; }
   const Item* item(uint index) const { return m_items[index]; }
-  const ItemList& items() const { return m_items; }
+  const std::vector<Item*>& items() const { return m_items; }
   SignalProxy<void, Menu&, uint> itemSelectedSignal();
 private:
   void draw() const;
@@ -68,7 +68,7 @@ private:
   void onKey(Key key, Action action, uint mods) override;
   void onDragEnded(vec2 point) override;
   void sizeToFit();
-  ItemList m_items;
+  std::vector<Item*> m_items;
   uint m_selection;
   Signal<void, Menu&, uint> m_itemSelectedSignal;
 };

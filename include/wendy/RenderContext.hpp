@@ -618,7 +618,7 @@ private:
   bool m_dirtyBinding;
   bool m_dirtyState;
   bool m_cullingInverted;
-  TextureList m_textureUnits;
+  std::vector<Ref<Texture>> m_textureUnits;
   uint m_activeTextureUnit;
   RenderState m_currentState;
   Ref<Program> m_currentProgram;

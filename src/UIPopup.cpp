@@ -118,7 +118,7 @@ Item* Popup::selectedItem()
 
 void Popup::setSelectedItem(Item& newItem)
 {
-  const ItemList& items = m_menu->items();
+  const std::vector<Item*>& items = m_menu->items();
 
   auto i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
@@ -141,7 +141,7 @@ const Item* Popup::item(uint index) const
   return m_menu->item(index);
 }
 
-const ItemList& Popup::items() const
+const std::vector<Item*>& Popup::items() const
 {
   return m_menu->items();
 }

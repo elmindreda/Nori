@@ -467,7 +467,7 @@ const String& Preprocessor::getNameList() const
   return list;
 }
 
-const PathList& Preprocessor::getPaths() const
+const std::vector<Path>& Preprocessor::getPaths() const
 {
   return paths;
 }

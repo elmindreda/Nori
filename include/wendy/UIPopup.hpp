@@ -55,7 +55,7 @@ public:
   uint itemCount() const;
   Item* item(uint index);
   const Item* item(uint index) const;
-  const ItemList& items() const;
+  const std::vector<Item*>& items() const;
   SignalProxy<void, Popup&, uint> itemSelectedSignal();
 protected:
   void draw() const;
