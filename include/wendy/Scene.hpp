@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy scene graph
+// Wendy - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied

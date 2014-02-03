@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -51,7 +51,6 @@ typedef uint16 PassID;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Opaque program state uniform index.
- *  @ingroup renderer
  */
 class UniformStateIndex
 {
@@ -67,7 +66,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Opaque program state sampler index.
- *  @ingroup renderer
  */
 class SamplerStateIndex
 {
@@ -83,7 +81,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render state object.
- *  @ingroup renderer
  *
  *  This class and its associated classes encapsulates most rendering state.
  *
@@ -291,8 +288,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
 typedef std::vector<Pass> PassList;
 
 ///////////////////////////////////////////////////////////////////////

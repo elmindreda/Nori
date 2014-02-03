@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy forward renderer
+// Wendy - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -37,7 +37,6 @@ class RenderQueue;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Renderer.
- *  @ingroup renderer
  */
 class Renderer : public RefObject
 {

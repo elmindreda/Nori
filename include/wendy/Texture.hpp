@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -46,7 +46,6 @@ class RenderContext;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture sampler filtering mode enumeration.
- *  @ingroup opengl
  */
 enum FilterMode
 {
@@ -66,7 +65,6 @@ enum FilterMode
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture sampler address wrapping mode enumeration.
- *  @ingroup opengl
  */
 enum AddressMode
 {
@@ -81,7 +79,6 @@ enum AddressMode
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture type enumeration.
- *  @ingroup opengl
  */
 enum TextureType
 {
@@ -107,7 +104,6 @@ enum TextureType
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture creation flags.
- *  @ingroup opengl
  */
 enum TextureFlags
 {
@@ -118,7 +114,7 @@ enum TextureFlags
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
+/*! Cube map face enumeration.
  */
 enum CubeFace
 {
@@ -134,7 +130,6 @@ enum CubeFace
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture creation data.
- *  @ingroup opengl
  */
 class TextureData
 {
@@ -157,7 +152,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture creation parameters.
- *  @ingroup opengl
  */
 class TextureParams
 {
@@ -170,7 +164,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture image object.
- *  @ingroup opengl
  */
 class TextureImage : public RefObject
 {
@@ -225,7 +218,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Texture object.
- *  @ingroup opengl
  */
 class Texture : public Resource, public RefObject
 {
@@ -316,7 +308,7 @@ public:
    */
   RenderContext& context() const { return m_context; }
   /*! Creates a texture from the specified image.
-   *  @param[in] context The OpenGL context within which to create the
+   *  @param[in] context The render context within which to create the
    *  texture.
    *  @param[in] params The creation parameters for the texture.
    *  @param[in] data The image data to use.
@@ -350,8 +342,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup opengl
- */
 typedef std::vector<Ref<Texture>> TextureList;
 
 ///////////////////////////////////////////////////////////////////////

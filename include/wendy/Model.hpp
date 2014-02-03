@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -40,7 +40,6 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Model section.
- *  @ingroup renderer
  *
  *  This class represents a section of triangles in a model using a single
  *  material.
@@ -67,14 +66,11 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
 typedef std::vector<ModelSection> ModelSectionList;
 
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Triangle mesh model.
- *  @ingroup renderer
  *
  *  This class represents a single model consisting of one or more
  *  sections.  Each section is a range of triangles sharing a material.

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -43,8 +43,7 @@ class Program;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL shader type enumeration.
- *  @ingroup opengl
+/*! @brief Shader type enumeration.
  */
 enum ShaderType
 {
@@ -54,8 +53,7 @@ enum ShaderType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL shader.
- *  @ingroup opengl
+/*! @brief %Shader.
  */
 class Shader : public Resource, public RefObject
 {
@@ -83,8 +81,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL vertex attribute type enumeration.
- *  @ingroup opengl
+/*! @brief Program attribute type enumeration.
  */
 enum AttributeType
 {
@@ -96,8 +93,7 @@ enum AttributeType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL vertex attribute.
- *  @ingroup opengl
+/*! @brief Program vertex attribute.
  */
 class Attribute
 {
@@ -138,8 +134,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL sampler uniform type enumeration.
- *  @ingroup opengl
+/*! @brief %Sampler uniform type enumeration.
  */
 enum SamplerType
 {
@@ -152,8 +147,7 @@ enum SamplerType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL sampler uniform.
- *  @ingroup opengl
+/*! @brief %Sampler uniform.
  */
 class Sampler
 {
@@ -194,8 +188,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL non-sampler uniform type enumeration.
- *  @ingroup opengl
+/*! @brief Non-sampler uniform type enumeration.
  */
 enum UniformType
 {
@@ -210,8 +203,7 @@ enum UniformType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL program non-sampler uniform.
- *  @ingroup opengl
+/*! @brief Program non-sampler uniform.
  */
 class Uniform
 {
@@ -268,8 +260,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL program.
- *  @ingroup opengl
+/*! @brief %Shader program.
  */
 class Program : public Resource, public RefObject
 {
@@ -321,8 +312,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief GLSL program interface validator.
- *  @ingroup opengl
+/*! @brief Program interface validator.
  */
 class ProgramInterface
 {

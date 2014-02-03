@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy Squirrel bindings - based on Sqrat
+// Wendy - a simple game engine
 // Copyright (c) 2009 Brandon Jones
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //

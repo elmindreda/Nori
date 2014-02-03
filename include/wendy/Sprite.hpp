@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -40,8 +40,6 @@ enum SpriteType3
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
 class Sprite3 : public Renderable
 {
 public:

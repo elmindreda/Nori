@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -36,7 +36,6 @@ class RenderContext;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Occlusion query.
- *  @ingroup opengl
  */
 class OcclusionQuery
 {

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -42,7 +42,6 @@ namespace wendy
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render phase enumeration.
- *  @ingroup renderer
  */
 enum RenderPhase
 {
@@ -61,7 +60,6 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root);
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Multi-technique material descriptor.
- *  @ingroup renderer
  */
 class Material : public Resource, public RefObject
 {
@@ -95,7 +93,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Codec for XML format render materials.
- *  @ingroup renderer
  */
 class MaterialReader : public ResourceReader<Material>
 {

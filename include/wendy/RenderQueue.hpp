@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy default renderer
+// Wendy - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -42,7 +42,6 @@ class RenderQueue;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Abstract renderable object.
- *  @ingroup renderer
  *
  *  This is the interface for objects able to be rendered through render
  *  operations.
@@ -69,8 +68,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
 enum LightType
 {
   DIRECTIONAL,
@@ -80,8 +77,6 @@ enum LightType
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
 struct LightData
 {
   LightType type;
@@ -93,8 +88,6 @@ struct LightData
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @ingroup renderer
- */
 class Light : public Renderable
 {
 public:
@@ -119,8 +112,6 @@ private:
 
 #pragma pack(push, 1)
 
-/*! @ingroup renderer
- */
 class RenderOpKey
 {
 public:
@@ -147,7 +138,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render operation in the 3D pipeline.
- *  @ingroup renderer
  *
  *  This represents a single render operation, including render state, a
  *  primitive range and a local-to-world transformation.
@@ -176,7 +166,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render operation bucket.
- *  @ingroup renderer
  *
  *  @remarks Each queue can only contain 65536 render operations.
  */
@@ -207,7 +196,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render operation queue.
- *  @ingroup renderer
  *
  *  @remarks To avoid thrashing the heap, keep your bucket objects around
  *  between frames when possible.

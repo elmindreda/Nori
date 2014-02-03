@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -57,7 +57,6 @@ const int INVALID_SHARED_STATE_ID = -1;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Cull mode enumeration.
- *  @ingroup opengl
  */
 enum CullMode
 {
@@ -78,7 +77,6 @@ enum CullMode
 ///////////////////////////////////////////////////////////////////////
 
 /*! Blend factor enumeration.
- *  @ingroup opengl
  */
 enum BlendFactor
 {
@@ -97,7 +95,6 @@ enum BlendFactor
 ///////////////////////////////////////////////////////////////////////
 
 /*! Stencil operation enumeration.
- *  @ingroup opengl
  */
 enum StencilOp
 {
@@ -114,7 +111,6 @@ enum StencilOp
 ///////////////////////////////////////////////////////////////////////
 
 /*! Comparison function enumeration.
- *  @ingroup opengl
  */
 enum FragmentFunction
 {
@@ -163,9 +159,8 @@ enum
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Render context configuration.
- *  @ingroup opengl
  *
- *  This class provides the settings parameters available for OpenGL
+ *  This class provides the settings parameters available for render
  *  context creation, as provided through RenderContext::create.
  */
 class RenderConfig
@@ -190,7 +185,7 @@ public:
   /*! The desired number of FSAA samples.
    */
   uint samples;
-  /*! The OpenGL debug context flag.
+  /*! Whether to create a debug context.
    */
   bool debug;
 };
@@ -198,7 +193,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! Render state.
- *  @ingroup opengl
  */
 class RenderState
 {
@@ -227,7 +221,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! Render context limits data.
- *  @ingroup opengl
  */
 class RenderLimits
 {
@@ -277,7 +270,6 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Render statistics.
- *  @ingroup opengl
  */
 class RenderStats
 {
@@ -431,12 +423,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief OpenGL context.
- *  @ingroup opengl
- *
- *  This class encapsulates the OpenGL context and its associtated window.
- *
- *  @remarks Yes, it's big.
+/*! @brief Render context.
  */
 class RenderContext : public Trackable
 {

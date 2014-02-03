@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy OpenGL library
+// Wendy - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -42,7 +42,6 @@ class RenderContext;
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Primitive type enumeration.
- *  @ingroup opengl
  */
 enum PrimitiveType
 {
@@ -92,7 +91,6 @@ enum BufferUsage
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Vertex buffer.
- *  @ingroup opengl
  */
 class VertexBuffer : public RefObject
 {
@@ -155,7 +153,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Index (or element) buffer.
- *  @ingroup opengl
  */
 class IndexBuffer : public RefObject
 {
@@ -219,7 +216,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Vertex buffer range.
- *  @ingroup opengl
  *
  *  This class represents a contigous range of an vertex buffer object.
  *  This is useful for allocation schemes where many smaller objects
@@ -266,7 +262,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Index buffer range.
- *  @ingroup opengl
  *
  *  This class represents a contigous range of an index buffer object.
  *  This is useful for allocation schemes where many smaller objects
@@ -311,7 +306,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Geometric primitive range.
- *  @ingroup opengl
  */
 class PrimitiveRange
 {
@@ -389,7 +383,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief Framebuffer.
- *  @ingroup opengl
  *
  *  This class represents a render target, i.e. a framebuffer.
  */
@@ -437,7 +430,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Framebuffer for rendering to the screen.
- *  @ingroup opengl
  */
 class DefaultFramebuffer : public Framebuffer
 {
@@ -467,7 +459,6 @@ private:
 ///////////////////////////////////////////////////////////////////////
 
 /*! @brief %Framebuffer for rendering to images.
- *  @ingroup opengl
  */
 class TextureFramebuffer : public Framebuffer
 {
