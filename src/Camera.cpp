@@ -101,8 +101,7 @@ const Transform3& Camera::viewTransform() const
 {
   if (m_dirtyInverse)
   {
-    m_inverse = m_transform;
-    m_inverse.invert();
+    m_inverse = m_transform.inverse();
     m_dirtyInverse = false;
   }
 
@@ -146,9 +145,7 @@ const Frustum& Camera::frustum() const
 
 float Camera::normalizedDepth(const vec3& point) const
 {
-  vec3 local = point;
-  viewTransform().transformVector(local);
-  return length(local) / m_farZ;
+  return length(viewTransform() * point) / m_farZ;
 }
 
 Ray3 Camera::viewSpacePickingRay(const vec2& position) const

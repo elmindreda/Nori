@@ -41,12 +41,10 @@ class Transform2
 public:
   Transform2();
   Transform2(const vec2& position, float angle, float scale);
-  void invert();
-  void scaleVector(vec2& vector) const;
-  void rotateVector(vec2& vector) const;
-  void translateVector(vec2& vector) const;
-  void transformVector(vec2& vector) const;
+  Transform2 inverse() const;
+  vec2 rotate(vec2 vector) const;
   operator mat3 () const;
+  vec2 operator * (vec2 vector) const;
   Transform2 operator * (const Transform2& other) const;
   Transform2& operator *= (const Transform2& other);
   void setIdentity();
@@ -64,13 +62,9 @@ class Transform3
 public:
   Transform3();
   Transform3(const vec3& position, const quat& rotation, float scale = 1.f);
-  void invert();
-  void scaleVector(vec3& vector) const;
-  void rotateVector(vec3& vector) const;
-  void translateVector(vec3& vector) const;
-  void transformVector(vec3& vector) const;
+  Transform3 inverse() const;
   operator mat4 () const;
-  vec3 operator * (const vec3& point) const;
+  vec3 operator * (vec3 vector) const;
   Transform3 operator * (const Transform3& other) const;
   Transform3& operator *= (const Transform3& other);
   void setIdentity();

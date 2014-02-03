@@ -46,8 +46,8 @@ Ray3::Ray3(const vec3& initOrigin, const vec3& initDirection):
 
 void Ray3::transformBy(const Transform3& transform)
 {
-  transform.transformVector(origin);
-  transform.rotateVector(direction);
+  origin = transform * origin;
+  direction = transform.rotation * direction;
 }
 
 void Ray3::set(const vec3& newOrigin, const vec3& newDirection)
@@ -71,7 +71,7 @@ Plane::Plane(const vec3& P0, const vec3& P1, const vec3& P2)
 
 void Plane::transformBy(const Transform3& transform)
 {
-  transform.rotateVector(normal);
+  normal = transform.rotation * normal;
   distance += dot(normal, transform.position) * transform.scale;
 }
 
@@ -148,7 +148,7 @@ Sphere::Sphere(vec3 initCenter, float initRadius):
 
 void Sphere::transformBy(const Transform3& transform)
 {
-  transform.translateVector(center);
+  center += transform.position;
   radius *= transform.scale;
 }
 

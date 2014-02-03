@@ -49,41 +49,27 @@ Transform2::Transform2(const vec2& initPosition, float initAngle, float initScal
 {
 }
 
-void Transform2::invert()
+Transform2 Transform2::inverse() const
 {
-  angle = -angle;
-  scale = 1.f / scale;
-  position = -position;
-  rotateVector(position);
+  Transform2 inverse;
+  inverse.angle = -angle;
+  inverse.position = inverse.rotate(-position);
+  inverse.scale = 1.f / scale;
+  return inverse;
 }
 
-void Transform2::scaleVector(vec2& vector) const
-{
-  vector *= scale;
-}
-
-void Transform2::rotateVector(vec2& vector) const
+vec2 Transform2::rotate(vec2 vector) const
 {
   const float sina = sin(angle);
   const float cosa = cos(angle);
 
-  vec2 result;
-
-  result.x = vector.x * cosa - vector.y * sina;
-  result.y = vector.x * sina + vector.y * cosa;
-  vector = result;
+  return vec2(vector.x * cosa - vector.y * sina,
+              vector.x * sina + vector.y * cosa);
 }
 
-void Transform2::translateVector(vec2& vector) const
+vec2 Transform2::operator * (vec2 vector) const
 {
-  vector += position;
-}
-
-void Transform2::transformVector(vec2& vector) const
-{
-  vector *= scale;
-  rotateVector(vector);
-  vector += position;
+  return rotate(vector * scale) + position;
 }
 
 Transform2::operator mat3 () const
@@ -104,19 +90,14 @@ Transform2::operator mat3 () const
 
 Transform2 Transform2::operator * (const Transform2& other) const
 {
-  Transform2 result(*this);
-  result *= other;
-  return result;
+  return Transform2(position + rotate(other.position),
+                    angle + other.angle,
+                    scale * other.scale);
 }
 
 Transform2& Transform2::operator *= (const Transform2& other)
 {
-  vec2 local = other.position;
-  rotateVector(local);
-  position += local;
-  angle += other.angle;
-  scale *= other.scale;
-  return *this;
+  return operator = (operator * (other));
 }
 
 void Transform2::setIdentity()
@@ -151,36 +132,15 @@ Transform3::Transform3(const vec3& initPosition,
 {
 }
 
-void Transform3::invert()
+Transform3 Transform3::inverse() const
 {
-  rotation = inverse(rotation);
-  position = rotation * -position;
-  scale = 1.f / scale;
-}
-
-void Transform3::scaleVector(vec3& vector) const
-{
-  vector *= scale;
-}
-
-void Transform3::rotateVector(vec3& vector) const
-{
-  vector = rotation * vector;
-}
-
-void Transform3::translateVector(vec3& vector) const
-{
-  vector += position;
-}
-
-void Transform3::transformVector(vec3& vector) const
-{
-  vector = rotation * scale * vector + position;
+  const quat ir = glm::inverse(rotation);
+  return Transform3(ir * -position, ir, 1.f / scale);
 }
 
 Transform3::operator mat4 () const
 {
-  mat4 result = mat4_cast(rotation);
+  mat4 result = glm::mat4_cast(rotation);
 
   for (size_t x = 0;  x < 3;  x++)
   {
@@ -195,24 +155,21 @@ Transform3::operator mat4 () const
   return result;
 }
 
-vec3 Transform3::operator * (const vec3& point) const
+vec3 Transform3::operator * (vec3 vector) const
 {
-  return rotation * scale * point + position;
+  return rotation * scale * vector + position;
 }
 
 Transform3 Transform3::operator * (const Transform3& other) const
 {
-  Transform3 result(*this);
-  result *= other;
-  return result;
+  return Transform3(position + rotation * other.position,
+                    rotation * other.rotation,
+                    scale * other.scale);
 }
 
 Transform3& Transform3::operator *= (const Transform3& other)
 {
-  position += rotation * other.position;
-  rotation = rotation * other.rotation;
-  scale *= other.scale;
-  return *this;
+  return operator = (operator * (other));
 }
 
 void Transform3::setIdentity()
