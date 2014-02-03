@@ -45,23 +45,21 @@ Camera::Camera():
   m_FOV(90.f),
   m_aspectRatio(4.f / 3.f),
   m_nearZ(0.1f),
-  m_farZ(1000.f),
-  m_dirtyFrustum(true),
-  m_dirtyInverse(true)
+  m_farZ(1000.f)
 {
 }
 
 void Camera::setMode(Mode newMode)
 {
   m_mode = newMode;
-  m_dirtyFrustum = true;
+  updateFrustum();
 }
 
 void Camera::setOrthoVolume(const AABB& newVolume)
 {
   m_volume = newVolume;
   m_volume.normalize();
-  m_dirtyFrustum = true;
+  updateFrustum();
 }
 
 void Camera::setFOV(float newFOV)
@@ -70,7 +68,7 @@ void Camera::setFOV(float newFOV)
   assert(newFOV < 180.f);
 
   m_FOV = newFOV;
-  m_dirtyFrustum = true;
+  updateFrustum();
 }
 
 void Camera::setAspectRatio(float newAspectRatio)
@@ -78,7 +76,7 @@ void Camera::setAspectRatio(float newAspectRatio)
   assert(newAspectRatio > 0.f);
 
   m_aspectRatio = newAspectRatio;
-  m_dirtyFrustum = true;
+  updateFrustum();
 }
 
 void Camera::setNearZ(float newNearZ)
@@ -86,7 +84,7 @@ void Camera::setNearZ(float newNearZ)
   assert(newNearZ > 0.f);
 
   m_nearZ = newNearZ;
-  m_dirtyFrustum = true;
+  updateFrustum();
 }
 
 void Camera::setFarZ(float newFarZ)
@@ -94,18 +92,7 @@ void Camera::setFarZ(float newFarZ)
   assert(newFarZ > 0.f);
 
   m_farZ = newFarZ;
-  m_dirtyFrustum = true;
-}
-
-const Transform3& Camera::viewTransform() const
-{
-  if (m_dirtyInverse)
-  {
-    m_inverse = m_transform.inverse();
-    m_dirtyInverse = false;
-  }
-
-  return m_inverse;
+  updateFrustum();
 }
 
 mat4 Camera::projectionMatrix() const
@@ -123,29 +110,13 @@ mat4 Camera::projectionMatrix() const
 void Camera::setTransform(const Transform3& newTransform)
 {
   m_transform = newTransform;
-  m_dirtyFrustum = true;
-  m_dirtyInverse = true;
-}
-
-const Frustum& Camera::frustum() const
-{
-  if (m_dirtyFrustum)
-  {
-    if (m_mode == ORTHOGRAPHIC)
-      m_frustum.setOrtho(m_volume);
-    else
-      m_frustum.setPerspective(m_FOV, m_aspectRatio, m_nearZ, m_farZ);
-
-    m_frustum.transformBy(m_transform);
-    m_dirtyFrustum = false;
-  }
-
-  return m_frustum;
+  updateFrustum();
+  updateInverse();
 }
 
 float Camera::normalizedDepth(const vec3& point) const
 {
-  return length(viewTransform() * point) / m_farZ;
+  return length(m_inverse * point) / m_farZ;
 }
 
 Ray3 Camera::viewSpacePickingRay(const vec2& position) const
@@ -175,6 +146,21 @@ Ray3 Camera::viewSpacePickingRay(const vec2& position) const
   }
 
   return result;
+}
+
+void Camera::updateFrustum()
+{
+  if (m_mode == ORTHOGRAPHIC)
+    m_frustum.setOrtho(m_volume);
+  else
+    m_frustum.setPerspective(m_FOV, m_aspectRatio, m_nearZ, m_farZ);
+
+  m_frustum.transformBy(m_transform);
+}
+
+void Camera::updateInverse()
+{
+  m_inverse = m_transform.inverse();
 }
 
 ///////////////////////////////////////////////////////////////////////

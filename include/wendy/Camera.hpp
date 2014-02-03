@@ -117,7 +117,7 @@ public:
    *  @remarks This is the world-to-camera-space transform for this camera. For
    *  the camera-to-world-space transform, see Camera::transform.
    */
-  const Transform3& viewTransform() const;
+  const Transform3& viewTransform() const { return m_inverse; }
   /*! @return The projection matrix for this camera.
    *
    *  @remarks This is calculated on every call.
@@ -131,7 +131,7 @@ public:
   void setTransform(const Transform3& newTransform);
   /*! @return The view frustum of this camera.
    */
-  const Frustum& frustum() const;
+  const Frustum& frustum() const { return m_frustum; }
   /*! @param[in] A point in world space.
    *  @return The normalized depth of the point in camera space, within the
    *  depth range of this camera.
@@ -143,6 +143,8 @@ public:
    */
   Ray3 viewSpacePickingRay(const vec2& position) const;
 private:
+  void updateFrustum();
+  void updateInverse();
   Mode m_mode;
   float m_FOV;
   float m_aspectRatio;
@@ -150,10 +152,8 @@ private:
   float m_farZ;
   AABB m_volume;
   Transform3 m_transform;
-  mutable Transform3 m_inverse;
-  mutable Frustum m_frustum;
-  mutable bool m_dirtyFrustum;
-  mutable bool m_dirtyInverse;
+  Transform3 m_inverse;
+  Frustum m_frustum;
 };
 
 ///////////////////////////////////////////////////////////////////////
