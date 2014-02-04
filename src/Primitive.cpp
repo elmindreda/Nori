@@ -156,16 +156,12 @@ bool Sphere::intersects(const Sphere& sphere) const
   return distanceSquared < (radius + sphere.radius) * (radius + sphere.radius);
 }
 
-bool Sphere::intersects(const Plane& plane, float& distance) const
+bool Sphere::intersects(const Plane& plane) const
 {
   const float projection = dot(center, plane.normal);
   const float difference = abs(projection - plane.distance);
 
-  if (difference > radius)
-    return false;
-
-  distance = difference;
-  return true;
+  return difference < radius;
 }
 
 bool Sphere::intersects(const Ray3& ray, float& distance) const

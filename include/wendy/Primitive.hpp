@@ -114,7 +114,7 @@ public:
   bool contains(vec3 point) const;
   bool contains(const Sphere& sphere) const;
   bool intersects(const Sphere& sphere) const;
-  bool intersects(const Plane& plane, float& distance) const;
+  bool intersects(const Plane& plane) const;
   bool intersects(const Ray3& ray, float& distance) const;
   void envelop(vec3 point);
   void envelop(const Sphere& sphere);
