@@ -140,6 +140,30 @@ Rect Font::boundsOf(const char* text)
   return bounds;
 }
 
+Rect Font::boundsOf(const char* text, size_t start, size_t count)
+{
+  vec2 pen;
+  Rect bounds;
+
+  const size_t length = std::strlen(text);
+  const char* c = text;
+
+  utf8::advance(c, start, text + length);
+
+  while (count-- && *c != '\0')
+  {
+    const uint32 codepoint = utf8::next<const char*>(c, text + length);
+    if (const Glyph* glyph = findGlyph(codepoint))
+    {
+      bounds.envelop(Rect(glyph->bearing + pen, glyph->size));
+      pen = round(pen + vec2(glyph->advance, 0.f));
+    }
+  }
+
+  bounds.envelop(pen);
+  return bounds;
+}
+
 std::vector<Rect> Font::layoutOf(const char* text)
 {
   vec2 pen;

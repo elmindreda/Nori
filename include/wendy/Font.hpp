@@ -72,6 +72,13 @@ public:
    *  rendered by this font.
    */
   Rect boundsOf(const char* text);
+  /*! @param[in] text The text to measure.
+   *  @param[in] start The first codepoint of the string to include.
+   *  @param[in] start The number of codepoints to include.
+   *  @return The bounding rectangle, in pixels, of the specified section of the
+   *  specified text as rendered by this font.
+   */
+  Rect boundsOf(const char* text, size_t start, size_t count);
   /*! Calculates the layout of glyphs for the specified text.
    */
   std::vector<Rect> layoutOf(const char* text);
