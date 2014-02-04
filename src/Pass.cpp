@@ -114,11 +114,10 @@ void Pass::apply() const
 
   uint textureIndex = 0, textureUnit = 0;
 
-  for (uint i = 0;  i < m_program->samplerCount();  i++)
+  for (auto& sampler : m_program->m_samplers)
   {
     context.setActiveTextureUnit(textureUnit);
 
-    Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
     {
       if (state)
@@ -134,15 +133,13 @@ void Pass::apply() const
       textureIndex++;
     }
 
-    sampler.bind(textureUnit);
     textureUnit++;
   }
 
   size_t offset = 0;
 
-  for (uint i = 0;  i < m_program->uniformCount();  i++)
+  for (auto& uniform : m_program->m_uniforms)
   {
-    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
     {
       if (state)
@@ -380,9 +377,8 @@ Texture* Pass::samplerState(const char* name) const
 
   uint textureIndex = 0;
 
-  for (uint i = 0;  i < m_program->samplerCount();  i++)
+  for (auto& sampler : m_program->m_samplers)
   {
-    const Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
       continue;
 
@@ -419,9 +415,8 @@ void Pass::setSamplerState(const char* name, Texture* newTexture)
 
   uint textureIndex = 0;
 
-  for (uint i = 0;  i < m_program->samplerCount();  i++)
+  for (auto& sampler : m_program->m_samplers)
   {
-    Sampler& sampler = m_program->sampler(i);
     if (sampler.isShared())
       continue;
 
@@ -477,18 +472,19 @@ UniformStateIndex Pass::uniformStateIndex(const char* name) const
     return UniformStateIndex();
   }
 
-  uint offset = 0;
+  uint index = 0, offset = 0;
 
-  for (uint i = 0;  i < m_program->uniformCount();  i++)
+  for (auto& uniform : m_program->m_uniforms)
   {
-    Uniform& uniform = m_program->uniform(i);
-    if (uniform.isShared())
-      continue;
+    if (!uniform.isShared())
+    {
+      if (uniform.name() == name)
+        return UniformStateIndex(index, offset);
 
-    if (uniform.name() == name)
-      return UniformStateIndex(i, offset);
+      offset += uniform.elementCount();
+    }
 
-    offset += uniform.elementCount();
+    index++;
   }
 
   return UniformStateIndex();
@@ -502,18 +498,19 @@ SamplerStateIndex Pass::samplerStateIndex(const char* name) const
     return SamplerStateIndex();
   }
 
-  uint textureIndex = 0;
+  uint index = 0, textureIndex = 0;
 
-  for (uint i = 0;  i < m_program->samplerCount();  i++)
+  for (auto& sampler : m_program->m_samplers)
   {
-    Sampler& sampler = m_program->sampler(i);
-    if (sampler.isShared())
-      continue;
+    if (!sampler.isShared())
+    {
+      if (sampler.name() == name)
+        return SamplerStateIndex(index, textureIndex);
 
-    if (sampler.name() == name)
-      return SamplerStateIndex(i, textureIndex);
+      textureIndex++;
+    }
 
-    textureIndex++;
+    index++;
   }
 
   return SamplerStateIndex();
@@ -531,16 +528,14 @@ void Pass::setProgram(Program* newProgram)
   uint floatCount = 0;
   uint textureCount = 0;
 
-  for (uint i = 0;  i < m_program->uniformCount();  i++)
+  for (auto& uniform : m_program->m_uniforms)
   {
-    Uniform& uniform = m_program->uniform(i);
     if (!uniform.isShared())
       floatCount += uniform.elementCount();
   }
 
-  for (uint i = 0;  i < m_program->samplerCount();  i++)
+  for (auto& sampler : m_program->m_samplers)
   {
-    Sampler& sampler = m_program->sampler(i);
     if (!sampler.isShared())
       textureCount++;
   }
@@ -559,9 +554,8 @@ void* Pass::data(const char* name, UniformType type)
 
   uint offset = 0;
 
-  for (uint i = 0;  i < m_program->uniformCount();  i++)
+  for (auto& uniform : m_program->m_uniforms)
   {
-    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
       continue;
 
@@ -596,9 +590,8 @@ const void* Pass::data(const char* name, UniformType type) const
 
   uint offset = 0;
 
-  for (uint i = 0;  i < m_program->uniformCount();  i++)
+  for (auto& uniform : m_program->m_uniforms)
   {
-    Uniform& uniform = m_program->uniform(i);
     if (uniform.isShared())
       continue;
 

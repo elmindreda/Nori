@@ -396,15 +396,6 @@ const char* Attribute::typeName(AttributeType type)
 
 ///////////////////////////////////////////////////////////////////////
 
-void Sampler::bind(uint unit)
-{
-  glUniform1i(m_location, unit);
-
-#if WENDY_DEBUG
-  checkGL("Failed to set sampler %s", m_name.c_str());
-#endif
-}
-
 const char* Sampler::typeName(SamplerType type)
 {
   switch (type)
@@ -752,6 +743,8 @@ bool Program::init(Shader& vertexShader, Shader& fragmentShader)
 
 bool Program::retrieveUniforms()
 {
+  m_context.setCurrentProgram(this);
+
   GLint uniformCount;
   glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &uniformCount);
 
@@ -801,12 +794,16 @@ bool Program::retrieveUniforms()
       sampler.m_type = convertSamplerType(uniformType);
       sampler.m_location = glGetUniformLocation(m_programID, uniformName);
       sampler.m_sharedID = m_context.sharedSamplerID(uniformName, sampler.type());
+
+      glUniform1i(sampler.m_location, (GLuint) m_samplers.size() - 1);
     }
     else
       logWarning("Skipping uniform %s of unsupported type", uniformName);
   }
 
   delete [] uniformName;
+
+  m_context.setCurrentProgram(nullptr);
 
   if (!checkGL("Failed to retrieve uniforms for program %s", name().c_str()))
     return false;

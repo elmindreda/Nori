@@ -153,9 +153,6 @@ class Sampler
 {
   friend class Program;
 public:
-  /*! Binds this sampler to the specified texture unit.
-   */
-  void bind(uint unit);
   /*! @return @c true if the name of this sampler matches the specified string,
    *  or @c false otherwise.
    */
@@ -262,6 +259,7 @@ private:
  */
 class Program : public Resource, public RefObject
 {
+  friend class Pass;
   friend class RenderContext;
 public:
   ~Program();

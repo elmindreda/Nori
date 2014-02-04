@@ -1360,32 +1360,22 @@ void RenderContext::setCurrentTexture(Texture* newTexture)
   {
     Texture* oldTexture = m_textureUnits[m_activeTextureUnit];
 
-    if (oldTexture)
-    {
-      if (!newTexture || oldTexture->type() != newTexture->type())
-      {
-        glBindTexture(convertToGL(oldTexture->type()), 0);
-
-#if WENDY_DEBUG
-        if (!checkGL("Failed to unbind texture %s",
-                     oldTexture->name().c_str()))
-        {
-          return;
-        }
-#endif
-      }
-    }
-
     if (newTexture)
     {
       glBindTexture(convertToGL(newTexture->type()), newTexture->m_textureID);
 
 #if WENDY_DEBUG
-      if (!checkGL("Failed to bind texture %s",
-                   newTexture->name().c_str()))
-      {
+      if (!checkGL("Failed to bind texture %s", newTexture->name().c_str()))
         return;
-      }
+#endif
+    }
+    else if (oldTexture)
+    {
+      glBindTexture(convertToGL(oldTexture->type()), 0);
+
+#if WENDY_DEBUG
+      if (!checkGL("Failed to unbind texture %s", oldTexture->name().c_str()))
+        return;
 #endif
     }
 
