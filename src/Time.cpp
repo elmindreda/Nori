@@ -27,13 +27,21 @@
 #include <wendy/Core.hpp>
 #include <wendy/Time.hpp>
 
-#define GLFW_NO_GLU
-#include <GLFW/glfw3.h>
+#include <chrono>
 
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
+
+///////////////////////////////////////////////////////////////////////
+
+namespace
+{
+
+auto base = std::chrono::steady_clock::now();
+
+} /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -125,13 +133,9 @@ Time Timer::deltaTime()
 
 Time Timer::currentTime()
 {
-  if (!glfwInit())
-  {
-    logError("Failed to initialize GLFW");
-    return 0.0;
-  }
+  auto now = std::chrono::steady_clock::now();
 
-  return glfwGetTime();
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(now - base).count() / 1e9;
 }
 
 ///////////////////////////////////////////////////////////////////////
