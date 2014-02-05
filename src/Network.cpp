@@ -166,6 +166,11 @@ size_t PacketData::size() const
   return m_size;
 }
 
+size_t PacketData::capacity() const
+{
+  return m_capacity;
+}
+
 const void* PacketData::data() const
 {
   return m_data;

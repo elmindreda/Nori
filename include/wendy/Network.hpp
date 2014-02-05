@@ -146,6 +146,7 @@ public:
   void write(const T& value);
   bool isEmpty();
   size_t size() const;
+  size_t capacity() const;
   const void* data() const;
 private:
   uint8* m_data;
