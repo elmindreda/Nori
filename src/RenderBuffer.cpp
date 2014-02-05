@@ -535,6 +535,29 @@ Framebuffer::~Framebuffer()
 {
 }
 
+Ref<Image> Framebuffer::data() const
+{
+  Ref<Image> image = Image::create(m_context.cache(),
+                                   PixelFormat::RGB8,
+                                   width(), height());
+  if (!image)
+    return nullptr;
+
+  Framebuffer& previous = m_context.currentFramebuffer();
+  apply();
+
+  glReadPixels(0, 0, image->width(), image->height(),
+               GL_RGB, GL_UNSIGNED_BYTE,
+               image->pixels());
+
+  previous.apply();
+
+  if (!checkGL("Error when reading framebuffer data"))
+    return nullptr;
+
+  return image;
+}
+
 void Framebuffer::setSRGB(bool enabled)
 {
   if (m_sRGB == enabled)

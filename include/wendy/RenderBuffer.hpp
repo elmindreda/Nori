@@ -394,6 +394,7 @@ public:
   /*! Destructor.
    */
   virtual ~Framebuffer();
+  Ref<Image> data() const;
   /*! @return @c true if this framebuffer uses sRGB encoding, or @c false
    *  otherwise.
    */
