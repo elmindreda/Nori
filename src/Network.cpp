@@ -431,8 +431,10 @@ Peer* Host::findPeer(TargetID targetID)
 
 NetworkObject* Host::findObject(NetworkObjectID objectID)
 {
-  assert(objectID < m_objects.size());
-  return m_objects[objectID];
+  if (objectID < m_objects.size())
+    return m_objects[objectID];
+  else
+    return nullptr;
 }
 
 PacketData Host::createEvent(EventID eventID, NetworkObjectID recipientID)
