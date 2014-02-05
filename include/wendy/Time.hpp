@@ -95,6 +95,7 @@ public:
   Ticker(Time period);
   uint update(Time deltaTime);
   Time period() const { return m_period; }
+  Time remainder() const { return m_remainder; }
 private:
   Time m_period;
   Time m_remainder;
