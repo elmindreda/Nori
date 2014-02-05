@@ -57,9 +57,11 @@ bool convertToBitDepth(int& result, const PixelFormat& format)
   switch (format.type())
   {
     case PixelFormat::UINT8:
+      result = 8;
+      return true;
     case PixelFormat::UINT16:
-      result = int(format.size()) * 8;
-      return false;
+      result = 16;
+      return true;
     default:
       return false;
   }
@@ -515,7 +517,7 @@ bool ImageWriter::write(const Path& path, const Image& image)
     return false;
   }
 
-  std::ofstream stream(path.name());
+  std::ofstream stream(path.name(), std::ios::out | std::ios::trunc | std::ios::binary);
   if (!stream.is_open())
   {
     logError("Failed to create image file %s", path.name().c_str());
