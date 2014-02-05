@@ -92,7 +92,7 @@ bool Regex::contains(const String& text) const
   return true;
 }
 
-RegexMatch* Regex::match(const String& text) const
+RegexMatch Regex::match(const String& text) const
 {
   // NOTE: Static sizes are bad, but what is one to do?
   int ranges[300];
@@ -105,10 +105,10 @@ RegexMatch* Regex::match(const String& text) const
     if (count != PCRE_ERROR_NOMATCH)
       logError("Error when matching regex");
 
-    return nullptr;
+    return RegexMatch();
   }
 
-  return new RegexMatch(text, ranges, count);
+  return RegexMatch(text, ranges, count);
 }
 
 Regex* Regex::create(const String& source)

@@ -37,6 +37,8 @@ class RegexMatch
 {
   friend class Regex;
 public:
+  RegexMatch() { }
+  operator bool () const { return !m_strings.empty(); }
   /*! @return The number of substrings in this match descriptor.
    */
   size_t count() const { return m_offsets.size(); }
@@ -47,7 +49,7 @@ public:
   /*! @param[in] index The index of the desired substring.
    *  @return The desired substring.
    */
-  const String& asString(uint index = 0) const { return m_strings[index]; }
+  const String& string(uint index = 0) const { return m_strings[index]; }
 private:
   RegexMatch(const String& text, int* ranges, uint count);
   std::vector<int> m_offsets;
@@ -85,7 +87,7 @@ public:
    *  @param[in] text The text to match this regex against.
    *  @return A match descriptor, or @c nullptr if no match was found.
    */
-  RegexMatch* match(const String& text) const;
+  RegexMatch match(const String& text) const;
   /*! Creates a regex object with the specified regex expression.
    *  @param[in] source The regex expression to use.
    *  @return The newly created regex object.
