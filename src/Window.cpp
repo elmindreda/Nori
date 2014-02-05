@@ -44,7 +44,7 @@
 
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
-#include <glm/gtx/constants.hpp>
+#include <glm/gtc/constants.hpp>
 
 ///////////////////////////////////////////////////////////////////////
 
