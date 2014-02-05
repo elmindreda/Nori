@@ -523,7 +523,7 @@ size_t Texture::size() const
 {
   size_t size = 0;
 
-  for (auto& i : m_images)
+  for (const auto& i : m_images)
     size += i->size();
 
   return size;
@@ -688,9 +688,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
     glTexImage3D(convertToProxyGL(m_type),
                  0,
                  convertToGL(m_format, sRGB),
-                 width,
-                 height,
-                 depth,
+                 width, height, depth,
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
@@ -701,8 +699,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
     glTexImage2D(convertToProxyGL(m_type),
                  0,
                  convertToGL(m_format, sRGB),
-                 width,
-                 height,
+                 width, height,
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
@@ -821,7 +818,7 @@ void Texture::retrieveImages()
 
   if (m_type == TEXTURE_CUBE)
   {
-    for (size_t i = 0;  i < 6;  i++)
+    for (uint i = 0;  i < 6;  i++)
       m_levels = retrieveTargetImages(convertToGL(CubeFace(i)), CubeFace(i));
   }
   else
