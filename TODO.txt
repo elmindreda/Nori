@@ -62,7 +62,6 @@ Add clipboard support to TextController
 UI
 ==
 
-Add check button widget [Pod]
 Add color picker widget [Pod]
 
 Add tooltip system [Pod]

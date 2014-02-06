@@ -39,10 +39,12 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(Layer& layer, const char* text):
+Button::Button(Layer& layer, ButtonType type, const char* text):
   Widget(layer),
+  m_type(type),
+  m_text(text),
   m_selected(false),
-  m_text(text)
+  m_checked(false)
 {
   const float em = layer.drawer().currentEM();
 
@@ -87,7 +89,10 @@ void Button::draw() const
     else
       hoverState = state();
 
-    drawer.drawButton(area, hoverState, m_text.c_str());
+    if (m_type == PUSH_BUTTON)
+      drawer.drawButton(area, hoverState, m_text.c_str());
+    else if (m_type == CHECK_BUTTON)
+      drawer.drawCheck(area, hoverState, m_checked, m_text.c_str());
 
     Widget::draw();
 
@@ -106,6 +111,7 @@ void Button::onMouseButton(vec2 point,
       m_selected = true;
     else if (action == RELEASED)
     {
+      m_checked = !m_checked;
       m_selected = false;
       m_pushedSignal(*this);
     }
@@ -144,9 +150,8 @@ void Button::onKey(Key key, Action action, uint mods)
     case KEY_ENTER:
     {
       if (action == PRESSED)
-        m_selected = true;
-      else if (action == RELEASED)
       {
+        m_checked = !m_checked;
         m_selected = false;
         m_pushedSignal(*this);
         invalidate();

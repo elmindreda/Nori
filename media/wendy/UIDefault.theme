@@ -8,6 +8,8 @@
     <handle area="32 16 16 16" />
     <frame area="0 48 16 16" />
     <well area="0 48 16 16" />
+    <check area="64 16 16 16" />
+    <clear area="64 48 16 16" />
     <tab area="32 48 16 16" />
   </normal>
   <disabled>
@@ -18,6 +20,8 @@
     <handle area="32 0 16 16" />
     <frame area="0 32 16 16" />
     <well area="0 32 16 16" />
+    <check area="64 0 16 16" />
+    <clear area="64 32 16 16" />
     <tab area="32 32 16 16" />
   </disabled>
   <active>
@@ -28,6 +32,8 @@
     <handle area="48 16 16 16" />
     <frame area="16 48 16 16" />
     <well area="16 48 16 16" />
+    <check area="80 16 16 16" />
+    <clear area="80 48 16 16" />
     <tab area="48 48 16 16" />
   </active>
   <selected>
@@ -38,6 +44,8 @@
     <handle area="48 0 16 16" />
     <frame area="16 32 16 16" />
     <well area="16 32 16 16" />
+    <check area="80 0 16 16" />
+    <clear area="80 32 16 16" />
     <tab area="48 32 16 16" />
   </selected>
 </theme>

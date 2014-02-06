@@ -205,6 +205,12 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     if (pugi::xml_node node = sn.child("well"))
       theme->wellElements[state] = rectCast(node.attribute("area").value());
 
+    if (pugi::xml_node node = sn.child("check"))
+      theme->checkElements[state] = rectCast(node.attribute("area").value());
+
+    if (pugi::xml_node node = sn.child("clear"))
+      theme->clearElements[state] = rectCast(node.attribute("area").value());
+
     if (pugi::xml_node node = sn.child("tab"))
       theme->tabElements[state] = rectCast(node.attribute("area").value());
   }
@@ -455,6 +461,22 @@ void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
   }
   else
     drawText(area, text, Alignment(), state);
+}
+
+void Drawer::drawCheck(const Rect& area, WidgetState state, bool checked, const char* text)
+{
+  const float checkSize = min(area.size.x, area.size.y);
+  const Rect checkArea(area.position, vec2(checkSize, checkSize));
+
+  if (checked)
+    drawElement(checkArea, m_theme->checkElements[state]);
+  else
+    drawElement(checkArea, m_theme->clearElements[state]);
+
+  const Rect textArea(area.position + vec2(checkSize, 0.f),
+                      area.size - vec2(checkSize, 0.f));
+
+  drawText(textArea, text, LEFT_ALIGNED, state);
 }
 
 void Drawer::drawTab(const Rect& area, WidgetState state, const char* text)

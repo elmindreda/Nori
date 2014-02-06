@@ -114,6 +114,8 @@ public:
   Rect frameElements[4];
   Rect wellElements[4];
   Rect tabElements[4];
+  Rect checkElements[4];
+  Rect clearElements[4];
   vec3 textColors[4];
   vec3 backColors[4];
   vec3 caretColors[4];
@@ -186,6 +188,7 @@ public:
   void drawFrame(const Rect& area, WidgetState state);
   void drawHandle(const Rect& area, WidgetState state);
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
+  void drawCheck(const Rect& area, WidgetState state, bool checked, const char* text = "");
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
   const Theme& theme() const;
   RenderContext& context();
