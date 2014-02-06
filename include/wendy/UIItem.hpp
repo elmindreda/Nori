@@ -58,8 +58,8 @@ public:
   virtual float width() const;
   virtual float height() const;
   virtual ItemID id() const;
-  virtual const String& asString() const;
-  virtual void setStringValue(const char* newValue);
+  virtual const String& value() const;
+  virtual void setValue(const char* newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
   Layer& m_layer;

@@ -40,11 +40,12 @@ class Entry : public Widget
 public:
   Entry(Layer& layer, const char* text = "");
   const String& text() const;
+  void setText(const String& newText);
   void setText(const char* newText);
   uint caretPosition() const;
   void setCaretPosition(uint newPosition);
-  SignalProxy<void, Entry&> textChangedSignal();
-  SignalProxy<void, Entry&> caretMovedSignal();
+  SignalProxy<void, Entry&> textChangedSignal() { return m_textChangedSignal; }
+  SignalProxy<void, Entry&> caretMovedSignal() { return m_caretMovedSignal; }
 protected:
   void draw() const;
 private:
@@ -60,6 +61,7 @@ private:
   Signal<void, Entry&> m_textChangedSignal;
   Signal<void, Entry&> m_caretMovedSignal;
   TextController m_controller;
+  Timer m_timer;
 };
 
 ///////////////////////////////////////////////////////////////////////

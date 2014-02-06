@@ -55,6 +55,8 @@ public:
   void setSelection(uint newSelection);
   Item* selectedItem();
   void setSelectedItem(Item& newItem);
+  ItemID selectedID();
+  void setSelectedID(ItemID newItemID);
   uint itemCount() const;
   Item* item(uint index);
   const Item* item(uint index) const;

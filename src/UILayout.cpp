@@ -199,7 +199,7 @@ void Layout::update()
   else
   {
     const float childHeight = height() - m_borderSize * 2.f;
-    float flexibleWidth = 0.f, positionX = width();
+    float flexibleWidth = 0.f, positionX = m_borderSize;
 
     if (flexibleCount)
       flexibleWidth = (width() - stackSize) / flexibleCount;
@@ -210,8 +210,8 @@ void Layout::update()
       if (childWidth == 0.f)
         childWidth = flexibleWidth;
 
-      positionX -= childWidth + m_borderSize;
       c->setArea(Rect(positionX, m_borderSize, childWidth, childHeight));
+      positionX += childWidth + m_borderSize;
     }
   }
 }

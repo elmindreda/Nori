@@ -43,17 +43,32 @@ Entry::Entry(Layer& layer, const char* text):
   Widget(layer),
   m_controller(text)
 {
-  const float em = layer.drawer().currentEM();
+  Drawer& drawer = layer.drawer();
+  drawer.setCurrentFont(nullptr);
+  const float em = drawer.currentEM();
 
-  setSize(vec2(em * 10.f, em * 1.5f));
+  float textWidth;
+  if (m_controller.text().empty())
+    textWidth = em * 3.f;
+  else
+    textWidth = drawer.currentFont().boundsOf(m_controller.text().c_str()).size.x;
+
+  setSize(vec2(em * 2.f + textWidth, em * 2.f));
 
   m_controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
   m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
+
+  m_timer.start();
 }
 
 const String& Entry::text() const
 {
   return m_controller.text();
+}
+
+void Entry::setText(const String& newText)
+{
+  setText(newText.c_str());
 }
 
 void Entry::setText(const char* newText)
@@ -72,16 +87,6 @@ void Entry::setCaretPosition(uint newPosition)
   m_controller.setCaretPosition(newPosition);
 }
 
-SignalProxy<void, Entry&> Entry::textChangedSignal()
-{
-  return m_textChangedSignal;
-}
-
-SignalProxy<void, Entry&> Entry::caretMovedSignal()
-{
-  return m_caretMovedSignal;
-}
-
 void Entry::draw() const
 {
   Drawer& drawer = layer().drawer();
@@ -98,12 +103,12 @@ void Entry::draw() const
 
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());
 
-    if (isActive() && ((uint) (Timer::currentTime() * 2.f) & 1))
+    if (isActive() && floor(fmod(m_timer.time(), 2.0)) == 0.0)
     {
       float position = 0.f;
 
       Font& font = drawer.currentFont();
-      const Rect bounds = font.boundsOf(text.substr(0, m_controller.caretPosition()).c_str());
+      const Rect bounds = font.boundsOf(text.c_str(), 0, m_controller.caretPosition());
       position = bounds.size.x;
 
       const vec2 start = vec2(textArea.position.x + position,
@@ -115,7 +120,6 @@ void Entry::draw() const
     }
 
     Widget::draw();
-
     drawer.popClipArea();
   }
 }
@@ -128,26 +132,31 @@ void Entry::onMouseButton(vec2 point,
   if (action == PRESSED)
   {
     Drawer& drawer = layer().drawer();
+    drawer.setCurrentFont(nullptr);
+    Font& font = drawer.currentFont();
 
     const float em = drawer.currentEM();
-    const float offset = em / 2.f;
-    float position = transformToLocal(point).x - offset;
+    const float position = transformToLocal(point).x - em / 2.f;
+    const auto layout = font.layoutOf(m_controller.text().c_str());
 
-    std::vector<Rect> layout = drawer.currentFont().layoutOf(m_controller.text().c_str());
+    uint caretPosition = uint(layout.size());
 
-    uint index;
-
-    // TODO: Improve this, it sucks.
-
-    for (index = 0;  index < layout.size();  index++)
+    for (uint i = 0;  i < layout.size();  i++)
     {
-      position -= layout[index].position.x;
-      if (position < 0.f)
-        break;
+      if (position < layout[i].position.x + layout[i].size.x / 2.f)
+      {
+        if (i == 0 || position >= layout[i - 1].position.x +
+                                  layout[i - 1].size.x / 2.f)
+        {
+          caretPosition = i;
+          break;
+        }
+      }
     }
 
-    m_controller.setCaretPosition(index);
+    m_controller.setCaretPosition(caretPosition);
     m_caretMovedSignal(*this);
+    m_timer.start();
   }
 
   Widget::onMouseButton(point, button, action, mods);
@@ -156,24 +165,24 @@ void Entry::onMouseButton(vec2 point,
 void Entry::onKey(Key key, Action action, uint mods)
 {
   m_controller.inputKey(key, action, mods);
-
   Widget::onKey(key, action, mods);
 }
 
 void Entry::onCharacter(uint32 codepoint, uint mods)
 {
   m_controller.inputCharacter(codepoint, mods);
-
   Widget::onCharacter(codepoint, mods);
 }
 
 void Entry::onTextChanged()
 {
+  m_timer.start();
   m_textChangedSignal(*this);
 }
 
 void Entry::onCaretMoved()
 {
+  m_timer.start();
   m_caretMovedSignal(*this);
 }
 

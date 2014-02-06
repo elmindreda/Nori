@@ -38,7 +38,7 @@ namespace wendy
 class Label : public Widget
 {
 public:
-  Label(Layer& layer, const char* text = "");
+  Label(Layer& layer, const char* text = "", Alignment alignment = LEFT_ALIGNED);
   const String& text() const;
   void setText(const char* newText);
   const Alignment& textAlignment() const;

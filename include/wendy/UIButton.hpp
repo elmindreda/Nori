@@ -48,6 +48,7 @@ class Button : public Widget
 public:
   ButtonType type() const { return m_type; }
   bool checked() const { return m_checked; }
+  void setChecked(bool checked);
   const String& text() const;
   void setText(const char* newText);
   SignalProxy<void, Button&> pushedSignal();

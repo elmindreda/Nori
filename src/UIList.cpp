@@ -76,6 +76,9 @@ void List::addItem(Item& item)
 
   m_items.push_back(&item);
   updateScroller();
+
+  if (m_selection == NO_ITEM)
+    m_selection = 0;
 }
 
 void List::createItem(const char* value, ItemID ID)
@@ -88,7 +91,7 @@ Item* List::findItem(const char* value)
 {
   for (auto i : m_items)
   {
-    if (i->asString() == value)
+    if (i->value() == value)
       return i;
   }
 
@@ -99,7 +102,7 @@ const Item* List::findItem(const char* value) const
 {
   for (auto i : m_items)
   {
-    if (i->asString() == value)
+    if (i->value() == value)
       return i;
   }
 
@@ -204,6 +207,26 @@ void List::setSelectedItem(Item& newItem)
   auto i = std::find(m_items.begin(), m_items.end(), &newItem);
   assert(i != m_items.end());
   setSelection(uint(i - m_items.begin()), false);
+}
+
+ItemID List::selectedID()
+{
+  if (Item* item = selectedItem())
+    return item->id();
+
+  return NO_ITEM;
+}
+
+void List::setSelectedID(ItemID newItemID)
+{
+  for (auto i : m_items)
+  {
+    if (i->id() == newItemID)
+    {
+      setSelectedItem(*i);
+      break;
+    }
+  }
 }
 
 uint List::itemCount() const
@@ -436,7 +459,7 @@ void List::beginEditing()
 
     entryArea.position += area.position;
 
-    const String& value = selected->asString();
+    const String& value = selected->value();
 
     m_entry->setArea(entryArea);
     m_entry->setText(value.c_str());
@@ -453,7 +476,7 @@ void List::applyEditing()
   m_editing = false;
 
   if (Item* item = selectedItem())
-    item->setStringValue(m_entry->text().c_str());
+    item->setValue(m_entry->text().c_str());
 }
 
 void List::cancelEditing()

@@ -81,12 +81,12 @@ ItemID Item::id() const
   return m_id;
 }
 
-const String& Item::asString() const
+const String& Item::value() const
 {
   return m_value;
 }
 
-void Item::setStringValue(const char* newValue)
+void Item::setValue(const char* newValue)
 {
   m_value = newValue;
   m_layer.invalidate();
@@ -180,7 +180,7 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
 
   const Rect textArea(area.position + vec2(em * 3.5f, 0.f),
                       area.size - vec2(em, 0.f));
-  drawer.drawText(textArea, asString().c_str(), LEFT_ALIGNED, state);
+  drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
 }
 
 ///////////////////////////////////////////////////////////////////////

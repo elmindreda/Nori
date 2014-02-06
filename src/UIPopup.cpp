@@ -65,12 +65,15 @@ Popup::~Popup()
 void Popup::addItem(Item& item)
 {
   m_menu->addItem(item);
+
+  if (m_selection == NO_ITEM)
+    m_selection = 0;
 }
 
 void Popup::createItem(const char* value, ItemID ID)
 {
   Item* item = new Item(layer(), value, ID);
-  m_menu->addItem(*item);
+  addItem(*item);
 }
 
 Item* Popup::findItem(const char* value)
@@ -126,6 +129,26 @@ void Popup::setSelectedItem(Item& newItem)
   m_selection = uint(i - items.begin());
 }
 
+ItemID Popup::selectedID()
+{
+  if (Item* item = selectedItem())
+    return item->id();
+
+  return NO_ITEM;
+}
+
+void Popup::setSelectedID(ItemID newItemID)
+{
+  for (auto i : m_menu->items())
+  {
+    if (i->id() == newItemID)
+    {
+      setSelectedItem(*i);
+      break;
+    }
+  }
+}
+
 uint Popup::itemCount() const
 {
   return m_menu->itemCount();
@@ -167,7 +190,7 @@ void Popup::draw() const
       const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                           area.size - vec2(em, 0.f));
 
-      drawer.drawText(textArea, item->asString().c_str(), LEFT_ALIGNED, state());
+      drawer.drawText(textArea, item->value().c_str(), LEFT_ALIGNED, state());
     }
 
     Widget::draw();

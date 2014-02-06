@@ -125,7 +125,7 @@ Item* Menu::findItem(const char* value)
 {
   for (auto i : m_items)
   {
-    if (i->asString() == value)
+    if (i->value() == value)
       return i;
   }
 
@@ -136,7 +136,7 @@ const Item* Menu::findItem(const char* value) const
 {
   for (auto i : m_items)
   {
-    if (i->asString() == value)
+    if (i->value() == value)
       return i;
   }
 

@@ -46,17 +46,23 @@ Button::Button(Layer& layer, ButtonType type, const char* text):
   m_selected(false),
   m_checked(false)
 {
-  const float em = layer.drawer().currentEM();
+  Drawer& drawer = layer.drawer();
+  drawer.setCurrentFont(nullptr);
+  const float em = drawer.currentEM();
 
   float textWidth;
-
   if (m_text.empty())
     textWidth = em * 3.f;
   else
-    textWidth = layer.drawer().currentFont().boundsOf(m_text.c_str()).size.x;
+    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
+}
+
+void Button::setChecked(bool checked)
+{
+  m_checked = checked;
 }
 
 const String& Button::text() const

@@ -466,7 +466,8 @@ void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 void Drawer::drawCheck(const Rect& area, WidgetState state, bool checked, const char* text)
 {
   const float checkSize = min(area.size.x, area.size.y);
-  const Rect checkArea(area.position, vec2(checkSize, checkSize));
+  const Rect checkArea(area.position + vec2(checkSize) * 0.2f,
+                       vec2(checkSize) * 0.6f);
 
   if (checked)
     drawElement(checkArea, m_theme->checkElements[state]);

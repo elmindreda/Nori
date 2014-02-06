@@ -41,17 +41,16 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(Layer& layer, const char* text):
+Label::Label(Layer& layer, const char* text, Alignment alignment):
   Widget(layer),
   m_text(text),
-  m_textAlignment(LEFT_ALIGNED)
+  m_textAlignment(alignment)
 {
   Drawer& drawer = layer.drawer();
-
+  drawer.setCurrentFont(nullptr);
   const float em = drawer.currentEM();
 
   float textWidth;
-
   if (m_text.empty())
     textWidth = em * 3.f;
   else
