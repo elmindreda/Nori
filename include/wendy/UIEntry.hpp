@@ -49,6 +49,7 @@ public:
 protected:
   void draw() const;
 private:
+  void onFocusChanged(bool activated) override;
   void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,

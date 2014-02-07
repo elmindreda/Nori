@@ -125,6 +125,14 @@ void Entry::draw() const
   }
 }
 
+void Entry::onFocusChanged(bool activated)
+{
+  if (activated)
+    m_timer.start();
+
+  Widget::onFocusChanged(activated);
+}
+
 void Entry::onMouseButton(vec2 point,
                           MouseButton button,
                           Action action,
