@@ -61,6 +61,7 @@ List::List(Layer& layer):
   addChild(*m_scroller);
 
   onAreaChanged();
+  setFocusable(true);
 }
 
 List::~List()

@@ -64,6 +64,7 @@ Book::Book(Layer& layer):
   Widget(layer),
   m_activePage(nullptr)
 {
+  setFocusable(true);
 }
 
 Page* Book::activePage() const

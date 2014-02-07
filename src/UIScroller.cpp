@@ -56,6 +56,7 @@ Scroller::Scroller(Layer& layer, Orientation orientation):
     setSize(vec2(em * 1.5f, em * 10.f));
 
   setDraggable(true);
+  setFocusable(true);
 }
 
 void Scroller::setValueRange(float newMinValue, float newMaxValue)

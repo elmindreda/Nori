@@ -92,6 +92,8 @@ public:
 private:
   void updateHoveredWidget();
   void removedWidget(Widget& widget);
+  void focusableWidgets(std::vector<Widget*>& target,
+                        const std::vector<Widget*>& source) const;
   void onWindowSize(uint width, uint height) override;
   void onKey(Key key, Action action, uint mods) override;
   void onCharacter(uint32 codepoint, uint mods) override;

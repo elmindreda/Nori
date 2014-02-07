@@ -54,6 +54,8 @@ Popup::Popup(Layer& layer):
   m_menu->itemSelectedSignal().connect(*this, &Popup::onItemSelected);
   m_menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
   layer.addRootWidget(*m_menu);
+
+  setFocusable(true);
 }
 
 Popup::~Popup()

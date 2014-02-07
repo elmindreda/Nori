@@ -265,6 +265,21 @@ void Layer::removedWidget(Widget& widget)
   }
 }
 
+void Layer::focusableWidgets(std::vector<Widget*>& target,
+                             const std::vector<Widget*>& source) const
+{
+  for (auto widget : source)
+  {
+    if (widget->isVisible() && widget->isEnabled())
+    {
+      if (widget->isFocusable())
+        target.push_back(widget);
+
+      focusableWidgets(target, widget->m_children);
+    }
+  }
+}
+
 void Layer::onWindowSize(uint width, uint height)
 {
   m_sizeChangedSignal(*this);
@@ -272,8 +287,28 @@ void Layer::onWindowSize(uint width, uint height)
 
 void Layer::onKey(Key key, Action action, uint mods)
 {
-  if (m_activeWidget)
-    m_activeWidget->onKey(key, action, mods);
+  if (key == KEY_TAB && action == PRESSED)
+  {
+    std::vector<Widget*> focusable;
+    focusableWidgets(focusable, m_roots);
+
+    if (!focusable.empty())
+    {
+      auto i = std::find(focusable.begin(), focusable.end(), m_activeWidget);
+      const size_t count = focusable.size();
+      const size_t index = i - focusable.begin();
+
+      if (mods & MOD_SHIFT)
+        focusable[(index + count - 1) % count]->activate();
+      else
+        focusable[(index + 1) % count]->activate();
+    }
+  }
+  else
+  {
+    if (m_activeWidget)
+      m_activeWidget->onKey(key, action, mods);
+  }
 }
 
 void Layer::onCharacter(uint32 codepoint, uint mods)
@@ -334,11 +369,15 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 
     if (clickedWidget)
     {
-      clickedWidget->activate();
-      clickedWidget->onMouseButton(cursorPosition, button, action, mods);
+      if (clickedWidget->isFocusable())
+      {
+        clickedWidget->activate();
 
-      if (!m_captureWidget && clickedWidget->isDraggable())
-        m_draggedWidget = clickedWidget;
+        if (!m_captureWidget && clickedWidget->isDraggable())
+          m_draggedWidget = clickedWidget;
+      }
+
+      clickedWidget->onMouseButton(cursorPosition, button, action, mods);
     }
   }
   else if (action == RELEASED)

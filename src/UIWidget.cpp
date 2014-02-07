@@ -45,7 +45,8 @@ Widget::Widget(Layer& layer):
   m_parent(nullptr),
   m_enabled(true),
   m_visible(true),
-  m_draggable(false)
+  m_draggable(false),
+  m_focusable(false)
 {
   assert(&m_layer);
 }
@@ -322,6 +323,11 @@ void Widget::setSize(vec2 newSize)
 void Widget::setPosition(vec2 newPosition)
 {
   setArea(Rect(newPosition, m_area.size));
+}
+
+void Widget::setFocusable(bool focusable)
+{
+  m_focusable = focusable;
 }
 
 void Widget::setDraggable(bool newState)

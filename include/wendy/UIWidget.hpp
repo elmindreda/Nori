@@ -131,6 +131,7 @@ public:
   /*! @return @c true if this is the active widget, otherwise @c false.
    */
   bool isActive() const;
+  bool isFocusable() const { return m_focusable; }
   /*! @return @c true if this widget is directly under the cursor, otherwise @c
    *  false.
    */
@@ -194,6 +195,7 @@ public:
    *  @remarks This is a helper method for Widget::setArea.
    */
   void setPosition(vec2 newPosition);
+  void setFocusable(bool focusable);
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
@@ -254,6 +256,7 @@ private:
   bool m_enabled;
   bool m_visible;
   bool m_draggable;
+  bool m_focusable;
   Rect m_area;
 };
 

@@ -59,6 +59,7 @@ Entry::Entry(Layer& layer, const char* text):
   m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
 
   m_timer.start();
+  setFocusable(true);
 }
 
 const String& Entry::text() const

@@ -58,6 +58,7 @@ Button::Button(Layer& layer, ButtonType type, const char* text):
 
   setSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
+  setFocusable(true);
 }
 
 void Button::setChecked(bool checked)

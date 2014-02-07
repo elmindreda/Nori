@@ -47,6 +47,7 @@ Menu::Menu(Layer& layer):
   m_selection(NO_ITEM)
 {
   setDraggable(true);
+  setFocusable(true);
   hide();
 }
 
