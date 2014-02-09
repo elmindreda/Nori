@@ -251,34 +251,40 @@ FragmentFunction Pass::depthFunction() const
   return m_state.depthFunction;
 }
 
-FragmentFunction Pass::stencilFunction() const
+FragmentFunction Pass::stencilFunction(PolygonFace face) const
 {
-  return m_state.stencilFunction;
+  assert(face == FACE_FRONT || face == FACE_BACK);
+  return m_state.stencil[face].function;
 }
 
-StencilOp Pass::stencilFailOperation() const
+StencilOp Pass::stencilFailOperation(PolygonFace face) const
 {
-  return m_state.stencilFailOp;
+  assert(face == FACE_FRONT || face == FACE_BACK);
+  return m_state.stencil[face].stencilFailOp;
 }
 
-StencilOp Pass::depthFailOperation() const
+StencilOp Pass::depthFailOperation(PolygonFace face) const
 {
-  return m_state.depthFailOp;
+  assert(face == FACE_FRONT || face == FACE_BACK);
+  return m_state.stencil[face].depthFailOp;
 }
 
-StencilOp Pass::depthPassOperation() const
+StencilOp Pass::depthPassOperation(PolygonFace face) const
 {
-  return m_state.depthPassOp;
+  assert(face == FACE_FRONT || face == FACE_BACK);
+  return m_state.stencil[face].depthPassOp;
 }
 
-uint Pass::stencilReference() const
+uint Pass::stencilReference(PolygonFace face) const
 {
-  return m_state.stencilRef;
+  assert(face == FACE_FRONT || face == FACE_BACK);
+  return m_state.stencil[face].reference;
 }
 
-uint Pass::stencilWriteMask() const
+uint Pass::stencilWriteMask(PolygonFace face) const
 {
-  return m_state.stencilMask;
+  assert(face == FACE_FRONT || face == FACE_BACK);
+  return m_state.stencil[face].mask;
 }
 
 void Pass::setDepthTesting(bool enable)
@@ -312,34 +318,88 @@ void Pass::setDepthFunction(FragmentFunction function)
   m_state.depthFunction = function;
 }
 
-void Pass::setStencilFunction(FragmentFunction newFunction)
+void Pass::setStencilFunction(PolygonFace face, FragmentFunction newFunction)
 {
-  m_state.stencilFunction = newFunction;
+  if (face == FACE_BOTH)
+  {
+    m_state.stencil[0].function = newFunction;
+    m_state.stencil[1].function = newFunction;
+  }
+  else
+  {
+    assert(face == FACE_FRONT || face == FACE_BACK);
+    m_state.stencil[face].function = newFunction;
+  }
 }
 
-void Pass::setStencilReference(uint newReference)
+void Pass::setStencilReference(PolygonFace face, uint newReference)
 {
-  m_state.stencilRef = newReference;
+  if (face == FACE_BOTH)
+  {
+    m_state.stencil[0].reference = newReference;
+    m_state.stencil[1].reference = newReference;
+  }
+  else
+  {
+    assert(face == FACE_FRONT || face == FACE_BACK);
+    m_state.stencil[face].reference = newReference;
+  }
 }
 
-void Pass::setStencilWriteMask(uint newMask)
+void Pass::setStencilWriteMask(PolygonFace face, uint newMask)
 {
-  m_state.stencilMask = newMask;
+  if (face == FACE_BOTH)
+  {
+    m_state.stencil[0].mask = newMask;
+    m_state.stencil[1].mask = newMask;
+  }
+  else
+  {
+    assert(face == FACE_FRONT || face == FACE_BACK);
+    m_state.stencil[face].mask = newMask;
+  }
 }
 
-void Pass::setStencilFailOperation(StencilOp newOperation)
+void Pass::setStencilFailOperation(PolygonFace face, StencilOp newOperation)
 {
-  m_state.stencilFailOp = newOperation;
+  if (face == FACE_BOTH)
+  {
+    m_state.stencil[0].stencilFailOp = newOperation;
+    m_state.stencil[1].stencilFailOp = newOperation;
+  }
+  else
+  {
+    assert(face == FACE_FRONT || face == FACE_BACK);
+    m_state.stencil[face].stencilFailOp = newOperation;
+  }
 }
 
-void Pass::setDepthFailOperation(StencilOp newOperation)
+void Pass::setDepthFailOperation(PolygonFace face, StencilOp newOperation)
 {
-  m_state.depthFailOp = newOperation;
+  if (face == FACE_BOTH)
+  {
+    m_state.stencil[0].depthFailOp = newOperation;
+    m_state.stencil[1].depthFailOp = newOperation;
+  }
+  else
+  {
+    assert(face == FACE_FRONT || face == FACE_BACK);
+    m_state.stencil[face].depthFailOp = newOperation;
+  }
 }
 
-void Pass::setDepthPassOperation(StencilOp newOperation)
+void Pass::setDepthPassOperation(PolygonFace face, StencilOp newOperation)
 {
-  m_state.depthPassOp = newOperation;
+  if (face == FACE_BOTH)
+  {
+    m_state.stencil[0].depthPassOp = newOperation;
+    m_state.stencil[1].depthPassOp = newOperation;
+  }
+  else
+  {
+    assert(face == FACE_FRONT || face == FACE_BACK);
+    m_state.stencil[face].depthPassOp = newOperation;
+  }
 }
 
 void Pass::setColorWriting(bool enabled)

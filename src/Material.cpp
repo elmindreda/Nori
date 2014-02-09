@@ -60,7 +60,7 @@ Bimap<String, RenderPhase> phaseMap;
 
 Bimap<SamplerType, TextureType> textureTypeMap;
 
-const uint MATERIAL_XML_VERSION = 10;
+const uint MATERIAL_XML_VERSION = 11;
 
 void initializeMaps()
 {
@@ -70,6 +70,7 @@ void initializeMaps()
     polygonFaceMap["front"] = FACE_FRONT;
     polygonFaceMap["back"] = FACE_BACK;
     polygonFaceMap["both"] = FACE_BOTH;
+    polygonFaceMap.setDefaults("", FACE_NONE);
   }
 
   if (blendFactorMap.isEmpty())
@@ -209,53 +210,60 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
     if (pugi::xml_attribute a = node.attribute("testing"))
       pass.setStencilTesting(a.as_bool());
 
-    if (pugi::xml_attribute a = node.attribute("mask"))
-      pass.setStencilWriteMask(a.as_uint());
-
-    if (pugi::xml_attribute a = node.attribute("reference"))
-      pass.setStencilReference(a.as_uint());
-
-    if (pugi::xml_attribute a = node.attribute("stencilFail"))
+    for (pugi::xml_node child : node.children())
     {
-      if (functionMap.hasKey(a.value()))
-        pass.setStencilFailOperation(operationMap[a.value()]);
-      else
+      const PolygonFace face = polygonFaceMap[child.name()];
+      if (face == FACE_NONE)
+        continue;
+
+      if (pugi::xml_attribute a = node.attribute("mask"))
+        pass.setStencilWriteMask(face, a.as_uint());
+
+      if (pugi::xml_attribute a = node.attribute("reference"))
+        pass.setStencilReference(face, a.as_uint());
+
+      if (pugi::xml_attribute a = node.attribute("stencilFail"))
       {
-        logError("Invalid stencil fail operation %s", a.value());
-        return false;
+        if (functionMap.hasKey(a.value()))
+          pass.setStencilFailOperation(face, operationMap[a.value()]);
+        else
+        {
+          logError("Invalid stencil fail operation %s", a.value());
+          return false;
+        }
       }
-    }
 
-    if (pugi::xml_attribute a = node.attribute("depthFail"))
-    {
-      if (functionMap.hasKey(a.value()))
-        pass.setDepthFailOperation(operationMap[a.value()]);
-      else
+      if (pugi::xml_attribute a = node.attribute("depthFail"))
       {
-        logError("Invalid depth fail operation %s", a.value());
-        return false;
+        if (functionMap.hasKey(a.value()))
+          pass.setDepthFailOperation(face, operationMap[a.value()]);
+        else
+        {
+          logError("Invalid depth fail operation %s", a.value());
+          return false;
+        }
       }
-    }
 
-    if (pugi::xml_attribute a = node.attribute("depthPass"))
-    {
-      if (functionMap.hasKey(a.value()))
-        pass.setDepthPassOperation(operationMap[a.value()]);
-      else
+      if (pugi::xml_attribute a = node.attribute("depthPass"))
       {
-        logError("Invalid depth pass operation %s", a.value());
-        return false;
+        if (functionMap.hasKey(a.value()))
+          pass.setDepthPassOperation(face, operationMap[a.value()]);
+        else
+        {
+          logError("Invalid depth pass operation %s", a.value());
+          return false;
+        }
       }
-    }
 
-    if (pugi::xml_attribute a = node.attribute("function"))
-    {
-      if (functionMap.hasKey(a.value()))
-        pass.setStencilFunction(functionMap[a.value()]);
-      else
+      if (pugi::xml_attribute a = node.attribute("function"))
       {
-        logError("Invalid stencil function %s", a.value());
-        return false;
+        if (functionMap.hasKey(a.value()))
+          pass.setStencilFunction(face, functionMap[a.value()]);
+        else
+        {
+          logError("Invalid stencil function %s", a.value());
+          return false;
+        }
       }
     }
   }

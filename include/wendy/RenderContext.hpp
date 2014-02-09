@@ -204,12 +204,14 @@ public:
   BlendFactor srcFactor;
   BlendFactor dstFactor;
   FragmentFunction depthFunction;
-  FragmentFunction stencilFunction;
-  uint stencilRef;
-  uint stencilMask;
-  StencilOp stencilFailOp;
-  StencilOp depthFailOp;
-  StencilOp depthPassOp;
+  struct {
+    FragmentFunction function;
+    uint reference;
+    uint mask;
+    StencilOp stencilFailOp;
+    StencilOp depthFailOp;
+    StencilOp depthPassOp;
+  } stencil[2];
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -363,14 +363,17 @@ RenderState::RenderState():
   cullFace(FACE_BACK),
   srcFactor(BLEND_ONE),
   dstFactor(BLEND_ZERO),
-  depthFunction(ALLOW_LESSER),
-  stencilFunction(ALLOW_ALWAYS),
-  stencilRef(0),
-  stencilMask(~0u),
-  stencilFailOp(STENCIL_KEEP),
-  depthFailOp(STENCIL_KEEP),
-  depthPassOp(STENCIL_KEEP)
+  depthFunction(ALLOW_LESSER)
 {
+  for (uint i = 0;  i < 2;  i++)
+  {
+    stencil[i].function = ALLOW_ALWAYS;
+    stencil[i].reference = 0;
+    stencil[i].mask = ~0u;
+    stencil[i].stencilFailOp = STENCIL_KEEP;
+    stencil[i].depthFailOp = STENCIL_KEEP;
+    stencil[i].depthPassOp = STENCIL_KEEP;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -919,11 +922,10 @@ RenderContext::~RenderContext()
 
 void RenderContext::clearColorBuffer(const vec4& color)
 {
-  const RenderState previousState = m_currentState;
-
-  RenderState clearState = m_currentState;
-  clearState.colorWriting = true;
-  applyState(clearState);
+  if (m_dirtyState)
+    forceState(m_currentState);
+  if (!m_currentState.colorWriting)
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -932,16 +934,16 @@ void RenderContext::clearColorBuffer(const vec4& color)
   checkGL("Error during color buffer clearing");
 #endif
 
-  applyState(previousState);
+  if (!m_currentState.colorWriting)
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 }
 
 void RenderContext::clearDepthBuffer(float depth)
 {
-  const RenderState previousState = m_currentState;
-
-  RenderState clearState = m_currentState;
-  clearState.depthWriting = true;
-  applyState(clearState);
+  if (m_dirtyState)
+    forceState(m_currentState);
+  if (!m_currentState.depthWriting)
+    glDepthMask(GL_TRUE);
 
   glClearDepth(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -950,16 +952,16 @@ void RenderContext::clearDepthBuffer(float depth)
   checkGL("Error during color buffer clearing");
 #endif
 
-  applyState(previousState);
+  if (!m_currentState.depthWriting)
+    glDepthMask(GL_FALSE);
 }
 
 void RenderContext::clearStencilBuffer(uint value)
 {
-  const RenderState previousState = m_currentState;
-
-  RenderState clearState = m_currentState;
-  clearState.stencilMask = ~0u;
-  applyState(clearState);
+  if (m_dirtyState)
+    forceState(m_currentState);
+  if (m_currentState.stencilTesting)
+    glDisable(GL_STENCIL_TEST);
 
   glClearStencil(value);
   glClear(GL_STENCIL_BUFFER_BIT);
@@ -968,18 +970,20 @@ void RenderContext::clearStencilBuffer(uint value)
   checkGL("Error during color buffer clearing");
 #endif
 
-  applyState(previousState);
+  if (m_currentState.stencilTesting)
+    glEnable(GL_STENCIL_TEST);
 }
 
 void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 {
-  const RenderState previousState = m_currentState;
-
-  RenderState clearState = m_currentState;
-  clearState.colorWriting = true;
-  clearState.depthWriting = true;
-  clearState.stencilMask = ~0u;
-  applyState(clearState);
+  if (m_dirtyState)
+    forceState(m_currentState);
+  if (!m_currentState.colorWriting)
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  if (!m_currentState.depthWriting)
+    glDepthMask(GL_TRUE);
+  if (m_currentState.stencilTesting)
+    glDisable(GL_STENCIL_TEST);
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClearDepth(depth);
@@ -991,7 +995,12 @@ void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
   checkGL("Error during color buffer clearing");
 #endif
 
-  applyState(previousState);
+  if (!m_currentState.colorWriting)
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  if (!m_currentState.depthWriting)
+    glDepthMask(GL_FALSE);
+  if (m_currentState.stencilTesting)
+    glEnable(GL_STENCIL_TEST);
 }
 
 void RenderContext::render(const PrimitiveRange& range)
@@ -1583,7 +1592,7 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
     setScissorArea(Recti(0, 0, width, height));
 
     setSwapInterval(1);
-    forceState(m_currentState);
+    forceState(RenderState());
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glEnable(GL_PROGRAM_POINT_SIZE);
@@ -1712,34 +1721,6 @@ void RenderContext::applyState(const RenderState& newState)
     m_currentState.stencilTesting = newState.stencilTesting;
   }
 
-  if (newState.stencilTesting)
-  {
-    if (newState.stencilFunction != m_currentState.stencilFunction ||
-        newState.stencilRef != m_currentState.stencilRef ||
-        newState.stencilMask != m_currentState.stencilMask)
-    {
-      glStencilFunc(convertToGL(newState.stencilFunction),
-                    newState.stencilRef, newState.stencilMask);
-
-      m_currentState.stencilFunction = newState.stencilFunction;
-      m_currentState.stencilRef = newState.stencilRef;
-      m_currentState.stencilMask = newState.stencilMask;
-    }
-
-    if (newState.stencilFailOp != m_currentState.stencilFailOp ||
-        newState.depthFailOp != m_currentState.depthFailOp ||
-        newState.depthPassOp != m_currentState.depthPassOp)
-    {
-      glStencilOp(convertToGL(newState.stencilFailOp),
-                  convertToGL(newState.depthFailOp),
-                  convertToGL(newState.depthPassOp));
-
-      m_currentState.stencilFailOp = newState.stencilFailOp;
-      m_currentState.depthFailOp = newState.depthFailOp;
-      m_currentState.depthPassOp = newState.depthPassOp;
-    }
-  }
-
   if (newState.wireframe != m_currentState.wireframe)
   {
     const GLenum state = newState.wireframe ? GL_LINE : GL_FILL;
@@ -1763,6 +1744,36 @@ void RenderContext::applyState(const RenderState& newState)
   {
     glLineWidth(newState.lineWidth);
     m_currentState.lineWidth = newState.lineWidth;
+  }
+
+  if (newState.stencilTesting)
+  {
+    const GLenum faces[] = { GL_FRONT, GL_BACK };
+
+    for (uint i = 0;  i < 2;  i++)
+    {
+      if (newState.stencil[i].function != m_currentState.stencil[i].function ||
+          newState.stencil[i].reference != m_currentState.stencil[i].reference ||
+          newState.stencil[i].mask != m_currentState.stencil[i].mask)
+      {
+        glStencilFuncSeparate(faces[i],
+                              convertToGL(newState.stencil[i].function),
+                              newState.stencil[i].reference,
+                              newState.stencil[i].mask);
+      }
+
+      if (newState.stencil[i].stencilFailOp != m_currentState.stencil[i].stencilFailOp ||
+          newState.stencil[i].depthFailOp != m_currentState.stencil[i].depthFailOp ||
+          newState.stencil[i].depthPassOp != m_currentState.stencil[i].depthPassOp)
+      {
+        glStencilOpSeparate(faces[i],
+                            convertToGL(newState.stencil[i].stencilFailOp),
+                            convertToGL(newState.stencil[i].depthFailOp),
+                            convertToGL(newState.stencil[i].depthPassOp));
+      }
+
+      m_currentState.stencil[i] = newState.stencil[i];
+    }
   }
 
 #if WENDY_DEBUG
@@ -1810,11 +1821,22 @@ void RenderContext::forceState(const RenderState& newState)
   setBooleanState(GL_MULTISAMPLE, newState.multisampling);
 
   setBooleanState(GL_STENCIL_TEST, newState.stencilTesting);
-  glStencilFunc(convertToGL(newState.stencilFunction),
-                newState.stencilRef, newState.stencilMask);
-  glStencilOp(convertToGL(newState.stencilFailOp),
-              convertToGL(newState.depthFailOp),
-              convertToGL(newState.depthPassOp));
+  glStencilFuncSeparate(GL_FRONT,
+                        convertToGL(newState.stencil[FACE_FRONT].function),
+                        newState.stencil[FACE_FRONT].reference,
+                        newState.stencil[FACE_FRONT].mask);
+  glStencilFuncSeparate(GL_BACK,
+                        convertToGL(newState.stencil[FACE_BACK].function),
+                        newState.stencil[FACE_BACK].reference,
+                        newState.stencil[FACE_BACK].mask);
+  glStencilOpSeparate(GL_FRONT,
+                      convertToGL(newState.stencil[FACE_FRONT].stencilFailOp),
+                      convertToGL(newState.stencil[FACE_FRONT].depthFailOp),
+                      convertToGL(newState.stencil[FACE_FRONT].depthPassOp));
+  glStencilOpSeparate(GL_BACK,
+                      convertToGL(newState.stencil[FACE_BACK].stencilFailOp),
+                      convertToGL(newState.stencil[FACE_BACK].depthFailOp),
+                      convertToGL(newState.stencil[FACE_BACK].depthPassOp));
 
 #if WENDY_DEBUG
   checkGL("Error when forcing render state");

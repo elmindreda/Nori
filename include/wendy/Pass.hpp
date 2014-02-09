@@ -152,22 +152,22 @@ public:
   FragmentFunction depthFunction() const;
   /*! @return The stencil buffer testing function used by this render state.
    */
-  FragmentFunction stencilFunction() const;
+  FragmentFunction stencilFunction(PolygonFace face) const;
   /*! @return The operation to perform when the stencil test fails.
    */
-  StencilOp stencilFailOperation() const;
+  StencilOp stencilFailOperation(PolygonFace face) const;
   /*! @return The operation to perform when the depth test fails.
    */
-  StencilOp depthFailOperation() const;
+  StencilOp depthFailOperation(PolygonFace face) const;
   /*! @return The operation to perform when the depth test succeeds.
    */
-  StencilOp depthPassOperation() const;
+  StencilOp depthPassOperation(PolygonFace face) const;
   /*! @return The stencil test reference value used by this render state.
    */
-  uint stencilReference() const;
+  uint stencilReference(PolygonFace face) const;
   /*! @return The stencil buffer write mask used by this render state.
    */
-  uint stencilWriteMask() const;
+  uint stencilWriteMask(PolygonFace face) const;
   /*! Sets whether this render state uses depth buffer testing.
    *  @param[in] enable Set to @c true to enable depth buffer testing, or @c
    *  false to disable it.
@@ -190,24 +190,24 @@ public:
   /*! Sets the stencil test function for this render state.
    *  @param[in] newFunction The desired stencil testing function.
    */
-  void setStencilFunction(FragmentFunction newFunction);
+  void setStencilFunction(PolygonFace face, FragmentFunction newFunction);
   /*! Sets the stencil test reference value for this render state.
    *  @param[in] newReference The desired stencil test reference value.
    */
-  void setStencilReference(uint newReference);
+  void setStencilReference(PolygonFace face, uint newReference);
   /*! Sets the stencil buffer write mask for this render state.
    *  @param[in] newMask The desired stencil buffer write mask.
    */
-  void setStencilWriteMask(uint newMask);
+  void setStencilWriteMask(PolygonFace face, uint newMask);
   /*! Sets the operation to perform when the stencil test fails.
    */
-  void setStencilFailOperation(StencilOp newOperation);
+  void setStencilFailOperation(PolygonFace face, StencilOp newOperation);
   /*! Sets the operation to perform when the depth test fails.
    */
-  void setDepthFailOperation(StencilOp newOperation);
+  void setDepthFailOperation(PolygonFace face, StencilOp newOperation);
   /*! Sets the operation to perform when the depth test succeeds.
    */
-  void setDepthPassOperation(StencilOp newOperation);
+  void setDepthPassOperation(PolygonFace face, StencilOp newOperation);
   /*! Sets whether writing to the color buffer is enabled.
    *  @param[in] enabled @c true to enable writing to the color buffer, or @c
    *  false to disable it.
