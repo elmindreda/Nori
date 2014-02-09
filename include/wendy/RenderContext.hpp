@@ -50,22 +50,22 @@ class PrimitiveRange;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Cull mode enumeration.
+/*! @brief Polygon face enumeration.
  */
-enum CullMode
+enum PolygonFace
 {
-  /*! Do not cull any geometry.
-   */
-  CULL_NONE,
   /*! Cull front-facing geometry (i.e. render back-facing geometry).
    */
-  CULL_FRONT,
+  FACE_FRONT,
   /*! Cull back-facing geometry (i.e. render front-facing geometry).
    */
-  CULL_BACK,
+  FACE_BACK,
   /*! Cull all cullable geometry (i.e. front and back faces).
    */
-  CULL_BOTH
+  FACE_BOTH,
+  /*! Do not cull any geometry.
+   */
+  FACE_NONE
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ public:
   bool lineSmoothing;
   bool multisampling;
   float lineWidth;
-  CullMode cullMode;
+  PolygonFace cullFace;
   BlendFactor srcFactor;
   BlendFactor dstFactor;
   FragmentFunction depthFunction;

@@ -138,9 +138,9 @@ public:
   /*! @return @c the width of lines, in pixels.
    */
   float lineWidth() const;
-  /*! @return The culling mode of this render state.
+  /*! @return The polygon faces to be culled by this render state.
    */
-  CullMode cullMode() const;
+  PolygonFace cullFace() const;
   /*! @return The source factor for color buffer blending.
    */
   BlendFactor srcFactor() const;
@@ -230,10 +230,10 @@ public:
    *  @param[in] newWidth The desired new line width.
    */
   void setLineWidth(float newWidth);
-  /*! Sets the specified primitive culling mode.
-   *  @param[in] mode The desired new primitive culling mode.
+  /*! Sets the specified polygon faces to be culled.
+   *  @param[in] face The desired faces to be culled.
    */
-  void setCullMode(CullMode mode);
+  void setCullFace(PolygonFace face);
   /*! Sets the factors for color buffer blending.
    *  @param[in] src The desired source factor.
    *  @param[in] dst The desired destination factor.

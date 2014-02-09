@@ -159,7 +159,7 @@ void Pass::apply() const
 
 bool Pass::isCulling() const
 {
-  return m_state.cullMode != CULL_NONE;
+  return m_state.cullFace != FACE_NONE;
 }
 
 bool Pass::isBlending() const
@@ -231,9 +231,9 @@ float Pass::lineWidth() const
   return m_state.lineWidth;
 }
 
-CullMode Pass::cullMode() const
+PolygonFace Pass::cullFace() const
 {
-  return m_state.cullMode;
+  return m_state.cullFace;
 }
 
 BlendFactor Pass::srcFactor() const
@@ -296,9 +296,9 @@ void Pass::setStencilTesting(bool enable)
   m_state.stencilTesting = enable;
 }
 
-void Pass::setCullMode(CullMode mode)
+void Pass::setCullFace(PolygonFace face)
 {
-  m_state.cullMode = mode;
+  m_state.cullFace = face;
 }
 
 void Pass::setBlendFactors(BlendFactor src, BlendFactor dst)

@@ -683,7 +683,7 @@ bool Drawer::init()
     }
 
     m_drawPass.setProgram(program);
-    m_drawPass.setCullMode(CULL_NONE);
+    m_drawPass.setCullFace(FACE_NONE);
     m_drawPass.setDepthTesting(false);
     m_drawPass.setDepthWriting(false);
     m_drawPass.setMultisampling(false);
@@ -712,7 +712,7 @@ bool Drawer::init()
     }
 
     m_blitPass.setProgram(program);
-    m_blitPass.setCullMode(CULL_NONE);
+    m_blitPass.setCullFace(FACE_NONE);
     m_blitPass.setDepthTesting(false);
     m_blitPass.setDepthWriting(false);
     m_blitPass.setMultisampling(false);

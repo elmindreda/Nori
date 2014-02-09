@@ -50,7 +50,7 @@ namespace wendy
 namespace
 {
 
-Bimap<String, CullMode> cullModeMap;
+Bimap<String, PolygonFace> polygonFaceMap;
 Bimap<String, BlendFactor> blendFactorMap;
 Bimap<String, FragmentFunction> functionMap;
 Bimap<String, StencilOp> operationMap;
@@ -64,12 +64,12 @@ const uint MATERIAL_XML_VERSION = 10;
 
 void initializeMaps()
 {
-  if (cullModeMap.isEmpty())
+  if (polygonFaceMap.isEmpty())
   {
-    cullModeMap["none"] = CULL_NONE;
-    cullModeMap["front"] = CULL_FRONT;
-    cullModeMap["back"] = CULL_BACK;
-    cullModeMap["both"] = CULL_BOTH;
+    polygonFaceMap["none"] = FACE_NONE;
+    polygonFaceMap["front"] = FACE_FRONT;
+    polygonFaceMap["back"] = FACE_BACK;
+    polygonFaceMap["both"] = FACE_BOTH;
   }
 
   if (blendFactorMap.isEmpty())
@@ -267,11 +267,11 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
     if (pugi::xml_attribute a = node.attribute("cull"))
     {
-      if (cullModeMap.hasKey(a.value()))
-        pass.setCullMode(cullModeMap[a.value()]);
+      if (polygonFaceMap.hasKey(a.value()))
+        pass.setCullFace(polygonFaceMap[a.value()]);
       else
       {
-        logError("Invalid cull mode %s", a.value());
+        logError("Invalid cull face %s", a.value());
         return false;
       }
     }

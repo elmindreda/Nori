@@ -194,38 +194,38 @@ GLenum convertToGL(PrimitiveType type)
   panic("Invalid primitive type %u", type);
 }
 
-GLenum convertToGL(CullMode mode)
+GLenum convertToGL(PolygonFace face)
 {
-  switch (mode)
+  switch (face)
   {
-    case CULL_NONE:
+    case FACE_NONE:
       break;
-    case CULL_FRONT:
+    case FACE_FRONT:
       return GL_FRONT;
-    case CULL_BACK:
+    case FACE_BACK:
       return GL_BACK;
-    case CULL_BOTH:
+    case FACE_BOTH:
       return GL_FRONT_AND_BACK;
   }
 
-  panic("Invalid cull mode %u", mode);
+  panic("Invalid polygon face %u", face);
 }
 
-CullMode invertCullMode(CullMode mode)
+PolygonFace invertFace(PolygonFace face)
 {
-  switch (mode)
+  switch (face)
   {
-    case CULL_NONE:
-      return CULL_BOTH;
-    case CULL_FRONT:
-      return CULL_BACK;
-    case CULL_BACK:
-      return CULL_FRONT;
-    case CULL_BOTH:
-      return CULL_NONE;
+    case FACE_NONE:
+      return FACE_BOTH;
+    case FACE_FRONT:
+      return FACE_BACK;
+    case FACE_BACK:
+      return FACE_FRONT;
+    case FACE_BOTH:
+      return FACE_NONE;
   }
 
-  panic("Invalid cull mode %u", mode);
+  panic("Invalid polygon face %u", face);
 }
 
 GLenum convertToGL(BlendFactor factor)
@@ -360,7 +360,7 @@ RenderState::RenderState():
   lineSmoothing(false),
   multisampling(true),
   lineWidth(1.f),
-  cullMode(CULL_BACK),
+  cullFace(FACE_BACK),
   srcFactor(BLEND_ONE),
   dstFactor(BLEND_ZERO),
   depthFunction(ALLOW_LESSER),
@@ -1628,19 +1628,19 @@ void RenderContext::applyState(const RenderState& newState)
     return;
   }
 
-  CullMode cullMode = newState.cullMode;
+  PolygonFace cullFace = newState.cullFace;
   if (m_cullingInverted)
-    cullMode = invertCullMode(cullMode);
+    cullFace = invertFace(cullFace);
 
-  if (cullMode != m_currentState.cullMode)
+  if (cullFace != m_currentState.cullFace)
   {
-    if ((cullMode == CULL_NONE) != (m_currentState.cullMode == CULL_NONE))
-      setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
+    if ((cullFace == FACE_NONE) != (m_currentState.cullFace == FACE_NONE))
+      setBooleanState(GL_CULL_FACE, cullFace != FACE_NONE);
 
-    if (cullMode != CULL_NONE)
-      glCullFace(convertToGL(cullMode));
+    if (cullFace != FACE_NONE)
+      glCullFace(convertToGL(cullFace));
 
-    m_currentState.cullMode = cullMode;
+    m_currentState.cullFace = cullFace;
   }
 
   if (newState.srcFactor != m_currentState.srcFactor ||
@@ -1774,13 +1774,13 @@ void RenderContext::forceState(const RenderState& newState)
 {
   m_currentState = newState;
 
-  CullMode cullMode = newState.cullMode;
+  PolygonFace cullFace = newState.cullFace;
   if (m_cullingInverted)
-    cullMode = invertCullMode(cullMode);
+    cullFace = invertFace(cullFace);
 
-  setBooleanState(GL_CULL_FACE, cullMode != CULL_NONE);
-  if (cullMode != CULL_NONE)
-    glCullFace(convertToGL(cullMode));
+  setBooleanState(GL_CULL_FACE, cullFace != FACE_NONE);
+  if (cullFace != FACE_NONE)
+    glCullFace(convertToGL(cullFace));
 
   setBooleanState(GL_BLEND, newState.srcFactor != BLEND_ONE ||
                             newState.dstFactor != BLEND_ZERO);
