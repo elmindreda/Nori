@@ -546,6 +546,7 @@ Ref<Image> Framebuffer::data() const
   Framebuffer& previous = m_context.currentFramebuffer();
   apply();
 
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glReadPixels(0, 0, image->width(), image->height(),
                GL_RGB, GL_UNSIGNED_BYTE,
                image->pixels());

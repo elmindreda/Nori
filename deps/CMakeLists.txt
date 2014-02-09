@@ -1,6 +1,4 @@
 
-add_subdirectory(zlib)
-add_subdirectory(libpng)
 add_subdirectory(pcre)
 add_subdirectory(pugixml)
 add_subdirectory(glfw)

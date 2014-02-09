@@ -32,13 +32,17 @@
 #include <wendy/Resource.hpp>
 #include <wendy/Image.hpp>
 
+#include <algorithm>
 #include <fstream>
-
 #include <cstring>
 
 #include <glm/gtx/bit.hpp>
 
-#include <png.h>
+#define STBI_NO_STDIO
+#include <stb_image.h>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -50,103 +54,21 @@ namespace wendy
 namespace
 {
 
-bool convertToBitDepth(int& result, const PixelFormat& format)
+PixelFormat convertToPixelFormat(int format)
 {
-  switch (format.type())
+  switch (format)
   {
-    case PixelFormat::UINT8:
-      result = 8;
-      return true;
-    case PixelFormat::UINT16:
-      result = 16;
-      return true;
+    case STBI_grey:
+      return PixelFormat::L8;
+    case STBI_grey_alpha:
+      return PixelFormat::LA8;
+    case STBI_rgb:
+      return PixelFormat::RGB8;
+    case STBI_rgb_alpha:
+      return PixelFormat::RGBA8;
     default:
-      return false;
+      return PixelFormat();
   }
-}
-
-bool convertToColorType(int& result, const PixelFormat& format)
-{
-  switch (format.semantic())
-  {
-    case PixelFormat::L:
-      result = PNG_COLOR_TYPE_GRAY;
-      return true;
-    case PixelFormat::LA:
-      result = PNG_COLOR_TYPE_GRAY_ALPHA;
-      return true;
-    case PixelFormat::RGB:
-      result = PNG_COLOR_TYPE_RGB;
-      return true;
-    case PixelFormat::RGBA:
-      result = PNG_COLOR_TYPE_RGB_ALPHA;
-      return true;
-    default:
-      return false;
-  }
-}
-
-PixelFormat::Semantic convertToSemantic(int colorType)
-{
-  switch (colorType)
-  {
-    case PNG_COLOR_TYPE_GRAY:
-      return PixelFormat::L;
-    case PNG_COLOR_TYPE_GRAY_ALPHA:
-      return PixelFormat::LA;
-    case PNG_COLOR_TYPE_RGB:
-      return PixelFormat::RGB;
-    case PNG_COLOR_TYPE_RGB_ALPHA:
-      return PixelFormat::RGBA;
-  }
-
-  return PixelFormat::NONE;
-}
-
-PixelFormat::Type convertToType(int bitDepth)
-{
-  switch (bitDepth)
-  {
-    case 8:
-      return PixelFormat::UINT8;
-    case 16:
-      return PixelFormat::UINT16;
-  }
-
-  return PixelFormat::DUMMY;
-}
-
-PixelFormat convertToPixelFormat(int colorType, int bitDepth)
-{
-  return PixelFormat(convertToSemantic(colorType), convertToType(bitDepth));
-}
-
-void writeErrorPNG(png_structp context, png_const_charp error)
-{
-  logError("libpng error: %s", error);
-}
-
-void writeWarningPNG(png_structp context, png_const_charp warning)
-{
-  logWarning("libpng warning: %s", warning);
-}
-
-void readStreamPNG(png_structp context, png_bytep data, png_size_t length)
-{
-  std::ifstream* stream = reinterpret_cast<std::ifstream*>(png_get_io_ptr(context));
-  stream->read((char*) data, length);
-}
-
-void writeStreamPNG(png_structp context, png_bytep data, png_size_t length)
-{
-  std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
-  stream->write((char*) data, length);
-}
-
-void flushStreamPNG(png_structp context)
-{
-  std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
-  stream->flush();
 }
 
 } /*namespace*/
@@ -410,96 +332,35 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  // Check if file is valid
+  std::vector<char> data;
+
+  stream.seekg(0, std::ios::end);
+  data.resize((size_t) stream.tellg());
+  stream.seekg(0, std::ios::beg);
+  stream.read(&data[0], data.size());
+
+  int width, height, format;
+  stbi_uc* pixels = stbi_load_from_memory((stbi_uc*) data.data(), data.size(),
+                                          &width, &height,
+                                          &format, STBI_default);
+  if (!pixels)
   {
-    unsigned char header[8];
-
-    if (!stream.read((char*) header, sizeof(header)))
-    {
-      logError("Failed to read PNG header from image %s", name.c_str());
-      return nullptr;
-    }
-
-    if (png_sig_cmp(header, 0, sizeof(header)))
-    {
-      logError("Invalid PNG signature in image %s", name.c_str());
-      return nullptr;
-    }
-  }
-
-  png_structp context;
-  png_infop pngInfo;
-  png_infop pngEndInfo;
-
-  // Set up for image reading
-  {
-    context = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-                                     nullptr,
-                                     writeErrorPNG,
-                                     writeWarningPNG);
-    if (!context)
-    {
-      logError("Failed to create PNG read struct for image %s",
-               name.c_str());
-      return nullptr;
-    }
-
-    png_set_read_fn(context, &stream, readStreamPNG);
-
-    pngInfo = png_create_info_struct(context);
-    if (!pngInfo)
-    {
-      png_destroy_read_struct(&context, nullptr, nullptr);
-
-      logError("Failed to create PNG info struct for image %s",
-               name.c_str());
-      return nullptr;
-    }
-
-    pngEndInfo = png_create_info_struct(context);
-    if (!pngEndInfo)
-    {
-      png_destroy_read_struct(&context, &pngInfo, nullptr);
-
-      logError("Failed to create PNG end info struct for image %s",
-               name.c_str());
-      return nullptr;
-    }
-
-    png_set_sig_bytes(context, 8);
-
-    png_read_png(context, pngInfo, PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND, nullptr);
-  }
-
-  const PixelFormat format = convertToPixelFormat(png_get_color_type(context, pngInfo),
-                                                  png_get_bit_depth(context, pngInfo));
-
-  if (!format.isValid())
-  {
-    png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
-
-    logError("Image %s has unsupported pixel format", name.c_str());
+    logError("Failed to load image %s", path.name().c_str());
     return nullptr;
   }
 
-  const uint width  = png_get_image_width(context, pngInfo);
-  const uint height = png_get_image_height(context, pngInfo);
-  const ResourceInfo info(cache, name, path);
-
-  Ref<Image> result = Image::create(info, format, width, height);
-
-  // Read image data
+  for (int i = 0;  i < height / 2;  i++)
   {
-    const size_t rowSize = png_get_rowbytes(context, pngInfo);
-    png_byte** rows = png_get_rows(context, pngInfo);
-
-    for (uint i = 0;  i < height;  i++)
-      std::memcpy(result->pixel(0, height - i - 1), rows[i], rowSize);
+    std::swap_ranges(pixels + width * format * i,
+                     pixels + width * format * (i + 1),
+                     pixels + width * format * (height - i - 1));
   }
 
-  // Clean up library structures
-  png_destroy_read_struct(&context, &pngInfo, &pngEndInfo);
+  Ref<Image> result = Image::create(ResourceInfo(cache, name, path),
+                                    convertToPixelFormat(format),
+                                    width, height, 1, pixels);
 
+  stbi_image_free(pixels);
   return result;
 }
 
@@ -513,70 +374,19 @@ bool ImageWriter::write(const Path& path, const Image& image)
     return false;
   }
 
-  std::ofstream stream(path.name(), std::ios::out | std::ios::trunc | std::ios::binary);
-  if (!stream.is_open())
+  if (image.format().type() != PixelFormat::UINT8)
   {
-    logError("Failed to create image file %s", path.name().c_str());
+    logError("Only 8-bit images may be written");
     return false;
   }
 
-  png_structp context = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-                                                nullptr,
-                                                writeErrorPNG,
-                                                writeWarningPNG);
-  if (!context)
-  {
-    logError("Failed to create PNG write struct for image file %s",
-             path.name().c_str());
-    return false;
-  }
+  const int stride = int(image.width() * image.format().size());
+  const void* start = (char*) image.pixels() + stride * (image.height() - 1);
 
-  png_set_write_fn(context, &stream, writeStreamPNG, flushStreamPNG);
-  png_set_filter(context, 0, PNG_FILTER_NONE);
-
-  png_infop info = png_create_info_struct(context);
-  if (!info)
-  {
-    png_destroy_write_struct(&context, png_infopp(nullptr));
-    logError("Failed to create PNG info struct for image file %s",
-             path.name().c_str());
-    return false;
-  }
-
-  const PixelFormat& format = image.format();
-
-  int colorType, bitDepth;
-
-  if (!convertToColorType(colorType, format) ||
-      !convertToBitDepth(bitDepth, format))
-  {
-    png_destroy_write_struct(&context, &info);
-    logError("Failed to write image %s: pixel format %s is not supported by the PNG format",
-             image.name().c_str(),
-             format.asString().c_str());
-    return false;
-  }
-
-  png_set_IHDR(context,
-               info,
-               image.width(),
-               image.height(),
-               bitDepth,
-               colorType,
-               PNG_INTERLACE_NONE,
-               PNG_COMPRESSION_TYPE_DEFAULT,
-               PNG_FILTER_TYPE_DEFAULT);
-
-  std::vector<const png_byte*> rows(image.height());
-
-  for (uint i = 0;  i < image.height();  i++)
-    rows[i] = (const png_byte*) image.pixel(0, image.height() - i - 1);
-
-  png_set_rows(context, info, const_cast<png_byte**>(&rows[0]));
-  png_write_png(context, info, PNG_TRANSFORM_IDENTITY, nullptr);
-  png_destroy_write_struct(&context, &info);
-
-  return true;
+  return stbi_write_png(path.name().c_str(),
+                        image.width(), image.height(),
+                        image.format().channelCount(),
+                        start, -stride) != 0;
 }
 
 ///////////////////////////////////////////////////////////////////////

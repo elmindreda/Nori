@@ -47,14 +47,13 @@ Wendy comes with internal versions of the following libraries:
  - [GLFW](http://www.glfw.org/) for OpenGL context, input and window
  - [GLM](http://glm.g-truc.net/) for vector math and explicitly sized types
  - [libogg](http://www.xiph.org/ogg/) for reading Ogg files
- - [libpng](http://www.libpng.org/) for reading and writing PNG files
  - [libvorbis](http://xiph.org/vorbis/) for decoding Vorbis audio data
  - [PCRE](http://www.pcre.org/) for regular expression support
  - [pugixml](http://pugixml.org/) for reading and writing XML files
  - [Squirrel](http://squirrel-lang.org/) for embedded scripting
+ - [stb\_image](http://nothings.org/) for reading and writing image files
  - [stb\_truetype](http://nothings.org/) for TrueType typeface support
  - [utf8cpp](http://utfcpp.sourceforge.net/) for UTF-8 text support
- - [zlib](http://zlib.net/) for compressed data streams
 
 Wendy requires that OpenGL and OpenAL headers and link libraries are present in
 your development environment.

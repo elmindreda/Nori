@@ -5,9 +5,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   add_definitions(-std=c++11)
 endif()
 
-include_directories(${libpng_SOURCE_DIR}
-                    ${zlib_SOURCE_DIR}
-                    ${pugixml_SOURCE_DIR}
+include_directories(${pugixml_SOURCE_DIR}
                     ${PCRE_SOURCE_DIR}
                     ${greg_SOURCE_DIR}
                     ${GLFW_SOURCE_DIR}
