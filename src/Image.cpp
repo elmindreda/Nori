@@ -36,8 +36,6 @@
 
 #include <cstring>
 
-#include <pugixml.hpp>
-
 #include <glm/gtx/bit.hpp>
 
 #include <png.h>
@@ -150,8 +148,6 @@ void flushStreamPNG(png_structp context)
   std::ofstream* stream = reinterpret_cast<std::ofstream*>(png_get_io_ptr(context));
   stream->flush();
 }
-
-const uint IMAGE_CUBE_XML_VERSION = 2;
 
 } /*namespace*/
 
