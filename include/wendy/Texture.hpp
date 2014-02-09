@@ -171,14 +171,14 @@ class TextureImage : public RefObject
   friend class TextureFramebuffer;
 public:
   /*! Updates an area within this texture image, at the specified coordinates
-   *  and with a size matching the specified image, with the contents of that
-   *  image.
-   *  @param[in] source The image to copy pixel data from.
+   *  and with a size matching the specified texture data, with the contents of
+   *  that data.
+   *  @param[in] data The data to copy from.
    *  @param[in] x The x-coordinate of the area within this image to update.
    *  @param[in] y The y-coordinate of the area within this image to update.
    *  @param[in] z The z-coordinate of the area within this image to update.
    */
-  bool copyFrom(const Image& source, uint x = 0, uint y = 0, uint z = 0);
+  bool copyFrom(const TextureData& data, uint x = 0, uint y = 0, uint z = 0);
   /*! Returns a copy the contents of this texture image.
    *  @return An image object containing the image data.
    */

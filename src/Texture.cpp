@@ -206,19 +206,19 @@ TextureParams::TextureParams(TextureType initType, uint initFlags):
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
+bool TextureImage::copyFrom(const TextureData& data, uint x, uint y, uint z)
 {
-  if (source.format() != m_texture.format())
+  if (data.format != m_texture.format())
   {
     // TODO: Convert to compatible pixel format
 
-    logError("Cannot copy texture data from source image of different pixel format");
+    logError("Cannot copy texture data from source data of different pixel format");
     return false;
   }
 
   if (m_texture.is1D())
   {
-    if (source.dimensionCount() > 1)
+    if (data.dimensionCount() > 1)
     {
       logError("Cannot blt to texture; source image has too many dimensions");
       return false;
@@ -229,10 +229,10 @@ bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
     glTexSubImage1D(convertToGL(m_texture.type()),
                     m_level,
                     x,
-                    source.width(),
+                    data.width,
                     convertToGL(m_texture.format().semantic()),
                     convertToGL(m_texture.format().type()),
-                    source.pixels());
+                    data.texels);
   }
   else if (m_texture.is3D())
   {
@@ -241,16 +241,14 @@ bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
     glTexSubImage3D(convertToGL(m_texture.type()),
                     m_level,
                     x, y, z,
-                    source.width(),
-                    source.height(),
-                    source.depth(),
+                    data.width, data.height, data.depth,
                     convertToGL(m_texture.format().semantic()),
                     convertToGL(m_texture.format().type()),
-                    source.pixels());
+                    data.texels);
   }
   else
   {
-    if (source.dimensionCount() > 2)
+    if (data.dimensionCount() > 2)
     {
       logError("Cannot blt to texture; source image has too many dimensions");
       return false;
@@ -261,10 +259,10 @@ bool TextureImage::copyFrom(const Image& source, uint x, uint y, uint z)
     glTexSubImage2D(convertToGL(m_texture.type()),
                     m_level,
                     x, y,
-                    source.width(), source.height(),
+                    data.width, data.height,
                     convertToGL(m_texture.format().semantic()),
                     convertToGL(m_texture.format().type()),
-                    source.pixels());
+                    data.texels);
   }
 
 #if WENDY_DEBUG
