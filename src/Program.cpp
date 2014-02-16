@@ -51,19 +51,58 @@ namespace wendy
 namespace
 {
 
-GLenum elementTypeOf(AttributeType type)
+struct UniformTypeInfo
 {
-  switch (type)
-  {
-    case ATTRIBUTE_FLOAT:
-    case ATTRIBUTE_VEC2:
-    case ATTRIBUTE_VEC3:
-    case ATTRIBUTE_VEC4:
-      return GL_FLOAT;
-  }
+  bool scalar;
+  bool vector;
+  bool matrix;
+  uint elementCount;
+  const char* name;
+};
 
-  panic("Invalid GLSL attribute type %u", type);
-}
+UniformTypeInfo uniformTypes[] =
+{
+  {  true, false, false,  1, "int" },
+  {  true, false, false,  1, "unsigned int" },
+  {  true, false, false,  1, "float" },
+  { false,  true, false,  2, "vec2" },
+  { false,  true, false,  3, "vec3" },
+  { false,  true, false,  4, "vec4" },
+  { false, false,  true,  4, "mat2" },
+  { false, false,  true,  9, "mat3" },
+  { false, false,  true, 16, "mat4" }
+};
+
+struct AttributeTypeInfo
+{
+  bool scalar;
+  bool vector;
+  uint elementCount;
+  GLenum elementType;
+  const char* name;
+};
+
+AttributeTypeInfo attributeTypes[] =
+{
+  {  true, false, 1, GL_FLOAT, "float" },
+  { false,  true, 2, GL_FLOAT,  "vec2" },
+  { false,  true, 3, GL_FLOAT,  "vec3" },
+  { false,  true, 4, GL_FLOAT,  "vec4" },
+};
+
+struct SamplerTypeInfo
+{
+  const char* name;
+};
+
+SamplerTypeInfo samplerTypes[] =
+{
+  { "sampler1D" },
+  { "sampler2D" },
+  { "sampler3D" },
+  { "sampler2DRect" },
+  { "samplerCube" },
+};
 
 bool isSupportedAttributeType(GLenum type)
 {
@@ -346,35 +385,26 @@ bool Shader::init(const String& text)
 
 ///////////////////////////////////////////////////////////////////////
 
+bool Attribute::isScalar() const
+{
+  return attributeTypes[m_type].scalar;
+}
+
 bool Attribute::isVector() const
 {
-  return m_type == ATTRIBUTE_VEC2 ||
-         m_type == ATTRIBUTE_VEC3 ||
-         m_type == ATTRIBUTE_VEC4;
+  return attributeTypes[m_type].vector;
 }
 
 uint Attribute::elementCount() const
 {
-  switch (m_type)
-  {
-    case ATTRIBUTE_FLOAT:
-      return 1;
-    case ATTRIBUTE_VEC2:
-      return 2;
-    case ATTRIBUTE_VEC3:
-      return 3;
-    case ATTRIBUTE_VEC4:
-      return 4;
-  }
-
-  panic("Invalid GLSL attribute type %u", m_type);
+  return attributeTypes[m_type].elementCount;
 }
 
 void Attribute::bind(size_t stride, size_t offset)
 {
   glVertexAttribPointer(m_location,
-                        elementCount(),
-                        elementTypeOf(m_type),
+                        attributeTypes[m_type].elementCount,
+                        attributeTypes[m_type].elementType,
                         GL_FALSE,
                         (GLsizei) stride,
                         (const void*) offset);
@@ -386,40 +416,14 @@ void Attribute::bind(size_t stride, size_t offset)
 
 const char* Attribute::typeName(AttributeType type)
 {
-  switch (type)
-  {
-    case ATTRIBUTE_FLOAT:
-      return "float";
-    case ATTRIBUTE_VEC2:
-      return "vec2";
-    case ATTRIBUTE_VEC3:
-      return "vec3";
-    case ATTRIBUTE_VEC4:
-      return "vec4";
-  }
-
-  panic("Invalid GLSL attribute type %u", type);
+  return attributeTypes[type].name;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
 const char* Sampler::typeName(SamplerType type)
 {
-  switch (type)
-  {
-    case SAMPLER_1D:
-      return "sampler1D";
-    case SAMPLER_2D:
-      return "sampler2D";
-    case SAMPLER_3D:
-      return "sampler3D";
-    case SAMPLER_RECT:
-      return "sampler2DRect";
-    case SAMPLER_CUBE:
-      return "samplerCube";
-  }
-
-  panic("Invalid GLSL sampler type %u", type);
+  return samplerTypes[type].name;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -464,75 +468,27 @@ void Uniform::copyFrom(const void* data)
 
 bool Uniform::isScalar() const
 {
-  return m_type == UNIFORM_INT ||
-         m_type == UNIFORM_UINT ||
-         m_type == UNIFORM_FLOAT;
+  return uniformTypes[m_type].scalar;
 }
 
 bool Uniform::isVector() const
 {
-  return m_type == UNIFORM_VEC2 ||
-         m_type == UNIFORM_VEC3 ||
-         m_type == UNIFORM_VEC4;
+  return uniformTypes[m_type].vector;
 }
 
 bool Uniform::isMatrix() const
 {
-  return m_type == UNIFORM_MAT2 ||
-         m_type == UNIFORM_MAT3 ||
-         m_type == UNIFORM_MAT4;
+  return uniformTypes[m_type].matrix;
 }
 
 uint Uniform::elementCount() const
 {
-  switch (m_type)
-  {
-    case UNIFORM_INT:
-    case UNIFORM_UINT:
-    case UNIFORM_FLOAT:
-      return 1;
-    case UNIFORM_VEC2:
-      return 2;
-    case UNIFORM_VEC3:
-      return 3;
-    case UNIFORM_VEC4:
-      return 4;
-    case UNIFORM_MAT2:
-      return 2 * 2;
-    case UNIFORM_MAT3:
-      return 3 * 3;
-    case UNIFORM_MAT4:
-      return 4 * 4;
-  }
-
-  panic("Invalid GLSL uniform type %u", m_type);
+  return uniformTypes[m_type].elementCount;
 }
 
 const char* Uniform::typeName(UniformType type)
 {
-  switch (type)
-  {
-    case UNIFORM_INT:
-      return "int";
-    case UNIFORM_UINT:
-      return "unsigned int";
-    case UNIFORM_FLOAT:
-      return "float";
-    case UNIFORM_VEC2:
-      return "vec2";
-    case UNIFORM_VEC3:
-      return "vec3";
-    case UNIFORM_VEC4:
-      return "vec4";
-    case UNIFORM_MAT2:
-      return "mat2";
-    case UNIFORM_MAT3:
-      return "mat3";
-    case UNIFORM_MAT4:
-      return "mat4";
-  }
-
-  panic("Invalid GLSL uniform type %u", type);
+  return uniformTypes[type].name;
 }
 
 ///////////////////////////////////////////////////////////////////////

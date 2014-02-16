@@ -110,7 +110,7 @@ public:
   bool operator == (const char* string) const { return m_name == string; }
   /*! @return @c true if the type of this attribute is a single value.
    */
-  bool isScalar() const { return m_type == ATTRIBUTE_FLOAT; }
+  bool isScalar() const;
   /*! @return @c true if the type of this attribute is a vector.
    */
   bool isVector() const;
