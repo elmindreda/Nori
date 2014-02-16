@@ -104,20 +104,6 @@ SamplerTypeInfo samplerTypes[] =
   { "samplerCube" },
 };
 
-bool isSupportedAttributeType(GLenum type)
-{
-  switch (type)
-  {
-    case GL_FLOAT:
-    case GL_FLOAT_VEC2:
-    case GL_FLOAT_VEC3:
-    case GL_FLOAT_VEC4:
-      return true;
-  }
-
-  return false;
-}
-
 AttributeType convertAttributeType(GLenum type)
 {
   switch (type)
@@ -130,24 +116,14 @@ AttributeType convertAttributeType(GLenum type)
       return ATTRIBUTE_VEC3;
     case GL_FLOAT_VEC4:
       return ATTRIBUTE_VEC4;
+    default:
+      return AttributeType(-1);
   }
-
-  panic("Unsupported GLSL attribute type %u", type);
 }
 
-bool isSupportedSamplerType(GLenum type)
+bool isSupportedAttributeType(GLenum type)
 {
-  switch (type)
-  {
-    case GL_SAMPLER_1D:
-    case GL_SAMPLER_2D:
-    case GL_SAMPLER_3D:
-    case GL_SAMPLER_2D_RECT:
-    case GL_SAMPLER_CUBE:
-      return true;
-  }
-
-  return false;
+  return convertAttributeType(type) != -1;
 }
 
 SamplerType convertSamplerType(GLenum type)
@@ -164,28 +140,14 @@ SamplerType convertSamplerType(GLenum type)
       return SAMPLER_RECT;
     case GL_SAMPLER_CUBE:
       return SAMPLER_CUBE;
+    default:
+      return SamplerType(-1);
   }
-
-  panic("Unsupported GLSL sampler type %u", type);
 }
 
-bool isSupportedUniformType(GLenum type)
+bool isSupportedSamplerType(GLenum type)
 {
-  switch (type)
-  {
-    case GL_INT:
-    case GL_UNSIGNED_INT:
-    case GL_FLOAT:
-    case GL_FLOAT_VEC2:
-    case GL_FLOAT_VEC3:
-    case GL_FLOAT_VEC4:
-    case GL_FLOAT_MAT2:
-    case GL_FLOAT_MAT3:
-    case GL_FLOAT_MAT4:
-      return true;
-  }
-
-  return false;
+  return convertSamplerType(type) != -1;
 }
 
 UniformType convertUniformType(GLenum type)
@@ -212,9 +174,15 @@ UniformType convertUniformType(GLenum type)
       return UNIFORM_MAT3;
     case GL_FLOAT_MAT4:
       return UNIFORM_MAT4;
-  }
 
-  panic("Unsupported GLSL uniform type %u", type);
+    default:
+      return UniformType(-1);
+  }
+}
+
+bool isSupportedUniformType(GLenum type)
+{
+  return convertUniformType(type) != -1;
 }
 
 GLenum convertToGL(ShaderType type)
