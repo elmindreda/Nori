@@ -188,6 +188,8 @@ private:
  */
 enum UniformType
 {
+  UNIFORM_INT,
+  UNIFORM_UINT,
   UNIFORM_FLOAT,
   UNIFORM_VEC2,
   UNIFORM_VEC3,
@@ -224,7 +226,7 @@ public:
   bool isShared() const { return m_sharedID != -1; }
   /*! @return @c true if the type of this uniform is a single value.
    */
-  bool isScalar() const { return m_type == UNIFORM_FLOAT; }
+  bool isScalar() const;
   /*! @return @c true if the type of this uniform is a vector.
    */
   bool isVector() const;

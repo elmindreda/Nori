@@ -721,6 +721,18 @@ const void* Pass::data(UniformStateIndex index, UniformType type) const
 }
 
 template <>
+UniformType Pass::uniformType<int>()
+{
+  return UNIFORM_INT;
+}
+
+template <>
+UniformType Pass::uniformType<uint>()
+{
+  return UNIFORM_UINT;
+}
+
+template <>
 UniformType Pass::uniformType<float>()
 {
   return UNIFORM_FLOAT;

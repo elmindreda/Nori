@@ -437,6 +437,12 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
       switch (uniform->type())
       {
+        case UNIFORM_INT:
+          pass.setUniformState(uniformName.c_str(), attribute.as_int());
+          break;
+        case UNIFORM_UINT:
+          pass.setUniformState(uniformName.c_str(), attribute.as_uint());
+          break;
         case UNIFORM_FLOAT:
           pass.setUniformState(uniformName.c_str(), attribute.as_float());
           break;

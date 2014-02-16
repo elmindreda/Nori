@@ -134,6 +134,8 @@ bool isSupportedUniformType(GLenum type)
 {
   switch (type)
   {
+    case GL_INT:
+    case GL_UNSIGNED_INT:
     case GL_FLOAT:
     case GL_FLOAT_VEC2:
     case GL_FLOAT_VEC3:
@@ -151,6 +153,11 @@ UniformType convertUniformType(GLenum type)
 {
   switch (type)
   {
+    case GL_INT:
+      return UNIFORM_INT;
+    case GL_UNSIGNED_INT:
+      return UNIFORM_UINT;
+
     case GL_FLOAT:
       return UNIFORM_FLOAT;
     case GL_FLOAT_VEC2:
@@ -421,6 +428,12 @@ void Uniform::copyFrom(const void* data)
 {
   switch (m_type)
   {
+    case UNIFORM_INT:
+      glUniform1iv(m_location, 1, (const int*) data);
+      break;
+    case UNIFORM_UINT:
+      glUniform1uiv(m_location, 1, (const uint*) data);
+      break;
     case UNIFORM_FLOAT:
       glUniform1fv(m_location, 1, (const float*) data);
       break;
@@ -449,6 +462,13 @@ void Uniform::copyFrom(const void* data)
 #endif
 }
 
+bool Uniform::isScalar() const
+{
+  return m_type == UNIFORM_INT ||
+         m_type == UNIFORM_UINT ||
+         m_type == UNIFORM_FLOAT;
+}
+
 bool Uniform::isVector() const
 {
   return m_type == UNIFORM_VEC2 ||
@@ -467,6 +487,8 @@ uint Uniform::elementCount() const
 {
   switch (m_type)
   {
+    case UNIFORM_INT:
+    case UNIFORM_UINT:
     case UNIFORM_FLOAT:
       return 1;
     case UNIFORM_VEC2:
@@ -490,6 +512,10 @@ const char* Uniform::typeName(UniformType type)
 {
   switch (type)
   {
+    case UNIFORM_INT:
+      return "int";
+    case UNIFORM_UINT:
+      return "unsigned int";
     case UNIFORM_FLOAT:
       return "float";
     case UNIFORM_VEC2:
