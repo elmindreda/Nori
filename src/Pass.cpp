@@ -111,6 +111,7 @@ void Pass::apply() const
   context.setCurrentRenderState(m_state);
 
   SharedProgramState* state = context.currentSharedProgramState();
+  assert(state != NULL);
 
   uint textureIndex = 0, textureUnit = 0;
 
@@ -119,14 +120,7 @@ void Pass::apply() const
     context.setActiveTextureUnit(textureUnit);
 
     if (sampler.isShared())
-    {
-      if (state)
-        state->updateTo(sampler);
-      else
-        logError("Program %s uses shared sampler %s without a current shared program state",
-                 m_program->name().c_str(),
-                 sampler.name().c_str());
-    }
+      state->updateTo(sampler);
     else
     {
       context.setCurrentTexture(m_textures[textureIndex]);
@@ -141,14 +135,7 @@ void Pass::apply() const
   for (auto& uniform : m_program->m_uniforms)
   {
     if (uniform.isShared())
-    {
-      if (state)
-        state->updateTo(uniform);
-      else
-        logError("Program %s uses shared uniform %s without a current shared program state",
-                 m_program->name().c_str(),
-                 uniform.name().c_str());
-    }
+      state->updateTo(uniform);
     else
     {
       uniform.copyFrom(&m_floats[0] + offset);
