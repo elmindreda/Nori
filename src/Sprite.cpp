@@ -67,8 +67,8 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
 
     if (angle != 0.f)
     {
-      axisX = rotateZ(axisX, degrees(angle));
-      axisY = rotateZ(axisY, degrees(angle));
+      axisX = rotateZ(axisX, angle);
+      axisY = rotateZ(axisY, angle);
     }
   }
   else if (type == CYLINDRIC_SPRITE || type == SPHERICAL_SPRITE)
@@ -93,7 +93,7 @@ void realizeSpriteVertices(Vertex2ft3fv* vertices,
 
     if (angle != 0.f)
     {
-      quat rotZ = angleAxis(degrees(angle), axisZ);
+      quat rotZ = angleAxis(angle, axisZ);
       axisX = rotate(rotZ, axisX);
       axisY = rotate(rotZ, axisY);
     }

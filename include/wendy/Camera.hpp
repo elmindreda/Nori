@@ -72,7 +72,7 @@ public:
    *  @param[in] newVolume The volume to use.
    */
   void setOrthoVolume(const AABB& newVolume);
-  /*! @return The field of view, in degrees, of this camera.
+  /*! @return The field of view, in radians, of this camera.
    */
   float FOV() const { return m_FOV; }
   /*! @return The aspect ratio of this camera.

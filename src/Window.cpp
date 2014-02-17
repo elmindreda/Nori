@@ -760,8 +760,8 @@ void SpectatorController::setRotation(float newAngleX, float newAngleY)
   m_angleX = newAngleX;
   m_angleY = newAngleY;
 
-  const quat axisX = angleAxis(degrees(m_angleX), 1.f, 0.f, 0.f);
-  const quat axisY = angleAxis(degrees(m_angleY), 0.f, 1.f, 0.f);
+  const quat axisX = angleAxis(m_angleX, 1.f, 0.f, 0.f);
+  const quat axisY = angleAxis(m_angleY, 0.f, 1.f, 0.f);
   m_transform.rotation = axisY * axisX;
 }
 

@@ -31,6 +31,7 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
+#include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 ///////////////////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ namespace wendy
 
 Camera::Camera():
   m_mode(PERSPECTIVE),
-  m_FOV(90.f),
+  m_FOV(half_pi<float>()),
   m_aspectRatio(4.f / 3.f),
   m_nearZ(0.1f),
   m_farZ(1000.f)
@@ -65,7 +66,7 @@ void Camera::setOrthoVolume(const AABB& newVolume)
 void Camera::setFOV(float newFOV)
 {
   assert(newFOV > 0.f);
-  assert(newFOV < 180.f);
+  assert(newFOV < pi<float>());
 
   m_FOV = newFOV;
   updateFrustum();
@@ -142,7 +143,7 @@ Ray3 Camera::viewSpacePickingRay(vec2 position) const
     // Figure out the camera space ray direction
     result.direction = normalize(vec3((position.x - 0.5f) * m_aspectRatio,
                                       position.y - 0.5f,
-                                      -0.5f / tan(radians(m_FOV) / 2.f)));
+                                      -0.5f / tan(m_FOV / 2.f)));
 
     // Shift the ray origin along the ray direction to the near plane
     result.origin = result.direction * (m_nearZ / -result.direction.z);

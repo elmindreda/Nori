@@ -30,6 +30,8 @@
 #include <wendy/Primitive.hpp>
 #include <wendy/Frustum.hpp>
 
+#include <glm/gtc/constants.hpp>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
@@ -124,13 +126,13 @@ void Frustum::transformBy(const Transform3& transform)
 void Frustum::setPerspective(float FOV, float aspectRatio, float nearZ, float farZ)
 {
   assert(FOV > 0.f);
-  assert(FOV < 180.f);
+  assert(FOV < pi<float>());
   assert(aspectRatio > 0.f);
   assert(nearZ > 0.f);
   assert(farZ > 0.f);
   assert(farZ > nearZ);
 
-  const float distance = 0.5f / tan(radians(FOV) / 2.f);
+  const float distance = 0.5f / tan(FOV / 2.f);
 
   vec3 points[5];
   points[0] = vec3(0.f);
