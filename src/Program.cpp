@@ -60,7 +60,7 @@ struct UniformTypeInfo
   const char* name;
 };
 
-UniformTypeInfo uniformTypes[] =
+const UniformTypeInfo uniformTypes[] =
 {
   {  true, false, false,  1, "int" },
   {  true, false, false,  1, "unsigned int" },
@@ -82,7 +82,7 @@ struct AttributeTypeInfo
   const char* name;
 };
 
-AttributeTypeInfo attributeTypes[] =
+const AttributeTypeInfo attributeTypes[] =
 {
   {  true, false, 1, GL_FLOAT, "float" },
   { false,  true, 2, GL_FLOAT,  "vec2" },
@@ -95,7 +95,7 @@ struct SamplerTypeInfo
   const char* name;
 };
 
-SamplerTypeInfo samplerTypes[] =
+const SamplerTypeInfo samplerTypes[] =
 {
   { "sampler1D" },
   { "sampler2D" },
