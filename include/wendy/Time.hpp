@@ -92,9 +92,10 @@ private:
 class Ticker
 {
 public:
-  Ticker(Time period);
+  Ticker(Time period = 0.0);
   uint update(Time deltaTime);
   Time period() const { return m_period; }
+  void setPeriod(Time newPeriod) { m_period = newPeriod; }
   Time remainder() const { return m_remainder; }
 private:
   Time m_period;

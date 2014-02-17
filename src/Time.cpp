@@ -150,7 +150,7 @@ uint Ticker::update(Time deltaTime)
 {
   const Time total = deltaTime + m_remainder;
   const uint ticks = uint(total / m_period);
-  m_remainder = fmod(total, m_period);
+  m_remainder = mod(total, m_period);
   return ticks;
 }
 
