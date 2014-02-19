@@ -54,14 +54,20 @@ List::List(Layer& layer):
   m_scroller(nullptr),
   m_entry(nullptr)
 {
-  m_scroller = new Scroller(layer, VERTICAL);
-  m_scroller->setValueRange(0.f, 1.f);
-  m_scroller->setPercentage(1.f);
-  m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
-  addChild(*m_scroller);
+  init();
+}
 
-  onAreaChanged();
-  setFocusable(true);
+List::List(Widget& parent):
+  Widget(parent),
+  m_editable(false),
+  m_editing(false),
+  m_offset(0),
+  m_maxOffset(0),
+  m_selection(NO_ITEM),
+  m_scroller(nullptr),
+  m_entry(nullptr)
+{
+  init();
 }
 
 List::~List()
@@ -162,7 +168,6 @@ void List::setEditable(bool newState)
     m_entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
     m_entry->keySignal().connect(*this, &List::onEntryKey);
     m_entry->destroyedSignal().connect(*this, &List::onEntryDestroyed);
-    layer().addRootWidget(*m_entry);
   }
   else
   {
@@ -255,6 +260,17 @@ const std::vector<Item*>& List::items() const
 SignalProxy<void, List&> List::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
+}
+
+void List::init()
+{
+  m_scroller = new Scroller(*this, VERTICAL);
+  m_scroller->setValueRange(0.f, 1.f);
+  m_scroller->setPercentage(1.f);
+  m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
+
+  onAreaChanged();
+  setFocusable(true);
 }
 
 void List::draw() const

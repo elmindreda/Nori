@@ -39,29 +39,22 @@ class Layout : public Widget
 {
 public:
   Layout(Layer& layer, Orientation orientation, bool expanding = true);
-  void addChild(Widget& child);
-  void addChild(Widget& child, float size);
+  Layout(Widget& parent, Orientation orientation, bool expanding = true);
   bool isExpanding() const;
   Orientation orientation() const;
   float borderSize() const;
   void setBorderSize(float newSize);
-  float childSize(Widget& child) const;
-  void setChildSize(Widget& child, float newSize);
 protected:
-  void onChildAdded(Widget& child) override;
+  void onChildDesiredSizeChanged(Widget& child) override;
   void onChildRemoved(Widget& child) override;
-  void onAddedToParent(Widget& parent) override;
-  void onRemovedFromParent(Widget& parent) override;
   void onAreaChanged() override;
-  void onAreaChanged(Widget& widget);
+  void onAreaChanged(Widget& parent);
+  void onSizeChanged(Layer& layer);
 private:
-  typedef std::pair<Widget*, float> Size;
   void update();
-  std::vector<Size> m_sizes;
   float m_borderSize;
   Orientation m_orientation;
   bool m_expanding;
-  Ptr<SignalSlotBase> m_parentAreaSlot;
 };
 
 ///////////////////////////////////////////////////////////////////////

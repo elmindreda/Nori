@@ -39,6 +39,7 @@ class Popup : public Widget
 {
 public:
   Popup(Layer& layer);
+  Popup(Widget& parent);
   ~Popup();
   void addItem(Item& item);
   void addItemAt(Item& item, uint index);
@@ -60,6 +61,7 @@ public:
   const std::vector<Item*>& items() const;
   SignalProxy<void, Popup&, uint> itemSelectedSignal();
 protected:
+  void init();
   void draw() const;
 private:
   void display();

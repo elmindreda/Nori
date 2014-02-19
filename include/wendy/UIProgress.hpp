@@ -39,6 +39,7 @@ class Progress : public Widget
 {
 public:
   Progress(Layer& layer, Orientation orientation);
+  Progress(Widget& parent, Orientation orientation);
   float minValue() const { return m_minValue; }
   float maxValue() const { return m_maxValue; }
   void setValueRange(float newMinValue, float newMaxValue);
@@ -47,6 +48,7 @@ public:
   Orientation orientation() const { return m_orientation; }
   void setOrientation(Orientation newOrientation);
 private:
+  void init();
   void draw() const;
   float m_minValue;
   float m_maxValue;

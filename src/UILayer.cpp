@@ -80,14 +80,6 @@ void Layer::draw()
   m_drawer.end();
 }
 
-void Layer::addRootWidget(Widget& root)
-{
-  assert(&(root.m_layer) == this);
-
-  root.removeFromParent();
-  m_roots.push_back(&root);
-}
-
 void Layer::destroyRootWidgets()
 {
   while (!m_roots.empty())

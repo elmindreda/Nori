@@ -45,17 +45,24 @@ Layout::Layout(Layer& layer, Orientation orientation, bool expanding):
   m_orientation(orientation),
   m_expanding(expanding)
 {
+  if (expanding)
+  {
+    layer.sizeChangedSignal().connect(*this, &Layout::onSizeChanged);
+    onSizeChanged(layer);
+  }
 }
 
-void Layout::addChild(Widget& child)
+Layout::Layout(Widget& parent, Orientation orientation, bool expanding):
+  Widget(parent),
+  m_borderSize(0.f),
+  m_orientation(orientation),
+  m_expanding(expanding)
 {
-  Widget::addChild(child);
-}
-
-void Layout::addChild(Widget& child, float size)
-{
-  setChildSize(child, size);
-  Widget::addChild(child);
+  if (expanding)
+  {
+    parent.areaChangedSignal().connect(*this, &Layout::onAreaChanged);
+    onAreaChanged(parent);
+  }
 }
 
 bool Layout::isExpanding() const
@@ -79,63 +86,13 @@ void Layout::setBorderSize(float newSize)
   update();
 }
 
-float Layout::childSize(Widget& child) const
+void Layout::onChildDesiredSizeChanged(Widget& child)
 {
-  for (auto& s : m_sizes)
-  {
-    if (s.first == &child)
-      return s.second;
-  }
-
-  panic("Unknown child widget found in layout");
-}
-
-void Layout::setChildSize(Widget& child, float newSize)
-{
-  for (auto& s : m_sizes)
-  {
-    if (s.first == &child)
-    {
-      s.second = newSize;
-      return;
-    }
-  }
-
-  m_sizes.push_back(Size(&child, newSize));
-}
-
-void Layout::onChildAdded(Widget& child)
-{
-  auto s = m_sizes.begin();
-
-  for ( ;  s != m_sizes.end();  s++)
-  {
-    if (s->first == &child)
-      break;
-  }
-
-  if (s == m_sizes.end())
-  {
-    if (m_orientation == VERTICAL)
-      m_sizes.push_back(Size(&child, child.height()));
-    else
-      m_sizes.push_back(Size(&child, child.width()));
-  }
-
   update();
 }
 
 void Layout::onChildRemoved(Widget& child)
 {
-  for (auto s = m_sizes.begin();  s != m_sizes.end();  s++)
-  {
-    if (s->first == &child)
-    {
-      m_sizes.erase(s);
-      break;
-    }
-  }
-
   update();
 }
 
@@ -145,24 +102,15 @@ void Layout::onAreaChanged()
   Widget::onAreaChanged();
 }
 
-void Layout::onAreaChanged(Widget& widget)
+void Layout::onAreaChanged(Widget& parent)
 {
-  setArea(Rect(vec2(0.f), widget.size()));
+  setArea(Rect(vec2(0.f), parent.size()));
 }
 
-void Layout::onAddedToParent(Widget& parent)
+void Layout::onSizeChanged(Layer& layer)
 {
-  if (m_expanding)
-  {
-    m_parentAreaSlot = parent.areaChangedSignal().connect(*this, &Layout::onAreaChanged);
-    onAreaChanged(parent);
-  }
-}
-
-void Layout::onRemovedFromParent(Widget& parent)
-{
-  if (m_expanding)
-    m_parentAreaSlot = nullptr;
+  Window& window = layer.window();
+  setArea(Rect(vec2(0.f), vec2(float(window.width()), float(window.height()))));
 }
 
 void Layout::update()
@@ -170,12 +118,19 @@ void Layout::update()
   uint flexibleCount = 0;
   float stackSize = m_borderSize;
 
-  for (auto& s : m_sizes)
+  for (auto c : children())
   {
-    if (s.second == 0.f)
+    float desiredSize;
+
+    if (m_orientation == VERTICAL)
+      desiredSize = c->desiredSize().y;
+    else
+      desiredSize = c->desiredSize().x;
+
+    if (desiredSize == 0.f)
       flexibleCount++;
 
-    stackSize += s.second + m_borderSize;
+    stackSize += desiredSize + m_borderSize;
   }
 
   if (m_orientation == VERTICAL)
@@ -188,7 +143,7 @@ void Layout::update()
 
     for (auto c : children())
     {
-      float childHeight = childSize(*c);
+      float childHeight = c->desiredSize().y;
       if (childHeight == 0.f)
         childHeight = flexibleHeight;
 
@@ -206,7 +161,7 @@ void Layout::update()
 
     for (auto c : children())
     {
-      float childWidth = childSize(*c);
+      float childWidth = c->desiredSize().x;
       if (childWidth == 0.f)
         childWidth = flexibleWidth;
 

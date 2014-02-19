@@ -39,6 +39,7 @@ class Scroller : public Widget
 {
 public:
   Scroller(Layer& layer, Orientation orientation);
+  Scroller(Widget& parent, Orientation orientation);
   Orientation orientation() const;
   float minValue() const { return m_minValue; }
   float maxValue() const { return m_maxValue; }
@@ -51,6 +52,7 @@ public:
 protected:
   void draw() const;
 private:
+  void init();
   void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,

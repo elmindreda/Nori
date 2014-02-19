@@ -42,7 +42,7 @@ class Book;
 class Page : public Widget
 {
 public:
-  Page(Layer& layer, const char* text);
+  Page(Book& parent, const char* text);
   const String& text() const;
   void setText(const char* newText);
 private:
@@ -57,10 +57,12 @@ class Book : public Widget
 {
 public:
   Book(Layer& layer);
+  Book(Widget& parent);
   Page* activePage() const;
   void setActivePage(Page* newPage);
   SignalProxy<void, Book&> pageChangedSignal();
 protected:
+  void init();
   void draw() const;
   void onChildAdded(Widget& child) override;
   void onChildRemoved(Widget& child) override;

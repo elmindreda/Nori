@@ -48,30 +48,38 @@ Widget::Widget(Layer& layer):
   m_draggable(false),
   m_focusable(false)
 {
-  assert(&m_layer);
+  m_layer.m_roots.push_back(this);
+  invalidate();
+}
+
+Widget::Widget(Widget& parent):
+  m_layer(parent.layer()),
+  m_parent(&parent),
+  m_enabled(true),
+  m_visible(true),
+  m_draggable(false),
+  m_focusable(false)
+{
+  m_parent->m_children.push_back(this);
+  m_parent->onChildAdded(*this);
+
+  invalidate();
 }
 
 Widget::~Widget()
 {
+  m_destroyedSignal(*this);
   destroyChildren();
-  removeFromParent();
-
-  onDestroyed();
-}
-
-void Widget::addChild(Widget& child)
-{
-  assert(&m_layer == &(child.layer()));
-  assert(&child != this);
-  assert(!isChildOf(child));
-
-  child.removeFromParent();
-  child.m_parent = this;
-  m_children.push_back(&child);
-  onChildAdded(child);
-  child.onAddedToParent(*this);
-
   invalidate();
+
+  std::vector<Widget*>* siblings;
+
+  if (m_parent)
+    siblings = &(m_parent->m_children);
+  else
+    siblings = &(m_layer.m_roots);
+
+  siblings->erase(std::find(siblings->begin(), siblings->end(), this));
 }
 
 void Widget::destroyChildren()
@@ -80,32 +88,6 @@ void Widget::destroyChildren()
     delete m_children.back();
 
   invalidate();
-}
-
-void Widget::removeFromParent()
-{
-  std::vector<Widget*>* siblings;
-
-  if (m_parent)
-    siblings = &(m_parent->m_children);
-  else
-    siblings = &(m_layer.m_roots);
-
-  auto s = std::find(siblings->begin(), siblings->end(), this);
-  if (s == siblings->end())
-    return;
-
-  siblings->erase(s);
-  m_layer.removedWidget(*this);
-
-  if (m_parent)
-  {
-    Widget* oldParent = m_parent;
-    m_parent = nullptr;
-
-    oldParent->onChildRemoved(*this);
-    onRemovedFromParent(*oldParent);
-  }
 }
 
 Widget* Widget::findByPoint(vec2 point)
@@ -325,6 +307,14 @@ void Widget::setPosition(vec2 newPosition)
   setArea(Rect(newPosition, m_area.size));
 }
 
+void Widget::setDesiredSize(vec2 newSize)
+{
+  m_desired = newSize;
+
+  if (m_parent)
+    m_parent->onChildDesiredSizeChanged(*this);
+}
+
 void Widget::setFocusable(bool focusable)
 {
   m_focusable = focusable;
@@ -416,21 +406,12 @@ void Widget::onChildAdded(Widget& child)
 {
 }
 
+void Widget::onChildDesiredSizeChanged(Widget& child)
+{
+}
+
 void Widget::onChildRemoved(Widget& child)
 {
-}
-
-void Widget::onAddedToParent(Widget& parent)
-{
-}
-
-void Widget::onRemovedFromParent(Widget& parent)
-{
-}
-
-void Widget::onDestroyed()
-{
-  m_destroyedSignal(*this);
 }
 
 void Widget::onAreaChanged()

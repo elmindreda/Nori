@@ -51,21 +51,15 @@ public:
   /*! Constructor.
    */
   Widget(Layer& layer);
+  /*! Constructor.
+   */
+  Widget(Widget& parent);
   /*! Destructor.
    */
   ~Widget();
-  /*! Adds the specified widget as a child of this widget.
-   *  @param[in] child The widget to add.
-   *  @remarks The specified widget must not be a parent or ancestor of this
-   *  widget.
-   */
-  void addChild(Widget& child);
   /*! Destroys all children, recursively, of this widget.
    */
   void destroyChildren();
-  /*! Detaches this widget from its parent, if any.
-   */
-  void removeFromParent();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.
    *  @return The widget at the specified point, or @c nullptr if no matching
@@ -195,6 +189,8 @@ public:
    *  @remarks This is a helper method for Widget::setArea.
    */
   void setPosition(vec2 newPosition);
+  vec2 desiredSize() const { return m_desired; }
+  void setDesiredSize(vec2 newSize);
   void setFocusable(bool focusable);
   /*! Sets whether this widget can be the source of drag operations.
    */
@@ -218,9 +214,7 @@ protected:
   virtual void draw() const;
   virtual void onChildAdded(Widget& child);
   virtual void onChildRemoved(Widget& child);
-  virtual void onAddedToParent(Widget& parent);
-  virtual void onRemovedFromParent(Widget& parent);
-  virtual void onDestroyed();
+  virtual void onChildDesiredSizeChanged(Widget& child);
   virtual void onAreaChanged();
   virtual void onFocusChanged(bool activated);
   virtual void onKey(Key key, Action action, uint mods);
@@ -258,6 +252,7 @@ private:
   bool m_draggable;
   bool m_focusable;
   Rect m_area;
+  vec2 m_desired;
 };
 
 ///////////////////////////////////////////////////////////////////////

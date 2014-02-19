@@ -39,28 +39,6 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Button::Button(Layer& layer, ButtonType type, const char* text):
-  Widget(layer),
-  m_type(type),
-  m_text(text),
-  m_selected(false),
-  m_checked(false)
-{
-  Drawer& drawer = layer.drawer();
-  drawer.setCurrentFont(nullptr);
-  const float em = drawer.currentEM();
-
-  float textWidth;
-  if (m_text.empty())
-    textWidth = em * 3.f;
-  else
-    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
-
-  setSize(vec2(em * 2.f + textWidth, em * 2.f));
-  setDraggable(true);
-  setFocusable(true);
-}
-
 void Button::setChecked(bool checked)
 {
   m_checked = checked;
@@ -80,6 +58,26 @@ void Button::setText(const char* newText)
 SignalProxy<void, Button&> Button::pushedSignal()
 {
   return m_pushedSignal;
+}
+
+Button::Button(Layer& layer, ButtonType type, const char* text):
+  Widget(layer),
+  m_type(type),
+  m_text(text),
+  m_selected(false),
+  m_checked(false)
+{
+  init();
+}
+
+Button::Button(Widget& parent, ButtonType type, const char* text):
+  Widget(parent),
+  m_type(type),
+  m_text(text),
+  m_selected(false),
+  m_checked(false)
+{
+  init();
 }
 
 void Button::draw() const
@@ -172,6 +170,23 @@ void Button::onKey(Key key, Action action, uint mods)
   }
 
   Widget::onKey(key, action, mods);
+}
+
+void Button::init()
+{
+  Drawer& drawer = layer().drawer();
+  drawer.setCurrentFont(nullptr);
+  const float em = drawer.currentEM();
+
+  float textWidth;
+  if (m_text.empty())
+    textWidth = em * 3.f;
+  else
+    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
+
+  setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
+  setDraggable(true);
+  setFocusable(true);
 }
 
 ///////////////////////////////////////////////////////////////////////

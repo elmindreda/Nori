@@ -54,6 +54,7 @@ public:
   SignalProxy<void, Button&> pushedSignal();
 protected:
   Button(Layer& layer, ButtonType type, const char* text);
+  Button(Widget& parent, ButtonType type, const char* text);
   void draw() const;
   void onMouseButton(vec2 point,
                      MouseButton button,
@@ -64,6 +65,7 @@ protected:
   void onDragEnded(vec2 point) override;
   void onKey(Key key, Action action, uint mods) override;
 private:
+  void init();
   Signal<void, Button&> m_pushedSignal;
   ButtonType m_type;
   String m_text;
@@ -80,6 +82,10 @@ public:
     Button(layer, PUSH_BUTTON, text)
   {
   }
+  PushButton(Widget& parent, const char* text = ""):
+    Button(parent, PUSH_BUTTON, text)
+  {
+  }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -89,6 +95,10 @@ class CheckButton : public Button
 public:
   CheckButton(Layer& layer, const char* text = ""):
     Button(layer, CHECK_BUTTON, text)
+  {
+  }
+  CheckButton(Widget& parent, const char* text = ""):
+    Button(parent, CHECK_BUTTON, text)
   {
   }
 };

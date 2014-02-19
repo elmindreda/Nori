@@ -44,6 +44,11 @@ Canvas::Canvas(Layer& layer):
 {
 }
 
+Canvas::Canvas(Widget& parent):
+  Widget(parent)
+{
+}
+
 SignalProxy<void, const Canvas&> Canvas::drawSignal()
 {
   return m_drawSignal;

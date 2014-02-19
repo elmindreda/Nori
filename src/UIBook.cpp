@@ -41,8 +41,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(Layer& layer, const char* text):
-  Widget(layer),
+Page::Page(Book& parent, const char* text):
+  Widget(parent),
   m_text(text)
 {
 }
@@ -64,7 +64,14 @@ Book::Book(Layer& layer):
   Widget(layer),
   m_activePage(nullptr)
 {
-  setFocusable(true);
+  init();
+}
+
+Book::Book(Widget& parent):
+  Widget(parent),
+  m_activePage(nullptr)
+{
+  init();
 }
 
 Page* Book::activePage() const
@@ -80,6 +87,11 @@ void Book::setActivePage(Page* newPage)
 SignalProxy<void, Book&> Book::pageChangedSignal()
 {
   return m_pageChangedSignal;
+}
+
+void Book::init()
+{
+  setFocusable(true);
 }
 
 void Book::draw() const
@@ -130,7 +142,7 @@ void Book::onChildAdded(Widget& child)
   {
     const float em = layer().drawer().currentEM();
 
-    page->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
+    page->setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
 
     if (m_activePage)
       page->hide();
@@ -162,7 +174,7 @@ void Book::onAreaChanged()
   const float em = layer().drawer().currentEM();
 
   for (auto p : m_pages)
-    p->setArea(Rect(0.f, 0.f, size().x, size().y - em * 2.f));
+    p->setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
 
   Widget::onAreaChanged();
 }

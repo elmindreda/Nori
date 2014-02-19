@@ -60,7 +60,6 @@ public:
   /*! Draws all visible widgets in this UI layer.
    */
   virtual void draw();
-  void addRootWidget(Widget& root);
   void destroyRootWidgets();
   /*! Searches for a widget at the specified point.
    *  @param[in] point The point at which to search.

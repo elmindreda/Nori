@@ -93,17 +93,14 @@ Interface::Interface(Window& window, UI::Drawer& drawer):
 {
   root = new Panel(*this);
   root->setArea(Rect(0.f, 0.f, 150.f, 220.f));
-  addRootWidget(*root);
 
-  UI::Layout* layout = new UI::Layout(*this, UI::VERTICAL, true);
+  UI::Layout* layout = new UI::Layout(*root, UI::VERTICAL, true);
   layout->setBorderSize(2.f);
-  root->addChild(*layout);
 
   for (size_t i = 0;  i < ITEM_COUNT;  i++)
   {
-    labels[i] = new UI::Label(*this);
+    labels[i] = new UI::Label(*layout);
     labels[i]->setTextAlignment(UI::RIGHT_ALIGNED);
-    layout->addChild(*labels[i]);
   }
 }
 
