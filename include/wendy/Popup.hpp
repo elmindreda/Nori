@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,60 +22,63 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEBUGUI_HPP
-#define WENDY_DEBUGUI_HPP
+#ifndef WENDY_POPUP_HPP
+#define WENDY_POPUP_HPP
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace debug
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Panel : public Widget
+/*! @ingroup ui
+ */
+class Popup : public Widget
 {
 public:
-  Panel(Layer& layer);
-private:
+  Popup(Layer& layer);
+  Popup(Widget& parent);
+  ~Popup();
+  void addItem(Item& item);
+  void addItemAt(Item& item, uint index);
+  void createItem(const char* value, ItemID ID = 0);
+  void createSeparatorItem();
+  Item* findItem(const char* value);
+  const Item* findItem(const char* value) const;
+  void destroyItem(Item& item);
+  void destroyItems();
+  uint selection() const;
+  void setSelection(uint newIndex);
+  Item* selectedItem();
+  void setSelectedItem(Item& newItem);
+  ItemID selectedID();
+  void setSelectedID(ItemID newItemID);
+  uint itemCount() const;
+  Item* item(uint index);
+  const Item* item(uint index) const;
+  const std::vector<Item*>& items() const;
+  SignalProxy<void, Popup&, uint> itemSelectedSignal();
+protected:
+  void init();
   void draw() const;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Interface : public Layer
-{
-public:
-  Interface(Window& window, Drawer& drawer);
-  void update();
-  void draw();
 private:
-  enum Item
-  {
-    ITEM_FRAMERATE,
-    ITEM_STATECHANGES,
-    ITEM_OPERATIONS,
-    ITEM_VERTICES,
-    ITEM_POINTS,
-    ITEM_LINES,
-    ITEM_TRIANGLES,
-    ITEM_TEXTURES,
-    ITEM_VERTEXBUFFERS,
-    ITEM_INDEXBUFFERS,
-    ITEM_PROGRAMS,
-    ITEM_COUNT
-  };
-  void updateCountItem(Item item, const char* unit, size_t count);
-  void updateCountSizeItem(Item item, const char* unit, size_t count, size_t size);
-  Panel* root;
-  Label* labels[ITEM_COUNT];
+  void display();
+  void onMouseButton(vec2 point,
+                     MouseButton button,
+                     Action action,
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onItemSelected(Menu& menu, uint index);
+  void onMenuDestroyed(Widget& widget);
+  Signal<void, Popup&, uint> m_itemSelectedSignal;
+  uint m_selection;
+  Menu* m_menu;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace debug*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEBUGUI_HPP*/
+#endif /*WENDY_POPUP_HPP*/
 ///////////////////////////////////////////////////////////////////////

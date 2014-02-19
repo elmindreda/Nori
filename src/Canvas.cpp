@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,38 +22,61 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
-///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
- */
-
-///////////////////////////////////////////////////////////////////////
-
-#if WENDY_INCLUDE_UI_SYSTEM
+#include <wendy/Config.hpp>
 
 #include <wendy/Drawer.hpp>
 #include <wendy/Layer.hpp>
 #include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
 #include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+
+namespace wendy
+{
+
+///////////////////////////////////////////////////////////////////////
+
+Canvas::Canvas(Layer& layer):
+  Widget(layer)
+{
+}
+
+Canvas::Canvas(Widget& parent):
+  Widget(parent)
+{
+}
+
+SignalProxy<void, const Canvas&> Canvas::drawSignal()
+{
+  return m_drawSignal;
+}
+
+void Canvas::draw() const
+{
+  Drawer& drawer = layer().drawer();
+  RenderContext& context = drawer.context();
+
+  const Recti area(0, 0, int(width()), int(height()));
+
+  Recti oldViewport = context.viewportArea();
+  Recti oldScissor = context.scissorArea();
+
+  context.setViewportArea(area);
+  context.setScissorArea(area);
+
+  drawer.end();
+  m_drawSignal(*this);
+  drawer.begin();
+
+  context.setViewportArea(oldViewport);
+  context.setScissorArea(oldScissor);
+
+  Widget::draw();
+}
+
+///////////////////////////////////////////////////////////////////////
+
+} /*namespace wendy*/
+
 ///////////////////////////////////////////////////////////////////////

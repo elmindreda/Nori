@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,38 +22,65 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
+#ifndef WENDY_BOOK_HPP
+#define WENDY_BOOK_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
+namespace wendy
+{
+
+///////////////////////////////////////////////////////////////////////
+
+class Book;
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
  */
+class Page : public Widget
+{
+public:
+  Page(Book& parent, const char* text);
+  const String& text() const;
+  void setText(const char* newText);
+private:
+  String m_text;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_UI_SYSTEM
-
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
+/*! @ingroup ui
+ */
+class Book : public Widget
+{
+public:
+  Book(Layer& layer);
+  Book(Widget& parent);
+  Page* activePage() const;
+  void setActivePage(Page* newPage);
+  SignalProxy<void, Book&> pageChangedSignal();
+protected:
+  void init();
+  void draw() const;
+  void onChildAdded(Widget& child) override;
+  void onChildRemoved(Widget& child) override;
+  void onAreaChanged() override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onMouseButton(vec2 point,
+                     MouseButton button,
+                     Action action,
+                     uint mods) override;
+private:
+  void setActivePage(Page* newPage, bool notify);
+  Signal<void, Book&> m_pageChangedSignal;
+  Page* m_activePage;
+  std::vector<Page*> m_pages;
+};
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+
+} /*namespace wendy*/
+
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_BOOK_HPP*/
 ///////////////////////////////////////////////////////////////////////

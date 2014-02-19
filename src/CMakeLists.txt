@@ -50,9 +50,9 @@ endif()
 
 if (WENDY_INCLUDE_UI_SYSTEM)
   list(APPEND wendy_SOURCES
-       UIBook.cpp UIButton.cpp UICanvas.cpp UIDrawer.cpp UIEntry.cpp UIItem.cpp
-       UILabel.cpp UILayer.cpp UILayout.cpp UIList.cpp UIMenu.cpp UIPopup.cpp
-       UIProgress.cpp UIScroller.cpp UISlider.cpp UIWidget.cpp)
+       Book.cpp Button.cpp Canvas.cpp Drawer.cpp Entry.cpp Item.cpp Label.cpp
+       Layer.cpp Layout.cpp List.cpp Menu.cpp Popup.cpp Progress.cpp
+       Scroller.cpp Slider.cpp Widget.cpp)
 endif()
 
 if (WENDY_INCLUDE_DEBUG_UI)

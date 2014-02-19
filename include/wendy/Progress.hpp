@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,38 +22,42 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
+#ifndef WENDY_PROGRESS_HPP
+#define WENDY_PROGRESS_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
+namespace wendy
+{
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
  */
+class Progress : public Widget
+{
+public:
+  Progress(Layer& layer, Orientation orientation);
+  Progress(Widget& parent, Orientation orientation);
+  float minValue() const { return m_minValue; }
+  float maxValue() const { return m_maxValue; }
+  void setValueRange(float newMinValue, float newMaxValue);
+  float value() const { return m_value; }
+  void setValue(float newValue);
+  Orientation orientation() const { return m_orientation; }
+  void setOrientation(Orientation newOrientation);
+private:
+  void init();
+  void draw() const;
+  float m_minValue;
+  float m_maxValue;
+  float m_value;
+  Orientation m_orientation;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_UI_SYSTEM
-
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
+} /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+#endif /*WENDY_PROGRESS_HPP*/
 ///////////////////////////////////////////////////////////////////////

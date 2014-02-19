@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,60 +22,60 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_DEBUGUI_HPP
-#define WENDY_DEBUGUI_HPP
+#ifndef WENDY_SCROLLER_HPP
+#define WENDY_SCROLLER_HPP
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
-  namespace debug
-  {
 
 ///////////////////////////////////////////////////////////////////////
 
-class Panel : public Widget
+/*! @ingroup ui
+ */
+class Scroller : public Widget
 {
 public:
-  Panel(Layer& layer);
-private:
+  Scroller(Layer& layer, Orientation orientation);
+  Scroller(Widget& parent, Orientation orientation);
+  Orientation orientation() const;
+  float minValue() const { return m_minValue; }
+  float maxValue() const { return m_maxValue; }
+  void setValueRange(float newMinValue, float newMaxValue);
+  float value() const { return m_value; }
+  void setValue(float newValue);
+  float percentage() const { return m_percentage; }
+  void setPercentage(float newPercentage);
+  SignalProxy<void, Scroller&> valueChangedSignal();
+protected:
   void draw() const;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-class Interface : public Layer
-{
-public:
-  Interface(Window& window, Drawer& drawer);
-  void update();
-  void draw();
 private:
-  enum Item
-  {
-    ITEM_FRAMERATE,
-    ITEM_STATECHANGES,
-    ITEM_OPERATIONS,
-    ITEM_VERTICES,
-    ITEM_POINTS,
-    ITEM_LINES,
-    ITEM_TRIANGLES,
-    ITEM_TEXTURES,
-    ITEM_VERTEXBUFFERS,
-    ITEM_INDEXBUFFERS,
-    ITEM_PROGRAMS,
-    ITEM_COUNT
-  };
-  void updateCountItem(Item item, const char* unit, size_t count);
-  void updateCountSizeItem(Item item, const char* unit, size_t count, size_t size);
-  Panel* root;
-  Label* labels[ITEM_COUNT];
+  void init();
+  void onMouseButton(vec2 point,
+                     MouseButton button,
+                     Action action,
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onScroll(vec2 offset) override;
+  void onDragBegun(vec2 point) override;
+  void onDragMoved(vec2 point) override;
+  void setValue(float newValue, bool notify);
+  float handleSize() const;
+  float handleOffset() const;
+  float valueStep() const;
+  Signal<void, Scroller&> m_valueChangedSignal;
+  float m_minValue;
+  float m_maxValue;
+  float m_value;
+  float m_percentage;
+  float m_reference;
+  Orientation m_orientation;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-  } /*namespace debug*/
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_DEBUGUI_HPP*/
+#endif /*WENDY_SCROLLER_HPP*/
 ///////////////////////////////////////////////////////////////////////

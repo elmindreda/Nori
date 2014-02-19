@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,38 +22,37 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
+#ifndef WENDY_LABEL_HPP
+#define WENDY_LABEL_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
+namespace wendy
+{
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
  */
+class Label : public Widget
+{
+public:
+  Label(Layer& layer, const char* text = "", Alignment alignment = LEFT_ALIGNED);
+  Label(Widget& parent, const char* text = "", Alignment alignment = LEFT_ALIGNED);
+  const String& text() const;
+  void setText(const char* newText);
+  const Alignment& textAlignment() const;
+  void setTextAlignment(const Alignment& newAlignment);
+private:
+  void init();
+  void draw() const;
+  String m_text;
+  Alignment m_textAlignment;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_UI_SYSTEM
-
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
+} /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+#endif /*WENDY_LABEL_HPP*/
 ///////////////////////////////////////////////////////////////////////

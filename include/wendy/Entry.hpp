@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,38 +22,53 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
+#ifndef WENDY_ENTRY_HPP
+#define WENDY_ENTRY_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
+namespace wendy
+{
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
  */
+class Entry : public Widget
+{
+public:
+  Entry(Layer& layer, const char* text = "");
+  Entry(Widget& parent, const char* text = "");
+  const String& text() const;
+  void setText(const String& newText);
+  void setText(const char* newText);
+  uint caretPosition() const;
+  void setCaretPosition(uint newPosition);
+  SignalProxy<void, Entry&> textChangedSignal() { return m_textChangedSignal; }
+  SignalProxy<void, Entry&> caretMovedSignal() { return m_caretMovedSignal; }
+protected:
+  void init();
+  void draw() const;
+private:
+  void onFocusChanged(bool activated) override;
+  void onMouseButton(vec2 point,
+                     MouseButton button,
+                     Action action,
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onCharacter(uint32 codepoint, uint mods) override;
+  void onTextChanged();
+  void onCaretMoved();
+  void setCaretPosition(uint newPosition, bool notify);
+  Signal<void, Entry&> m_textChangedSignal;
+  Signal<void, Entry&> m_caretMovedSignal;
+  TextController m_controller;
+  Timer m_timer;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_UI_SYSTEM
-
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
+} /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+#endif /*WENDY_ENTRY_HPP*/
 ///////////////////////////////////////////////////////////////////////

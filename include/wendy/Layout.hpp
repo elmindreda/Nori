@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,38 +22,43 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
+#ifndef WENDY_LAYOUT_HPP
+#define WENDY_LAYOUT_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
+namespace wendy
+{
+
+///////////////////////////////////////////////////////////////////////
+
+/*! @ingroup ui
  */
+class Layout : public Widget
+{
+public:
+  Layout(Layer& layer, Orientation orientation, bool expanding = true);
+  Layout(Widget& parent, Orientation orientation, bool expanding = true);
+  bool isExpanding() const;
+  Orientation orientation() const;
+  float borderSize() const;
+  void setBorderSize(float newSize);
+protected:
+  void onChildDesiredSizeChanged(Widget& child) override;
+  void onChildRemoved(Widget& child) override;
+  void onAreaChanged() override;
+  void onAreaChanged(Widget& parent);
+  void onSizeChanged(Layer& layer);
+private:
+  void update();
+  float m_borderSize;
+  Orientation m_orientation;
+  bool m_expanding;
+};
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_UI_SYSTEM
-
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
+} /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+#endif /*WENDY_LAYOUT_HPP*/
 ///////////////////////////////////////////////////////////////////////

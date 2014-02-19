@@ -25,11 +25,11 @@
 
 #include <wendy/Config.hpp>
 
-#include <wendy/UIDrawer.hpp>
-#include <wendy/UILayer.hpp>
-#include <wendy/UIWidget.hpp>
-#include <wendy/UILabel.hpp>
-#include <wendy/UILayout.hpp>
+#include <wendy/Drawer.hpp>
+#include <wendy/Layer.hpp>
+#include <wendy/Widget.hpp>
+#include <wendy/Label.hpp>
+#include <wendy/Layout.hpp>
 
 #include <wendy/DebugUI.hpp>
 
@@ -67,40 +67,40 @@ const char* suffix(size_t value)
 
 ///////////////////////////////////////////////////////////////////////
 
-Panel::Panel(UI::Layer& layer):
-  UI::Widget(layer)
+Panel::Panel(Layer& layer):
+  Widget(layer)
 {
 }
 
 void Panel::draw() const
 {
-  UI::Drawer& drawer = layer().drawer();
+  Drawer& drawer = layer().drawer();
 
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
     drawer.fillRectangle(area, vec4(0.5f));
-    UI::Widget::draw();
+    Widget::draw();
     drawer.popClipArea();
   }
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-Interface::Interface(Window& window, UI::Drawer& drawer):
-  UI::Layer(window, drawer),
+Interface::Interface(Window& window, Drawer& drawer):
+  Layer(window, drawer),
   root(nullptr)
 {
   root = new Panel(*this);
   root->setArea(Rect(0.f, 0.f, 150.f, 220.f));
 
-  UI::Layout* layout = new UI::Layout(*root, UI::VERTICAL, true);
+  Layout* layout = new Layout(*root, VERTICAL, true);
   layout->setBorderSize(2.f);
 
   for (size_t i = 0;  i < ITEM_COUNT;  i++)
   {
-    labels[i] = new UI::Label(*layout);
-    labels[i]->setTextAlignment(UI::RIGHT_ALIGNED);
+    labels[i] = new Label(*layout);
+    labels[i]->setTextAlignment(RIGHT_ALIGNED);
   }
 }
 
@@ -151,7 +151,7 @@ void Interface::draw()
   RenderStats* previous = context.stats();
   context.setStats(nullptr);
 
-  UI::Layer::draw();
+  Layer::draw();
 
   context.setStats(previous);
 }
