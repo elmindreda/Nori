@@ -392,6 +392,138 @@ SQInteger SqVM::onRuntimeError(HSQUIRRELVM vm)
 
 ///////////////////////////////////////////////////////////////////////
 
+template <>
+bool SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  SQBool value;
+  sq_getbool(vm, index, &value);
+  return value ? true : false;
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, bool value)
+{
+  sq_pushbool(vm, SQBool(value));
+}
+
+template <>
+int SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  SQInteger value;
+  sq_getinteger(vm, index, &value);
+  return int(value);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, int value)
+{
+  sq_pushinteger(vm, SQInteger(value));
+}
+
+template <>
+float SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  SQFloat value;
+  sq_getfloat(vm, index, &value);
+  return float(value);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, float value)
+{
+  sq_pushfloat(vm, SQFloat(value));
+}
+
+template <>
+const char* SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  const SQChar* value;
+  sq_getstring(vm, index, &value);
+  return value;
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, const char* value)
+{
+  sq_pushstring(vm, value, -1);
+}
+
+template <>
+String SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  const SQChar* value;
+  sq_getstring(vm, index, &value);
+  return String(value);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, String value)
+{
+  sq_pushstring(vm, value.c_str(), -1);
+}
+
+template <>
+SqObject SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqObject(vm, index);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, SqObject value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqArray SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqArray(vm, index);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, SqArray value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqTable SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqTable(vm, index);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, SqTable value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqClass SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqClass(vm, index);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, SqClass value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqInstance SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqInstance(vm, index);
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, SqInstance value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+///////////////////////////////////////////////////////////////////////
+
 SqObject::SqObject():
   m_vm(nullptr)
 {
@@ -477,7 +609,7 @@ String SqObject::asString() const
   sq_pushobject(m_vm, m_handle);
   sq_tostring(m_vm, -1);
 
-  String result = SqValue<String>::get(m_vm, -1);
+  String result = SqValue::get<String>(m_vm, -1);
 
   sq_pop(m_vm, 2);
   return result;
@@ -556,24 +688,6 @@ bool SqObject::clear()
   const SQRESULT result = sq_clear(m_vm, -1);
 
   sq_poptop(m_vm);
-  return SQ_SUCCEEDED(result);
-}
-
-bool SqObject::call(const char* name)
-{
-  sq_pushobject(m_vm, m_handle);
-  sq_pushstring(m_vm, name, -1);
-  if (SQ_FAILED(sq_get(m_vm, -2)))
-  {
-    sq_poptop(m_vm);
-    return false;
-  }
-
-  sq_pushobject(m_vm, m_handle);
-
-  const SQRESULT result = sq_call(m_vm, 1, false, true);
-
-  sq_pop(m_vm, 2);
   return SQ_SUCCEEDED(result);
 }
 
