@@ -321,20 +321,12 @@ void SqVM::setForeignPointer(void* newValue)
 
 SqTable SqVM::rootTable()
 {
-  sq_pushroottable(m_vm);
-  SqTable table(m_vm, -1);
-  sq_poptop(m_vm);
-
-  return table;
+  return SqTable::rootTable(m_vm);
 }
 
 SqTable SqVM::constTable()
 {
-  sq_pushconsttable(m_vm);
-  SqTable table(m_vm, -1);
-  sq_poptop(m_vm);
-
-  return table;
+  return SqTable::constTable(m_vm);
 }
 
 SqTable SqVM::registryTable()
@@ -548,6 +540,14 @@ SqObject::SqObject(const SqObject& source):
   sq_addref(m_vm, &m_handle);
 }
 
+SqObject::SqObject(SqObject&& source):
+  m_vm(source.m_vm),
+  m_handle(source.m_handle)
+{
+  source.m_vm = nullptr;
+  sq_resetobject(&m_handle);
+}
+
 SqObject::~SqObject()
 {
   if (m_vm)
@@ -576,31 +576,6 @@ SqObject& SqObject::operator = (const SqObject& source)
   return *this;
 }
 
-bool SqObject::isNull() const
-{
-  return sq_isnull(m_handle);
-}
-
-bool SqObject::isArray() const
-{
-  return sq_isarray(m_handle);
-}
-
-bool SqObject::isTable() const
-{
-  return sq_istable(m_handle);
-}
-
-bool SqObject::isClass() const
-{
-  return sq_isclass(m_handle);
-}
-
-bool SqObject::isInstance() const
-{
-  return sq_isinstance(m_handle);
-}
-
 String SqObject::asString() const
 {
   if (!m_vm)
@@ -624,16 +599,6 @@ SQObjectType SqObject::type() const
   SQObjectType type = sq_gettype(m_vm, -1);
   sq_poptop(m_vm);
   return type;
-}
-
-HSQOBJECT SqObject::handle()
-{
-  return m_handle;
-}
-
-HSQUIRRELVM SqObject::VM() const
-{
-  return m_vm;
 }
 
 SqObject::SqObject(HSQUIRRELVM vm):
@@ -703,10 +668,6 @@ SQInteger SqObject::size() const
 }
 
 ///////////////////////////////////////////////////////////////////////
-
-SqArray::SqArray()
-{
-}
 
 SqArray::SqArray(HSQUIRRELVM vm):
   SqObject(vm)
@@ -804,10 +765,6 @@ SqObject SqArray::operator [] (SQInteger index) const
 
 ///////////////////////////////////////////////////////////////////////
 
-SqTable::SqTable()
-{
-}
-
 SqTable::SqTable(HSQUIRRELVM vm):
   SqObject(vm)
 {
@@ -831,16 +788,30 @@ SqTable::SqTable(HSQUIRRELVM vm, SQInteger index):
     panic("Object is not a table");
 }
 
-///////////////////////////////////////////////////////////////////////
-
-SqClass::SqClass()
+SqTable SqTable::rootTable(HSQUIRRELVM vm)
 {
+  sq_pushroottable(vm);
+  SqTable table(vm, -1);
+  sq_poptop(vm);
+
+  return table;
 }
+
+SqTable SqTable::constTable(HSQUIRRELVM vm)
+{
+  sq_pushconsttable(vm);
+  SqTable table(vm, -1);
+  sq_poptop(vm);
+
+  return table;
+}
+
+///////////////////////////////////////////////////////////////////////
 
 SqClass::SqClass(HSQUIRRELVM vm):
   SqObject(vm)
 {
-  sq_newtable(m_vm);
+  sq_newclass(m_vm, false);
   sq_getstackobj(m_vm, -1, &m_handle);
   sq_addref(m_vm, &m_handle);
   sq_poptop(m_vm);
@@ -906,10 +877,6 @@ SqTable SqClass::memberAttributes(const char* name)
 
 ///////////////////////////////////////////////////////////////////////
 
-SqInstance::SqInstance()
-{
-}
-
 SqInstance::SqInstance(const SqObject& source):
   SqObject(source)
 {
@@ -932,6 +899,15 @@ SqClass SqInstance::class_() const
   SqClass result(m_vm, -1);
 
   sq_pop(m_vm, 2);
+  return result;
+}
+
+void* SqInstance::pointer()
+{
+  sq_pushobject(m_vm, m_handle);
+  void* result = nullptr;
+  sq_getinstanceup(m_vm, -1, &result, nullptr);
+  sq_poptop(m_vm);
   return result;
 }
 
