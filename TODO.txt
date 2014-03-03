@@ -24,7 +24,7 @@ Separate formats from vertex and index buffer [Pod]
 Add binding objects connecting a VAO with a program using a vertex format [Mac]
 
 Remove last string compares in render code [opt]
-Add value cache to Uniform and Sampler [opt]
+Add value cache to Uniform [opt]
 
 Add procedural generation of texture contents using fragment shader [Pod]
 
@@ -65,8 +65,6 @@ UI
 Add color picker widget [Pod]
 
 Add tooltip system [Pod]
-
-Replace self-signals with virtual methods
 
 
 Bullet
