@@ -42,6 +42,139 @@ class SqInstance;
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
+
+template <typename T>
+static T get(HSQUIRRELVM vm, SQInteger index);
+
+template <typename T>
+static void push(HSQUIRRELVM vm, T value);
+
+template <typename T, typename... A>
+static void push(HSQUIRRELVM vm, T value, A... args)
+{
+  push(vm, value);
+  push(vm, args...);
+}
+
+template <std::size_t... I>
+struct IndexPack
+{
+};
+
+template <std::size_t N, std::size_t... I>
+struct IndexBuilder : public IndexBuilder<N-1, N-1, I...>
+{
+};
+
+template <std::size_t... I>
+struct IndexBuilder<0, I...> : public IndexPack<I...>
+{
+};
+
+template <typename R>
+class Function
+{
+public:
+  template <typename... A>
+  static SQInteger demarshal(HSQUIRRELVM vm)
+  {
+    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
+    return 1;
+  }
+  template <typename... A, std::size_t... I>
+  static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
+  {
+    R (**function)(A...) = nullptr;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
+    push(vm, (*function)(get<A>(vm, I + 1)...));
+  }
+};
+
+template <>
+class Function<void>
+{
+public:
+  template <typename... A>
+  static SQInteger demarshal(HSQUIRRELVM vm)
+  {
+    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
+    return 1;
+  }
+  template <typename... A, std::size_t... I>
+  static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
+  {
+    void (**function)(A...) = nullptr;
+    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
+    (*function)(get<A>(vm, I + 1)...);
+  }
+};
+
+template <typename T, typename R>
+class Method
+{
+public:
+  template <typename... A>
+  static SQInteger demarshal(HSQUIRRELVM vm)
+  {
+    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
+    return 1;
+  }
+  template <typename... A, std::size_t... I>
+  static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
+  {
+    T* instance = nullptr;
+    R (T::**method)(A...) = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
+    push(vm, (instance->**method)(get<A>(vm, I + 2)...));
+  }
+};
+
+template <typename T>
+class Method<T, void>
+{
+public:
+  template <typename... A>
+  static SQInteger demarshal(HSQUIRRELVM vm)
+  {
+    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
+    return 1;
+  }
+  template <typename... A, std::size_t... I>
+  static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
+  {
+    T* instance = nullptr;
+    void (T::**method)(A...) = nullptr;
+    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
+    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
+    (instance->**method)(get<A>(vm, I + 2)...);
+  }
+};
+
+template <typename R, typename... A>
+inline SQFUNCTION demarshaller(R (*function)(A...))
+{
+  return &Function<R>::template demarshal<A...>;
+}
+
+template <typename T, typename R, typename... A>
+inline SQFUNCTION demarshaller(R (T::*method)(A...))
+{
+  return &Method<T,R>::template demarshal<A...>;
+}
+
+template <typename T, typename R, typename... A>
+inline SQFUNCTION demarshaller(R (T::*method)(A...) const)
+{
+  return &Method<T,R>::template demarshal<A...>;
+}
+
+} /*namespace detail*/
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @brief Squirrel %VM instance.
  *  @ingroup squirrel
  */
@@ -71,26 +204,6 @@ private:
   static SQInteger onRuntimeError(HSQUIRRELVM vm);
   ResourceCache& m_cache;
   HSQUIRRELVM m_vm;
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Stack value helper.
- *  @ingroup squirrel
- */
-class SqValue
-{
-public:
-  template <typename T>
-  static T get(HSQUIRRELVM vm, SQInteger index);
-  template <typename T>
-  static void push(HSQUIRRELVM vm, T value);
-  template <typename T, typename... A>
-  static void push(HSQUIRRELVM vm, T value, A... args)
-  {
-    push(vm, value);
-    push(vm, args...);
-  }
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -149,7 +262,7 @@ template <typename T>
 inline T SqObject::as() const
 {
   sq_pushobject(m_vm, m_handle);
-  T value = SqValue::get<T>(m_vm, -1);
+  T value = detail::get<T>(m_vm, -1);
   sq_poptop(m_vm);
   return value;
 }
@@ -162,7 +275,7 @@ inline bool SqObject::addSlot(const char* name, T value)
 
   sq_pushobject(m_vm, m_handle);
   sq_pushstring(m_vm, name, -1);
-  SqValue::push(m_vm, value);
+  detail::push(m_vm, value);
 
   const SQRESULT result = sq_newslot(m_vm, -3, false);
 
@@ -178,7 +291,7 @@ inline bool SqObject::addStaticSlot(const char* name, T value)
 
   sq_pushobject(m_vm, m_handle);
   sq_pushstring(m_vm, name, -1);
-  SqValue::push(m_vm, value);
+  detail::push(m_vm, value);
 
   const SQRESULT result = sq_newslot(m_vm, -3, true);
 
@@ -198,7 +311,7 @@ inline bool SqObject::call(const char* name, A... args)
   }
 
   sq_pushobject(m_vm, m_handle);
-  SqValue::push(m_vm, args...);
+  detail::push(m_vm, args...);
 
   const SQRESULT result = sq_call(m_vm, sizeof...(args) + 1, false, true);
 
@@ -218,7 +331,7 @@ inline R SqObject::eval(const char* name, A... args)
   }
 
   sq_pushobject(m_vm, m_handle);
-  SqValue::push(m_vm, args...);
+  detail::push(m_vm, args...);
 
   if (SQ_FAILED(sq_call(m_vm, sizeof...(args) + 1, true, true)))
   {
@@ -226,7 +339,7 @@ inline R SqObject::eval(const char* name, A... args)
     throw Exception("Failed to call closure");
   }
 
-  const R result = SqValue::get<R>(m_vm, -1);
+  const R result = detail::get<R>(m_vm, -1);
   sq_pop(m_vm, 3);
   return result;
 }
@@ -243,7 +356,7 @@ inline T SqObject::get(const char* name)
     throw Exception("The requested slot does not exist");
   }
 
-  T result = SqValue::get<T>(m_vm, -1);
+  T result = detail::get<T>(m_vm, -1);
   sq_pop(m_vm, 2);
 
   return result;
@@ -257,7 +370,7 @@ inline bool SqObject::set(const char* name, T value)
 
   sq_pushobject(m_vm, m_handle);
   sq_pushstring(m_vm, name, -1);
-  SqValue::push(m_vm, value);
+  detail::push(m_vm, value);
 
   const SQRESULT result = sq_set(m_vm, -3);
 
@@ -301,7 +414,7 @@ inline bool SqArray::insert(SQInteger index, T value)
     return false;
 
   sq_pushobject(m_vm, m_handle);
-  SqValue::push(m_vm, value);
+  detail::push(m_vm, value);
 
   const SQRESULT result = sq_arrayinsert(m_vm, -2, index);
 
@@ -316,7 +429,7 @@ inline bool SqArray::push(T value)
     return false;
 
   sq_pushobject(m_vm, m_handle);
-  SqValue::push(m_vm, value);
+  detail::push(m_vm, value);
 
   const SQRESULT result = sq_arrayappend(m_vm, -2);
 
@@ -339,7 +452,7 @@ inline T SqArray::get(SQInteger index) const
     throw Exception("No array element at index");
   }
 
-  T result = SqValue::get<T>(m_vm, -1);
+  T result = detail::get<T>(m_vm, -1);
   sq_pop(m_vm, 2);
   return result;
 }
@@ -352,7 +465,7 @@ inline bool SqArray::set(SQInteger index, T value)
 
   sq_pushobject(m_vm, m_handle);
   sq_pushinteger(m_vm, index);
-  SqValue::push(m_vm, value);
+  detail::push(m_vm, value);
 
   const SQRESULT result = sq_set(m_vm, -3);
 
@@ -383,309 +496,6 @@ public:
   static SqTable rootTable(HSQUIRRELVM vm);
   static SqTable constTable(HSQUIRRELVM vm);
 };
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Native function wrapping helper.
- *  @ingroup squirrel
- */
-template <typename R>
-class SqFunction
-{
-public:
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef R (*Function)();
-
-    Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-
-    SqValue::push(vm, (**function)());
-    return 1;
-  }
-  template <typename A1>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef R (*Function)(A1);
-
-    Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-
-    SqValue::push(vm, (**function)(SqValue::get<A1>(vm, 1)));
-    return 1;
-  }
-  template <typename A1, typename A2>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef R (*Function)(A1,A2);
-
-    Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-
-    SqValue::push(vm, (**function)(SqValue::get<A1>(vm, 1),
-                                   SqValue::get<A2>(vm, 2)));
-    return 1;
-  }
-};
-
-/*! @brief Native function wrapping helper.
- *  @ingroup squirrel
- */
-template <>
-class SqFunction<void>
-{
-public:
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef void (*Function)();
-
-    Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-
-    (**function)();
-    return 0;
-  }
-  template <typename A1>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef void (*Function)(A1);
-
-    Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-
-    (**function)(SqValue::get<A1>(vm, 1));
-    return 0;
-  }
-  template <typename A1, typename A2>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef void (*Function)(A1,A2);
-
-    Function* function;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-
-    (**function)(SqValue::get<A1>(vm, 1),
-                 SqValue::get<A2>(vm, 2));
-    return 0;
-  }
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Native class method wrapping helper.
- *  @ingroup squirrel
- */
-template <typename T, typename R>
-class SqMethod
-{
-public:
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef R (T::*Method)();
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    SqValue::push(vm, (instance->**method)());
-    return 1;
-  }
-  static SQInteger demarshalC(HSQUIRRELVM vm)
-  {
-    typedef R (T::*Method)() const;
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    SqValue::push(vm, (instance->**method)());
-    return 1;
-  }
-  template <typename A1>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef R (T::*Method)(A1);
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    SqValue::push(vm, (instance->**method)(SqValue::get<A1>(vm, 2)));
-    return 1;
-  }
-  template <typename A1>
-  static SQInteger demarshalC(HSQUIRRELVM vm)
-  {
-    typedef R (T::*Method)(A1) const;
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    SqValue::push(vm, (instance->**method)(SqValue::get<A1>(vm, 2)));
-    return 1;
-  }
-  template <typename A1, typename A2>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef R (T::*Method)(A1,A2);
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    SqValue::push(vm, (instance->**method)(SqValue::get<A1>(vm, 2),
-                                           SqValue::get<A2>(vm, 3)));
-    return 1;
-  }
-  template <typename A1, typename A2>
-  static SQInteger demarshalC(HSQUIRRELVM vm)
-  {
-    typedef R (T::*Method)(A1,A2) const;
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    SqValue::push(vm, (instance->**method)(SqValue::get<A1>(vm, 2),
-                                           SqValue::get<A2>(vm, 3)));
-    return 1;
-  }
-};
-
-/*! @brief Native class method wrapping helper.
- *  @ingroup squirrel
- */
-template <typename T>
-class SqMethod<T, void>
-{
-public:
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef void (T::*Method)();
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    (instance->**method)();
-    return 0;
-  }
-  static SQInteger demarshalC(HSQUIRRELVM vm)
-  {
-    typedef void (T::*Method)() const;
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    (instance->**method)();
-    return 0;
-  }
-  template <typename A1>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef void (T::*Method)(A1);
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    (instance->**method)(SqValue::get<A1>(vm, 2));
-    return 0;
-  }
-  template <typename A1>
-  static SQInteger demarshalC(HSQUIRRELVM vm)
-  {
-    typedef void (T::*Method)(A1) const;
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    (instance->**method)(SqValue::get<A1>(vm, 2));
-    return 0;
-  }
-  template <typename A1, typename A2>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    typedef void (T::*Method)(A1,A2);
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    (instance->**method)(SqValue::get<A1>(vm, 2),
-                         SqValue::get<A2>(vm, 3));
-    return 0;
-  }
-  template <typename A1, typename A2>
-  static SQInteger demarshalC(HSQUIRRELVM vm)
-  {
-    typedef void (T::*Method)(A1,A2) const;
-
-    Method* method;
-    sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-
-    T* instance = nullptr;
-    sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
-
-    (instance->**method)(SqValue::get<A1>(vm, 2),
-                         SqValue::get<A2>(vm, 3));
-    return 0;
-  }
-};
-
-///////////////////////////////////////////////////////////////////////
-
-/*! @brief Native function wrapping helper.
- *  @ingroup squirrel
- */
-template <typename R, typename... A>
-inline SQFUNCTION demarshal(R (*function)(A...))
-{
-  return &SqFunction<R>::template demarshal<A...>;
-}
-
-/*! @brief Native class method wrapping helper.
- *  @ingroup squirrel
- */
-template <typename T, typename R, typename... A>
-inline SQFUNCTION demarshal(R (T::*method)(A...))
-{
-  return &SqMethod<T,R>::template demarshal<A...>;
-}
-
-/*! @brief Native class method wrapping helper.
- *  @ingroup squirrel
- */
-template <typename T, typename R, typename... A>
-inline SQFUNCTION demarshal(R (T::*method)(A...) const)
-{
-  return &SqMethod<T,R>::template demarshalC<A...>;
-}
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -745,12 +555,12 @@ public:
   template <typename M>
   bool addMethod(const char* name, M method)
   {
-    return addFunction(name, &method, sizeof(method), demarshal(method), false);
+    return addFunction(name, &method, sizeof(method), detail::demarshaller(method), false);
   }
   template <typename M>
   bool addStaticMethod(const char* name, M method)
   {
-    return addFunction(name, &method, sizeof(method), demarshal(method), true);
+    return addFunction(name, &method, sizeof(method), detail::demarshaller(method), true);
   }
 private:
   static SQInteger constructor(HSQUIRRELVM vm);
@@ -826,12 +636,12 @@ public:
   template <typename M>
   bool addMethod(const char* name, M method)
   {
-    return addFunction(name, &method, sizeof(method), demarshal(method), false);
+    return addFunction(name, &method, sizeof(method), detail::demarshaller(method), false);
   }
   template <typename M>
   bool addStaticMethod(const char* name, M method)
   {
-    return addFunction(name, &method, sizeof(method), demarshal(method), true);
+    return addFunction(name, &method, sizeof(method), detail::demarshaller(method), true);
   }
 protected:
   static T* createNativeInstance();

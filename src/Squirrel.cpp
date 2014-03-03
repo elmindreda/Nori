@@ -289,6 +289,194 @@ void registerCoreClasses(SqVM& vm)
 
 ///////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
+
+template <>
+bool get(HSQUIRRELVM vm, SQInteger index)
+{
+  SQBool value;
+  sq_getbool(vm, index, &value);
+  return value ? true : false;
+}
+
+template <>
+void push(HSQUIRRELVM vm, bool value)
+{
+  sq_pushbool(vm, SQBool(value));
+}
+
+template <>
+int get(HSQUIRRELVM vm, SQInteger index)
+{
+  SQInteger value;
+  sq_getinteger(vm, index, &value);
+  return int(value);
+}
+
+template <>
+void push(HSQUIRRELVM vm, int value)
+{
+  sq_pushinteger(vm, SQInteger(value));
+}
+
+template <>
+float get(HSQUIRRELVM vm, SQInteger index)
+{
+  SQFloat value;
+  sq_getfloat(vm, index, &value);
+  return float(value);
+}
+
+template <>
+void push(HSQUIRRELVM vm, float value)
+{
+  sq_pushfloat(vm, SQFloat(value));
+}
+
+template <>
+const char* get(HSQUIRRELVM vm, SQInteger index)
+{
+  const SQChar* value;
+  sq_getstring(vm, index, &value);
+  return value;
+}
+
+template <>
+void push(HSQUIRRELVM vm, const char* value)
+{
+  sq_pushstring(vm, value, -1);
+}
+
+template <>
+String get(HSQUIRRELVM vm, SQInteger index)
+{
+  const SQChar* value;
+  sq_getstring(vm, index, &value);
+  return String(value);
+}
+
+template <>
+void push(HSQUIRRELVM vm, String value)
+{
+  sq_pushstring(vm, value.c_str(), -1);
+}
+
+template <>
+SqObject get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqObject(vm, index);
+}
+
+template <>
+void push(HSQUIRRELVM vm, SqObject value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqArray get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqArray(vm, index);
+}
+
+template <>
+void push(HSQUIRRELVM vm, SqArray value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqTable get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqTable(vm, index);
+}
+
+template <>
+void push(HSQUIRRELVM vm, SqTable value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqClass get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqClass(vm, index);
+}
+
+template <>
+void push(HSQUIRRELVM vm, SqClass value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+SqInstance get(HSQUIRRELVM vm, SQInteger index)
+{
+  return SqInstance(vm, index);
+}
+
+template <>
+void push(HSQUIRRELVM vm, SqInstance value)
+{
+  sq_pushobject(vm, value.handle());
+}
+
+template <>
+vec2 get(HSQUIRRELVM vm, SQInteger index)
+{
+  vec2* value;
+  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
+  return *value;
+}
+
+template <>
+void push(HSQUIRRELVM vm, vec2 value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqNativeInstance<vec2> instance(root.get<SqClass>("Vec2").createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
+}
+
+template <>
+vec3 get(HSQUIRRELVM vm, SQInteger index)
+{
+  vec3* value;
+  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
+  return *value;
+}
+
+template <>
+void push(HSQUIRRELVM vm, vec3 value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqNativeInstance<vec3> instance(root.get<SqClass>("Vec3").createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
+}
+
+template <>
+vec4 get(HSQUIRRELVM vm, SQInteger index)
+{
+  vec4* value;
+  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
+  return *value;
+}
+
+template <>
+void push(HSQUIRRELVM vm, vec4 value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqNativeInstance<vec4> instance(root.get<SqClass>("Vec4").createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
+}
+
+} /*namespace detail*/
+
+///////////////////////////////////////////////////////////////////////
+
 SqVM::SqVM(ResourceCache& cache):
   m_cache(cache),
   m_vm(nullptr)
@@ -436,189 +624,6 @@ SQInteger SqVM::onRuntimeError(HSQUIRRELVM vm)
 
 ///////////////////////////////////////////////////////////////////////
 
-template <>
-bool SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  SQBool value;
-  sq_getbool(vm, index, &value);
-  return value ? true : false;
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, bool value)
-{
-  sq_pushbool(vm, SQBool(value));
-}
-
-template <>
-int SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  SQInteger value;
-  sq_getinteger(vm, index, &value);
-  return int(value);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, int value)
-{
-  sq_pushinteger(vm, SQInteger(value));
-}
-
-template <>
-float SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  SQFloat value;
-  sq_getfloat(vm, index, &value);
-  return float(value);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, float value)
-{
-  sq_pushfloat(vm, SQFloat(value));
-}
-
-template <>
-const char* SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  const SQChar* value;
-  sq_getstring(vm, index, &value);
-  return value;
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, const char* value)
-{
-  sq_pushstring(vm, value, -1);
-}
-
-template <>
-String SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  const SQChar* value;
-  sq_getstring(vm, index, &value);
-  return String(value);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, String value)
-{
-  sq_pushstring(vm, value.c_str(), -1);
-}
-
-template <>
-SqObject SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  return SqObject(vm, index);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, SqObject value)
-{
-  sq_pushobject(vm, value.handle());
-}
-
-template <>
-SqArray SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  return SqArray(vm, index);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, SqArray value)
-{
-  sq_pushobject(vm, value.handle());
-}
-
-template <>
-SqTable SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  return SqTable(vm, index);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, SqTable value)
-{
-  sq_pushobject(vm, value.handle());
-}
-
-template <>
-SqClass SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  return SqClass(vm, index);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, SqClass value)
-{
-  sq_pushobject(vm, value.handle());
-}
-
-template <>
-SqInstance SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  return SqInstance(vm, index);
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, SqInstance value)
-{
-  sq_pushobject(vm, value.handle());
-}
-
-template <>
-vec2 SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  vec2* value;
-  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
-  return *value;
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, vec2 value)
-{
-  SqTable root(SqTable::rootTable(vm));
-  SqNativeInstance<vec2> instance(root.get<SqClass>("Vec2").createInstance());
-  *instance.native() = value;
-  sq_pushobject(vm, instance.handle());
-}
-
-template <>
-vec3 SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  vec3* value;
-  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
-  return *value;
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, vec3 value)
-{
-  SqTable root(SqTable::rootTable(vm));
-  SqNativeInstance<vec3> instance(root.get<SqClass>("Vec3").createInstance());
-  *instance.native() = value;
-  sq_pushobject(vm, instance.handle());
-}
-
-template <>
-vec4 SqValue::get(HSQUIRRELVM vm, SQInteger index)
-{
-  vec4* value;
-  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
-  return *value;
-}
-
-template <>
-void SqValue::push(HSQUIRRELVM vm, vec4 value)
-{
-  SqTable root(SqTable::rootTable(vm));
-  SqNativeInstance<vec4> instance(root.get<SqClass>("Vec4").createInstance());
-  *instance.native() = value;
-  sq_pushobject(vm, instance.handle());
-}
-
-///////////////////////////////////////////////////////////////////////
-
 SqObject::SqObject():
   m_vm(nullptr)
 {
@@ -687,7 +692,7 @@ String SqObject::asString() const
   sq_pushobject(m_vm, m_handle);
   sq_tostring(m_vm, -1);
 
-  String result = SqValue::get<String>(m_vm, -1);
+  String result = detail::get<String>(m_vm, -1);
 
   sq_pop(m_vm, 2);
   return result;
