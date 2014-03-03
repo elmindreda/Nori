@@ -569,17 +569,12 @@ private:
 };
 
 template <typename T>
-inline SqDataClass<T>::SqDataClass(HSQUIRRELVM vm)
+inline SqDataClass<T>::SqDataClass(HSQUIRRELVM vm):
+  SqClass(vm)
 {
-  m_vm = vm;
-
-  sq_newclass(m_vm, false);
-
-  sq_resetobject(&m_handle);
-  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_pushobject(m_vm, m_handle);
   sq_setclassudsize(m_vm, -1, sizeof(T));
   sq_settypetag(m_vm, -1, &m_tag);
-  sq_addref(m_vm, &m_handle);
 
   sq_pushstring(m_vm, "constructor", -1);
   sq_newclosure(m_vm, &constructor, 0);
@@ -652,16 +647,11 @@ private:
 };
 
 template <typename T>
-inline SqRefClass<T>::SqRefClass(HSQUIRRELVM vm)
+inline SqRefClass<T>::SqRefClass(HSQUIRRELVM vm):
+  SqClass(vm)
 {
-  m_vm = vm;
-
-  sq_newclass(m_vm, false);
-
-  sq_resetobject(&m_handle);
-  sq_getstackobj(m_vm, -1, &m_handle);
+  sq_pushobject(m_vm, m_handle);
   sq_settypetag(m_vm, -1, &m_tag);
-  sq_addref(m_vm, &m_handle);
 
   sq_pushstring(m_vm, "constructor", -1);
   sq_newclosure(m_vm, &constructor, 0);
