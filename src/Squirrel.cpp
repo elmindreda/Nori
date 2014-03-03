@@ -235,6 +235,56 @@ void logErrorCallStack(HSQUIRRELVM vm)
   logError("%s", stream.str().c_str());
 }
 
+template <typename T>
+T vecAdd(T a, T b) { return a + b; }
+template <typename T>
+T vecSub(T a, T b) { return a - b; }
+template <typename T>
+T vecMul(T a, T b) { return a * b; }
+template <typename T>
+T vecDiv(T a, T b) { return a / b; }
+template <typename T>
+T vecUnm(T v) { return -v; }
+template <typename T>
+String vecToString(T v) { return stringCast(v); }
+template <typename T>
+float vecDot(T a, T b) { return dot(a, b); }
+
+void registerCoreClasses(SqVM& vm)
+{
+  SqTable rootTable(vm.rootTable());
+
+  SqDataClass<vec2> vec2Class(vm);
+  vec2Class.addMethod("_add", &vecAdd<vec2>);
+  vec2Class.addMethod("_sub", &vecSub<vec2>);
+  vec2Class.addMethod("_mul", &vecMul<vec2>);
+  vec2Class.addMethod("_div", &vecDiv<vec2>);
+  vec2Class.addMethod("_unm", &vecUnm<vec2>);
+  vec2Class.addMethod("_tostring", &vecToString<vec2>);
+  vec2Class.addMethod("dot", &vecDot<vec2>);
+  rootTable.addSlot("Vec2", (SqClass) vec2Class);
+
+  SqDataClass<vec3> vec3Class(vm);
+  vec3Class.addMethod("_add", &vecAdd<vec3>);
+  vec3Class.addMethod("_sub", &vecSub<vec3>);
+  vec3Class.addMethod("_mul", &vecMul<vec3>);
+  vec3Class.addMethod("_div", &vecDiv<vec3>);
+  vec3Class.addMethod("_unm", &vecUnm<vec3>);
+  vec3Class.addMethod("_tostring", &vecToString<vec3>);
+  vec3Class.addMethod("dot", &vecDot<vec3>);
+  rootTable.addSlot("Vec3", (SqClass) vec3Class);
+
+  SqDataClass<vec4> vec4Class(vm);
+  vec4Class.addMethod("_add", &vecAdd<vec4>);
+  vec4Class.addMethod("_sub", &vecSub<vec4>);
+  vec4Class.addMethod("_mul", &vecMul<vec4>);
+  vec4Class.addMethod("_div", &vecDiv<vec4>);
+  vec4Class.addMethod("_unm", &vecUnm<vec4>);
+  vec4Class.addMethod("_tostring", &vecToString<vec4>);
+  vec4Class.addMethod("dot", &vecDot<vec4>);
+  rootTable.addSlot("Vec4", (SqClass) vec4Class);
+}
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -255,6 +305,8 @@ SqVM::SqVM(ResourceCache& cache):
   sq_newclosure(m_vm, onRuntimeError, 0);
   sq_seterrorhandler(m_vm);
   sq_poptop(m_vm);
+
+  registerCoreClasses(*this);
 }
 
 SqVM::~SqVM()
@@ -512,6 +564,57 @@ template <>
 void SqValue::push(HSQUIRRELVM vm, SqInstance value)
 {
   sq_pushobject(vm, value.handle());
+}
+
+template <>
+vec2 SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  vec2* value;
+  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
+  return *value;
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, vec2 value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqNativeInstance<vec2> instance(root.get<SqClass>("Vec2").createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
+}
+
+template <>
+vec3 SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  vec3* value;
+  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
+  return *value;
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, vec3 value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqNativeInstance<vec3> instance(root.get<SqClass>("Vec3").createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
+}
+
+template <>
+vec4 SqValue::get(HSQUIRRELVM vm, SQInteger index)
+{
+  vec4* value;
+  sq_getinstanceup(vm, index, (SQUserPointer*) &value, nullptr);
+  return *value;
+}
+
+template <>
+void SqValue::push(HSQUIRRELVM vm, vec4 value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqNativeInstance<vec4> instance(root.get<SqClass>("Vec4").createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
 }
 
 ///////////////////////////////////////////////////////////////////////
