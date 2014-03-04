@@ -483,7 +483,7 @@ SqVM::SqVM(ResourceCache& cache):
 {
   m_vm = sq_open(1024);
 
-  sq_setforeignptr(m_vm, this);
+  sq_setforeignptr(m_vm, nullptr);
   sq_setprintfunc(m_vm, onLogMessage, onLogError);
   sq_setcompilererrorhandler(m_vm, onCompilerError);
 
