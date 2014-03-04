@@ -236,6 +236,16 @@ void logErrorCallStack(HSQUIRRELVM vm)
 }
 
 template <typename T>
+void pushData(HSQUIRRELVM vm, const char* className, T value)
+{
+  SqTable root(SqTable::rootTable(vm));
+  SqClass class_(root.get<SqClass>(className));
+  SqNativeInstance<T> instance(class_.createInstance());
+  *instance.native() = value;
+  sq_pushobject(vm, instance.handle());
+}
+
+template <typename T>
 T vecAdd(T a, T b) { return a + b; }
 template <typename T>
 T vecSub(T a, T b) { return a - b; }
@@ -433,10 +443,7 @@ vec2 get(HSQUIRRELVM vm, SQInteger index)
 template <>
 void push(HSQUIRRELVM vm, vec2 value)
 {
-  SqTable root(SqTable::rootTable(vm));
-  SqNativeInstance<vec2> instance(root.get<SqClass>("Vec2").createInstance());
-  *instance.native() = value;
-  sq_pushobject(vm, instance.handle());
+  pushData(vm, "Vec2", value);
 }
 
 template <>
@@ -450,10 +457,7 @@ vec3 get(HSQUIRRELVM vm, SQInteger index)
 template <>
 void push(HSQUIRRELVM vm, vec3 value)
 {
-  SqTable root(SqTable::rootTable(vm));
-  SqNativeInstance<vec3> instance(root.get<SqClass>("Vec3").createInstance());
-  *instance.native() = value;
-  sq_pushobject(vm, instance.handle());
+  pushData(vm, "Vec3", value);
 }
 
 template <>
@@ -467,10 +471,7 @@ vec4 get(HSQUIRRELVM vm, SQInteger index)
 template <>
 void push(HSQUIRRELVM vm, vec4 value)
 {
-  SqTable root(SqTable::rootTable(vm));
-  SqNativeInstance<vec4> instance(root.get<SqClass>("Vec4").createInstance());
-  *instance.native() = value;
-  sq_pushobject(vm, instance.handle());
+  pushData(vm, "Vec4", value);
 }
 
 } /*namespace detail*/
