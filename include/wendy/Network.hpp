@@ -136,7 +136,7 @@ public:
   half read16f();
   float read32f();
   template <typename T>
-  void read(T& value);
+  T read();
   void write8(uint8 value);
   void write16(uint16 value);
   void write32(uint32 value);

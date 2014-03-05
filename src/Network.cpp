@@ -102,13 +102,14 @@ float PacketData::read32f()
 }
 
 template <>
-void PacketData::read(String& value)
+String PacketData::read()
 {
   if (!std::memchr(m_data + m_offset, '\0', m_size - m_offset))
     panic("Missing null character in packet data");
 
-  value.assign((char*) (m_data + m_offset));
-  m_offset += value.length() + 1;
+  String result((char*) (m_data + m_offset));
+  m_offset += result.length() + 1;
+  return result;
 }
 
 void PacketData::write8(uint8 value)
