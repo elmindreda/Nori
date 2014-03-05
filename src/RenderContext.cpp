@@ -1465,11 +1465,11 @@ RenderContext* RenderContext::create(ResourceCache& cache,
                                      const WindowConfig& wc,
                                      const RenderConfig& rc)
 {
-  Ptr<RenderContext> context(new RenderContext(cache));
+  std::unique_ptr<RenderContext> context(new RenderContext(cache));
   if (!context->init(wc, rc))
     return nullptr;
 
-  return context.detachObject();
+  return context.release();
 }
 
 RenderContext::RenderContext(ResourceCache& cache):
@@ -1560,7 +1560,7 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
 
   // Retrieve context limits and set up dependent caches
   {
-    m_limits = new RenderLimits(*this);
+    m_limits.reset(new RenderLimits(*this));
 
     const uint unitCount = max(m_limits->maxCombinedTextureImageUnits,
                                m_limits->maxTextureCoords);

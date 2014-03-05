@@ -287,7 +287,7 @@ bool Window::update()
   {
     if (!m_gamepad)
     {
-      m_gamepad = new Gamepad();
+      m_gamepad.reset(new Gamepad());
 
       if (m_hook)
         m_hook->onConnected(*m_gamepad);

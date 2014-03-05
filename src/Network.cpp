@@ -504,20 +504,20 @@ void Host::setObserver(HostObserver* newObserver)
 
 Host* Host::create(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
 {
-  Ptr<Host> host(new Host());
+  std::unique_ptr<Host> host(new Host());
   if (!host->init(port, maxClientCount, maxChannelCount))
     return nullptr;
 
-  return host.detachObject();
+  return host.release();
 }
 
 Host* Host::connect(const String& name, uint16 port, uint8 maxChannelCount)
 {
-  Ptr<Host> host(new Host());
+  std::unique_ptr<Host> host(new Host());
   if (!host->init(name, port, maxChannelCount))
     return nullptr;
 
-  return host.detachObject();
+  return host.release();
 }
 
 Host::Host():

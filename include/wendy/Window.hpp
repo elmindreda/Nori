@@ -469,7 +469,7 @@ public:
   void setHook(EventHook* newHook);
   EventTarget* target() const { return m_target; }
   void setTarget(EventTarget* newTarget);
-  const Gamepad* gamepad() const { return m_gamepad; }
+  const Gamepad* gamepad() const { return m_gamepad.get(); }
   static std::vector<Resolution> resolutions();
 private:
   Window();
@@ -490,7 +490,7 @@ private:
   EventHook* m_hook;
   EventTarget* m_target;
   Signal<void> m_frameSignal;
-  Ptr<Gamepad> m_gamepad;
+  std::unique_ptr<Gamepad> m_gamepad;
 };
 
 ///////////////////////////////////////////////////////////////////////

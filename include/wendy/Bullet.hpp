@@ -74,8 +74,8 @@ public:
 private:
   BvhTriangleMeshShape(const ResourceInfo& info);
   bool init(const Mesh& data);
-  Ptr<btTriangleMesh> m_mesh;
-  Ptr<btBvhTriangleMeshShape> m_shape;
+  std::unique_ptr<btTriangleMesh> m_mesh;
+  std::unique_ptr<btBvhTriangleMeshShape> m_shape;
 };
 
 ///////////////////////////////////////////////////////////////////////

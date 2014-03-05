@@ -143,8 +143,8 @@ BvhTriangleMeshShape::BvhTriangleMeshShape(const ResourceInfo& info):
 
 bool BvhTriangleMeshShape::init(const Mesh& data)
 {
-  m_mesh = convert(data);
-  m_shape = new btBvhTriangleMeshShape(m_mesh, true, true);
+  m_mesh.reset(convert(data));
+  m_shape.reset(new btBvhTriangleMeshShape(m_mesh.get(), true, true));
   return true;
 }
 

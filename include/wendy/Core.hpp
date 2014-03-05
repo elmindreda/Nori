@@ -28,7 +28,7 @@
 
 #include <string>
 #include <vector>
-#include <type_traits>
+#include <memory>
 
 #include <cstdarg>
 #include <cstddef>
@@ -196,99 +196,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Scoped automatic pointer.
- *
- *  Smart pointer. Manages a single object of type T.
- */
-template <typename T>
-class Ptr
-{
-public:
-  /*! Swaps the specified pointers.
-   */
-  friend void swap(Ptr<T>& first, Ptr<T> second)
-  {
-    using std::swap;
-
-    swap(first.m_object, second.m_object);
-  }
-  /*! Default constructor.
-   */
-  explicit Ptr(T* object = nullptr):
-    m_object(object)
-  {
-  }
-  /*! Destructor
-   */
-  virtual ~Ptr()
-  {
-    if (m_object)
-      delete m_object;
-  }
-  /*! Detaches (orphans) the currently owned object.
-   * @return The currently owned object.
-   * @remarks Use with care.
-   */
-  T* detachObject()
-  {
-    T* temp = m_object;
-    m_object = nullptr;
-    return temp;
-  }
-  /*! Cast operator.
-   */
-  operator T* ()
-  {
-    return m_object;
-  }
-  /*! Cast operator.
-   */
-  operator const T* () const
-  {
-    return m_object;
-  }
-  /*! Member operator.
-   */
-  T* operator -> ()
-  {
-    return m_object;
-  }
-  /*! Member operator.
-   */
-  const T* operator -> () const
-  {
-    return m_object;
-  }
-  /*! Object assignment operator.
-   */
-  Ptr<T>& operator = (T* newObject)
-  {
-    if (m_object)
-      delete m_object;
-
-    m_object = newObject;
-    return *this;
-  }
-  /*! @return The currently owned object.
-   */
-  T* object()
-  {
-    return m_object;
-  }
-  /*! @return The currently owned object.
-   */
-  const T* object() const
-  {
-    return m_object;
-  }
-private:
-  Ptr(const Ptr<T>&) = delete;
-  Ptr<T>& operator = (const Ptr<T>&) = delete;
-  T* m_object;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Base class for references.
  *  @remarks Concept taken from MoSync.
  */
@@ -436,7 +343,7 @@ public:
    */
   static T* singleton()
   {
-    return m_object;
+    return m_object.get();
   }
 protected:
   /*! Sets the singleton instance.
@@ -444,10 +351,10 @@ protected:
    */
   static void setSingleton(T* newObject)
   {
-    m_object = newObject;
+    m_object.reset(newObject);
   }
 private:
-  static Ptr<T> m_object;
+  static std::unique_ptr<T> m_object;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -474,7 +381,7 @@ public:
 ///////////////////////////////////////////////////////////////////////
 
 template <typename T>
-Ptr<T> Singleton<T>::m_object;
+std::unique_ptr<T> Singleton<T>::m_object;
 
 ///////////////////////////////////////////////////////////////////////
 

@@ -113,11 +113,11 @@ RegexMatch Regex::match(const String& text) const
 
 Regex* Regex::create(const String& source)
 {
-  Ptr<Regex> regex(new Regex());
+  std::unique_ptr<Regex> regex(new Regex());
   if (!regex->init(source))
     return nullptr;
 
-  return regex.detachObject();
+  return regex.release();
 }
 
 Regex::Regex():

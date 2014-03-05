@@ -124,11 +124,11 @@ uint OcclusionQuery::result() const
 
 OcclusionQuery* OcclusionQuery::create(RenderContext& context)
 {
-  Ptr<OcclusionQuery> query(new OcclusionQuery(context));
+  std::unique_ptr<OcclusionQuery> query(new OcclusionQuery(context));
   if (!query->init())
     return nullptr;
 
-  return query.detachObject();
+  return query.release();
 }
 
 OcclusionQuery::OcclusionQuery(RenderContext& context):

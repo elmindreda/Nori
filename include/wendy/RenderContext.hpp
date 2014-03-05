@@ -607,7 +607,7 @@ private:
   ResourceCache& m_cache;
   Window m_window;
   GLFWwindow* m_handle;
-  Ptr<RenderLimits> m_limits;
+  std::unique_ptr<RenderLimits> m_limits;
   int m_swapInterval;
   Recti m_scissorArea;
   Recti m_viewportArea;
