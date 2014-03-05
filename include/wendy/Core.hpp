@@ -28,7 +28,6 @@
 
 #include <string>
 #include <vector>
-#include <memory>
 
 #include <cstdarg>
 #include <cstddef>
@@ -320,45 +319,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Singleton template mixin.
- *
- *  Inherit from this to become a compatible singleton.
- */
-template <typename T>
-class Singleton
-{
-public:
-  /*! Destructor.
-   */
-  virtual ~Singleton()
-  {
-  }
-  /*! Deletes the singleton instance.
-   */
-  static void destroySingleton()
-  {
-    m_object = nullptr;
-  }
-  /*! @return The singleton instance if available, otherwise @c nullptr.
-   */
-  static T* singleton()
-  {
-    return m_object.get();
-  }
-protected:
-  /*! Sets the singleton instance.
-   *  @param[in] newObject The instance to set.
-   */
-  static void setSingleton(T* newObject)
-  {
-    m_object.reset(newObject);
-  }
-private:
-  static std::unique_ptr<T> m_object;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Interface for receiving %log messages.
  *
  *  All instances of this class are added to an internal list of consumers and
@@ -377,11 +337,6 @@ public:
    */
   virtual void onLogEntry(LogEntryType type, const char* message) = 0;
 };
-
-///////////////////////////////////////////////////////////////////////
-
-template <typename T>
-std::unique_ptr<T> Singleton<T>::m_object;
 
 ///////////////////////////////////////////////////////////////////////
 

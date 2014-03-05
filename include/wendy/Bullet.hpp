@@ -29,6 +29,8 @@
 #include <btBulletCollisionCommon.h>
 #include <btBulletDynamicsCommon.h>
 
+#include <memory>
+
 ///////////////////////////////////////////////////////////////////////
 
 namespace wendy

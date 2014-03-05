@@ -30,6 +30,8 @@
 #include <wendy/Transform.hpp>
 #include <wendy/Signal.hpp>
 
+#include <memory>
+
 ///////////////////////////////////////////////////////////////////////
 
 typedef struct GLFWwindow GLFWwindow;
