@@ -67,7 +67,7 @@ private:
   void onDragEnded(vec2 point) override;
   void sizeToFit();
   std::vector<Item*> m_items;
-  uint m_selection;
+  int m_selection;
   Signal<void, Menu&, uint> m_itemSelectedSignal;
 };
 

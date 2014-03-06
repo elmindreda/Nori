@@ -221,7 +221,7 @@ void Menu::onCursorPos(vec2 point)
 {
   const vec2 local = transformToLocal(point);
   float itemTop = height() - 2.f;
-  uint index = 0;
+  int index = 0;
 
   for (auto i : m_items)
   {
@@ -290,10 +290,13 @@ void Menu::onKey(Key key, Action action, uint mods)
     {
       if (action == PRESSED || action == REPEATED)
       {
-        if (m_selection > 0)
-          m_selection--;
+        if (m_selection == NO_ITEM)
+        {
+          if (not m_items.empty())
+            m_selection = 0;
+        }
         else
-          m_selection = uint(m_items.size() - 1);
+          m_selection = (m_selection + m_items.size() - 1) % m_items.size();
 
         invalidate();
       }
@@ -305,9 +308,13 @@ void Menu::onKey(Key key, Action action, uint mods)
     {
       if (action == PRESSED || action == REPEATED)
       {
-        m_selection++;
-        if (m_selection == m_items.size())
-          m_selection = 0;
+        if (m_selection == NO_ITEM)
+        {
+          if (!m_items.empty())
+            m_selection = int(m_items.size() - 1);
+        }
+        else
+          m_selection = (m_selection + 1) % m_items.size();
 
         invalidate();
       }
