@@ -329,8 +329,8 @@ void Layer::onCursorPos(vec2 point)
 
 void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 {
-  vec2 cursorPosition = vec2(m_window.cursorPosition());
-  cursorPosition.y = m_window.height() - cursorPosition.y;
+  const vec2 cursorPosition(m_window.cursorPosition());
+  const vec2 point(cursorPosition.x, m_window.height() - cursorPosition.y);
 
   if (action == PRESSED)
   {
@@ -339,23 +339,13 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     if (m_captureWidget)
       clickedWidget = m_captureWidget;
     else
-    {
-      for (auto r : m_roots)
-      {
-        if (r->isVisible())
-        {
-          clickedWidget = r->findByPoint(cursorPosition);
-          if (clickedWidget)
-            break;
-        }
-      }
-    }
-
-    while (clickedWidget && !clickedWidget->isEnabled())
-      clickedWidget = clickedWidget->parent();
+      clickedWidget = findWidgetByPoint(point);
 
     if (clickedWidget)
     {
+      while (!clickedWidget->isEnabled())
+        return;
+
       if (clickedWidget->isFocusable())
       {
         clickedWidget->activate();
@@ -364,7 +354,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
           m_draggedWidget = clickedWidget;
       }
 
-      clickedWidget->onMouseButton(cursorPosition, button, action, mods);
+      clickedWidget->onMouseButton(point, button, action, mods);
     }
   }
   else if (action == RELEASED)
@@ -373,7 +363,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     {
       if (m_dragging)
       {
-        m_draggedWidget->onDragEnded(cursorPosition);
+        m_draggedWidget->onDragEnded(point);
         m_dragging = false;
       }
 
@@ -382,8 +372,8 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 
     if (m_activeWidget)
     {
-      if (m_captureWidget || m_activeWidget->globalArea().contains(cursorPosition))
-        m_activeWidget->onMouseButton(cursorPosition, button, action, mods);
+      if (m_captureWidget || m_activeWidget->globalArea().contains(point))
+        m_activeWidget->onMouseButton(point, button, action, mods);
     }
   }
 }
