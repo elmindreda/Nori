@@ -86,11 +86,11 @@ void Layer::destroyRootWidgets()
 
 Widget* Layer::findWidgetByPoint(vec2 point)
 {
-  for (auto r : m_roots)
+  for (auto r = m_roots.rbegin();  r != m_roots.rend();  r++)
   {
-    if (r->isVisible())
+    if ((*r)->isVisible())
     {
-      if (Widget* widget = r->findByPoint(point))
+      if (Widget* widget = (*r)->findByPoint(point))
         return widget;
     }
   }
@@ -123,16 +123,16 @@ void Layer::releaseCursor()
 
 void Layer::cancelDragging()
 {
-  if (m_dragging && m_draggedWidget)
+  if (m_dragging)
   {
     vec2 cursorPosition = vec2(m_window.cursorPosition());
     cursorPosition.y = m_window.height() - cursorPosition.y;
 
     m_draggedWidget->onDragEnded(cursorPosition);
-
-    m_draggedWidget = nullptr;
     m_dragging = false;
   }
+
+  m_draggedWidget = nullptr;
 }
 
 void Layer::invalidate()
@@ -236,7 +236,7 @@ void Layer::removedWidget(Widget& widget)
   if (m_hoveredWidget)
   {
     if (m_hoveredWidget == &widget || m_hoveredWidget->isChildOf(widget))
-      updateHoveredWidget();
+      m_hoveredWidget = nullptr;
   }
 
   if (m_captureWidget)
@@ -245,13 +245,10 @@ void Layer::removedWidget(Widget& widget)
       releaseCursor();
   }
 
-  if (m_dragging)
+  if (m_draggedWidget)
   {
-    if (m_draggedWidget)
-    {
-      if (m_draggedWidget == &widget || m_draggedWidget->isChildOf(widget))
-        cancelDragging();
-    }
+    if (m_draggedWidget == &widget || m_draggedWidget->isChildOf(widget))
+      cancelDragging();
   }
 }
 

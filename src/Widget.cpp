@@ -96,11 +96,11 @@ Widget* Widget::findByPoint(vec2 point)
 
   const vec2 localPoint = point - m_area.position;
 
-  for (auto c : m_children)
+  for (auto c = m_children.rbegin();  c != m_children.rend();  c++)
   {
-    if (c->isVisible())
+    if ((*c)->isVisible())
     {
-      if (Widget* result = c->findByPoint(localPoint))
+      if (Widget* result = (*c)->findByPoint(localPoint))
         return result;
     }
   }
