@@ -193,7 +193,7 @@ void Popup::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawFrame(area, state());
+    drawer.drawButton(area, state());
 
     if (m_selection != NO_ITEM)
     {
