@@ -41,9 +41,11 @@ class Page : public Widget
 {
 public:
   Page(Book& parent, const char* text);
+  ~Page();
   const String& text() const;
   void setText(const char* newText);
 private:
+  Book& m_book;
   String m_text;
 };
 
@@ -53,17 +55,19 @@ private:
  */
 class Book : public Widget
 {
+  friend class Page;
 public:
   Book(Layer& layer);
   Book(Widget& parent);
+  ~Book();
   Page* activePage() const;
   void setActivePage(Page* newPage);
   SignalProxy<void, Book&> pageChangedSignal();
 protected:
   void init();
   void draw() const;
-  void onChildAdded(Widget& child) override;
-  void onChildRemoved(Widget& child) override;
+  void onPageAdded(Page& page);
+  void onPageRemoved(Page& page);
   void onAreaChanged() override;
   void onKey(Key key, Action action, uint mods) override;
   void onMouseButton(vec2 point,

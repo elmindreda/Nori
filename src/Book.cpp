@@ -41,8 +41,15 @@ namespace wendy
 
 Page::Page(Book& parent, const char* text):
   Widget(parent),
+  m_book(parent),
   m_text(text)
 {
+  m_book.onPageAdded(*this);
+}
+
+Page::~Page()
+{
+  m_book.onPageRemoved(*this);
 }
 
 const String& Page::text() const
@@ -70,6 +77,11 @@ Book::Book(Widget& parent):
   m_activePage(nullptr)
 {
   init();
+}
+
+Book::~Book()
+{
+  destroyChildren();
 }
 
 Page* Book::activePage() const
@@ -134,37 +146,31 @@ void Book::draw() const
   }
 }
 
-void Book::onChildAdded(Widget& child)
+void Book::onPageAdded(Page& page)
 {
-  if (Page* page = dynamic_cast<Page*>(&child))
-  {
-    const float em = layer().drawer().currentEM();
+  const float em = layer().drawer().currentEM();
 
-    page->setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
+  page.setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
 
-    if (m_activePage)
-      page->hide();
-    else
-      setActivePage(page, false);
+  if (m_activePage)
+    page.hide();
+  else
+    setActivePage(&page, false);
 
-    m_pages.push_back(page);
-  }
+  m_pages.push_back(&page);
 }
 
-void Book::onChildRemoved(Widget& child)
+void Book::onPageRemoved(Page& page)
 {
-  if (Page* page = dynamic_cast<Page*>(&child))
+  if (&page == m_activePage)
   {
-    if (page == m_activePage)
-    {
-      if (m_pages.empty())
-        setActivePage(nullptr, false);
-      else
-        setActivePage(m_pages.front(), false);
-    }
-
-    m_pages.erase(std::find(m_pages.begin(), m_pages.end(), page));
+    if (m_pages.empty())
+      setActivePage(nullptr, false);
+    else
+      setActivePage(m_pages.front(), false);
   }
+
+  m_pages.erase(std::find(m_pages.begin(), m_pages.end(), &page));
 }
 
 void Book::onAreaChanged()
@@ -222,6 +228,9 @@ void Book::onMouseButton(vec2 point,
   if (action != PRESSED)
     return;
 
+  if (m_pages.empty())
+    return;
+
   const float position = transformToLocal(point).x;
   const float tabWidth = width() / m_pages.size();
 
@@ -246,7 +255,6 @@ void Book::setActivePage(Page* newPage, bool notify)
 
   m_activePage = newPage;
   m_activePage->show();
-  m_activePage->activate();
 
   if (notify)
     m_pageChangedSignal(*this);
