@@ -73,6 +73,7 @@ public:
   void invalidate();
   virtual bool isOpaque() const;
   bool hasCapturedCursor() const;
+  vec2 cursorPoint() const;
   Drawer& drawer() const { return m_drawer; }
   Window& window() const { return m_window; }
   /*! @return The root widgets of this layer.

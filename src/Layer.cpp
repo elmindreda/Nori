@@ -125,10 +125,7 @@ void Layer::cancelDragging()
 {
   if (m_dragging)
   {
-    vec2 cursorPosition = vec2(m_window.cursorPosition());
-    cursorPosition.y = m_window.height() - cursorPosition.y;
-
-    m_draggedWidget->onDragEnded(cursorPosition);
+    m_draggedWidget->onDragEnded(cursorPoint());
     m_dragging = false;
   }
 
@@ -148,6 +145,12 @@ bool Layer::isOpaque() const
 bool Layer::hasCapturedCursor() const
 {
   return m_captureWidget != nullptr;
+}
+
+vec2 Layer::cursorPoint() const
+{
+  const vec2 cursorPosition(m_window.cursorPosition());
+  return vec2(cursorPosition.x, m_window.height() - cursorPosition.y);
 }
 
 void Layer::setActiveWidget(Widget* widget)
@@ -187,10 +190,7 @@ void Layer::updateHoveredWidget()
   if (m_captureWidget)
     return;
 
-  const vec2 cursorPosition(m_window.cursorPosition());
-  const vec2 point(cursorPosition.x, m_window.height() - cursorPosition.y);
-
-  Widget* newWidget = findWidgetByPoint(point);
+  Widget* newWidget = findWidgetByPoint(cursorPoint());
   if (newWidget == m_hoveredWidget)
     return;
 
@@ -327,8 +327,7 @@ void Layer::onCursorPos(vec2 point)
 
 void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 {
-  const vec2 cursorPosition(m_window.cursorPosition());
-  const vec2 point(cursorPosition.x, m_window.height() - cursorPosition.y);
+  const vec2 point(cursorPoint());
 
   if (action == PRESSED)
   {
