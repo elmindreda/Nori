@@ -226,7 +226,6 @@ void Drawer::begin()
 
   m_context.setCurrentSharedProgramState(m_state);
   m_context.setViewportArea(Recti(0, 0, width, height));
-  m_context.setScissorArea(Recti(0, 0, width, height));
 
   m_state->setOrthoProjectionMatrix(float(width), float(height));
 }
@@ -238,32 +237,12 @@ void Drawer::end()
 
 bool Drawer::pushClipArea(const Rect& area)
 {
-  if (!m_clipAreaStack.push(area))
-    return false;
-
-  const Rect& total = m_clipAreaStack.total();
-
-  m_context.setScissorArea(Recti(ivec2(total.position), ivec2(total.size)));
-  return true;
+  return m_clipAreaStack.push(area);
 }
 
 void Drawer::popClipArea()
 {
   m_clipAreaStack.pop();
-
-  Framebuffer& framebuffer = m_context.currentFramebuffer();
-
-  Recti area;
-
-  if (m_clipAreaStack.isEmpty())
-    area.set(0, 0, framebuffer.width(), framebuffer.height());
-  else
-  {
-    const Rect& total = m_clipAreaStack.total();
-    area.set(ivec2(total.position), ivec2(total.size));
-  }
-
-  m_context.setScissorArea(area);
 }
 
 void Drawer::drawPoint(const vec2& point, const vec4& color)
