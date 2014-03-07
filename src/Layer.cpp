@@ -187,16 +187,14 @@ void Layer::updateHoveredWidget()
   if (m_captureWidget)
     return;
 
-  vec2 cursorPosition = vec2(m_window.cursorPosition());
-  cursorPosition.y = m_window.height() - cursorPosition.y;
+  const vec2 cursorPosition(m_window.cursorPosition());
+  const vec2 point(cursorPosition.x, m_window.height() - cursorPosition.y);
 
-  Widget* newWidget = findWidgetByPoint(cursorPosition);
-
-  if (m_hoveredWidget == newWidget)
+  Widget* newWidget = findWidgetByPoint(point);
+  if (newWidget == m_hoveredWidget)
     return;
 
   Widget* ancestor = m_hoveredWidget;
-
   while (ancestor)
   {
     // Find the common ancestor (or NULL) and notify each non-common ancestor
