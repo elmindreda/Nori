@@ -77,12 +77,6 @@ template <typename R>
 class Function
 {
 public:
-  template <typename... A>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
-    return 1;
-  }
   template <typename... A, std::size_t... I>
   static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
   {
@@ -96,12 +90,6 @@ template <>
 class Function<void>
 {
 public:
-  template <typename... A>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
-    return 1;
-  }
   template <typename... A, std::size_t... I>
   static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
   {
@@ -115,12 +103,6 @@ template <typename T, typename R>
 class Method
 {
 public:
-  template <typename... A>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
-    return 1;
-  }
   template <typename... A, std::size_t... I>
   static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
   {
@@ -136,12 +118,6 @@ template <typename T>
 class Method<T, void>
 {
 public:
-  template <typename... A>
-  static SQInteger demarshal(HSQUIRRELVM vm)
-  {
-    demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
-    return 1;
-  }
   template <typename... A, std::size_t... I>
   static void demarshal(HSQUIRRELVM vm, IndexPack<I...> indices)
   {
@@ -154,21 +130,35 @@ public:
 };
 
 template <typename R, typename... A>
+static SQInteger demarshalFunction(HSQUIRRELVM vm)
+{
+  Function<R>::template demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
+  return 1;
+}
+
+template <typename T, typename R, typename... A>
+static SQInteger demarshalMethod(HSQUIRRELVM vm)
+{
+  Method<T,R>::template demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
+  return 1;
+}
+
+template <typename R, typename... A>
 inline SQFUNCTION demarshaller(R (*function)(A...))
 {
-  return &Function<R>::template demarshal<A...>;
+  return &demarshalFunction<R,A...>;
 }
 
 template <typename T, typename R, typename... A>
 inline SQFUNCTION demarshaller(R (T::*method)(A...))
 {
-  return &Method<T,R>::template demarshal<A...>;
+  return &demarshalMethod<T,R,A...>;
 }
 
 template <typename T, typename R, typename... A>
 inline SQFUNCTION demarshaller(R (T::*method)(A...) const)
 {
-  return &Method<T,R>::template demarshal<A...>;
+  return &demarshalMethod<T,R,A...>;
 }
 
 } /*namespace detail*/
