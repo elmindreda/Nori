@@ -54,8 +54,8 @@ static void push(HSQUIRRELVM vm, T value);
 template <typename T, typename... A>
 static void push(HSQUIRRELVM vm, T value, A... args)
 {
-  push(vm, value);
-  push(vm, args...);
+  detail::push(vm, value);
+  detail::push(vm, args...);
 }
 
 template <std::size_t... I>
@@ -82,7 +82,7 @@ public:
   {
     R (**function)(A...) = nullptr;
     sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-    push(vm, (*function)(get<A>(vm, I + 1)...));
+    detail::push(vm, (*function)(detail::get<A>(vm, I + 1)...));
   }
 };
 
@@ -95,7 +95,7 @@ public:
   {
     void (**function)(A...) = nullptr;
     sq_getuserdata(vm, -1, (SQUserPointer*) &function, nullptr);
-    (*function)(get<A>(vm, I + 1)...);
+    (*function)(detail::get<A>(vm, I + 1)...);
   }
 };
 
@@ -110,7 +110,7 @@ public:
     R (T::**method)(A...) = nullptr;
     sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
     sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-    push(vm, (instance->**method)(get<A>(vm, I + 2)...));
+    detail::push(vm, (instance->**method)(detail::get<A>(vm, I + 2)...));
   }
 };
 
@@ -125,7 +125,7 @@ public:
     void (T::**method)(A...) = nullptr;
     sq_getinstanceup(vm, 1, (SQUserPointer*) &instance, nullptr);
     sq_getuserdata(vm, -1, (SQUserPointer*) &method, nullptr);
-    (instance->**method)(get<A>(vm, I + 2)...);
+    (instance->**method)(detail::get<A>(vm, I + 2)...);
   }
 };
 
