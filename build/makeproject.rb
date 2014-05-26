@@ -90,6 +90,8 @@ EOF
     File.open(@path + "/src/#{@type}.hpp", 'wb') do |file|
       file.print <<EOF
 
+#include <memory>
+
 namespace #{@name}
 {
 
@@ -104,8 +106,8 @@ public:
   void run();
 private:
   ResourceCache cache;
-  Ptr<RenderContext> renderContext;
-  Ptr<AudioContext> audioContext;
+  std::unique_ptr<RenderContext> renderContext;
+  std::unique_ptr<AudioContext> audioContext;
 };
 
 } /*namespace #{@name}*/
@@ -148,7 +150,7 @@ bool #{@type}::init()
     return false;
   }
 
-  audioContext = AudioContext::create(cache);
+  audioContext.reset(AudioContext::create(cache));
   if (!audioContext)
   {
     logError("Failed to create audio context");
@@ -158,7 +160,7 @@ bool #{@type}::init()
   WindowConfig wc("#{@name.capitalize}");
   RenderConfig rc;
 
-  renderContext = RenderContext::create(cache, wc, rc);
+  renderContext.reset(RenderContext::create(cache, wc, rc));
   if (!renderContext)
   {
     logError("Failed to create render context");
@@ -183,7 +185,7 @@ void #{@type}::run()
 
 int main()
 {
-  wendy::Ptr<#{@name}::#{@type}> #{@type.downcase}(new #{@name}::#{@type}());
+  std::unique_ptr<#{@name}::#{@type}> #{@type.downcase}(new #{@name}::#{@type}());
   if (!#{@type.downcase}->init())
     std::exit(EXIT_FAILURE);
 
@@ -218,7 +220,7 @@ end
 
 name = ARGV[1].to_s.downcase
 
-unless name =~ /^[A-Za-z]\w*$/
+unless name =~ /^[[:alpha:]]\w*$/
   $stderr.puts "#{name} is not a valid project name"
   usage()
   exit 1
