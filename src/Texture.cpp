@@ -133,6 +133,14 @@ GLenum convertToGL(CubeFace face)
   panic("Invalid image cube face %u", face);
 }
 
+GLenum convertToGL(TextureType type, CubeFace face)
+{
+  if (face == NO_CUBE_FACE)
+    return convertToGL(type);
+  else
+    return convertToGL(face);
+}
+
 const char* asString(TextureType type)
 {
   switch (type)
@@ -275,7 +283,7 @@ bool Texture::copyFrom(const TextureImage& image,
 
     m_context.setCurrentTexture(this);
 
-    glTexSubImage2D(convertToGL(m_type),
+    glTexSubImage2D(convertToGL(m_type, image.face),
                     image.level,
                     x, y,
                     data.width, data.height,
@@ -350,7 +358,7 @@ Ref<Image> Texture::data(const TextureImage& image)
 
   m_context.setCurrentTexture(this);
 
-  glGetTexImage(convertToGL(m_type),
+  glGetTexImage(convertToGL(m_type, image.face),
                 image.level,
                 convertToGL(m_format.semantic()),
                 convertToGL(m_format.type()),
