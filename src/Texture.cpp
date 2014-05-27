@@ -206,189 +206,10 @@ TextureParams::TextureParams(TextureType initType, uint initFlags):
 
 ///////////////////////////////////////////////////////////////////////
 
-bool TextureImage::copyFrom(const TextureData& data, uint x, uint y, uint z)
+TextureImage::TextureImage(uint initLevel, CubeFace initFace):
+  level(initLevel),
+  face(initFace)
 {
-  if (data.format != m_texture.format())
-  {
-    // TODO: Convert to compatible pixel format
-
-    logError("Cannot copy texture data from source data of different pixel format");
-    return false;
-  }
-
-  if (m_texture.is1D())
-  {
-    if (data.dimensionCount() > 1)
-    {
-      logError("Cannot blt to texture; source image has too many dimensions");
-      return false;
-    }
-
-    m_texture.context().setCurrentTexture(&m_texture);
-
-    glTexSubImage1D(convertToGL(m_texture.type()),
-                    m_level,
-                    x,
-                    data.width,
-                    convertToGL(m_texture.format().semantic()),
-                    convertToGL(m_texture.format().type()),
-                    data.texels);
-  }
-  else if (m_texture.is3D())
-  {
-    m_texture.context().setCurrentTexture(&m_texture);
-
-    glTexSubImage3D(convertToGL(m_texture.type()),
-                    m_level,
-                    x, y, z,
-                    data.width, data.height, data.depth,
-                    convertToGL(m_texture.format().semantic()),
-                    convertToGL(m_texture.format().type()),
-                    data.texels);
-  }
-  else
-  {
-    if (data.dimensionCount() > 2)
-    {
-      logError("Cannot blt to texture; source image has too many dimensions");
-      return false;
-    }
-
-    m_texture.context().setCurrentTexture(&m_texture);
-
-    glTexSubImage2D(convertToGL(m_texture.type()),
-                    m_level,
-                    x, y,
-                    data.width, data.height,
-                    convertToGL(m_texture.format().semantic()),
-                    convertToGL(m_texture.format().type()),
-                    data.texels);
-  }
-
-#if WENDY_DEBUG
-  if (!checkGL("Error during copy from image into level %u of texture %s",
-               m_level,
-               m_texture.name().c_str()))
-  {
-    return false;
-  }
-#endif
-
-  return true;
-}
-
-Ref<Image> TextureImage::data() const
-{
-  Ref<Image> result = Image::create(m_texture.cache(),
-                                    m_texture.format(),
-                                    m_width,
-                                    m_height,
-                                    m_depth);
-
-  m_texture.context().setCurrentTexture(&m_texture);
-
-  glGetTexImage(convertToGL(m_texture.type()),
-                m_level,
-                convertToGL(m_texture.format().semantic()),
-                convertToGL(m_texture.format().type()),
-                result->pixels());
-
-#if WENDY_DEBUG
-  if (!checkGL("Error during copy to image from level %u of texture %s",
-               m_level,
-               m_texture.name().c_str()))
-  {
-    return nullptr;
-  }
-#endif
-
-  return result;
-}
-
-size_t TextureImage::size() const
-{
-  return m_width * m_height * m_depth * m_texture.format().size();
-}
-
-TextureImage::TextureImage(Texture& texture,
-                           uint level,
-                           uint width,
-                           uint height,
-                           uint depth,
-                           CubeFace face):
-  m_texture(texture),
-  m_level(level),
-  m_width(width),
-  m_height(height),
-  m_depth(depth),
-  m_face(face)
-{
-}
-
-void TextureImage::attach(int attachment, uint z)
-{
-  if (m_texture.is1D())
-  {
-    glFramebufferTexture1D(GL_FRAMEBUFFER,
-                           attachment,
-                           convertToGL(m_texture.type()),
-                           m_texture.m_textureID,
-                           m_level);
-  }
-  else if (m_texture.is3D())
-  {
-    glFramebufferTexture3D(GL_FRAMEBUFFER,
-                           attachment,
-                           convertToGL(m_texture.type()),
-                           m_texture.m_textureID,
-                           m_level,
-                           z);
-  }
-  else
-  {
-    glFramebufferTexture2D(GL_FRAMEBUFFER,
-                           attachment,
-                           convertToGL(m_texture.type()),
-                           m_texture.m_textureID,
-                           m_level);
-  }
-
-#if WENDY_DEBUG
-  checkGL("Error when attaching level %u of texture %s to framebuffer",
-          m_level,
-          m_texture.name().c_str());
-#endif
-}
-
-void TextureImage::detach(int attachment)
-{
-  if (m_texture.is1D())
-  {
-    glFramebufferTexture1D(GL_FRAMEBUFFER,
-                           attachment,
-                           convertToGL(m_texture.type()),
-                           0, 0);
-  }
-  else if (m_texture.is3D())
-  {
-    glFramebufferTexture3D(GL_FRAMEBUFFER,
-                           attachment,
-                           convertToGL(m_texture.type()),
-                           0, 0, 0);
-  }
-  else
-  {
-    glFramebufferTexture2D(GL_FRAMEBUFFER,
-                           attachment,
-                           convertToGL(m_texture.type()),
-                           0, 0);
-  }
-
-#if WENDY_DEBUG
-  checkGL("Error when detaching level %u of texture %s from framebuffer",
-          m_level,
-          m_texture.name().c_str());
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -402,13 +223,86 @@ Texture::~Texture()
     stats->removeTexture(size());
 }
 
+bool Texture::copyFrom(const TextureImage& image,
+                       const TextureData& data,
+                       uint x, uint y, uint z)
+{
+  if (data.format != m_format)
+  {
+    // TODO: Convert to compatible pixel format
+
+    logError("Cannot copy texture data from source data of different pixel format");
+    return false;
+  }
+
+  if (is1D())
+  {
+    if (data.dimensionCount() > 1)
+    {
+      logError("Cannot blt to texture; source image has too many dimensions");
+      return false;
+    }
+
+    m_context.setCurrentTexture(this);
+
+    glTexSubImage1D(convertToGL(m_type),
+                    image.level,
+                    x,
+                    data.width,
+                    convertToGL(m_format.semantic()),
+                    convertToGL(m_format.type()),
+                    data.texels);
+  }
+  else if (is3D())
+  {
+    m_context.setCurrentTexture(this);
+
+    glTexSubImage3D(convertToGL(m_type),
+                    image.level,
+                    x, y, z,
+                    data.width, data.height, data.depth,
+                    convertToGL(m_format.semantic()),
+                    convertToGL(m_format.type()),
+                    data.texels);
+  }
+  else
+  {
+    if (data.dimensionCount() > 2)
+    {
+      logError("Cannot blt to texture; source image has too many dimensions");
+      return false;
+    }
+
+    m_context.setCurrentTexture(this);
+
+    glTexSubImage2D(convertToGL(m_type),
+                    image.level,
+                    x, y,
+                    data.width, data.height,
+                    convertToGL(m_format.semantic()),
+                    convertToGL(m_format.type()),
+                    data.texels);
+  }
+
+#if WENDY_DEBUG
+  if (!checkGL("Error during copy from image into level %u of texture %s",
+               image.level,
+               name().c_str()))
+  {
+    return false;
+  }
+#endif
+
+  return true;
+}
+
 void Texture::generateMipmaps()
 {
   glGenerateMipmap(convertToGL(m_type));
 
   if (!hasMipmaps())
   {
-    retrieveImages();
+    retrieveSizes();
 
     glTexParameteri(convertToGL(m_type),
                     GL_TEXTURE_MIN_FILTER,
@@ -438,9 +332,40 @@ bool Texture::isCube() const
 
 bool Texture::isPOT() const
 {
-  return isPowerOfTwo(width()) &&
-         isPowerOfTwo(height()) &&
-         isPowerOfTwo(depth());
+  return isPowerOfTwo(width(0)) &&
+         isPowerOfTwo(height(0)) &&
+         isPowerOfTwo(depth(0));
+}
+
+Ref<Image> Texture::data(const TextureImage& image)
+{
+  uvec3 size;
+
+  if (isCube())
+    size = m_sizes[image.face * m_levels + image.level];
+  else
+    size = m_sizes[image.level];
+
+  Ref<Image> result = Image::create(cache(), m_format, size.x, size.y, size.z);
+
+  m_context.setCurrentTexture(this);
+
+  glGetTexImage(convertToGL(m_type),
+                image.level,
+                convertToGL(m_format.semantic()),
+                convertToGL(m_format.type()),
+                result->pixels());
+
+#if WENDY_DEBUG
+  if (!checkGL("Error during copy to image from level %u of texture %s",
+               image.level,
+               name().c_str()))
+  {
+    return nullptr;
+  }
+#endif
+
+  return result;
 }
 
 void Texture::setFilterMode(FilterMode newMode)
@@ -515,32 +440,6 @@ void Texture::setMaxAnisotropy(float newMax)
   checkGL("Error when changing max anisotropy for texture %s",
           name().c_str());
 #endif
-}
-
-size_t Texture::size() const
-{
-  size_t size = 0;
-
-  for (const auto& i : m_images)
-    size += i->size();
-
-  return size;
-}
-
-TextureImage& Texture::image(uint level, CubeFace face)
-{
-  if (isCube())
-    return *m_images[face * m_levels + level];
-  else
-    return *m_images[level];
-}
-
-const TextureImage& Texture::image(uint level, CubeFace face) const
-{
-  if (isCube())
-    return *m_images[face * m_levels + level];
-  else
-    return *m_images[level];
 }
 
 Ref<Texture> Texture::create(const ResourceInfo& info,
@@ -793,7 +692,7 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   if (mipmapped)
     generateMipmaps();
   else
-    retrieveImages();
+    retrieveSizes();
 
   applyDefaults();
 
@@ -810,20 +709,24 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
   return true;
 }
 
-void Texture::retrieveImages()
+void Texture::retrieveSizes()
 {
-  m_images.clear();
+  m_sizes.clear();
+  m_size = 0;
 
   if (m_type == TEXTURE_CUBE)
   {
     for (uint i = 0;  i < 6;  i++)
-      m_levels = retrieveTargetImages(convertToGL(CubeFace(i)), CubeFace(i));
+      m_levels = retrieveTargetSizes(convertToGL(CubeFace(i)), CubeFace(i));
   }
   else
-    m_levels = retrieveTargetImages(convertToGL(m_type), NO_CUBE_FACE);
+    m_levels = retrieveTargetSizes(convertToGL(m_type), NO_CUBE_FACE);
+
+  for (auto s : m_sizes)
+    m_size += s.x * s.y * s.z * m_format.size();
 }
 
-uint Texture::retrieveTargetImages(uint target, CubeFace face)
+uint Texture::retrieveTargetSizes(uint target, CubeFace face)
 {
   uint level = 0;
 
@@ -838,7 +741,7 @@ uint Texture::retrieveTargetImages(uint target, CubeFace face)
     if (width == 0)
       break;
 
-    m_images.push_back(new TextureImage(*this, level, width, height, depth, face));
+    m_sizes.push_back(uvec3(width, height, depth));
 
     level++;
   }
@@ -862,6 +765,70 @@ void Texture::applyDefaults()
   glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(m_addressMode));
   glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(m_addressMode));
   glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(m_addressMode));
+}
+
+void Texture::attach(int attachment, const TextureImage& image, uint z)
+{
+  if (is1D())
+  {
+    glFramebufferTexture1D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(m_type),
+                           m_textureID,
+                           image.level);
+  }
+  else if (is3D())
+  {
+    glFramebufferTexture3D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(m_type),
+                           m_textureID,
+                           image.level,
+                           z);
+  }
+  else
+  {
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(m_type),
+                           m_textureID,
+                           image.level);
+  }
+
+#if WENDY_DEBUG
+  checkGL("Error when attaching level %u of texture %s to framebuffer",
+          image.level,
+          name().c_str());
+#endif
+}
+
+void Texture::detach(int attachment)
+{
+  if (is1D())
+  {
+    glFramebufferTexture1D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(m_type),
+                           0, 0);
+  }
+  else if (is3D())
+  {
+    glFramebufferTexture3D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(m_type),
+                           0, 0, 0);
+  }
+  else
+  {
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           attachment,
+                           convertToGL(m_type),
+                           0, 0);
+  }
+
+#if WENDY_DEBUG
+  checkGL("Error when detaching texture %s from framebuffer", name().c_str());
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////

@@ -497,36 +497,37 @@ public:
   /*! @return The image attached to the TextureFramebuffer::COLOR_BUFFER0
    *  attachment point, or @c nullptr if no image is attached to it.
    */
-  TextureImage* colorBuffer() const { return m_images[COLOR_BUFFER0]; }
+  Texture* colorBuffer() const { return m_textures[COLOR_BUFFER0]; }
   /*! @return The image attached to the TextureFramebuffer::DEPTH_BUFFER
    *  attachment point, or @c nullptr if no image is attached to it.
    */
-  TextureImage* depthBuffer() const { return m_images[DEPTH_BUFFER]; }
+  Texture* depthBuffer() const { return m_textures[DEPTH_BUFFER]; }
   /*! @return The image attached to the specified attachment point, or @c
    *  nullptr if no image is attached to it.
    */
-  TextureImage* buffer(Attachment attachment) const;
+  Texture* buffer(Attachment attachment) const;
   /*! Sets the image to use as the default color buffer for this framebuffer.
-   *  @param[in] newImage The desired image, or @c nullptr to detach the
+   *  @param[in] newTexture The desired image, or @c nullptr to detach the
    *  currently set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setColorBuffer(TextureImage* newImage);
+  bool setColorBuffer(Texture* newTexture, const TextureImage& image, uint z = 0);
   /*! sets the image to use as the depth buffer for this framebuffer.
-   *  @param[in] newImage The desired image, or @c nullptr to detach the
+   *  @param[in] newTexture The desired image, or @c nullptr to detach the
    *  currently set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setDepthBuffer(TextureImage* newImage);
+  bool setDepthBuffer(Texture* newTexture, const TextureImage& image, uint z = 0);
   /*! sets the image to use for the specified attachment point of this
    *  framebuffer.
-   *  @param[in] newImage The desired image, or @c nullptr to detach the
+   *  @param[in] newTexture The desired image, or @c nullptr to detach the
    *  currently set image.
    *  @param[in] z The desired Z slice of the specified image to use.  This
-   *  only applies to images of 3D textures.
+   *  only applies to 3D textures.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setBuffer(Attachment attachment, TextureImage* newImage, uint z = 0);
+  bool setBuffer(Attachment attachment, Texture* newTexture,
+                 const TextureImage& image, uint z = 0);
   /*! Creates an image framebuffer within the specified context.
    */
   static Ref<TextureFramebuffer> create(RenderContext& context);
@@ -535,7 +536,7 @@ private:
   bool init();
   void apply() const;
   uint m_bufferID;
-  Ref<TextureImage> m_images[5];
+  Ref<Texture> m_textures[5];
 };
 
 ///////////////////////////////////////////////////////////////////////

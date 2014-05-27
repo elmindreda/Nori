@@ -629,12 +629,12 @@ uint TextureFramebuffer::width() const
 
   for (size_t i = 0;  i < 5;  i++)
   {
-    if (m_images[i])
+    if (m_textures[i])
     {
-      if (width && width != m_images[i]->width())
+      if (width && width != m_textures[i]->width())
         return 0;
 
-      width = m_images[i]->width();
+      width = m_textures[i]->width();
     }
   }
 
@@ -647,34 +647,35 @@ uint TextureFramebuffer::height() const
 
   for (size_t i = 0;  i < 5;  i++)
   {
-    if (m_images[i])
+    if (m_textures[i])
     {
-      if (height && height != m_images[i]->height())
+      if (height && height != m_textures[i]->height())
         return 0;
 
-      height = m_images[i]->height();
+      height = m_textures[i]->height();
     }
   }
 
   return height;
 }
 
-TextureImage* TextureFramebuffer::buffer(Attachment attachment) const
+Texture* TextureFramebuffer::buffer(Attachment attachment) const
 {
-  return m_images[attachment];
+  return m_textures[attachment];
 }
 
-bool TextureFramebuffer::setDepthBuffer(TextureImage* newImage)
+bool TextureFramebuffer::setDepthBuffer(Texture* newTexture, const TextureImage& image, uint z)
 {
-  return setBuffer(DEPTH_BUFFER, newImage);
+  return setBuffer(DEPTH_BUFFER, newTexture, image, z);
 }
 
-bool TextureFramebuffer::setColorBuffer(TextureImage* newImage)
+bool TextureFramebuffer::setColorBuffer(Texture* newTexture, const TextureImage& image, uint z)
 {
-  return setBuffer(COLOR_BUFFER0, newImage);
+  return setBuffer(COLOR_BUFFER0, newTexture, image, z);
 }
 
-bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage, uint z)
+bool TextureFramebuffer::setBuffer(Attachment attachment, Texture* newTexture,
+                                   const TextureImage& image, uint z)
 {
   if (isColorAttachment(attachment))
   {
@@ -699,13 +700,13 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, TextureImage* newImage
   Framebuffer& previous = m_context.currentFramebuffer();
   apply();
 
-  if (m_images[attachment])
-    m_images[attachment]->detach(convertToGL(attachment));
+  if (m_textures[attachment])
+    m_textures[attachment]->detach(convertToGL(attachment));
 
-  m_images[attachment] = newImage;
+  m_textures[attachment] = newTexture;
 
-  if (m_images[attachment])
-    m_images[attachment]->attach(convertToGL(attachment), z);
+  if (m_textures[attachment])
+    m_textures[attachment]->attach(convertToGL(attachment), image, z);
 
   previous.apply();
   return true;
@@ -749,7 +750,7 @@ void TextureFramebuffer::apply() const
   {
     Attachment attachment = (Attachment) i;
 
-    if (m_images[i] && isColorAttachment(attachment))
+    if (m_textures[i] && isColorAttachment(attachment))
       enables[count++] = convertToGL(attachment);
   }
 

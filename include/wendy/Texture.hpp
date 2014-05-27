@@ -163,56 +163,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief %Texture image object.
+/*! @brief %Texture image ID.
  */
-class TextureImage : public RefObject
+class TextureImage
 {
-  friend class Texture;
-  friend class TextureFramebuffer;
 public:
-  /*! Updates an area within this texture image, at the specified coordinates
-   *  and with a size matching the specified texture data, with the contents of
-   *  that data.
-   *  @param[in] data The data to copy from.
-   *  @param[in] x The x-coordinate of the area within this image to update.
-   *  @param[in] y The y-coordinate of the area within this image to update.
-   *  @param[in] z The z-coordinate of the area within this image to update.
-   */
-  bool copyFrom(const TextureData& data, uint x = 0, uint y = 0, uint z = 0);
-  /*! Returns a copy the contents of this texture image.
-   *  @return An image object containing the image data.
-   */
-  Ref<Image> data() const;
-  uint width() const { return m_width; }
-  uint height() const { return m_height; }
-  uint depth() const { return m_depth; }
-  /*! @return The size, in bytes, of the data in this image.
-   */
-  size_t size() const;
-  /*! @return The cube face this image represents, or @c NO_CUBE_FACE if this
-   *  image is not part of a cube map.
-   */
-  CubeFace face() const { return m_face; }
-  /*! @return The texture containing this texture image.
-   */
-  Texture& texture() const { return m_texture; }
-private:
-  TextureImage(Texture& texture,
-               uint level,
-               uint width,
-               uint height,
-               uint depth,
-               CubeFace face = NO_CUBE_FACE);
-  TextureImage(const TextureImage&) = delete;
-  void attach(int attachment, uint z);
-  void detach(int attachment);
-  TextureImage& operator = (const TextureImage&) = delete;
-  Texture& m_texture;
-  uint m_level;
-  uint m_width;
-  uint m_height;
-  uint m_depth;
-  CubeFace m_face;
+  TextureImage(uint level = 0, CubeFace face = NO_CUBE_FACE);
+  uint level;
+  CubeFace face;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -222,11 +180,22 @@ private:
 class Texture : public Resource, public RefObject
 {
   friend class RenderContext;
-  friend class TextureImage;
+  friend class TextureFramebuffer;
 public:
   /*! Destructor.
    */
   ~Texture();
+  /*! Updates an area within the specified texture image, at the specified
+   *  coordinates and with a size matching the specified texture data, with the
+   *  contents of that data.
+   *  @param[in] data The data to copy from.
+   *  @param[in] x The x-coordinate of the area within this image to update.
+   *  @param[in] y The y-coordinate of the area within this image to update.
+   *  @param[in] z The z-coordinate of the area within this image to update.
+   */
+  bool copyFrom(const TextureImage& image,
+                const TextureData& data,
+                uint x = 0, uint y = 0, uint z = 0);
   /*! Generates mipmaps based on the top-level image.
    */
   void generateMipmaps();
@@ -239,13 +208,13 @@ public:
   /*! @return @c true if this texture is three-dimensional, otherwise @c false.
    */
   bool is3D() const;
+  /*! @return @c true if this texture is a cubemap, otherwise @c false.
+   */
+  bool isCube() const;
   /*! @return @c true if this texture's dimensions are power of two, otherwise
    *  @c false.
    */
   bool isPOT() const;
-  /*! @return @c true if this texture is a cubemap, otherwise @c false.
-   */
-  bool isCube() const;
   /*! @return @c true if this texture is mipmapped, otherwise @c false.
    */
   bool hasMipmaps() const { return m_levels > 1; }
@@ -255,28 +224,26 @@ public:
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
-  uint width(uint level = 0) const { return image(level).width(); }
+  uint width(uint level = 0) const { return m_sizes[level].x; }
   /*! @param[in] level The desired mipmap level.
    *  @return The height, in pixels, of the specified mipmap level of this texture.
    */
-  uint height(uint level = 0) const { return image(level).height(); }
+  uint height(uint level = 0) const { return m_sizes[level].y; }
   /*! @param[in] level The desired mipmap level.
    *  @return The depth, in pixels, of the specified mipmap level of this texture.
    */
-  uint depth(uint level = 0) const { return image(level).depth(); }
-  /*! @return The number of mipmap levels of this texture.
+  uint depth(uint level = 0) const { return m_sizes[level].z; }
+  /*! @return The size, in bytes, of the pixel data in this texture.
+   */
+  size_t size() const { return m_size; }
+  /*! @return The number of mipmap levels of the specified image of this
+   *  texture.
    */
   uint levelCount() const { return m_levels; }
-  /*! @param[in] level The desired mipmap level.
-   *  @param[in] face The desired cube map face if this texture is a cubemap,
-   *  or @c NO_CUBE_FACE otherwise.
+  /*! Returns a copy the contents of the specified image of this texture image.
+   *  @return An image object containing the pixel data.
    */
-  TextureImage& image(uint level = 0, CubeFace face = NO_CUBE_FACE);
-  /*! @param[in] level The desired mipmap level.
-   *  @param[in] face The desired cube map face if this texture is a cubemap,
-   *  or @c NO_CUBE_FACE otherwise.
-   */
-  const TextureImage& image(uint level = 0, CubeFace face = NO_CUBE_FACE) const;
+  Ref<Image> data(const TextureImage& image);
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode filterMode() const { return m_filterMode; }
@@ -301,9 +268,6 @@ public:
   /*! @return The image format of this texture.
    */
   const PixelFormat& format() const { return m_format; }
-  /*! @return The size, in bytes, of the data in all images of this texture.
-   */
-  size_t size() const;
   /*! @return The context used to create this texture.
    */
   RenderContext& context() const { return m_context; }
@@ -311,7 +275,7 @@ public:
    *  @param[in] context The render context within which to create the
    *  texture.
    *  @param[in] params The creation parameters for the texture.
-   *  @param[in] data The image data to use.
+   *  @param[in] data The pixel data to use.
    *  @return The newly created texture object.
    */
   static Ref<Texture> create(const ResourceInfo& info,
@@ -325,9 +289,11 @@ private:
   Texture(const ResourceInfo& info, RenderContext& context);
   Texture(const Texture&) = delete;
   bool init(const TextureParams& params, const TextureData& data);
-  void retrieveImages();
-  uint retrieveTargetImages(uint target, CubeFace face);
+  void retrieveSizes();
+  uint retrieveTargetSizes(uint target, CubeFace face);
   void applyDefaults();
+  void attach(int attachment, const TextureImage& image, uint z);
+  void detach(int attachment);
   Texture& operator = (const Texture&) = delete;
   RenderContext& m_context;
   TextureType m_type;
@@ -337,7 +303,8 @@ private:
   AddressMode m_addressMode;
   float m_maxAnisotropy;
   PixelFormat m_format;
-  std::vector<Ref<TextureImage>> m_images;
+  std::vector<uvec3> m_sizes;
+  size_t m_size;
 };
 
 ///////////////////////////////////////////////////////////////////////
