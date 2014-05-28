@@ -1288,11 +1288,6 @@ bool RenderContext::setCurrentFramebuffer(Framebuffer& newFramebuffer)
   return true;
 }
 
-Program* RenderContext::currentProgram() const
-{
-  return m_currentProgram;
-}
-
 void RenderContext::setCurrentProgram(Program* newProgram)
 {
   if (newProgram != m_currentProgram)
@@ -1308,11 +1303,6 @@ void RenderContext::setCurrentProgram(Program* newProgram)
     else
       glUseProgram(0);
   }
-}
-
-VertexBuffer* RenderContext::currentVertexBuffer() const
-{
-  return m_currentVertexBuffer;
 }
 
 void RenderContext::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
@@ -1334,11 +1324,6 @@ void RenderContext::setCurrentVertexBuffer(VertexBuffer* newVertexBuffer)
   }
 }
 
-IndexBuffer* RenderContext::currentIndexBuffer() const
-{
-  return m_currentIndexBuffer;
-}
-
 void RenderContext::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
 {
   if (newIndexBuffer != m_currentIndexBuffer)
@@ -1356,11 +1341,6 @@ void RenderContext::setCurrentIndexBuffer(IndexBuffer* newIndexBuffer)
       return;
 #endif
   }
-}
-
-Texture* RenderContext::currentTexture() const
-{
-  return m_textureUnits[m_activeTextureUnit];
 }
 
 void RenderContext::setCurrentTexture(Texture* newTexture)
@@ -1390,16 +1370,6 @@ void RenderContext::setCurrentTexture(Texture* newTexture)
 
     m_textureUnits[m_activeTextureUnit] = newTexture;
   }
-}
-
-uint RenderContext::textureUnitCount() const
-{
-  return (uint) m_textureUnits.size();
-}
-
-uint RenderContext::activeTextureUnit() const
-{
-  return m_activeTextureUnit;
 }
 
 void RenderContext::setActiveTextureUnit(uint unit)

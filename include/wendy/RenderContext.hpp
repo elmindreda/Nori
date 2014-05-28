@@ -529,39 +529,20 @@ public:
    *  @return @c true if successful, or @c false otherwise.
    */
   bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
-  /*! @return The currently set GLSL program, or @c nullptr if no program is
-   *  set.
-   */
-  Program* currentProgram() const;
   /*! Sets the current GLSL program for use when rendering.
    *  @param[in] newProgram The desired GLSL program, or @c nullptr to unbind
    *  the current program.
    */
   void setCurrentProgram(Program* newProgram);
-  /*! @return The currently set vertex buffer.
-   */
-  VertexBuffer* currentVertexBuffer() const;
   /*! Sets the current vertex buffer.
    */
   void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
-  /*! @return The currently set index buffer.
-   */
-  IndexBuffer* currentIndexBuffer() const;
   /*! Sets the current index buffer.
    */
   void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  Texture* currentTexture() const;
-  /*! @note Unless you are Wendy, you probably don't need to call this.
-   */
   void setCurrentTexture(Texture* newTexture);
-  /*! @note Unless you are Wendy, you probably don't need to call this.
-   */
-  uint textureUnitCount() const;
-  /*! @note Unless you are Wendy, you probably don't need to call this.
-   */
-  uint activeTextureUnit() const;
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
   void setActiveTextureUnit(uint unit);
