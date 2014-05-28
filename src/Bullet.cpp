@@ -28,6 +28,7 @@
 #include <wendy/Transform.hpp>
 #include <wendy/Path.hpp>
 #include <wendy/Resource.hpp>
+#include <wendy/Vertex.hpp>
 #include <wendy/Mesh.hpp>
 
 #include <wendy/Bullet.hpp>

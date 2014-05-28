@@ -29,6 +29,7 @@
 #include <wendy/Path.hpp>
 #include <wendy/Resource.hpp>
 #include <wendy/Primitive.hpp>
+#include <wendy/Vertex.hpp>
 #include <wendy/Mesh.hpp>
 
 #include <limits>
@@ -58,12 +59,12 @@ public:
     MERGE_NORMALS
   };
   VertexTool();
-  VertexTool(const std::vector<MeshVertex>& vertices);
-  void importPositions(const std::vector<MeshVertex>& vertices);
+  VertexTool(const std::vector<Vertex3fn2ft3fv>& vertices);
+  void importPositions(const std::vector<Vertex3fn2ft3fv>& vertices);
   uint32 addAttributeLayer(uint32 vertexIndex,
                            const vec3& normal,
                            const vec2& texcoord = vec2(0.f));
-  void realizeVertices(std::vector<MeshVertex>& result) const;
+  void realizeVertices(std::vector<Vertex3fn2ft3fv>& result) const;
   void setNormalMode(NormalMode newMode);
 private:
   struct VertexLayer
@@ -88,14 +89,14 @@ VertexTool::VertexTool():
 {
 }
 
-VertexTool::VertexTool(const std::vector<MeshVertex>& initVertices):
+VertexTool::VertexTool(const std::vector<Vertex3fn2ft3fv>& initVertices):
   targetCount(0),
   mode(PRESERVE_NORMALS)
 {
   importPositions(initVertices);
 }
 
-void VertexTool::importPositions(const std::vector<MeshVertex>& initVertices)
+void VertexTool::importPositions(const std::vector<Vertex3fn2ft3fv>& initVertices)
 {
   vertices.resize(initVertices.size());
   for (size_t i = 0;  i < vertices.size();  i++)
@@ -159,7 +160,7 @@ uint32 VertexTool::addAttributeLayer(uint32 vertexIndex,
   }
 }
 
-void VertexTool::realizeVertices(std::vector<MeshVertex>& result) const
+void VertexTool::realizeVertices(std::vector<Vertex3fn2ft3fv>& result) const
 {
   result.resize(targetCount);
 

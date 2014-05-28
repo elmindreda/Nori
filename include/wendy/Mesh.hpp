@@ -36,20 +36,6 @@ class Sphere;
 
 ///////////////////////////////////////////////////////////////////////
 
-/*! @brief Triangle mesh vertex.
- *
- *  @remarks Yes, it's insanely primitive.
- */
-class MeshVertex
-{
-public:
-  vec3 position;
-  vec3 normal;
-  vec2 texcoord;
-};
-
-///////////////////////////////////////////////////////////////////////
-
 class MeshTriangle
 {
 public:
@@ -124,7 +110,7 @@ public:
   std::vector<MeshSection> sections;
   /*! The list of vertices in this mesh.
    */
-  std::vector<MeshVertex> vertices;
+  std::vector<Vertex3fn2ft3fv> vertices;
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -134,13 +134,9 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
     }
   }
 
-  VertexFormat format;
-  if (!format.createComponents("3f:vPosition 3f:vNormal 2f:vTexCoord"))
-    return false;
-
   m_vertexBuffer = VertexBuffer::create(context,
                                         data.vertices.size(),
-                                        format,
+                                        Vertex3fn2ft3fv::format,
                                         USAGE_STATIC);
   if (!m_vertexBuffer)
     return false;
