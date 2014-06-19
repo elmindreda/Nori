@@ -354,6 +354,31 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
         if (s.attribute("sRGB").as_bool())
           params.flags |= TF_SRGB;
 
+        if (pugi::xml_attribute a = s.attribute("filter"))
+        {
+          if (filterModeMap.hasKey(a.value()))
+            params.filterMode = filterModeMap[a.value()];
+          else
+          {
+            logError("Invalid filter mode name %s", a.value());
+            return false;
+          }
+        }
+
+        if (pugi::xml_attribute a = s.attribute("address"))
+        {
+          if (addressModeMap.hasKey(a.value()))
+            params.addressMode = addressModeMap[a.value()];
+          else
+          {
+            logError("Invalid address mode name %s", a.value());
+            return false;
+          }
+        }
+
+        if (pugi::xml_attribute a = s.attribute("anisotropy"))
+          params.maxAnisotropy = a.as_float();
+
         texture = Texture::read(context, params, a.value());
       }
       else if (pugi::xml_attribute a = s.attribute("texture"))
@@ -374,31 +399,6 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
                   program->name().c_str());
 
         return false;
-      }
-
-      if (pugi::xml_attribute a = root.attribute("anisotropy"))
-        texture->setMaxAnisotropy(a.as_float());
-
-      if (pugi::xml_attribute a = s.attribute("filter"))
-      {
-        if (filterModeMap.hasKey(a.value()))
-          texture->setFilterMode(filterModeMap[a.value()]);
-        else
-        {
-          logError("Invalid filter mode name %s", a.value());
-          return false;
-        }
-      }
-
-      if (pugi::xml_attribute a = s.attribute("address"))
-      {
-        if (addressModeMap.hasKey(a.value()))
-          texture->setAddressMode(addressModeMap[a.value()]);
-        else
-        {
-          logError("Invalid address mode name %s", a.value());
-          return false;
-        }
       }
 
       pass.setSamplerState(samplerName.c_str(), texture);

@@ -344,8 +344,8 @@ bool Font::addGlyphTextureRow()
     return false;
   }
 
-  TextureData data(PixelFormat::L8, textureWidth, textureHeight);
-  TextureParams params(TEXTURE_RECT, TF_NONE);
+  const TextureData data(PixelFormat::L8, textureWidth, textureHeight);
+  const TextureParams params(TEXTURE_RECT, TF_NONE, FILTER_NEAREST, ADDRESS_CLAMP);
 
   m_texture = Texture::create(cache(), m_context, params, data);
   if (!m_texture)
@@ -356,8 +356,6 @@ bool Font::addGlyphTextureRow()
 
   if (glyphs)
     m_texture->copyFrom(0, *glyphs);
-
-  m_texture->setFilterMode(FILTER_NEAREST);
 
   m_pass.setSamplerState("glyphs", m_texture);
   return true;

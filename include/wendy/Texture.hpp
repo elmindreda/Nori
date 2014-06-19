@@ -156,8 +156,15 @@ public:
 class TextureParams
 {
 public:
-  TextureParams(TextureType type, uint flags);
+  TextureParams(TextureType type,
+                uint flags,
+                FilterMode filterMode = FILTER_BILINEAR,
+                AddressMode addressMode = ADDRESS_WRAP,
+                float maxAnisotropy = 1.f);
   TextureType type;
+  FilterMode filterMode;
+  AddressMode addressMode;
+  float maxAnisotropy;
   uint flags;
 };
 
@@ -247,24 +254,12 @@ public:
   /*! @return The sampler filter mode of this texture.
    */
   FilterMode filterMode() const { return m_filterMode; }
-  /*! Sets the sampler filter mode of this texture.
-   *  @param[in] newMode The desired filter mode.
-   */
-  void setFilterMode(FilterMode newMode);
   /*! @return The sampler address wrapping mode of this texture.
    */
   AddressMode addressMode() const { return m_addressMode; }
-  /*! Sets the sampler address wrapping mode of this texture.
-   *  @param[in] newMode The desired address wrapping mode.
-   */
-  void setAddressMode(AddressMode newMode);
   /*! @return The maximum anisotropy of this texture.
    */
   float maxAnisotropy() const { return m_maxAnisotropy; }
-  /*! Sets the maximum anisotropy of this texture.
-   *  @param[in] newMax The desired value.
-   */
-  void setMaxAnisotropy(float newMax);
   /*! @return The image format of this texture.
    */
   const PixelFormat& format() const { return m_format; }
@@ -291,7 +286,6 @@ private:
   bool init(const TextureParams& params, const TextureData& data);
   void retrieveSizes();
   uint retrieveTargetSizes(uint target, CubeFace face);
-  void applyDefaults();
   void attach(int attachment, const TextureImage& image, uint z);
   void detach(int attachment);
   Texture& operator = (const Texture&) = delete;

@@ -204,9 +204,16 @@ uint TextureData::dimensionCount() const
 
 ///////////////////////////////////////////////////////////////////////
 
-TextureParams::TextureParams(TextureType initType, uint initFlags):
+TextureParams::TextureParams(TextureType initType,
+                             uint initFlags,
+                             FilterMode initFilterMode,
+                             AddressMode initAddressMode,
+                             float initMaxAnisotropy):
   type(initType),
-  flags(initFlags)
+  flags(initFlags),
+  filterMode(initFilterMode),
+  addressMode(initAddressMode),
+  maxAnisotropy(initMaxAnisotropy)
 {
   if (type == TEXTURE_RECT)
     flags &= ~TF_MIPMAPPED;
@@ -307,15 +314,10 @@ bool Texture::copyFrom(const TextureImage& image,
 void Texture::generateMipmaps()
 {
   glGenerateMipmap(convertToGL(m_type));
-
-  if (!hasMipmaps())
-  {
-    retrieveSizes();
-
-    glTexParameteri(convertToGL(m_type),
-                    GL_TEXTURE_MIN_FILTER,
-                    convertToGL(m_filterMode, true));
-  }
+  retrieveSizes();
+  glTexParameteri(convertToGL(m_type),
+                  GL_TEXTURE_MIN_FILTER,
+                  convertToGL(m_filterMode, true));
 }
 
 bool Texture::is1D() const
@@ -376,80 +378,6 @@ Ref<Image> Texture::data(const TextureImage& image)
   return result;
 }
 
-void Texture::setFilterMode(FilterMode newMode)
-{
-  if (newMode != m_filterMode)
-  {
-    m_context.setCurrentTexture(this);
-
-    glTexParameteri(convertToGL(m_type),
-                    GL_TEXTURE_MIN_FILTER,
-                    convertToGL(newMode, hasMipmaps()));
-    glTexParameteri(convertToGL(m_type),
-                    GL_TEXTURE_MAG_FILTER,
-                    convertToGL(newMode, false));
-
-    m_filterMode = newMode;
-  }
-
-#if WENDY_DEBUG
-  checkGL("Error when changing filter mode for texture %s",
-          name().c_str());
-#endif
-}
-
-void Texture::setAddressMode(AddressMode newMode)
-{
-  if (m_type == TEXTURE_RECT)
-  {
-    if (newMode != ADDRESS_CLAMP)
-    {
-      logError("Rectangular textures only support ADDRESS_CLAMP");
-      return;
-    }
-  }
-
-  if (newMode != m_addressMode)
-  {
-    m_context.setCurrentTexture(this);
-
-    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(newMode));
-    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(newMode));
-    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(newMode));
-
-    m_addressMode = newMode;
-  }
-
-#if WENDY_DEBUG
-  checkGL("Error when changing address mode for texture %s",
-          name().c_str());
-#endif
-}
-
-void Texture::setMaxAnisotropy(float newMax)
-{
-  if (newMax != m_maxAnisotropy)
-  {
-    if (!GREG_EXT_texture_filter_anisotropic)
-    {
-      logError("Cannot set max anisotropy: "
-               "GL_EXT_texture_filter_anisotropic is missing");
-      return;
-    }
-
-    m_context.setCurrentTexture(this);
-
-    glTexParameteri(convertToGL(m_type), GL_TEXTURE_MAX_ANISOTROPY_EXT, int(newMax));
-
-    m_maxAnisotropy = newMax;
-  }
-
-#if WENDY_DEBUG
-  checkGL("Error when changing max anisotropy for texture %s",
-          name().c_str());
-#endif
-}
-
 Ref<Texture> Texture::create(const ResourceInfo& info,
                              RenderContext& context,
                              const TextureParams& params,
@@ -476,6 +404,23 @@ Ref<Texture> Texture::read(RenderContext& context,
   name += " sRGB:";
   name += (params.flags & TF_SRGB) ? "true" : "false";
 
+  name += " filter:";
+  if (params.filterMode == FILTER_NEAREST)
+    name += "nearest";
+  else if (params.filterMode == FILTER_BILINEAR)
+    name += "bilinear";
+  else if (params.filterMode == FILTER_TRILINEAR)
+    name += "trilinear";
+
+  name += " address:";
+  if (params.addressMode == ADDRESS_WRAP)
+    name += "wrap";
+  else if (params.addressMode == ADDRESS_CLAMP)
+    name += "clamp";
+
+  name += " maxAnisotropy:";
+  name += wendy::format("%f", params.maxAnisotropy);
+
   if (Ref<Texture> texture = cache.find<Texture>(name))
     return texture;
 
@@ -493,10 +438,7 @@ Texture::Texture(const ResourceInfo& info, RenderContext& context):
   Resource(info),
   m_context(context),
   m_textureID(0),
-  m_levels(0),
-  m_filterMode(FILTER_BILINEAR),
-  m_addressMode(ADDRESS_WRAP),
-  m_maxAnisotropy(1.f)
+  m_levels(0)
 {
 }
 
@@ -697,12 +639,51 @@ bool Texture::init(const TextureParams& params, const TextureData& data)
                  data.texels);
   }
 
+  // Apply sampler parameters
+  {
+    glTexParameteri(convertToGL(m_type),
+                    GL_TEXTURE_MIN_FILTER,
+                    convertToGL(params.filterMode, false));
+    glTexParameteri(convertToGL(m_type),
+                    GL_TEXTURE_MAG_FILTER,
+                    convertToGL(params.filterMode, false));
+
+    m_filterMode = params.filterMode;
+
+    if (m_type == TEXTURE_RECT && params.addressMode != ADDRESS_CLAMP)
+    {
+      logError("Rectangular textures only support ADDRESS_CLAMP");
+      return false;
+    }
+
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(params.addressMode));
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(params.addressMode));
+    glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(params.addressMode));
+
+    m_addressMode = params.addressMode;
+
+    if (GREG_EXT_texture_filter_anisotropic)
+    {
+      glTexParameteri(convertToGL(m_type),
+                      GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                      GLint(params.maxAnisotropy));
+    }
+    else
+    {
+      if (params.maxAnisotropy != 1.f)
+      {
+        logWarning("Cannot set max anisotropy: "
+                   "GL_EXT_texture_filter_anisotropic is missing");
+      }
+    }
+
+    m_maxAnisotropy = params.maxAnisotropy;
+  }
+
   if (mipmapped)
     generateMipmaps();
   else
     retrieveSizes();
-
-  applyDefaults();
 
   if (!checkGL("OpenGL error during creation of texture %s format %s",
                name().c_str(),
@@ -755,24 +736,6 @@ uint Texture::retrieveTargetSizes(uint target, CubeFace face)
   }
 
   return level;
-}
-
-void Texture::applyDefaults()
-{
-  m_filterMode = FILTER_BILINEAR;
-
-  glTexParameteri(convertToGL(m_type),
-                  GL_TEXTURE_MIN_FILTER,
-                  convertToGL(m_filterMode, hasMipmaps()));
-  glTexParameteri(convertToGL(m_type),
-                  GL_TEXTURE_MAG_FILTER,
-                  convertToGL(m_filterMode, false));
-
-  m_addressMode = ADDRESS_CLAMP;
-
-  glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_S, convertToGL(m_addressMode));
-  glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_T, convertToGL(m_addressMode));
-  glTexParameteri(convertToGL(m_type), GL_TEXTURE_WRAP_R, convertToGL(m_addressMode));
 }
 
 void Texture::attach(int attachment, const TextureImage& image, uint z)

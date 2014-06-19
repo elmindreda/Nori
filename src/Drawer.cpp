@@ -145,7 +145,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  const TextureParams params(TEXTURE_RECT, TF_NONE);
+  const TextureParams params(TEXTURE_RECT, TF_NONE, FILTER_BILINEAR, ADDRESS_CLAMP);
 
   theme->texture = Texture::read(m_context, params, imageName);
   if (!theme->texture)
