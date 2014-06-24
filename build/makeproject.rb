@@ -105,9 +105,9 @@ public:
   bool init();
   void run();
 private:
-  ResourceCache cache;
-  std::unique_ptr<RenderContext> renderContext;
-  std::unique_ptr<AudioContext> audioContext;
+  ResourceCache m_cache;
+  std::unique_ptr<RenderContext> m_renderContext;
+  std::unique_ptr<AudioContext> m_audioContext;
 };
 
 } /*namespace #{@name}*/
@@ -138,20 +138,20 @@ using namespace wendy;
 
 #{@type}::~#{@type}()
 {
-  renderContext = nullptr;
-  audioContext = nullptr;
+  m_renderContext = nullptr;
+  m_audioContext = nullptr;
 }
 
 bool #{@type}::init()
 {
-  if (!cache.addSearchPath(Path("data")))
+  if (!m_cache.addSearchPath(Path("data")))
   {
     logError("Failed to locate data directory");
     return false;
   }
 
-  audioContext.reset(AudioContext::create(cache));
-  if (!audioContext)
+  m_audioContext.reset(AudioContext::create(m_cache));
+  if (!m_audioContext)
   {
     logError("Failed to create audio context");
     return false;
@@ -160,8 +160,8 @@ bool #{@type}::init()
   WindowConfig wc("#{@name.capitalize}");
   RenderConfig rc;
 
-  renderContext.reset(RenderContext::create(cache, wc, rc));
-  if (!renderContext)
+  m_renderContext.reset(RenderContext::create(m_cache, wc, rc));
+  if (!m_renderContext)
   {
     logError("Failed to create render context");
     return false;
@@ -172,11 +172,11 @@ bool #{@type}::init()
 
 void #{@type}::run()
 {
-  Window& window = renderContext->window();
+  Window& window = m_renderContext->window();
 
   do
   {
-    renderContext->clearBuffers();
+    m_renderContext->clearBuffers();
   }
   while (window.update());
 }
