@@ -94,7 +94,7 @@ void List::createItem(const char* value, ItemID ID)
 
 Item* List::findItem(const char* value)
 {
-  for (auto i : m_items)
+  for (Item* i : m_items)
   {
     if (i->value() == value)
       return i;
@@ -105,7 +105,7 @@ Item* List::findItem(const char* value)
 
 const Item* List::findItem(const char* value) const
 {
-  for (auto i : m_items)
+  for (Item* i : m_items)
   {
     if (i->value() == value)
       return i;
@@ -223,7 +223,7 @@ ItemID List::selectedID()
 
 void List::setSelectedID(ItemID newItemID)
 {
-  for (auto i : m_items)
+  for (Item* i : m_items)
   {
     if (i->id() == newItemID)
     {
@@ -506,7 +506,7 @@ void List::updateScroller()
 
   float totalItemHeight = 0.f;
 
-  for (auto i : m_items)
+  for (Item* i : m_items)
     totalItemHeight += i->height();
 
   float visibleItemHeight = 0.f;
@@ -543,7 +543,7 @@ bool List::isSelectionVisible() const
 
   float visibleItemHeight = 0.f;
 
-  for (auto i : m_items)
+  for (Item* i : m_items)
   {
     visibleItemHeight += i->height();
     if (visibleItemHeight > height())

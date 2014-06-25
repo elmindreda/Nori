@@ -152,7 +152,7 @@ void PacketData::write32f(float value)
 template <>
 void PacketData::write(const String& value)
 {
-  for (auto c : value)
+  for (char c : value)
     write8(c);
 
   write8('\0');
@@ -248,7 +248,7 @@ HostObserver::~HostObserver()
 
 Host::~Host()
 {
-  for (auto& p : m_peers)
+  for (Peer& p : m_peers)
     enet_peer_disconnect_now((ENetPeer*) p.m_peer, 0);
 
   m_peers.clear();
@@ -422,7 +422,7 @@ void* Host::allocatePacketData(size_t size)
 
 Peer* Host::findPeer(TargetID targetID)
 {
-  for (auto& p : m_peers)
+  for (Peer& p : m_peers)
   {
     if (p.id() == targetID)
       return &p;

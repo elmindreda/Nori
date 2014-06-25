@@ -116,7 +116,7 @@ void Layout::update()
   uint flexibleCount = 0;
   float stackSize = m_borderSize;
 
-  for (auto c : children())
+  for (Widget* c : children())
   {
     float desiredSize;
 
@@ -139,7 +139,7 @@ void Layout::update()
     if (flexibleCount)
       flexibleHeight = (height() - stackSize) / flexibleCount;
 
-    for (auto c : children())
+    for (Widget* c : children())
     {
       float childHeight = c->desiredSize().y;
       if (childHeight == 0.f)
@@ -157,7 +157,7 @@ void Layout::update()
     if (flexibleCount)
       flexibleWidth = (width() - stackSize) / flexibleCount;
 
-    for (auto c : children())
+    for (Widget* c : children())
     {
       float childWidth = c->desiredSize().x;
       if (childWidth == 0.f)

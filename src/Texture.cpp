@@ -711,7 +711,7 @@ void Texture::retrieveSizes()
   else
     m_levels = retrieveTargetSizes(convertToGL(m_type), NO_CUBE_FACE);
 
-  for (auto s : m_sizes)
+  for (uvec3 s : m_sizes)
     m_size += s.x * s.y * s.z * m_format.size();
 }
 

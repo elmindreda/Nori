@@ -121,7 +121,7 @@ void Book::draw() const
                    tabSize.x,
                    tabSize.y);
 
-      for (auto p : m_pages)
+      for (const Page* p : m_pages)
       {
         WidgetState state;
         if (isEnabled())
@@ -177,7 +177,7 @@ void Book::onAreaChanged()
 {
   const float em = layer().drawer().currentEM();
 
-  for (auto p : m_pages)
+  for (Page* p : m_pages)
     p->setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
 
   Widget::onAreaChanged();

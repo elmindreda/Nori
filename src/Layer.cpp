@@ -69,7 +69,7 @@ void Layer::draw()
 
   m_drawer.begin();
 
-  for (auto r : m_roots)
+  for (Widget* r : m_roots)
   {
     if (r->isVisible())
       r->draw();
@@ -253,7 +253,7 @@ void Layer::removedWidget(Widget& widget)
 void Layer::focusableWidgets(std::vector<Widget*>& target,
                              const std::vector<Widget*>& source) const
 {
-  for (auto widget : source)
+  for (Widget* widget : source)
   {
     if (widget->isVisible() && widget->isEnabled())
     {
@@ -399,7 +399,7 @@ LayerStack::LayerStack(Window& window):
 
 void LayerStack::update() const
 {
-  for (auto l : m_layers)
+  for (Layer* l : m_layers)
     l->update();
 }
 

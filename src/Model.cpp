@@ -77,7 +77,7 @@ void ModelSection::setMaterial(Material* newMaterial)
 
 void Model::enqueue(RenderQueue& queue, const Camera& camera, const Transform3& transform) const
 {
-  for (auto& s : m_sections)
+  for (const ModelSection& s : m_sections)
   {
     Material* material = s.material();
     if (!s.material())
@@ -123,7 +123,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
     return false;
   }
 
-  for (auto& s : data.sections)
+  for (const MeshSection& s : data.sections)
   {
     if (materials.find(s.materialName) == materials.end())
     {
@@ -162,7 +162,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
 
   size_t start = 0;
 
-  for (auto& s : data.sections)
+  for (const MeshSection& s : data.sections)
   {
     const size_t count = s.triangles.size() * 3;
     IndexRange range(*m_indexBuffer, start, count);
@@ -175,7 +175,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
 
       size_t index = 0;
 
-      for (auto& t : s.triangles)
+      for (const MeshTriangle& t : s.triangles)
       {
         indices[index++] = t.indices[0];
         indices[index++] = t.indices[1];
@@ -190,7 +190,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
 
       size_t index = 0;
 
-      for (auto& t : s.triangles)
+      for (const MeshTriangle& t : s.triangles)
       {
         indices[index++] = t.indices[0];
         indices[index++] = t.indices[1];
@@ -205,7 +205,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
 
       size_t index = 0;
 
-      for (auto& t : s.triangles)
+      for (const MeshTriangle& t : s.triangles)
       {
         indices[index++] = t.indices[0];
         indices[index++] = t.indices[1];

@@ -109,7 +109,7 @@ void Profile::resetNode(ProfileNode& node)
   node.m_calls = 0;
   node.m_duration = 0.0;
 
-  for (auto& c : node.m_children)
+  for (ProfileNode& c : node.m_children)
     resetNode(c);
 }
 

@@ -138,7 +138,7 @@ ItemID Popup::selectedID()
 
 void Popup::setSelectedID(ItemID newItemID)
 {
-  for (auto i : m_menu->items())
+  for (Item* i : m_menu->items())
   {
     if (i->id() == newItemID)
     {

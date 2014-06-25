@@ -122,7 +122,7 @@ void Menu::createSeparatorItem()
 
 Item* Menu::findItem(const char* value)
 {
-  for (auto i : m_items)
+  for (Item* i : m_items)
   {
     if (i->value() == value)
       return i;
@@ -133,7 +133,7 @@ Item* Menu::findItem(const char* value)
 
 const Item* Menu::findItem(const char* value) const
 {
-  for (auto i : m_items)
+  for (const Item* i : m_items)
   {
     if (i->value() == value)
       return i;
@@ -189,7 +189,7 @@ void Menu::draw() const
 
     uint index = 0;
 
-    for (auto i : m_items)
+    for (const Item* i : m_items)
     {
       float height = i->height();
       if (height + itemTop < 0.f)
@@ -223,7 +223,7 @@ void Menu::onCursorPos(vec2 point)
   float itemTop = height() - 2.f;
   int index = 0;
 
-  for (auto i : m_items)
+  for (const Item* i : m_items)
   {
     const float itemHeight = i->height();
     if (itemTop - itemHeight < 0.f)
@@ -261,7 +261,7 @@ void Menu::onMouseButton(vec2 point,
     float itemTop = height() - 2.f;
     uint index = 0;
 
-    for (auto i : m_items)
+    for (const Item* i : m_items)
     {
       const float itemHeight = i->height();
       if (itemTop - itemHeight < 0.f)
@@ -352,7 +352,7 @@ void Menu::sizeToFit()
 {
   vec2 size(0.f, 2.f);
 
-  for (auto i : m_items)
+  for (const Item* i : m_items)
   {
     size.x = max(i->width(), size.x);
     size.y += i->height();

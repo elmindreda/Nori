@@ -426,7 +426,7 @@ void RenderStats::addFrame()
     m_frames.front().duration = m_timer.deltaTime();
 
     // Calculate frame rate
-    for (auto& f : m_frames)
+    for (const Frame& f : m_frames)
       m_frameRate += float(f.duration);
 
     m_frameRate = float(m_frames.size()) / m_frameRate;
@@ -1101,7 +1101,7 @@ VertexRange RenderContext::allocateVertices(uint count, const VertexFormat& form
 
   Slot* slot = nullptr;
 
-  for (auto& s : m_slots)
+  for (Slot& s : m_slots)
   {
     if (s.buffer->format() == format && s.available >= count)
     {
@@ -1169,7 +1169,7 @@ void RenderContext::createSharedUniform(const char* name, UniformType type, int 
 
 int RenderContext::sharedSamplerID(const char* name, SamplerType type) const
 {
-  for (auto& s : m_samplers)
+  for (const SharedSampler& s : m_samplers)
   {
     if (s.name == name && s.type == type)
       return s.ID;
@@ -1180,7 +1180,7 @@ int RenderContext::sharedSamplerID(const char* name, SamplerType type) const
 
 int RenderContext::sharedUniformID(const char* name, UniformType type) const
 {
-  for (auto& u : m_uniforms)
+  for (const SharedUniform& u : m_uniforms)
   {
     if (u.name == name && u.type == type)
       return u.ID;
@@ -1834,7 +1834,7 @@ void RenderContext::onFrame()
     }
   }
 
-  for (auto& s : m_slots)
+  for (Slot& s : m_slots)
   {
     s.available = s.buffer->count();
     s.buffer->discard();

@@ -394,7 +394,7 @@ SignalProxy<void, Widget&, vec2> Widget::dragEndedSignal()
 
 void Widget::draw() const
 {
-  for (auto c : m_children)
+  for (const Widget* c : m_children)
   {
     if (c->isVisible())
       c->draw();

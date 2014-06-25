@@ -246,7 +246,7 @@ void Mesh::mergeSections(const char* materialName)
 
 MeshSection* Mesh::findSection(const char* materialName)
 {
-  for (auto& s : sections)
+  for (MeshSection& s : sections)
   {
     if (s.materialName == materialName)
       return &s;
@@ -264,9 +264,9 @@ void Mesh::generateNormals(NormalType type)
   if (type == SMOOTH_FACES)
     tool.setNormalMode(VertexTool::MERGE_NORMALS);
 
-  for (auto& s : sections)
+  for (MeshSection& s : sections)
   {
-    for (auto& t : s.triangles)
+    for (MeshTriangle& t : s.triangles)
     {
       for (size_t k = 0;  k < 3;  k++)
       {
@@ -282,9 +282,9 @@ void Mesh::generateNormals(NormalType type)
 
 void Mesh::generateTriangleNormals()
 {
-  for (auto& s : sections)
+  for (MeshSection& s : sections)
   {
-    for (auto& t : s.triangles)
+    for (MeshTriangle& t : s.triangles)
     {
       const vec3 one = vertices[t.indices[1]].position -
                        vertices[t.indices[0]].position;
@@ -304,7 +304,7 @@ AABB Mesh::generateBoundingAABB() const
   vec3 minimum(std::numeric_limits<float>::max());
   vec3 maximum(std::numeric_limits<float>::min());
 
-  for (auto& v : vertices)
+  for (const Vertex3fn2ft3fv& v : vertices)
   {
     minimum = min(minimum, v.position);
     maximum = max(maximum, v.position);
@@ -323,7 +323,6 @@ Sphere Mesh::generateBoundingSphere() const
   bounds.center = vertices[0].position;
 
   for (size_t i = 1;  i < vertices.size();  i++)
-
     bounds.envelop(vertices[i].position);
 
   return bounds;
@@ -334,7 +333,7 @@ bool Mesh::isValid() const
   if (vertices.empty())
     return false;
 
-  for (auto& v : vertices)
+  for (const Vertex3fn2ft3fv& v : vertices)
   {
     if (!all(isfinite(v.position)) ||
         !all(isfinite(v.normal)) ||
@@ -344,12 +343,12 @@ bool Mesh::isValid() const
     }
   }
 
-  for (auto& s : sections)
+  for (const MeshSection& s : sections)
   {
     if (s.triangles.empty())
       return false;
 
-    for (auto& t : s.triangles)
+    for (const MeshTriangle& t : s.triangles)
     {
       if (!all(isfinite(t.normal)))
         return false;
@@ -370,7 +369,7 @@ size_t Mesh::triangleCount() const
 {
   size_t count = 0;
 
-  for (auto& s : sections)
+  for (const MeshSection& s : sections)
     count += s.triangles.size();
 
   return count;
@@ -465,7 +464,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 
         group = nullptr;
 
-        for (auto& g : groups)
+        for (FaceGroup& g : groups)
         {
           if (g.name == materialName)
             group = &g;
@@ -552,7 +551,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 
   VertexTool tool(mesh->vertices);
 
-  for (auto& g : groups)
+  for (const FaceGroup& g : groups)
   {
     mesh->sections.push_back(MeshSection());
     MeshSection& geometry = mesh->sections.back();
@@ -650,16 +649,16 @@ bool MeshWriter::write(const Path& path, const Mesh& mesh)
     return false;
   }
 
-  for (auto& v : mesh.vertices)
+  for (const Vertex3fn2ft3fv& v : mesh.vertices)
     stream << "v " << v.position.x << ' ' << v.position.y << ' ' << v.position.z << '\n';
 
-  for (auto& v : mesh.vertices)
+  for (const Vertex3fn2ft3fv& v : mesh.vertices)
     stream << "vn " << v.normal.x << ' ' << v.normal.y << ' ' << v.normal.z << '\n';
 
-  for (auto& v : mesh.vertices)
+  for (const Vertex3fn2ft3fv& v : mesh.vertices)
     stream << "vt " << v.texcoord.x << ' ' << v.texcoord.y << '\n';
 
-  for (auto& s : mesh.sections)
+  for (const MeshSection& s : mesh.sections)
   {
     stream << "usemtl " << s.materialName << '\n';
 

@@ -90,9 +90,9 @@ btTriangleMesh* convert(const Mesh& data)
   else
     mesh = new btTriangleMesh(false);
 
-  for (auto& s : data.sections)
+  for (const MeshSection& s : data.sections)
   {
-    for (auto& t : s.triangles)
+    for (const MeshTriangle& t : s.triangles)
     {
       mesh->addTriangle(convert(data.vertices[t.indices[0]].position),
                         convert(data.vertices[t.indices[1]].position),

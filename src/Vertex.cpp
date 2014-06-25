@@ -142,7 +142,7 @@ void VertexFormat::destroyComponents()
 
 const VertexComponent* VertexFormat::findComponent(const char* name) const
 {
-  for (auto& c : m_components)
+  for (const VertexComponent& c : m_components)
   {
     if (c.name() == name)
       return &c;
@@ -175,7 +175,7 @@ String VertexFormat::asString() const
 {
   std::ostringstream result;
 
-  for (auto& c : m_components)
+  for (const VertexComponent& c : m_components)
     result << c.elementCount() << 'f' << ':' << c.name() << ' ';
 
   return result.str();

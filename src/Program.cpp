@@ -812,13 +812,13 @@ void Program::bind()
 {
   glUseProgram(m_programID);
 
-  for (auto& a : m_attributes)
+  for (const Attribute& a : m_attributes)
     glEnableVertexAttribArray(a.m_location);
 }
 
 void Program::unbind()
 {
-  for (auto& a : m_attributes)
+  for (const Attribute& a : m_attributes)
     glDisableVertexAttribArray(a.m_location);
 }
 
@@ -874,7 +874,7 @@ void ProgramInterface::addAttribute(const char* name, AttributeType type)
 
 void ProgramInterface::addAttributes(const VertexFormat& format)
 {
-  for (auto& c : format.components())
+  for (const VertexComponent& c : format.components())
   {
     AttributeType type;
 

@@ -89,7 +89,7 @@ ResourceCache::~ResourceCache()
 {
   if (!m_resources.empty())
   {
-    for (auto r : m_resources)
+    for (const Resource* r : m_resources)
       logError("Resource %s not destroyed", r->name().c_str());
 
     panic("Resource cache destroyed with attached resources");
@@ -116,7 +116,7 @@ void ResourceCache::removeSearchPath(const Path& path)
 
 Resource* ResourceCache::findResource(const String& name) const
 {
-  for (auto& r : m_resources)
+  for (Resource* r : m_resources)
   {
     if (r->name() == name)
       return r;
@@ -135,7 +135,7 @@ Path ResourceCache::findFile(const String& name) const
   }
   else
   {
-    for (auto& path : m_paths)
+    for (const Path& path : m_paths)
     {
       const Path full(path + name);
       if (full.isFile())

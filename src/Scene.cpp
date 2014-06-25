@@ -196,7 +196,7 @@ const Sphere& SceneNode::totalBounds() const
   {
     m_totalBounds = m_localBounds;
 
-    for (auto c : m_children)
+    for (const SceneNode* c : m_children)
       m_totalBounds.envelop(c->localTransform() * c->totalBounds());
 
     m_dirtyBounds = false;
@@ -242,7 +242,7 @@ void SceneNode::enqueue(RenderQueue& queue, const Camera& camera) const
   if (m_renderable)
     m_renderable->enqueue(queue, camera, worldTransform());
 
-  for (auto c : m_children)
+  for (const SceneNode* c : m_children)
     c->enqueue(queue, camera);
 }
 
@@ -256,7 +256,7 @@ void SceneNode::invalidateWorldTransform()
 {
   m_dirtyWorld = true;
 
-  for (auto c : m_children)
+  for (SceneNode* c : m_children)
     c->invalidateWorldTransform();
 }
 
@@ -273,7 +273,7 @@ void SceneNode::setGraph(SceneGraph* newGraph)
   if (m_graph && m_camera)
     m_graph->m_updated.push_back(this);
 
-  for (auto c : m_children)
+  for (SceneNode* c : m_children)
     c->setGraph(m_graph);
 }
 
@@ -286,7 +286,7 @@ SceneGraph::~SceneGraph()
 
 void SceneGraph::update()
 {
-  for (auto n : m_updated)
+  for (SceneNode* n : m_updated)
     n->update();
 }
 
@@ -296,7 +296,7 @@ void SceneGraph::enqueue(RenderQueue& queue, const Camera& camera) const
 
   const Frustum& frustum = camera.frustum();
 
-  for (auto r : m_roots)
+  for (const SceneNode* r : m_roots)
   {
     if (frustum.intersects(r->worldTransform() * r->totalBounds()))
       r->enqueue(queue, camera);
@@ -305,7 +305,7 @@ void SceneGraph::enqueue(RenderQueue& queue, const Camera& camera) const
 
 void SceneGraph::query(const Sphere& sphere, std::vector<SceneNode*>& nodes) const
 {
-  for (auto r : m_roots)
+  for (SceneNode* r : m_roots)
   {
     if (sphere.intersects(r->worldTransform() * r->totalBounds()))
       nodes.push_back(r);
@@ -314,7 +314,7 @@ void SceneGraph::query(const Sphere& sphere, std::vector<SceneNode*>& nodes) con
 
 void SceneGraph::query(const Frustum& frustum, std::vector<SceneNode*>& nodes) const
 {
-  for (auto r : m_roots)
+  for (SceneNode* r : m_roots)
   {
     if (frustum.intersects(r->worldTransform() * r->totalBounds()))
       nodes.push_back(r);

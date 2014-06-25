@@ -246,7 +246,7 @@ void logError(const char* format, ...)
     std::cerr << "Error: " << message << std::endl;
   else
   {
-    for (auto& c : consumers)
+    for (LogConsumer* c : consumers)
       c->onLogEntry(ERROR_LOG_ENTRY, message.c_str());
   }
 }
@@ -263,7 +263,7 @@ void logWarning(const char* format, ...)
     std::cerr << "Warning: " << message << std::endl;
   else
   {
-    for (auto& c : consumers)
+    for (LogConsumer* c : consumers)
       c->onLogEntry(WARNING_LOG_ENTRY, message.c_str());
   }
 }
@@ -280,7 +280,7 @@ void log(const char* format, ...)
     std::cerr << message << std::endl;
   else
   {
-    for (auto& c : consumers)
+    for (LogConsumer* c : consumers)
       c->onLogEntry(INFO_LOG_ENTRY, message.c_str());
   }
 }
