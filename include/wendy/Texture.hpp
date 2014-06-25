@@ -227,7 +227,7 @@ public:
   bool hasMipmaps() const { return m_levels > 1; }
   /*! @return The type of this texture.
    */
-  TextureType type() const { return m_type; }
+  TextureType type() const { return m_params.type; }
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
@@ -253,13 +253,13 @@ public:
   Ref<Image> data(const TextureImage& image);
   /*! @return The sampler filter mode of this texture.
    */
-  FilterMode filterMode() const { return m_filterMode; }
+  FilterMode filterMode() const { return m_params.filterMode; }
   /*! @return The sampler address wrapping mode of this texture.
    */
-  AddressMode addressMode() const { return m_addressMode; }
+  AddressMode addressMode() const { return m_params.addressMode; }
   /*! @return The maximum anisotropy of this texture.
    */
-  float maxAnisotropy() const { return m_maxAnisotropy; }
+  float maxAnisotropy() const { return m_params.maxAnisotropy; }
   /*! @return The image format of this texture.
    */
   const PixelFormat& format() const { return m_format; }
@@ -281,21 +281,20 @@ public:
                            const TextureParams& params,
                            const String& imageName);
 private:
-  Texture(const ResourceInfo& info, RenderContext& context);
+  Texture(const ResourceInfo& info,
+          RenderContext& context,
+          const TextureParams& params);
   Texture(const Texture&) = delete;
-  bool init(const TextureParams& params, const TextureData& data);
+  bool init(const TextureData& data);
   void retrieveSizes();
   uint retrieveTargetSizes(uint target, CubeFace face);
   void attach(int attachment, const TextureImage& image, uint z);
   void detach(int attachment);
   Texture& operator = (const Texture&) = delete;
   RenderContext& m_context;
-  TextureType m_type;
+  const TextureParams m_params;
   uint m_textureID;
   uint m_levels;
-  FilterMode m_filterMode;
-  AddressMode m_addressMode;
-  float m_maxAnisotropy;
   PixelFormat m_format;
   std::vector<uvec3> m_sizes;
   size_t m_size;
