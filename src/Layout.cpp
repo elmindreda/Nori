@@ -69,14 +69,22 @@ void Layout::setBorderSize(float newSize)
   update();
 }
 
+void Layout::onChildAdded(Widget& child)
+{
+  update();
+  Widget::onChildAdded(child);
+}
+
 void Layout::onChildDesiredSizeChanged(Widget& child)
 {
   update();
+  Widget::onChildDesiredSizeChanged(child);
 }
 
 void Layout::onChildRemoved(Widget& child)
 {
   update();
+  Widget::onChildRemoved(child);
 }
 
 void Layout::onAreaChanged()

@@ -51,6 +51,7 @@ public:
   float borderSize() const { return m_borderSize; }
   void setBorderSize(float newSize);
 protected:
+  void onChildAdded(Widget& child) override;
   void onChildDesiredSizeChanged(Widget& child) override;
   void onChildRemoved(Widget& child) override;
   void onAreaChanged() override;
