@@ -31,16 +31,24 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+enum LayoutMode
+{
+  LAYOUT_COVER_PARENT,
+  LAYOUT_FIXED_SIZE
+};
+
+///////////////////////////////////////////////////////////////////////
+
 /*! @ingroup ui
  */
 class Layout : public Widget
 {
 public:
-  Layout(Layer& layer, Orientation orientation, bool expanding = true);
-  Layout(Widget& parent, Orientation orientation, bool expanding = true);
-  bool isExpanding() const;
-  Orientation orientation() const;
-  float borderSize() const;
+  Layout(Layer& layer, Orientation orientation, LayoutMode mode = LAYOUT_COVER_PARENT);
+  Layout(Widget& parent, Orientation orientation, LayoutMode mode = LAYOUT_COVER_PARENT);
+  LayoutMode mode() const { return m_mode; }
+  Orientation orientation() const { return m_orientation; }
+  float borderSize() const { return m_borderSize; }
   void setBorderSize(float newSize);
 protected:
   void onChildDesiredSizeChanged(Widget& child) override;
@@ -52,7 +60,7 @@ private:
   void update();
   float m_borderSize;
   Orientation m_orientation;
-  bool m_expanding;
+  LayoutMode m_mode;
 };
 
 ///////////////////////////////////////////////////////////////////////

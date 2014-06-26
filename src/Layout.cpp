@@ -37,45 +37,30 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(Layer& layer, Orientation orientation, bool expanding):
+Layout::Layout(Layer& layer, Orientation orientation, LayoutMode mode):
   Widget(layer),
   m_borderSize(0.f),
   m_orientation(orientation),
-  m_expanding(expanding)
+  m_mode(mode)
 {
-  if (expanding)
+  if (m_mode == LAYOUT_COVER_PARENT)
   {
     layer.sizeChangedSignal().connect(*this, &Layout::onSizeChanged);
     onSizeChanged(layer);
   }
 }
 
-Layout::Layout(Widget& parent, Orientation orientation, bool expanding):
+Layout::Layout(Widget& parent, Orientation orientation, LayoutMode mode):
   Widget(parent),
   m_borderSize(0.f),
   m_orientation(orientation),
-  m_expanding(expanding)
+  m_mode(mode)
 {
-  if (expanding)
+  if (m_mode == LAYOUT_COVER_PARENT)
   {
     parent.areaChangedSignal().connect(*this, &Layout::onAreaChanged);
     onAreaChanged(parent);
   }
-}
-
-bool Layout::isExpanding() const
-{
-  return m_expanding;
-}
-
-Orientation Layout::orientation() const
-{
-  return m_orientation;
-}
-
-float Layout::borderSize() const
-{
-  return m_borderSize;
 }
 
 void Layout::setBorderSize(float newSize)
