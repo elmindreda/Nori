@@ -142,7 +142,7 @@ private:
  *
  *  This class provides drawing for widgets.
  */
-class Drawer : public RefObject
+class Drawer
 {
 public:
   void begin();
@@ -193,7 +193,7 @@ public:
   Font& currentFont();
   void setCurrentFont(Font* newFont);
   float currentEM() const;
-  static Ref<Drawer> create(RenderContext& context);
+  static Drawer* create(RenderContext& context);
 private:
   Drawer(RenderContext& context);
   bool init();

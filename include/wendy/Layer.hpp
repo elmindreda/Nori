@@ -70,6 +70,8 @@ public:
   void captureCursor();
   void releaseCursor();
   void cancelDragging();
+  void activatePrevWidget();
+  void activateNextWidget();
   void invalidate();
   virtual bool isOpaque() const;
   bool hasCapturedCursor() const;
@@ -89,6 +91,7 @@ public:
   SignalProxy<void, Layer&> sizeChangedSignal();
 private:
   void updateHoveredWidget();
+  void activateWidget(int offset);
   void removedWidget(Widget& widget);
   void focusableWidgets(std::vector<Widget*>& target,
                         const std::vector<Widget*>& source) const;

@@ -132,6 +132,16 @@ void Layer::cancelDragging()
   m_draggedWidget = nullptr;
 }
 
+void Layer::activatePrevWidget()
+{
+  activateWidget(-1);
+}
+
+void Layer::activateNextWidget()
+{
+  activateWidget(1);
+}
+
 void Layer::invalidate()
 {
   m_window.invalidate();
@@ -223,6 +233,21 @@ void Layer::updateHoveredWidget()
   }
 }
 
+void Layer::activateWidget(int offset)
+{
+  std::vector<Widget*> focusable;
+  focusableWidgets(focusable, m_roots);
+
+  if (!focusable.empty())
+  {
+    auto i = std::find(focusable.begin(), focusable.end(), m_activeWidget);
+    const size_t count = focusable.size();
+    const size_t index = i - focusable.begin();
+
+    focusable[(index + count + offset) % count]->activate();
+  }
+}
+
 void Layer::removedWidget(Widget& widget)
 {
   if (m_activeWidget)
@@ -274,20 +299,10 @@ void Layer::onKey(Key key, Action action, uint mods)
 {
   if (key == KEY_TAB && action == PRESSED)
   {
-    std::vector<Widget*> focusable;
-    focusableWidgets(focusable, m_roots);
-
-    if (!focusable.empty())
-    {
-      auto i = std::find(focusable.begin(), focusable.end(), m_activeWidget);
-      const size_t count = focusable.size();
-      const size_t index = i - focusable.begin();
-
-      if (mods & MOD_SHIFT)
-        focusable[(index + count - 1) % count]->activate();
-      else
-        focusable[(index + 1) % count]->activate();
-    }
+    if (mods & MOD_SHIFT)
+      activatePrevWidget();
+    else
+      activateNextWidget();
   }
   else
   {

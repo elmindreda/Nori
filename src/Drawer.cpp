@@ -491,13 +491,13 @@ float Drawer::currentEM() const
   return m_font->height();
 }
 
-Ref<Drawer> Drawer::create(RenderContext& context)
+Drawer* Drawer::create(RenderContext& context)
 {
-  Ref<Drawer> drawer(new Drawer(context));
+  std::unique_ptr<Drawer> drawer(new Drawer(context));
   if (!drawer->init())
     return nullptr;
 
-  return drawer;
+  return drawer.release();
 }
 
 Drawer::Drawer(RenderContext& context):
