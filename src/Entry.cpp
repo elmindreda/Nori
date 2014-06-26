@@ -197,12 +197,14 @@ void Entry::onTextChanged()
 {
   m_timer.start();
   m_textChangedSignal(*this);
+  invalidate();
 }
 
 void Entry::onCaretMoved()
 {
   m_timer.start();
   m_caretMovedSignal(*this);
+  invalidate();
 }
 
 ///////////////////////////////////////////////////////////////////////
