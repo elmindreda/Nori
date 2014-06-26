@@ -335,7 +335,7 @@ void List::onMouseButton(vec2 point,
 
         if (m_selection == i)
         {
-          if (m_editable)
+          if (button == MOUSE_BUTTON_LEFT && m_editable)
             beginEditing();
         }
         else
