@@ -193,19 +193,19 @@ public:
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
-  SignalProxy<void, Widget&> destroyedSignal();
-  SignalProxy<void, Widget&> areaChangedSignal();
-  SignalProxy<void, Widget&, bool> focusChangedSignal();
-  SignalProxy<void, Widget&, Key, Action, uint> keySignal();
-  SignalProxy<void, Widget&, uint32, uint> characterSignal();
-  SignalProxy<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal();
-  SignalProxy<void, Widget&, vec2> scrollSignal();
-  SignalProxy<void, Widget&, vec2> cursorPosSignal();
-  SignalProxy<void, Widget&> cursorEnteredSignal();
-  SignalProxy<void, Widget&> cursorLeftSignal();
-  SignalProxy<void, Widget&, vec2> dragBegunSignal();
-  SignalProxy<void, Widget&, vec2> dragMovedSignal();
-  SignalProxy<void, Widget&, vec2> dragEndedSignal();
+  SignalProxy<void, Widget&> destroyedSignal() { return m_destroyedSignal; }
+  SignalProxy<void, Widget&> areaChangedSignal() { return m_areaChangedSignal; }
+  SignalProxy<void, Widget&, bool> focusChangedSignal() { return m_focusChangedSignal; }
+  SignalProxy<void, Widget&, Key, Action, uint> keySignal() { return m_keySignal; }
+  SignalProxy<void, Widget&, uint32, uint> characterSignal() { return m_characterSignal; }
+  SignalProxy<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal() { return m_mouseButtonSignal; }
+  SignalProxy<void, Widget&, vec2> scrollSignal() { return m_scrollSignal; }
+  SignalProxy<void, Widget&, vec2> cursorPosSignal() { return m_cursorPosSignal; }
+  SignalProxy<void, Widget&> cursorEnteredSignal() { return m_cursorEnteredSignal; }
+  SignalProxy<void, Widget&> cursorLeftSignal() { return m_cursorLeftSignal; }
+  SignalProxy<void, Widget&, vec2> dragBegunSignal() { return m_dragBegunSignal; }
+  SignalProxy<void, Widget&, vec2> dragMovedSignal() { return m_dragMovedSignal; }
+  SignalProxy<void, Widget&, vec2> dragEndedSignal() { return m_dragEndedSignal; }
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
