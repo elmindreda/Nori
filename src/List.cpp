@@ -161,7 +161,7 @@ void List::setEditable(bool newState)
 
   if (m_editable)
   {
-    m_entry = new Entry(layer());
+    m_entry = new Entry(*this);
     m_entry->hide();
     m_entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
     m_entry->keySignal().connect(*this, &List::onEntryKey);
@@ -447,7 +447,7 @@ void List::onEntryKey(Widget& widget, Key key, Action action, uint mods)
 
 void List::onEntryDestroyed(Widget& widget)
 {
-  cancelEditing();
+  m_editing = false;
   m_entry = nullptr;
 }
 
@@ -471,8 +471,6 @@ void List::beginEditing()
 
     for (uint i = m_offset;  i < m_selection;  i++)
       entryArea.position.y -= m_items[i]->height();
-
-    entryArea.position += area.position;
 
     const String& value = selected->value();
 

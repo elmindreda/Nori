@@ -67,8 +67,9 @@ Widget::Widget(Widget& parent):
 Widget::~Widget()
 {
   invalidate();
-  m_destroyedSignal(*this);
   destroyChildren();
+  m_destroyedSignal(*this);
+  m_layer.removeWidget(*this);
 
   std::vector<Widget*>* siblings;
 
@@ -78,7 +79,6 @@ Widget::~Widget()
     siblings = &(m_layer.m_roots);
 
   siblings->erase(std::find(siblings->begin(), siblings->end(), this));
-  m_layer.removedWidget(*this);
 }
 
 void Widget::destroyChildren()
@@ -132,6 +132,7 @@ void Widget::hide()
   if (m_visible)
   {
     m_visible = false;
+    m_layer.removeWidget(*this);
     invalidate();
   }
 }

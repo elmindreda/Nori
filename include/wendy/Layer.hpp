@@ -92,7 +92,7 @@ public:
 private:
   void updateHoveredWidget();
   void activateWidget(int offset);
-  void removedWidget(Widget& widget);
+  void removeWidget(Widget& widget);
   void focusableWidgets(std::vector<Widget*>& target,
                         const std::vector<Widget*>& source) const;
   void onWindowSize(uint width, uint height) override;

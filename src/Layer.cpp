@@ -165,16 +165,21 @@ vec2 Layer::cursorPoint() const
 
 void Layer::setActiveWidget(Widget* widget)
 {
-  if (m_activeWidget == widget)
-    return;
-
   if (widget)
   {
     assert(&(widget->m_layer) == this);
 
-    if (!widget->isVisible() || !widget->isEnabled())
-      return;
+    while (widget)
+    {
+      if (widget->isVisible() && widget->isEnabled())
+        break;
+
+      widget = widget->parent();
+    }
   }
+
+  if (m_activeWidget == widget)
+    return;
 
   if (m_captureWidget)
     releaseCursor();
@@ -248,7 +253,7 @@ void Layer::activateWidget(int offset)
   }
 }
 
-void Layer::removedWidget(Widget& widget)
+void Layer::removeWidget(Widget& widget)
 {
   if (m_activeWidget)
   {
