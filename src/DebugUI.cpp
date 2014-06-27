@@ -94,7 +94,7 @@ Interface::Interface(Window& window, Drawer& drawer):
   root = new Panel(*this);
   root->setArea(Rect(0.f, 0.f, 150.f, 220.f));
 
-  Layout* layout = new Layout(*root, VERTICAL);
+  Layout* layout = new Layout(*root, VERTICAL, COVER_PARENT);
   layout->setBorderSize(2.f);
 
   for (size_t i = 0;  i < ITEM_COUNT;  i++)

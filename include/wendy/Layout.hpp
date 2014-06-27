@@ -33,8 +33,8 @@ namespace wendy
 
 enum LayoutMode
 {
-  LAYOUT_COVER_PARENT,
-  LAYOUT_FIXED_SIZE
+  COVER_PARENT,
+  STATIC_SIZE
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -44,8 +44,8 @@ enum LayoutMode
 class Layout : public Widget
 {
 public:
-  Layout(Layer& layer, Orientation orientation, LayoutMode mode = LAYOUT_COVER_PARENT);
-  Layout(Widget& parent, Orientation orientation, LayoutMode mode = LAYOUT_COVER_PARENT);
+  Layout(Layer& layer, Orientation orientation, LayoutMode mode);
+  Layout(Widget& parent, Orientation orientation, LayoutMode mode);
   LayoutMode mode() const { return m_mode; }
   Orientation orientation() const { return m_orientation; }
   float borderSize() const { return m_borderSize; }

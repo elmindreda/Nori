@@ -43,7 +43,7 @@ Layout::Layout(Layer& layer, Orientation orientation, LayoutMode mode):
   m_orientation(orientation),
   m_mode(mode)
 {
-  if (m_mode == LAYOUT_COVER_PARENT)
+  if (m_mode == COVER_PARENT)
   {
     layer.sizeChangedSignal().connect(*this, &Layout::onSizeChanged);
     onSizeChanged(layer);
@@ -56,7 +56,7 @@ Layout::Layout(Widget& parent, Orientation orientation, LayoutMode mode):
   m_orientation(orientation),
   m_mode(mode)
 {
-  if (m_mode == LAYOUT_COVER_PARENT)
+  if (m_mode == COVER_PARENT)
   {
     parent.areaChangedSignal().connect(*this, &Layout::onAreaChanged);
     onAreaChanged(parent);
