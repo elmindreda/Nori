@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.0 - www.glfw.org
+// GLFW 3.1 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -87,21 +87,21 @@ static GLboolean parseGLVersion(int* api, int* major, int* minor, int* rev)
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
+GLboolean _glfwIsValidContextConfig(const _GLFWctxconfig* ctxconfig)
 {
-    if (wndconfig->clientAPI != GLFW_OPENGL_API &&
-        wndconfig->clientAPI != GLFW_OPENGL_ES_API)
+    if (ctxconfig->api != GLFW_OPENGL_API &&
+        ctxconfig->api != GLFW_OPENGL_ES_API)
     {
         _glfwInputError(GLFW_INVALID_ENUM, "Invalid client API requested");
         return GL_FALSE;
     }
 
-    if (wndconfig->clientAPI == GLFW_OPENGL_API)
+    if (ctxconfig->api == GLFW_OPENGL_API)
     {
-        if (wndconfig->glMajor < 1 || wndconfig->glMinor < 0 ||
-            (wndconfig->glMajor == 1 && wndconfig->glMinor > 5) ||
-            (wndconfig->glMajor == 2 && wndconfig->glMinor > 1) ||
-            (wndconfig->glMajor == 3 && wndconfig->glMinor > 3))
+        if ((ctxconfig->major < 1 || ctxconfig->minor < 0) ||
+            (ctxconfig->major == 1 && ctxconfig->minor > 5) ||
+            (ctxconfig->major == 2 && ctxconfig->minor > 1) ||
+            (ctxconfig->major == 3 && ctxconfig->minor > 3))
         {
             // OpenGL 1.0 is the smallest valid version
             // OpenGL 1.x series ended with version 1.5
@@ -110,7 +110,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
 
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Invalid OpenGL version %i.%i requested",
-                            wndconfig->glMajor, wndconfig->glMinor);
+                            ctxconfig->major, ctxconfig->minor);
             return GL_FALSE;
         }
         else
@@ -118,18 +118,18 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             // For now, let everything else through
         }
 
-        if (wndconfig->glProfile)
+        if (ctxconfig->profile)
         {
-            if (wndconfig->glProfile != GLFW_OPENGL_CORE_PROFILE &&
-                wndconfig->glProfile != GLFW_OPENGL_COMPAT_PROFILE)
+            if (ctxconfig->profile != GLFW_OPENGL_CORE_PROFILE &&
+                ctxconfig->profile != GLFW_OPENGL_COMPAT_PROFILE)
             {
                 _glfwInputError(GLFW_INVALID_ENUM,
                                 "Invalid OpenGL profile requested");
                 return GL_FALSE;
             }
 
-            if (wndconfig->glMajor < 3 ||
-                (wndconfig->glMajor == 3 && wndconfig->glMinor < 2))
+            if (ctxconfig->major < 3 ||
+                (ctxconfig->major == 3 && ctxconfig->minor < 2))
             {
                 // Desktop OpenGL context profiles are only defined for version 3.2
                 // and above
@@ -141,7 +141,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             }
         }
 
-        if (wndconfig->glForward && wndconfig->glMajor < 3)
+        if (ctxconfig->forward && ctxconfig->major < 3)
         {
             // Forward-compatible contexts are only defined for OpenGL version 3.0 and above
             _glfwInputError(GLFW_INVALID_VALUE,
@@ -150,11 +150,11 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             return GL_FALSE;
         }
     }
-    else if (wndconfig->clientAPI == GLFW_OPENGL_ES_API)
+    else if (ctxconfig->api == GLFW_OPENGL_ES_API)
     {
-        if (wndconfig->glMajor < 1 || wndconfig->glMinor < 0 ||
-            (wndconfig->glMajor == 1 && wndconfig->glMinor > 1) ||
-            (wndconfig->glMajor == 2 && wndconfig->glMinor > 0))
+        if (ctxconfig->major < 1 || ctxconfig->minor < 0 ||
+            (ctxconfig->major == 1 && ctxconfig->minor > 1) ||
+            (ctxconfig->major == 2 && ctxconfig->minor > 0))
         {
             // OpenGL ES 1.0 is the smallest valid version
             // OpenGL ES 1.x series ended with version 1.1
@@ -162,7 +162,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
 
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Invalid OpenGL ES version %i.%i requested",
-                            wndconfig->glMajor, wndconfig->glMinor);
+                            ctxconfig->major, ctxconfig->minor);
             return GL_FALSE;
         }
         else
@@ -170,7 +170,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             // For now, let everything else through
         }
 
-        if (wndconfig->glProfile)
+        if (ctxconfig->profile)
         {
             // OpenGL ES does not support profiles
             _glfwInputError(GLFW_INVALID_VALUE,
@@ -178,7 +178,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             return GL_FALSE;
         }
 
-        if (wndconfig->glForward)
+        if (ctxconfig->forward)
         {
             // OpenGL ES does not support forward-compatibility
             _glfwInputError(GLFW_INVALID_VALUE,
@@ -187,10 +187,10 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
         }
     }
 
-    if (wndconfig->glRobustness)
+    if (ctxconfig->robustness)
     {
-        if (wndconfig->glRobustness != GLFW_NO_RESET_NOTIFICATION &&
-            wndconfig->glRobustness != GLFW_LOSE_CONTEXT_ON_RESET)
+        if (ctxconfig->robustness != GLFW_NO_RESET_NOTIFICATION &&
+            ctxconfig->robustness != GLFW_LOSE_CONTEXT_ON_RESET)
         {
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Invalid context robustness mode requested");
@@ -222,6 +222,12 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
             continue;
         }
 
+        if (desired->doublebuffer != current->doublebuffer)
+        {
+            // Double buffering is a hard constraint
+            continue;
+        }
+
         // Count number of missing buffers
         {
             missing = 0;
@@ -235,8 +241,11 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
             if (desired->stencilBits > 0 && current->stencilBits == 0)
                 missing++;
 
-            if (desired->auxBuffers > 0 && current->auxBuffers < desired->auxBuffers)
+            if (desired->auxBuffers > 0 &&
+                current->auxBuffers < desired->auxBuffers)
+            {
                 missing += desired->auxBuffers - current->auxBuffers;
+            }
 
             if (desired->samples > 0 && current->samples == 0)
             {
@@ -254,19 +263,19 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
         {
             colorDiff = 0;
 
-            if (desired->redBits > 0)
+            if (desired->redBits != GLFW_DONT_CARE)
             {
                 colorDiff += (desired->redBits - current->redBits) *
                              (desired->redBits - current->redBits);
             }
 
-            if (desired->greenBits > 0)
+            if (desired->greenBits != GLFW_DONT_CARE)
             {
                 colorDiff += (desired->greenBits - current->greenBits) *
                              (desired->greenBits - current->greenBits);
             }
 
-            if (desired->blueBits > 0)
+            if (desired->blueBits != GLFW_DONT_CARE)
             {
                 colorDiff += (desired->blueBits - current->blueBits) *
                              (desired->blueBits - current->blueBits);
@@ -277,59 +286,56 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
         {
             extraDiff = 0;
 
-            if (desired->alphaBits > 0)
+            if (desired->alphaBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->alphaBits - current->alphaBits) *
                              (desired->alphaBits - current->alphaBits);
             }
 
-            if (desired->depthBits > 0)
+            if (desired->depthBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->depthBits - current->depthBits) *
                              (desired->depthBits - current->depthBits);
             }
 
-            if (desired->stencilBits > 0)
+            if (desired->stencilBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->stencilBits - current->stencilBits) *
                              (desired->stencilBits - current->stencilBits);
             }
 
-            if (desired->accumRedBits > 0)
+            if (desired->accumRedBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->accumRedBits - current->accumRedBits) *
                              (desired->accumRedBits - current->accumRedBits);
             }
 
-            if (desired->accumGreenBits > 0)
+            if (desired->accumGreenBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->accumGreenBits - current->accumGreenBits) *
                              (desired->accumGreenBits - current->accumGreenBits);
             }
 
-            if (desired->accumBlueBits > 0)
+            if (desired->accumBlueBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->accumBlueBits - current->accumBlueBits) *
                              (desired->accumBlueBits - current->accumBlueBits);
             }
 
-            if (desired->accumAlphaBits > 0)
+            if (desired->accumAlphaBits != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->accumAlphaBits - current->accumAlphaBits) *
                              (desired->accumAlphaBits - current->accumAlphaBits);
             }
 
-            if (desired->samples > 0)
+            if (desired->samples != GLFW_DONT_CARE)
             {
                 extraDiff += (desired->samples - current->samples) *
                              (desired->samples - current->samples);
             }
 
-            if (desired->sRGB)
-            {
-                if (!current->sRGB)
-                    extraDiff++;
-            }
+            if (desired->sRGB && !current->sRGB)
+                extraDiff++;
         }
 
         // Figure out if the current one is better than the best one found so far
@@ -358,20 +364,20 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
     return closest;
 }
 
-GLboolean _glfwRefreshContextAttribs(void)
+GLboolean _glfwRefreshContextAttribs(const _GLFWctxconfig* ctxconfig)
 {
     _GLFWwindow* window = _glfwPlatformGetCurrentContext();
 
-    if (!parseGLVersion(&window->clientAPI,
-                        &window->glMajor,
-                        &window->glMinor,
-                        &window->glRevision))
+    if (!parseGLVersion(&window->context.api,
+                        &window->context.major,
+                        &window->context.minor,
+                        &window->context.revision))
     {
         return GL_FALSE;
     }
 
 #if defined(_GLFW_USE_OPENGL)
-    if (window->glMajor > 2)
+    if (window->context.major > 2)
     {
         // OpenGL 3.0+ uses a different function for extension string retrieval
         // We cache it here instead of in glfwExtensionSupported mostly to alert
@@ -386,54 +392,63 @@ GLboolean _glfwRefreshContextAttribs(void)
         }
     }
 
-    if (window->clientAPI == GLFW_OPENGL_API)
+    if (window->context.api == GLFW_OPENGL_API)
     {
         // Read back context flags (OpenGL 3.0 and above)
-        if (window->glMajor >= 3)
+        if (window->context.major >= 3)
         {
             GLint flags;
             glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 
             if (flags & GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT)
-                window->glForward = GL_TRUE;
+                window->context.forward = GL_TRUE;
 
             if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-                window->glDebug = GL_TRUE;
-            else if (glfwExtensionSupported("GL_ARB_debug_output"))
+                window->context.debug = GL_TRUE;
+            else if (glfwExtensionSupported("GL_ARB_debug_output") &&
+                     ctxconfig->debug)
             {
                 // HACK: This is a workaround for older drivers (pre KHR_debug)
-                // not setting the debug bit in the context flags for debug
-                // contexts
-                window->glDebug = GL_TRUE;
+                //       not setting the debug bit in the context flags for
+                //       debug contexts
+                window->context.debug = GL_TRUE;
             }
         }
 
         // Read back OpenGL context profile (OpenGL 3.2 and above)
-        if (window->glMajor > 3 ||
-            (window->glMajor == 3 && window->glMinor >= 2))
+        if (window->context.major > 3 ||
+            (window->context.major == 3 && window->context.minor >= 2))
         {
             GLint mask;
             glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &mask);
 
             if (mask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
-                window->glProfile = GLFW_OPENGL_COMPAT_PROFILE;
+                window->context.profile = GLFW_OPENGL_COMPAT_PROFILE;
             else if (mask & GL_CONTEXT_CORE_PROFILE_BIT)
-                window->glProfile = GLFW_OPENGL_CORE_PROFILE;
+                window->context.profile = GLFW_OPENGL_CORE_PROFILE;
+            else if (glfwExtensionSupported("GL_ARB_compatibility"))
+            {
+                // HACK: This is a workaround for the compatibility profile bit
+                //       not being set in the context flags if an OpenGL 3.2+
+                //       context was created without having requested a specific
+                //       version
+                window->context.profile = GLFW_OPENGL_COMPAT_PROFILE;
+            }
         }
 
         // Read back robustness strategy
         if (glfwExtensionSupported("GL_ARB_robustness"))
         {
             // NOTE: We avoid using the context flags for detection, as they are
-            // only present from 3.0 while the extension applies from 1.1
+            //       only present from 3.0 while the extension applies from 1.1
 
             GLint strategy;
             glGetIntegerv(GL_RESET_NOTIFICATION_STRATEGY_ARB, &strategy);
 
             if (strategy == GL_LOSE_CONTEXT_ON_RESET_ARB)
-                window->glRobustness = GLFW_LOSE_CONTEXT_ON_RESET;
+                window->context.robustness = GLFW_LOSE_CONTEXT_ON_RESET;
             else if (strategy == GL_NO_RESET_NOTIFICATION_ARB)
-                window->glRobustness = GLFW_NO_RESET_NOTIFICATION;
+                window->context.robustness = GLFW_NO_RESET_NOTIFICATION;
         }
     }
     else
@@ -442,15 +457,15 @@ GLboolean _glfwRefreshContextAttribs(void)
         if (glfwExtensionSupported("GL_EXT_robustness"))
         {
             // NOTE: The values of these constants match those of the OpenGL ARB
-            // one, so we can reuse them here
+            //       one, so we can reuse them here
 
             GLint strategy;
             glGetIntegerv(GL_RESET_NOTIFICATION_STRATEGY_ARB, &strategy);
 
             if (strategy == GL_LOSE_CONTEXT_ON_RESET_ARB)
-                window->glRobustness = GLFW_LOSE_CONTEXT_ON_RESET;
+                window->context.robustness = GLFW_LOSE_CONTEXT_ON_RESET;
             else if (strategy == GL_NO_RESET_NOTIFICATION_ARB)
-                window->glRobustness = GLFW_NO_RESET_NOTIFICATION;
+                window->context.robustness = GLFW_NO_RESET_NOTIFICATION;
         }
     }
 #endif // _GLFW_USE_OPENGL
@@ -458,13 +473,13 @@ GLboolean _glfwRefreshContextAttribs(void)
     return GL_TRUE;
 }
 
-GLboolean _glfwIsValidContext(_GLFWwndconfig* wndconfig)
+GLboolean _glfwIsValidContext(const _GLFWctxconfig* ctxconfig)
 {
     _GLFWwindow* window = _glfwPlatformGetCurrentContext();
 
-    if (window->glMajor < wndconfig->glMajor ||
-        (window->glMajor == wndconfig->glMajor &&
-         window->glMinor < wndconfig->glMinor))
+    if (window->context.major < ctxconfig->major ||
+        (window->context.major == ctxconfig->major &&
+         window->context.minor < ctxconfig->minor))
     {
         // The desired OpenGL version is greater than the actual version
         // This only happens if the machine lacks {GLX|WGL}_ARB_create_context
@@ -566,22 +581,26 @@ GLFWAPI int glfwExtensionSupported(const char* extension)
         return GL_FALSE;
     }
 
-    if (extension == NULL || *extension == '\0')
+    if (!extension || *extension == '\0')
     {
         _glfwInputError(GLFW_INVALID_VALUE, NULL);
         return GL_FALSE;
     }
 
-    if (window->glMajor < 3)
+    if (window->context.major < 3)
     {
         // Check if extension is in the old style OpenGL extensions string
 
         extensions = glGetString(GL_EXTENSIONS);
-        if (extensions != NULL)
+        if (!extensions)
         {
-            if (_glfwStringInExtensionString(extension, extensions))
-                return GL_TRUE;
+            _glfwInputError(GLFW_PLATFORM_ERROR,
+                            "Failed to retrieve extension string");
+            return GL_FALSE;
         }
+
+        if (_glfwStringInExtensionString(extension, extensions))
+            return GL_TRUE;
     }
 #if defined(_GLFW_USE_OPENGL)
     else
@@ -595,11 +614,16 @@ GLFWAPI int glfwExtensionSupported(const char* extension)
 
         for (i = 0;  i < count;  i++)
         {
-             if (strcmp((const char*) window->GetStringi(GL_EXTENSIONS, i),
-                         extension) == 0)
-             {
-                 return GL_TRUE;
-             }
+            const char* en = (const char*) window->GetStringi(GL_EXTENSIONS, i);
+            if (!en)
+            {
+                _glfwInputError(GLFW_PLATFORM_ERROR,
+                                "Failed to retrieve extension string %i", i);
+                return GL_FALSE;
+            }
+
+            if (strcmp(en, extension) == 0)
+                return GL_TRUE;
         }
     }
 #endif // _GLFW_USE_OPENGL

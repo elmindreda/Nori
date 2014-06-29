@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.0 OS X - www.glfw.org
+// GLFW 3.1 OS X - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -37,20 +37,21 @@
 typedef void* id;
 #endif
 
+#include "posix_tls.h"
+
 #if defined(_GLFW_NSGL)
- #include "nsgl_platform.h"
+ #include "nsgl_context.h"
 #else
  #error "No supported context creation API selected"
 #endif
 
-#include <IOKit/IOKitLib.h>
-#include <IOKit/IOCFPlugIn.h>
-#include <IOKit/hid/IOHIDLib.h>
-#include <IOKit/hid/IOHIDKeys.h>
+#include "iokit_joystick.h"
 
 #define _GLFW_PLATFORM_WINDOW_STATE         _GLFWwindowNS  ns
 #define _GLFW_PLATFORM_LIBRARY_WINDOW_STATE _GLFWlibraryNS ns
+#define _GLFW_PLATFORM_LIBRARY_TIME_STATE   _GLFWtimeNS    ns_time
 #define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorNS ns
+#define _GLFW_PLATFORM_CURSOR_STATE         _GLFWcursorNS  ns
 
 
 //========================================================================
@@ -67,27 +68,8 @@ typedef struct _GLFWwindowNS
     id	            delegate;
     id              view;
     unsigned int    modifierFlags;
+    int             cursorInside;
 } _GLFWwindowNS;
-
-
-//------------------------------------------------------------------------
-// Joystick information & state
-//------------------------------------------------------------------------
-typedef struct
-{
-    int             present;
-    char            name[256];
-
-    IOHIDDeviceInterface** interface;
-
-    CFMutableArrayRef axisElements;
-    CFMutableArrayRef buttonElements;
-    CFMutableArrayRef hatElements;
-
-    float*          axes;
-    unsigned char*  buttons;
-
-} _GLFWjoy;
 
 
 //------------------------------------------------------------------------
@@ -95,21 +77,13 @@ typedef struct
 //------------------------------------------------------------------------
 typedef struct _GLFWlibraryNS
 {
-    struct {
-        double      base;
-        double      resolution;
-    } timer;
-
     CGEventSourceRef eventSource;
     id              delegate;
     id              autoreleasePool;
     id              cursor;
 
-    GLboolean       cursorHidden;
-
     char*           clipboardString;
 
-    _GLFWjoy        joysticks[GLFW_JOYSTICK_LAST + 1];
 } _GLFWlibraryNS;
 
 
@@ -125,6 +99,25 @@ typedef struct _GLFWmonitorNS
 } _GLFWmonitorNS;
 
 
+//------------------------------------------------------------------------
+// Platform-specific cursor structure
+//------------------------------------------------------------------------
+typedef struct _GLFWcursorNS
+{
+    id                  object;
+} _GLFWcursorNS;
+
+
+//------------------------------------------------------------------------
+// Platform-specific time structure
+//------------------------------------------------------------------------
+typedef struct _GLFWtimeNS
+{
+        double      base;
+        double      resolution;
+} _GLFWtimeNS;
+
+
 //========================================================================
 // Prototypes for platform specific internal functions
 //========================================================================
@@ -132,20 +125,8 @@ typedef struct _GLFWmonitorNS
 // Time
 void _glfwInitTimer(void);
 
-// Joystick input
-void _glfwInitJoysticks(void);
-void _glfwTerminateJoysticks(void);
-
 // Fullscreen
 GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired);
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
-
-// OpenGL support
-int _glfwInitContextAPI(void);
-void _glfwTerminateContextAPI(void);
-int _glfwCreateContext(_GLFWwindow* window,
-                       const _GLFWwndconfig* wndconfig,
-                       const _GLFWfbconfig* fbconfig);
-void _glfwDestroyContext(_GLFWwindow* window);
 
 #endif // _cocoa_platform_h_

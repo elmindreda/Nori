@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.0 - www.glfw.org
+// GLFW 3.1 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -29,10 +29,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-
-#if defined(_MSC_VER)
- #include <malloc.h>
-#endif
 
 
 //////////////////////////////////////////////////////////////////////////

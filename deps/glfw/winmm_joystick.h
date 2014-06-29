@@ -1,8 +1,7 @@
 //========================================================================
-// GLFW 3.1 - www.glfw.org
+// GLFW 3.1 WinMM - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2006-2014 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -25,22 +24,33 @@
 //
 //========================================================================
 
-#include "internal.h"
+#ifndef _winmm_joystick_h_
+#define _winmm_joystick_h_
+
+#define _GLFW_PLATFORM_LIBRARY_JOYSTICK_STATE \
+    _GLFWjoystickWinMM winmm_js[GLFW_JOYSTICK_LAST + 1]
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+//========================================================================
+// GLFW platform specific types
+//========================================================================
 
-GLFWAPI double glfwGetTime(void)
+//------------------------------------------------------------------------
+// Platform-specific joystick structure
+//------------------------------------------------------------------------
+typedef struct _GLFWjoystickWinMM
 {
-    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
-    return _glfwPlatformGetTime();
-}
+    float           axes[6];
+    unsigned char   buttons[36]; // 32 buttons plus one hat
+    char*           name;
+} _GLFWjoystickWinMM;
 
-GLFWAPI void glfwSetTime(double time)
-{
-    _GLFW_REQUIRE_INIT();
-    _glfwPlatformSetTime(time);
-}
 
+//========================================================================
+// Prototypes for platform specific internal functions
+//========================================================================
+
+void _glfwInitJoysticks(void);
+void _glfwTerminateJoysticks(void);
+
+#endif // _winmm_joystick_h_

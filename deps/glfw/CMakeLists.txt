@@ -67,6 +67,13 @@ if (_GLFW_X11)
   list(APPEND glfw_INCLUDE_DIRS ${X11_Xi_INCLUDE_PATH})
   list(APPEND glfw_LIBRARIES ${X11_Xi_LIB})
 
+  if (NOT X11_Xcursor_FOUND)
+    message(FATAL_ERROR "The Xcursor library and headers were not found")
+  endif()
+
+  list(APPEND glfw_INCLUDE_DIRS ${X11_Xcursor_INCLUDE_PATH})
+  list(APPEND glfw_LIBRARIES ${X11_Xcursor_LIB})
+
   if (NOT X11_Xkb_FOUND)
     message(FATAL_ERROR "The X keyboard extension headers were not found")
   endif() 
@@ -113,8 +120,9 @@ endif()
 
 set(GLFW_LIBRARIES ${glfw_LIBRARIES} CACHE STRING "Dependencies of GLFW")
 
-configure_file(${GLFW_SOURCE_DIR}/config.h.in 
-               ${GLFW_BINARY_DIR}/config.h @ONLY)
+add_definitions(-D_GLFW_USE_CONFIG_H)
+configure_file(${GLFW_SOURCE_DIR}/glfw_config.h.in 
+               ${GLFW_BINARY_DIR}/glfw_config.h @ONLY)
 
 include_directories(${GLFW_SOURCE_DIR}
                     ${GLFW_BINARY_DIR}
@@ -129,20 +137,20 @@ set(common_SOURCES clipboard.c context.c gamma.c init.c input.c joystick.c
                    monitor.c time.c window.c)
 
 if (_GLFW_COCOA)
-    set(glfw_HEADERS ${common_HEADERS} cocoa_platform.h)
+    set(glfw_HEADERS ${common_HEADERS} cocoa_platform.h iokit_joystick.h posix_tls.h)
     set(glfw_SOURCES ${common_SOURCES} cocoa_clipboard.m cocoa_gamma.c
-                     cocoa_init.m cocoa_joystick.m cocoa_monitor.m cocoa_time.c
-                     cocoa_window.m)
+                     cocoa_init.m cocoa_monitor.m cocoa_window.m
+                     iokit_joystick.m mach_time.c posix_tls.c)
 elseif (_GLFW_WIN32)
-    set(glfw_HEADERS ${common_HEADERS} win32_platform.h)
+    set(glfw_HEADERS ${common_HEADERS} win32_platform.h winmm_joystick.h)
     set(glfw_SOURCES ${common_SOURCES} win32_clipboard.c win32_gamma.c
-                     win32_init.c win32_joystick.c win32_monitor.c win32_time.c
-                     win32_window.c)
+                     win32_init.c win32_monitor.c win32_time.c win32_window.c
+                     winmm_joystick.c win32_tls.c)
 elseif (_GLFW_X11)
-    set(glfw_HEADERS ${common_HEADERS} x11_platform.h)
+    set(glfw_HEADERS ${common_HEADERS} x11_platform.h linux_joystick.h)
     set(glfw_SOURCES ${common_SOURCES} x11_clipboard.c x11_gamma.c x11_init.c
-                     x11_joystick.c x11_monitor.c x11_time.c x11_window.c
-                     x11_unicode.c)
+                     x11_monitor.c x11_window.c x11_unicode.c
+                     linux_joystick.c posix_time.c posix_tls.c)
 endif()
 
 if (_GLFW_NSGL)

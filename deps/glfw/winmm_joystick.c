@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.0 Win32 - www.glfw.org
+// GLFW 3.1 WinMM - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -63,7 +63,7 @@ void _glfwTerminateJoysticks(void)
     int i;
 
     for (i = 0;  i < GLFW_JOYSTICK_LAST;  i++)
-        free(_glfw.win32.joystick[i].name);
+        free(_glfw.winmm_js[i].name);
 }
 
 
@@ -85,7 +85,7 @@ const float* _glfwPlatformGetJoystickAxes(int joy, int* count)
 {
     JOYCAPS jc;
     JOYINFOEX ji;
-    float* axes = _glfw.win32.joystick[joy].axes;
+    float* axes = _glfw.winmm_js[joy].axes;
 
     if (_glfw_joyGetDevCaps(joy, &jc, sizeof(JOYCAPS)) != JOYERR_NOERROR)
         return NULL;
@@ -97,7 +97,7 @@ const float* _glfwPlatformGetJoystickAxes(int joy, int* count)
         return NULL;
 
     axes[(*count)++] = calcJoystickPos(ji.dwXpos, jc.wXmin, jc.wXmax);
-    axes[(*count)++] = -calcJoystickPos(ji.dwYpos, jc.wYmin, jc.wYmax);
+    axes[(*count)++] = calcJoystickPos(ji.dwYpos, jc.wYmin, jc.wYmax);
 
     if (jc.wCaps & JOYCAPS_HASZ)
         axes[(*count)++] = calcJoystickPos(ji.dwZpos, jc.wZmin, jc.wZmax);
@@ -109,7 +109,7 @@ const float* _glfwPlatformGetJoystickAxes(int joy, int* count)
         axes[(*count)++] = calcJoystickPos(ji.dwUpos, jc.wUmin, jc.wUmax);
 
     if (jc.wCaps & JOYCAPS_HASV)
-        axes[(*count)++] = -calcJoystickPos(ji.dwVpos, jc.wVmin, jc.wVmax);
+        axes[(*count)++] = calcJoystickPos(ji.dwVpos, jc.wVmin, jc.wVmax);
 
     return axes;
 }
@@ -118,7 +118,7 @@ const unsigned char* _glfwPlatformGetJoystickButtons(int joy, int* count)
 {
     JOYCAPS jc;
     JOYINFOEX ji;
-    unsigned char* buttons = _glfw.win32.joystick[joy].buttons;
+    unsigned char* buttons = _glfw.winmm_js[joy].buttons;
 
     if (_glfw_joyGetDevCaps(joy, &jc, sizeof(JOYCAPS)) != JOYERR_NOERROR)
         return NULL;
@@ -169,9 +169,9 @@ const char* _glfwPlatformGetJoystickName(int joy)
     if (_glfw_joyGetDevCaps(joy, &jc, sizeof(JOYCAPS)) != JOYERR_NOERROR)
         return NULL;
 
-    free(_glfw.win32.joystick[joy].name);
-    _glfw.win32.joystick[joy].name = _glfwCreateUTF8FromWideString(jc.szPname);
+    free(_glfw.winmm_js[joy].name);
+    _glfw.winmm_js[joy].name = _glfwCreateUTF8FromWideString(jc.szPname);
 
-    return _glfw.win32.joystick[joy].name;
+    return _glfw.winmm_js[joy].name;
 }
 

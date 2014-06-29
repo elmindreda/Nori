@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.1 - www.glfw.org
+// GLFW 3.1 Win32 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -25,22 +25,30 @@
 //
 //========================================================================
 
-#include "internal.h"
+#ifndef _win32_tls_h_
+#define _win32_tls_h_
+
+#define _GLFW_PLATFORM_LIBRARY_TLS_STATE _GLFWtlsWin32 win32_tls
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+//========================================================================
+// GLFW platform specific types
+//========================================================================
 
-GLFWAPI double glfwGetTime(void)
+typedef struct _GLFWtlsWin32
 {
-    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
-    return _glfwPlatformGetTime();
-}
+    GLboolean       allocated;
+    DWORD           context;
 
-GLFWAPI void glfwSetTime(double time)
-{
-    _GLFW_REQUIRE_INIT();
-    _glfwPlatformSetTime(time);
-}
+} _GLFWtlsWin32;
 
+
+//========================================================================
+// Prototypes for platform specific internal functions
+//========================================================================
+
+int _glfwInitTLS(void);
+void _glfwTerminateTLS(void);
+void _glfwSetCurrentContext(_GLFWwindow* context);
+
+#endif // _win32_tls_h_

@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.1 - www.glfw.org
+// GLFW 3.1 POSIX - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -25,22 +25,21 @@
 //
 //========================================================================
 
-#include "internal.h"
+#ifndef _posix_time_h_
+#define _posix_time_h_
 
+#define _GLFW_PLATFORM_LIBRARY_TIME_STATE _GLFWtimePOSIX posix_time
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+#include <stdint.h>
 
-GLFWAPI double glfwGetTime(void)
+typedef struct _GLFWtimePOSIX
 {
-    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
-    return _glfwPlatformGetTime();
-}
+    GLboolean   monotonic;
+    double      resolution;
+    uint64_t    base;
 
-GLFWAPI void glfwSetTime(double time)
-{
-    _GLFW_REQUIRE_INIT();
-    _glfwPlatformSetTime(time);
-}
+} _GLFWtimePOSIX;
 
+void _glfwInitTimer(void);
+
+#endif // _posix_time_h_
