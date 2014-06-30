@@ -341,7 +341,7 @@ void List::onMouseButton(vec2 point,
         else
           setSelection(i, true);
 
-        return;
+        break;
       }
 
       itemTop = itemBottom;
