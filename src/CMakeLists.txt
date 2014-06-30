@@ -52,7 +52,7 @@ if (WENDY_INCLUDE_UI_SYSTEM)
   list(APPEND wendy_SOURCES
        Book.cpp Button.cpp Canvas.cpp Drawer.cpp Entry.cpp Item.cpp Label.cpp
        Layer.cpp Layout.cpp List.cpp Menu.cpp Popup.cpp Progress.cpp
-       Scroller.cpp Slider.cpp Widget.cpp)
+       Scroller.cpp Slider.cpp Widget.cpp WidgetReader.cpp)
 endif()
 
 if (WENDY_INCLUDE_DEBUG_UI)

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////
 // Wendy - a simple game engine
-// Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2014 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any
@@ -22,40 +22,49 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_WENDYUI_HPP
-#define WENDY_WENDYUI_HPP
+#ifndef WENDY_WIDGETREADER_HPP
+#define WENDY_WIDGETREADER_HPP
 ///////////////////////////////////////////////////////////////////////
 
-/*! @defgroup ui User interface API
- */
+#include <map>
 
 ///////////////////////////////////////////////////////////////////////
 
-#if WENDY_INCLUDE_UI_SYSTEM
-
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-
-#include <wendy/WidgetReader.hpp>
-
-#else
-#error "UI module not enabled"
-#endif
+namespace wendy
+{
 
 ///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_WENDYUI_HPP*/
+
+typedef Widget* (*WidgetFactory)(Layer&,Widget*,pugi::xml_node);
+
+///////////////////////////////////////////////////////////////////////
+
+class WidgetReader
+{
+public:
+  WidgetReader(ResourceCache& cache);
+  void addFactory(const String& name, WidgetFactory factory);
+  bool read(Layer& layer, const String& name);
+  template <typename T>
+  T* find(const String& name)
+  {
+    auto entry = m_named.find(name);
+    if (entry == m_named.end())
+      return nullptr;
+
+    return dynamic_cast<T*>(entry->second);
+  }
+private:
+  void read(Layer& layer, Widget* parent, pugi::xml_node wn);
+  ResourceCache& m_cache;
+  std::map<String,WidgetFactory> m_factories;
+  std::map<String,Widget*> m_named;
+};
+
+///////////////////////////////////////////////////////////////////////
+
+} /*namespace wendy*/
+
+///////////////////////////////////////////////////////////////////////
+#endif /*WENDY_WIDGETREADER_HPP*/
 ///////////////////////////////////////////////////////////////////////
