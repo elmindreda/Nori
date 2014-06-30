@@ -176,7 +176,7 @@ Ref<AudioBuffer> AudioBuffer::create(const ResourceInfo& info,
 {
   Ref<AudioBuffer> buffer = new AudioBuffer(info, context);
   if (!buffer->init(data))
-    return NULL;
+    return nullptr;
 
   return buffer;
 }
@@ -196,7 +196,7 @@ Ref<AudioBuffer> AudioBuffer::read(AudioContext& context, const String& sampleNa
   if (!data)
   {
     logError("Failed to read sample for buffer %s", name.c_str());
-    return NULL;
+    return nullptr;
   }
 
   return create(ResourceInfo(cache, name), context, *data);

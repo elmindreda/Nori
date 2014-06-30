@@ -111,7 +111,7 @@ void Pass::apply() const
   context.setCurrentRenderState(m_state);
 
   SharedProgramState* state = context.currentSharedProgramState();
-  assert(state != NULL);
+  assert(state != nullptr);
 
   uint textureIndex = 0, textureUnit = 0;
 
