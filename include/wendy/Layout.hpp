@@ -44,8 +44,7 @@ enum LayoutMode
 class Layout : public Widget
 {
 public:
-  Layout(Layer& layer, Orientation orientation, LayoutMode mode);
-  Layout(Widget& parent, Orientation orientation, LayoutMode mode);
+  Layout(Layer& layer, Widget* parent, Orientation orientation, LayoutMode mode);
   LayoutMode mode() const { return m_mode; }
   Orientation orientation() const { return m_orientation; }
   float borderSize() const { return m_borderSize; }

@@ -37,13 +37,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Canvas::Canvas(Layer& layer):
-  Widget(layer)
-{
-}
-
-Canvas::Canvas(Widget& parent):
-  Widget(parent)
+Canvas::Canvas(Layer& layer, Widget* parent):
+  Widget(layer, parent)
 {
 }
 

@@ -39,8 +39,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Page::Page(Book& parent, const char* text):
-  Widget(parent),
+Page::Page(Layer& layer, Book& parent, const char* text):
+  Widget(layer, &parent),
   m_book(parent),
   m_text(text)
 {
@@ -65,18 +65,11 @@ void Page::setText(const char* newText)
 
 ///////////////////////////////////////////////////////////////////////
 
-Book::Book(Layer& layer):
-  Widget(layer),
+Book::Book(Layer& layer, Widget* parent):
+  Widget(layer, parent),
   m_activePage(nullptr)
 {
-  init();
-}
-
-Book::Book(Widget& parent):
-  Widget(parent),
-  m_activePage(nullptr)
-{
-  init();
+  setFocusable(true);
 }
 
 Book::~Book()
@@ -97,11 +90,6 @@ void Book::setActivePage(Page* newPage)
 SignalProxy<void, Book&> Book::pageChangedSignal()
 {
   return m_pageChangedSignal;
-}
-
-void Book::init()
-{
-  setFocusable(true);
 }
 
 void Book::draw() const

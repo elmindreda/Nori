@@ -39,20 +39,22 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Label::Label(Layer& layer, const char* text, Alignment alignment):
-  Widget(layer),
+Label::Label(Layer& layer, Widget* parent, const char* text, Alignment alignment):
+  Widget(layer, parent),
   m_text(text),
   m_textAlignment(alignment)
 {
-  init();
-}
+  Drawer& drawer = layer.drawer();
+  drawer.setCurrentFont(nullptr);
+  const float em = drawer.currentEM();
 
-Label::Label(Widget& parent, const char* text, Alignment alignment):
-  Widget(parent),
-  m_text(text),
-  m_textAlignment(alignment)
-{
-  init();
+  float textWidth;
+  if (m_text.empty())
+    textWidth = em * 3.f;
+  else
+    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
+
+  setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
 const String& Label::text() const
@@ -75,21 +77,6 @@ void Label::setTextAlignment(const Alignment& newAlignment)
 {
   m_textAlignment = newAlignment;
   invalidate();
-}
-
-void Label::init()
-{
-  Drawer& drawer = layer().drawer();
-  drawer.setCurrentFont(nullptr);
-  const float em = drawer.currentEM();
-
-  float textWidth;
-  if (m_text.empty())
-    textWidth = em * 3.f;
-  else
-    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
-
-  setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
 void Label::draw() const

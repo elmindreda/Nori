@@ -37,29 +37,24 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Layout::Layout(Layer& layer, Orientation orientation, LayoutMode mode):
-  Widget(layer),
+Layout::Layout(Layer& layer, Widget* parent, Orientation orientation, LayoutMode mode):
+  Widget(layer, parent),
   m_borderSize(0.f),
   m_orientation(orientation),
   m_mode(mode)
 {
   if (m_mode == COVER_PARENT)
   {
-    layer.sizeChangedSignal().connect(*this, &Layout::onSizeChanged);
-    onSizeChanged(layer);
-  }
-}
-
-Layout::Layout(Widget& parent, Orientation orientation, LayoutMode mode):
-  Widget(parent),
-  m_borderSize(0.f),
-  m_orientation(orientation),
-  m_mode(mode)
-{
-  if (m_mode == COVER_PARENT)
-  {
-    parent.areaChangedSignal().connect(*this, &Layout::onAreaChanged);
-    onAreaChanged(parent);
+    if (parent)
+    {
+      parent->areaChangedSignal().connect(*this, &Layout::onAreaChanged);
+      onAreaChanged(*parent);
+    }
+    else
+    {
+      layer.sizeChangedSignal().connect(*this, &Layout::onSizeChanged);
+      onSizeChanged(layer);
+    }
   }
 }
 

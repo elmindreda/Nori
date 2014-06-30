@@ -38,28 +38,22 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Widget::Widget(Layer& layer):
+Widget::Widget(Layer& layer, Widget* parent):
   m_layer(layer),
-  m_parent(nullptr),
+  m_parent(parent),
   m_enabled(true),
   m_visible(true),
   m_draggable(false),
   m_focusable(false)
 {
-  m_layer.m_roots.push_back(this);
-  invalidate();
-}
-
-Widget::Widget(Widget& parent):
-  m_layer(parent.layer()),
-  m_parent(&parent),
-  m_enabled(true),
-  m_visible(true),
-  m_draggable(false),
-  m_focusable(false)
-{
-  m_parent->m_children.push_back(this);
-  m_parent->onChildAdded(*this);
+  if (m_parent)
+  {
+    assert(&m_parent->m_layer == &m_layer);
+    m_parent->m_children.push_back(this);
+    m_parent->onChildAdded(*this);
+  }
+  else
+    m_layer.m_roots.push_back(this);
 
   invalidate();
 }

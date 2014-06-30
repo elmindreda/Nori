@@ -39,20 +39,20 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Popup::Popup(Layer& layer):
-  Widget(layer),
+Popup::Popup(Layer& layer, Widget* parent):
+  Widget(layer, parent),
   m_selection(NO_ITEM),
   m_menu(nullptr)
 {
-  init();
-}
+  const float em = layer.drawer().currentEM();
 
-Popup::Popup(Widget& parent):
-  Widget(parent),
-  m_selection(NO_ITEM),
-  m_menu(nullptr)
-{
-  init();
+  setDesiredSize(vec2(em * 10.f, em * 2.f));
+
+  m_menu = new Menu(layer);
+  m_menu->itemSelectedSignal().connect(*this, &Popup::onItemSelected);
+  m_menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
+
+  setFocusable(true);
 }
 
 Popup::~Popup()
@@ -171,19 +171,6 @@ const std::vector<Item*>& Popup::items() const
 SignalProxy<void, Popup&, uint> Popup::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
-}
-
-void Popup::init()
-{
-  const float em = layer().drawer().currentEM();
-
-  setDesiredSize(vec2(em * 10.f, em * 2.f));
-
-  m_menu = new Menu(layer());
-  m_menu->itemSelectedSignal().connect(*this, &Popup::onItemSelected);
-  m_menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
-
-  setFocusable(true);
 }
 
 void Popup::draw() const

@@ -37,26 +37,23 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Slider::Slider(Layer& layer, Orientation orientation):
-  Widget(layer),
+Slider::Slider(Layer& layer, Widget* parent, Orientation orientation):
+  Widget(layer, parent),
   m_minValue(0.f),
   m_maxValue(1.f),
   m_stepSize(1.f),
   m_value(0.f),
   m_orientation(orientation)
 {
-  init();
-}
+  const float em = layer.drawer().currentEM();
 
-Slider::Slider(Widget& parent, Orientation orientation):
-  Widget(parent),
-  m_minValue(0.f),
-  m_maxValue(1.f),
-  m_stepSize(1.f),
-  m_value(0.f),
-  m_orientation(orientation)
-{
-  init();
+  if (m_orientation == HORIZONTAL)
+    setDesiredSize(vec2(em * 10.f, em * 1.5f));
+  else
+    setDesiredSize(vec2(em * 1.5f, em * 10.f));
+
+  setDraggable(true);
+  setFocusable(true);
 }
 
 void Slider::setValueRange(float newMinValue, float newMaxValue)
@@ -121,19 +118,6 @@ void Slider::draw() const
 
     drawer.popClipArea();
   }
-}
-
-void Slider::init()
-{
-  const float em = layer().drawer().currentEM();
-
-  if (m_orientation == HORIZONTAL)
-    setDesiredSize(vec2(em * 10.f, em * 1.5f));
-  else
-    setDesiredSize(vec2(em * 1.5f, em * 10.f));
-
-  setDraggable(true);
-  setFocusable(true);
 }
 
 void Slider::onMouseButton(vec2 point,

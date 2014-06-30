@@ -42,8 +42,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-List::List(Layer& layer):
-  Widget(layer),
+List::List(Layer& layer, Widget* parent):
+  Widget(layer, parent),
   m_editable(false),
   m_editing(false),
   m_offset(0),
@@ -52,20 +52,13 @@ List::List(Layer& layer):
   m_scroller(nullptr),
   m_entry(nullptr)
 {
-  init();
-}
+  m_scroller = new Scroller(layer, this, VERTICAL);
+  m_scroller->setValueRange(0.f, 1.f);
+  m_scroller->setPercentage(1.f);
+  m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
 
-List::List(Widget& parent):
-  Widget(parent),
-  m_editable(false),
-  m_editing(false),
-  m_offset(0),
-  m_maxOffset(0),
-  m_selection(NO_ITEM),
-  m_scroller(nullptr),
-  m_entry(nullptr)
-{
-  init();
+  onAreaChanged();
+  setFocusable(true);
 }
 
 List::~List()
@@ -161,7 +154,7 @@ void List::setEditable(bool newState)
 
   if (m_editable)
   {
-    m_entry = new Entry(*this);
+    m_entry = new Entry(layer(), this);
     m_entry->hide();
     m_entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
     m_entry->keySignal().connect(*this, &List::onEntryKey);
@@ -258,17 +251,6 @@ const std::vector<Item*>& List::items() const
 SignalProxy<void, List&> List::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
-}
-
-void List::init()
-{
-  m_scroller = new Scroller(*this, VERTICAL);
-  m_scroller->setValueRange(0.f, 1.f);
-  m_scroller->setPercentage(1.f);
-  m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
-
-  onAreaChanged();
-  setFocusable(true);
 }
 
 void List::draw() const

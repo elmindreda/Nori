@@ -48,10 +48,7 @@ class Widget : public Trackable
 public:
   /*! Constructor.
    */
-  Widget(Layer& layer);
-  /*! Constructor.
-   */
-  Widget(Widget& parent);
+  Widget(Layer& layer, Widget* parent = nullptr);
   /*! Destructor.
    */
   ~Widget();

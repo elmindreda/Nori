@@ -36,8 +36,7 @@ namespace wendy
 class List : public Widget
 {
 public:
-  List(Layer& layer);
-  List(Widget& parent);
+  List(Layer& layer, Widget* parent = nullptr);
   ~List();
   void addItem(Item& item);
   void createItem(const char* value, ItemID ID = 0);
@@ -62,7 +61,6 @@ public:
   const std::vector<Item*>& items() const;
   SignalProxy<void, List&> itemSelectedSignal();
 protected:
-  void init();
   void draw() const;
 private:
   void onAreaChanged() override;

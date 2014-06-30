@@ -36,8 +36,7 @@ namespace wendy
 class Canvas : public Widget
 {
 public:
-  Canvas(Layer& layer);
-  Canvas(Widget& parent);
+  Canvas(Layer& layer, Widget* parent = nullptr);
   SignalProxy<void, const Canvas&> drawSignal();
 protected:
   void draw() const;

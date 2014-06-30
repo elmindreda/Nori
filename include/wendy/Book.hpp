@@ -40,7 +40,7 @@ class Book;
 class Page : public Widget
 {
 public:
-  Page(Book& parent, const char* text);
+  Page(Layer& layer, Book& parent, const char* text);
   ~Page();
   const String& text() const;
   void setText(const char* newText);
@@ -57,14 +57,12 @@ class Book : public Widget
 {
   friend class Page;
 public:
-  Book(Layer& layer);
-  Book(Widget& parent);
+  Book(Layer& layer, Widget* parent = nullptr);
   ~Book();
   Page* activePage() const;
   void setActivePage(Page* newPage);
   SignalProxy<void, Book&> pageChangedSignal();
 protected:
-  void init();
   void draw() const;
   void onPageAdded(Page& page);
   void onPageRemoved(Page& page);

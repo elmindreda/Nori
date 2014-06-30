@@ -37,8 +37,8 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Scroller::Scroller(Layer& layer, Orientation orientation):
-  Widget(layer),
+Scroller::Scroller(Layer& layer, Widget* parent, Orientation orientation):
+  Widget(layer, parent),
   m_minValue(0.f),
   m_maxValue(1.f),
   m_value(0.f),
@@ -46,19 +46,15 @@ Scroller::Scroller(Layer& layer, Orientation orientation):
   m_reference(0.f),
   m_orientation(orientation)
 {
-  init();
-}
+  const float em = layer.drawer().currentEM();
 
-Scroller::Scroller(Widget& parent, Orientation orientation):
-  Widget(parent),
-  m_minValue(0.f),
-  m_maxValue(1.f),
-  m_value(0.f),
-  m_percentage(0.5f),
-  m_reference(0.f),
-  m_orientation(orientation)
-{
-  init();
+  if (m_orientation == HORIZONTAL)
+    setDesiredSize(vec2(em * 10.f, em * 1.5f));
+  else
+    setDesiredSize(vec2(em * 1.5f, em * 10.f));
+
+  setDraggable(true);
+  setFocusable(true);
 }
 
 void Scroller::setValueRange(float newMinValue, float newMaxValue)
@@ -128,19 +124,6 @@ void Scroller::draw() const
 
     drawer.popClipArea();
   }
-}
-
-void Scroller::init()
-{
-  const float em = layer().drawer().currentEM();
-
-  if (m_orientation == HORIZONTAL)
-    setDesiredSize(vec2(em * 10.f, em * 1.5f));
-  else
-    setDesiredSize(vec2(em * 1.5f, em * 10.f));
-
-  setDraggable(true);
-  setFocusable(true);
 }
 
 void Scroller::onMouseButton(vec2 point,

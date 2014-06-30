@@ -36,8 +36,7 @@ namespace wendy
 class Entry : public Widget
 {
 public:
-  Entry(Layer& layer, const char* text = "");
-  Entry(Widget& parent, const char* text = "");
+  Entry(Layer& layer, Widget* parent = nullptr, const char* text = "");
   const String& text() const;
   void setText(const String& newText);
   void setText(const char* newText);
@@ -46,7 +45,6 @@ public:
   SignalProxy<void, Entry&> textChangedSignal() { return m_textChangedSignal; }
   SignalProxy<void, Entry&> caretMovedSignal() { return m_caretMovedSignal; }
 protected:
-  void init();
   void draw() const;
 private:
   void onFocusChanged(bool activated) override;

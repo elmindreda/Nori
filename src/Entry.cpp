@@ -37,18 +37,27 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Entry::Entry(Layer& layer, const char* text):
-  Widget(layer),
+Entry::Entry(Layer& layer, Widget* parent, const char* text):
+  Widget(layer, parent),
   m_controller(text)
 {
-  init();
-}
+  Drawer& drawer = layer.drawer();
+  drawer.setCurrentFont(nullptr);
+  const float em = drawer.currentEM();
 
-Entry::Entry(Widget& parent, const char* text):
-  Widget(parent),
-  m_controller(text)
-{
-  init();
+  float textWidth;
+  if (m_controller.text().empty())
+    textWidth = em * 3.f;
+  else
+    textWidth = drawer.currentFont().boundsOf(m_controller.text().c_str()).size.x;
+
+  setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
+
+  m_controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
+  m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
+
+  m_timer.start();
+  setFocusable(true);
 }
 
 const String& Entry::text() const
@@ -75,27 +84,6 @@ uint Entry::caretPosition() const
 void Entry::setCaretPosition(uint newPosition)
 {
   m_controller.setCaretPosition(newPosition);
-}
-
-void Entry::init()
-{
-  Drawer& drawer = layer().drawer();
-  drawer.setCurrentFont(nullptr);
-  const float em = drawer.currentEM();
-
-  float textWidth;
-  if (m_controller.text().empty())
-    textWidth = em * 3.f;
-  else
-    textWidth = drawer.currentFont().boundsOf(m_controller.text().c_str()).size.x;
-
-  setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
-
-  m_controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
-  m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
-
-  m_timer.start();
-  setFocusable(true);
 }
 
 void Entry::draw() const
