@@ -358,9 +358,9 @@ void Widget::onKey(Key key, Action action, uint mods)
   m_keySignal(*this, key, action, mods);
 }
 
-void Widget::onCharacter(uint32 character, uint mods)
+void Widget::onCharacter(uint32 character)
 {
-  m_characterSignal(*this, character, mods);
+  m_characterSignal(*this, character);
 }
 
 void Widget::onMouseButton(vec2 point,

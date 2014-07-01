@@ -53,7 +53,7 @@ private:
                      Action action,
                      uint mods) override;
   void onKey(Key key, Action action, uint mods) override;
-  void onCharacter(uint32 codepoint, uint mods) override;
+  void onCharacter(uint32 codepoint) override;
   void onTextChanged();
   void onCaretMoved();
   void setCaretPosition(uint newPosition, bool notify);

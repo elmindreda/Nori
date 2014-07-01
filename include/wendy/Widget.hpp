@@ -194,7 +194,7 @@ public:
   SignalProxy<void, Widget&> areaChangedSignal() { return m_areaChangedSignal; }
   SignalProxy<void, Widget&, bool> focusChangedSignal() { return m_focusChangedSignal; }
   SignalProxy<void, Widget&, Key, Action, uint> keySignal() { return m_keySignal; }
-  SignalProxy<void, Widget&, uint32, uint> characterSignal() { return m_characterSignal; }
+  SignalProxy<void, Widget&, uint32> characterSignal() { return m_characterSignal; }
   SignalProxy<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal() { return m_mouseButtonSignal; }
   SignalProxy<void, Widget&, vec2> scrollSignal() { return m_scrollSignal; }
   SignalProxy<void, Widget&, vec2> cursorPosSignal() { return m_cursorPosSignal; }
@@ -213,7 +213,7 @@ protected:
   virtual void onAreaChanged();
   virtual void onFocusChanged(bool activated);
   virtual void onKey(Key key, Action action, uint mods);
-  virtual void onCharacter(uint32 codepoint, uint mods);
+  virtual void onCharacter(uint32 codepoint);
   virtual void onMouseButton(vec2 point,
                                MouseButton button,
                                Action action,
@@ -230,7 +230,7 @@ private:
   Signal<void, Widget&> m_areaChangedSignal;
   Signal<void, Widget&, bool> m_focusChangedSignal;
   Signal<void, Widget&, Key, Action, uint> m_keySignal;
-  Signal<void, Widget&, uint32, uint> m_characterSignal;
+  Signal<void, Widget&, uint32> m_characterSignal;
   Signal<void, Widget&, vec2, MouseButton, Action, uint> m_mouseButtonSignal;
   Signal<void, Widget&, vec2> m_scrollSignal;
   Signal<void, Widget&, vec2> m_cursorPosSignal;

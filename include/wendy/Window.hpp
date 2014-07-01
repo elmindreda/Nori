@@ -263,7 +263,7 @@ public:
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
    */
-  virtual bool onCharacter(uint32 codepoint, uint mods);
+  virtual bool onCharacter(uint32 codepoint);
   /*! Called when a mouse button has been clicked or released.
    *  @return @c true to prevent this event from reaching the current input
    *  target, or @c false to pass it on.
@@ -314,7 +314,7 @@ public:
   virtual void onKey(Key key, Action action, uint mods);
   /*! Called when a Unicode character has been input.
    */
-  virtual void onCharacter(uint32 codepoint, uint mods);
+  virtual void onCharacter(uint32 codepoint);
   /*! Called when a mouse button has been clicked or released.
    */
   virtual void onMouseButton(MouseButton button, Action action, uint mods);
@@ -539,7 +539,7 @@ public:
   TextController();
   TextController(const String& text);
   void inputKey(Key key, Action action, uint mods);
-  void inputCharacter(uint32 codepoint, uint mods);
+  void inputCharacter(uint32 codepoint);
   const String& text() const { return m_text; }
   void setText(const String& newText);
   size_t length() const;

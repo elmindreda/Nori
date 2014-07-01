@@ -316,10 +316,10 @@ void Layer::onKey(Key key, Action action, uint mods)
   }
 }
 
-void Layer::onCharacter(uint32 codepoint, uint mods)
+void Layer::onCharacter(uint32 codepoint)
 {
   if (m_activeWidget)
-    m_activeWidget->onCharacter(codepoint, mods);
+    m_activeWidget->onCharacter(codepoint);
 }
 
 void Layer::onCursorPos(vec2 point)

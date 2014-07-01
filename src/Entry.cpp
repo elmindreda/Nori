@@ -175,10 +175,10 @@ void Entry::onKey(Key key, Action action, uint mods)
   Widget::onKey(key, action, mods);
 }
 
-void Entry::onCharacter(uint32 codepoint, uint mods)
+void Entry::onCharacter(uint32 codepoint)
 {
-  m_controller.inputCharacter(codepoint, mods);
-  Widget::onCharacter(codepoint, mods);
+  m_controller.inputCharacter(codepoint);
+  Widget::onCharacter(codepoint);
 }
 
 void Entry::onTextChanged()

@@ -94,7 +94,7 @@ bool EventHook::onKey(Key key, Action action, uint mods)
   return false;
 }
 
-bool EventHook::onCharacter(uint32 codepoint, uint mods)
+bool EventHook::onCharacter(uint32 codepoint)
 {
   return false;
 }
@@ -144,7 +144,7 @@ void EventTarget::onKey(Key key, Action action, uint mods)
 {
 }
 
-void EventTarget::onCharacter(uint32 codepoint, uint mods)
+void EventTarget::onCharacter(uint32 codepoint)
 {
 }
 
@@ -520,25 +520,14 @@ void Window::characterCallback(GLFWwindow* handle, uint codepoint)
 {
   Window& window = windowFromHandle(handle);
 
-  uint mods = 0;
-
-  if (window.isKeyDown(KEY_LEFT_SHIFT) || window.isKeyDown(KEY_RIGHT_SHIFT))
-    mods |= MOD_SHIFT;
-  if (window.isKeyDown(KEY_LEFT_CONTROL) || window.isKeyDown(KEY_RIGHT_CONTROL))
-    mods |= MOD_CONTROL;
-  if (window.isKeyDown(KEY_LEFT_ALT) || window.isKeyDown(KEY_RIGHT_ALT))
-    mods |= MOD_ALT;
-  if (window.isKeyDown(KEY_LEFT_SUPER) || window.isKeyDown(KEY_RIGHT_SUPER))
-    mods |= MOD_SUPER;
-
   if (window.m_hook)
   {
-    if (window.m_hook->onCharacter(codepoint, mods))
+    if (window.m_hook->onCharacter(codepoint))
       return;
   }
 
   if (window.m_target)
-    window.m_target->onCharacter(codepoint, mods);
+    window.m_target->onCharacter(codepoint);
 }
 
 void Window::cursorPosCallback(GLFWwindow* handle, double x, double y)
@@ -923,11 +912,8 @@ void TextController::inputKey(Key key, Action action, uint mods)
   }
 }
 
-void TextController::inputCharacter(uint32 codepoint, uint mods)
+void TextController::inputCharacter(uint32 codepoint)
 {
-  if (mods & MOD_CONTROL)
-    return;
-
   String::iterator i = m_text.begin();
   utf8::advance(i, caretPosition(), m_text.end());
   utf8::append(codepoint, std::inserter(m_text, i));
