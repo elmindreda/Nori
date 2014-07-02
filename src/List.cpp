@@ -53,8 +53,6 @@ List::List(Layer& layer, Widget* parent):
   m_entry(nullptr)
 {
   m_scroller = new Scroller(layer, this, VERTICAL);
-  m_scroller->setValueRange(0.f, 1.f);
-  m_scroller->setPercentage(1.f);
   m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
 
   onAreaChanged();
@@ -262,21 +260,20 @@ void List::draw() const
   {
     drawer.drawWell(area, state());
 
-    float start = area.size.y;
+    float itemTop = area.size.y;
 
     for (uint i = m_offset;  i < m_items.size();  i++)
     {
       const Item& item = *m_items[i];
+      const float itemHeight = item.height();
+      const Rect itemArea(area.position + vec2(0.f, itemTop - itemHeight),
+                          vec2(area.size.x, itemHeight));
 
-      float height = item.height();
-      if (height + start < 0.f)
-        break;
-
-      const Rect itemArea(area.position + vec2(0.f, start - height),
-                          vec2(area.size.x, height));
       item.draw(itemArea, i == m_selection ? STATE_SELECTED : STATE_NORMAL);
 
-      start -= height;
+      itemTop -= itemHeight;
+      if (itemTop < 0.f)
+        break;
     }
 
     Widget::draw();
@@ -523,14 +520,16 @@ bool List::isSelectionVisible() const
 
   float visibleItemHeight = 0.f;
 
-  for (Item* i : m_items)
+  for (uint i = m_offset;  i < m_items.size();  i++)
   {
-    visibleItemHeight += i->height();
     if (visibleItemHeight > height())
       return false;
-  }
 
-  return true;
+    if (i == m_selection)
+      return true;
+
+    visibleItemHeight += m_items[i]->height();
+  }
 }
 
 void List::setSelection(uint newSelection, bool notify)
