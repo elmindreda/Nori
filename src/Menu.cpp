@@ -82,6 +82,7 @@ void Menu::display()
   show();
   bringToFront();
   activate();
+  onCursorPos(layer().cursorPoint());
 }
 
 void Menu::addItem(Item& item)
