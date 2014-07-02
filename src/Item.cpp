@@ -71,7 +71,7 @@ float Item::width() const
 
 float Item::height() const
 {
-  return m_layer.drawer().currentFont().height() * 1.5f;
+  return m_layer.drawer().currentEM() * 1.5f;
 }
 
 ItemID Item::id() const
@@ -165,20 +165,20 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = m_layer.drawer();
 
+  const float em = drawer.currentEM();
+  const Rect textArea(area.position + vec2(em * 3.5f, 0.f),
+                      area.size - vec2(em, 0.f));
+
   if (state == STATE_SELECTED)
   {
-    const vec3 color = drawer.theme().textColors[STATE_SELECTED];
+    const vec3 color = drawer.theme().backColors[STATE_SELECTED];
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 
-  const float em = drawer.currentEM();
+  drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
 
   const Rect textureArea(area.position, vec2(em * 3.f));
   drawer.blitTexture(textureArea, *m_texture);
-
-  const Rect textArea(area.position + vec2(em * 3.5f, 0.f),
-                      area.size - vec2(em, 0.f));
-  drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
 }
 
 ///////////////////////////////////////////////////////////////////////
