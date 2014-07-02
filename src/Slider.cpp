@@ -91,14 +91,15 @@ void Slider::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.drawWell(area, state());
-
     const float fraction = (m_value - m_minValue) / (m_maxValue - m_minValue);
 
-    Rect handleArea;
+    Rect wellArea, handleArea;
 
     if (m_orientation == HORIZONTAL)
     {
+      wellArea.set(area.position.x, area.position.y + area.size.y / 4.f,
+                   area.size.x, area.size.y / 2.f);
+
       handleArea.set(area.position.x + fraction * (area.size.x - area.size.y),
                      area.position.y,
                      area.size.y,
@@ -106,12 +107,16 @@ void Slider::draw() const
     }
     else
     {
+      wellArea.set(area.position.x + area.size.x / 4.f, area.position.y,
+                   area.size.x / 2.f, area.size.y);
+
       handleArea.set(area.position.x,
                      area.position.y + fraction * (area.size.y - area.size.x),
                      area.size.x,
                      area.size.x);
     }
 
+    drawer.drawWell(wellArea, state());
     drawer.drawHandle(handleArea, state());
 
     Widget::draw();
