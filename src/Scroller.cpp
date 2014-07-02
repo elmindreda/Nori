@@ -49,9 +49,9 @@ Scroller::Scroller(Layer& layer, Widget* parent, Orientation orientation):
   const float em = layer.drawer().currentEM();
 
   if (m_orientation == HORIZONTAL)
-    setDesiredSize(vec2(em * 10.f, em * 1.5f));
+    setDesiredSize(vec2(0.f, em * 1.5f));
   else
-    setDesiredSize(vec2(em * 1.5f, em * 10.f));
+    setDesiredSize(vec2(em * 1.5f, 0.f));
 
   setDraggable(true);
   setFocusable(true);
