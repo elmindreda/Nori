@@ -221,9 +221,9 @@ Path Path::parent() const
   return Path(m_string.substr(0, offset + 1));
 }
 
-std::vector<Path> Path::children() const
+std::vector<String> Path::children() const
 {
-  std::vector<Path> children;
+  std::vector<String> children;
 
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
@@ -234,7 +234,7 @@ std::vector<Path> Path::children() const
   {
     do
     {
-      children.push_back(operator + (data.cFileName));
+      children.push_back(data.cFileName);
     }
     while (FindNextFile(search, &data));
 
@@ -248,7 +248,7 @@ std::vector<Path> Path::children() const
   if (stream)
   {
     while ((entry = readdir(stream)))
-      children.push_back(operator + (entry->d_name));
+      children.push_back(entry->d_name);
 
     closedir(stream);
   }
@@ -257,9 +257,9 @@ std::vector<Path> Path::children() const
   return children;
 }
 
-std::vector<Path> Path::childrenMatching(const Regex& regex) const
+std::vector<String> Path::childrenMatching(const Regex& regex) const
 {
-  std::vector<Path> children;
+  std::vector<String> children;
 
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
@@ -271,7 +271,7 @@ std::vector<Path> Path::childrenMatching(const Regex& regex) const
     do
     {
       if (regex.matches(data.cFileName))
-        children.push_back(operator + (data.cFileName));
+        children.push_back(data.cFileName);
     }
     while (FindNextFile(search, &data));
 
@@ -287,7 +287,7 @@ std::vector<Path> Path::childrenMatching(const Regex& regex) const
     while ((entry = readdir(stream)))
     {
       if (regex.matches(entry->d_name))
-        children.push_back(operator + (entry->d_name));
+        children.push_back(entry->d_name);
     }
 
     closedir(stream);

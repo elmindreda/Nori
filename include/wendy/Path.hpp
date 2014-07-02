@@ -100,19 +100,19 @@ public:
    *  @remarks The root directory is its own parent.
    */
   Path parent() const;
-  /*! Returns the paths of all files and directories in the directory with this
+  /*! Returns the names of all files and directories in the directory with this
    *  path.
-   *  @param[in,out] children The resulting list of paths.
+   *  @param[in,out] children The resulting list of names.
    *  @return @c true if successful, otherwise @c false.
    */
-  std::vector<Path> children() const;
-  /*! Returns the paths of all files and directories in the directory with this
-   *  path whose names match the specified regex.
-   *  @param[in,out] children The resulting list of paths.
+  std::vector<String> children() const;
+  /*! Returns the names of all files and directories in the directory with this
+   *  path that match the specified regex.
+   *  @param[in,out] children The resulting list of names.
    *  @param[in] regex The regex to use.
    *  @return @c true if successful, otherwise @c false.
    */
-  std::vector<Path> childrenMatching(const Regex& regex) const;
+  std::vector<String> childrenMatching(const Regex& regex) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */
