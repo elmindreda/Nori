@@ -34,6 +34,7 @@ namespace wendy
 enum LayoutMode
 {
   COVER_PARENT,
+  WRAP_CHILDREN,
   STATIC_SIZE
 };
 

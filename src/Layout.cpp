@@ -103,9 +103,12 @@ void Layout::update()
 {
   uint flexibleCount = 0;
   float stackSize = m_borderSize;
+  vec2 desiredArea;
 
   for (Widget* c : children())
   {
+    desiredArea = max(desiredArea, c->desiredSize());
+
     float desiredSize;
 
     if (m_orientation == VERTICAL)
@@ -118,6 +121,9 @@ void Layout::update()
 
     stackSize += desiredSize + m_borderSize;
   }
+
+  if (m_mode == WRAP_CHILDREN)
+    setDesiredSize(desiredArea);
 
   if (m_orientation == VERTICAL)
   {
