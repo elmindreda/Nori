@@ -56,17 +56,8 @@ bool Item::operator < (const Item& other) const
 float Item::width() const
 {
   Drawer& drawer = m_layer.drawer();
-
-  const float em = drawer.currentEM();
-
-  float width = em * 2.f;
-
-  if (m_value.empty())
-    width += em * 3.f;
-  else
-    width += drawer.currentFont().boundsOf(m_value.c_str()).size.x;
-
-  return width;
+  return drawer.currentEM() * 2.f +
+    drawer.currentFont().boundsOf(m_value.c_str()).size.x;
 }
 
 float Item::height() const
@@ -116,7 +107,7 @@ SeparatorItem::SeparatorItem(Layer& layer):
 
 float SeparatorItem::width() const
 {
-  return m_layer.drawer().currentEM() * 3.f;
+  return m_layer.drawer().currentEM() * 2.f;
 }
 
 float SeparatorItem::height() const
@@ -148,7 +139,7 @@ TextureItem::TextureItem(Layer& layer,
 
 float TextureItem::width() const
 {
-  return Item::height() + m_layer.drawer().currentEM() * 3.f;
+  return Item::width() + m_layer.drawer().currentEM() * 3.f;
 }
 
 float TextureItem::height() const
