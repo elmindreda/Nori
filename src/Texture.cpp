@@ -397,29 +397,28 @@ Ref<Texture> Texture::read(RenderContext& context,
   ResourceCache& cache = context.cache();
 
   String name;
-  name += "source:";
+  name += "image:";
   name += imageName;
-  name += " mipmapped:";
-  name += (params.flags & TF_MIPMAPPED) ? "true" : "false";
-  name += " sRGB:";
-  name += (params.flags & TF_SRGB) ? "true" : "false";
 
-  name += " filter:";
+  if (params.flags & TF_MIPMAPPED)
+    name += " mipmapped";
+  if (params.flags & TF_SRGB)
+    name += " sRGB";
+
   if (params.filterMode == FILTER_NEAREST)
-    name += "nearest";
+    name += " nearest";
   else if (params.filterMode == FILTER_BILINEAR)
-    name += "bilinear";
+    name += " bilinear";
   else if (params.filterMode == FILTER_TRILINEAR)
-    name += "trilinear";
+    name += " trilinear";
 
-  name += " address:";
   if (params.addressMode == ADDRESS_WRAP)
-    name += "wrap";
+    name += " wrap";
   else if (params.addressMode == ADDRESS_CLAMP)
-    name += "clamp";
+    name += " clamp";
 
-  name += " maxAnisotropy:";
-  name += wendy::format("%f", params.maxAnisotropy);
+  if (params.maxAnisotropy != 1.f)
+    name += wendy::format(" %f", params.maxAnisotropy);
 
   if (Ref<Texture> texture = cache.find<Texture>(name))
     return texture;
