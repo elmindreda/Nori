@@ -41,15 +41,14 @@ Entry::Entry(Layer& layer, Widget* parent, const char* text):
   Widget(layer, parent),
   m_controller(text)
 {
-  Drawer& drawer = layer.drawer();
-  drawer.setCurrentFont(nullptr);
-  const float em = drawer.currentEM();
+  Font& font = layer.drawer().theme().font();
+  const float em = font.height();
 
   float textWidth;
   if (m_controller.text().empty())
     textWidth = em * 3.f;
   else
-    textWidth = drawer.currentFont().boundsOf(m_controller.text().c_str()).size.x;
+    textWidth = font.boundsOf(m_controller.text().c_str()).size.x;
 
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 
@@ -95,27 +94,26 @@ void Entry::draw() const
   {
     drawer.drawWell(area, state());
 
-    const float em = drawer.currentEM();
+    Font& font = drawer.theme().font();
+    const float em = font.height();
     const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                         area.size + vec2(em, 0.f));
     const String& text = m_controller.text();
 
+    drawer.setCurrentFont(nullptr);
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());
 
     if (isActive() && floor(fmod(m_timer.time(), 2.0)) == 0.0)
     {
-      float position = 0.f;
-
-      Font& font = drawer.currentFont();
       const Rect bounds = font.boundsOf(text.c_str(), 0, m_controller.caretPosition());
-      position = bounds.size.x;
+      const float position = bounds.size.x;
 
       const vec2 start = vec2(textArea.position.x + position,
                               textArea.position.y);
       const vec2 end = vec2(textArea.position.x + position,
                             textArea.position.y + textArea.size.y);
 
-      drawer.drawLine(start, end, vec4(drawer.theme().caretColors[state()], 1.f));
+      drawer.drawLine(start, end, vec4(drawer.theme().caretColor(state()), 1.f));
     }
 
     Widget::draw();
@@ -138,11 +136,8 @@ void Entry::onMouseButton(vec2 point,
 {
   if (action == PRESSED)
   {
-    Drawer& drawer = layer().drawer();
-    drawer.setCurrentFont(nullptr);
-    Font& font = drawer.currentFont();
-
-    const float em = drawer.currentEM();
+    Font& font = layer().drawer().theme().font();
+    const float em = font.height();
     const float position = transformToLocal(point).x - em / 2.f;
     const auto layout = font.layoutOf(m_controller.text().c_str());
 

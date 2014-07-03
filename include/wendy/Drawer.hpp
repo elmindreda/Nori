@@ -104,21 +104,29 @@ public:
  */
 class Theme : public Resource, public RefObject
 {
+  friend class Drawer;
+  friend class ThemeReader;
 public:
   Theme(const ResourceInfo& info);
+  float em() const { return m_font->height(); }
+  Font& font() const { return *m_font; }
+  vec3 textColor(WidgetState state) const { return m_textColors[state]; }
+  vec3 backgroundColor(WidgetState state) const { return m_backColors[state]; }
+  vec3 caretColor(WidgetState state) const { return m_caretColors[state]; }
   static Ref<Theme> read(RenderContext& context, const String& name);
-  Rect buttonElements[4];
-  Rect handleElements[4];
-  Rect frameElements[4];
-  Rect wellElements[4];
-  Rect tabElements[4];
-  Rect checkElements[4];
-  Rect clearElements[4];
-  vec3 textColors[4];
-  vec3 backColors[4];
-  vec3 caretColors[4];
-  Ref<Texture> texture;
-  Ref<Font> font;
+private:
+  Rect m_buttonElements[4];
+  Rect m_handleElements[4];
+  Rect m_frameElements[4];
+  Rect m_wellElements[4];
+  Rect m_tabElements[4];
+  Rect m_checkElements[4];
+  Rect m_clearElements[4];
+  vec3 m_textColors[4];
+  vec3 m_backColors[4];
+  vec3 m_caretColors[4];
+  Ref<Texture> m_texture;
+  Ref<Font> m_font;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -192,7 +200,6 @@ public:
   RenderContext& context();
   Font& currentFont();
   void setCurrentFont(Font* newFont);
-  float currentEM() const;
   static Drawer* create(RenderContext& context);
 private:
   Drawer(RenderContext& context);

@@ -147,8 +147,8 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
   const TextureParams params(TEXTURE_RECT, TF_NONE, FILTER_BILINEAR, ADDRESS_CLAMP);
 
-  theme->texture = Texture::read(m_context, params, imageName);
-  if (!theme->texture)
+  theme->m_texture = Texture::read(m_context, params, imageName);
+  if (!theme->m_texture)
   {
     logError("Failed to create texture for UI theme %s", name.c_str());
     return nullptr;
@@ -161,8 +161,8 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  theme->font = Font::read(m_context, fontName);
-  if (!theme->font)
+  theme->m_font = Font::read(m_context, fontName);
+  if (!theme->m_font)
   {
     logError("Failed to load font for UI theme %s", name.c_str());
     return nullptr;
@@ -183,34 +183,34 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     WidgetState state = widgetStateMap[sn.name()];
 
     if (pugi::xml_node node = sn.child("text"))
-      theme->textColors[state] = vec3Cast(node.attribute("color").value()) * scale;
+      theme->m_textColors[state] = vec3Cast(node.attribute("color").value()) * scale;
 
     if (pugi::xml_node node = sn.child("back"))
-      theme->backColors[state] = vec3Cast(node.attribute("color").value()) * scale;
+      theme->m_backColors[state] = vec3Cast(node.attribute("color").value()) * scale;
 
     if (pugi::xml_node node = sn.child("caret"))
-      theme->caretColors[state] = vec3Cast(node.attribute("color").value()) * scale;
+      theme->m_caretColors[state] = vec3Cast(node.attribute("color").value()) * scale;
 
     if (pugi::xml_node node = sn.child("button"))
-      theme->buttonElements[state] = rectCast(node.attribute("area").value());
+      theme->m_buttonElements[state] = rectCast(node.attribute("area").value());
 
     if (pugi::xml_node node = sn.child("handle"))
-      theme->handleElements[state] = rectCast(node.attribute("area").value());
+      theme->m_handleElements[state] = rectCast(node.attribute("area").value());
 
     if (pugi::xml_node node = sn.child("frame"))
-      theme->frameElements[state] = rectCast(node.attribute("area").value());
+      theme->m_frameElements[state] = rectCast(node.attribute("area").value());
 
     if (pugi::xml_node node = sn.child("well"))
-      theme->wellElements[state] = rectCast(node.attribute("area").value());
+      theme->m_wellElements[state] = rectCast(node.attribute("area").value());
 
     if (pugi::xml_node node = sn.child("check"))
-      theme->checkElements[state] = rectCast(node.attribute("area").value());
+      theme->m_checkElements[state] = rectCast(node.attribute("area").value());
 
     if (pugi::xml_node node = sn.child("clear"))
-      theme->clearElements[state] = rectCast(node.attribute("area").value());
+      theme->m_clearElements[state] = rectCast(node.attribute("area").value());
 
     if (pugi::xml_node node = sn.child("tab"))
-      theme->tabElements[state] = rectCast(node.attribute("area").value());
+      theme->m_tabElements[state] = rectCast(node.attribute("area").value());
   }
 
   return theme;
@@ -405,27 +405,27 @@ void Drawer::drawText(const Rect& area,
                       Alignment alignment,
                       WidgetState state)
 {
-  drawText(area, text, alignment, m_theme->textColors[state]);
+  drawText(area, text, alignment, m_theme->m_textColors[state]);
 }
 
 void Drawer::drawWell(const Rect& area, WidgetState state)
 {
-  drawElement(area, m_theme->wellElements[state]);
+  drawElement(area, m_theme->m_wellElements[state]);
 }
 
 void Drawer::drawFrame(const Rect& area, WidgetState state)
 {
-  drawElement(area, m_theme->frameElements[state]);
+  drawElement(area, m_theme->m_frameElements[state]);
 }
 
 void Drawer::drawHandle(const Rect& area, WidgetState state)
 {
-  drawElement(area, m_theme->handleElements[state]);
+  drawElement(area, m_theme->m_handleElements[state]);
 }
 
 void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 {
-  drawElement(area, m_theme->buttonElements[state]);
+  drawElement(area, m_theme->m_buttonElements[state]);
 
   if (state == STATE_SELECTED)
   {
@@ -447,9 +447,9 @@ void Drawer::drawCheck(const Rect& area, WidgetState state, bool checked, const 
                        vec2(checkSize) * 0.6f);
 
   if (checked)
-    drawElement(checkArea, m_theme->checkElements[state]);
+    drawElement(checkArea, m_theme->m_checkElements[state]);
   else
-    drawElement(checkArea, m_theme->clearElements[state]);
+    drawElement(checkArea, m_theme->m_clearElements[state]);
 
   const Rect textArea(area.position + vec2(checkSize, 0.f),
                       area.size - vec2(checkSize, 0.f));
@@ -459,7 +459,7 @@ void Drawer::drawCheck(const Rect& area, WidgetState state, bool checked, const 
 
 void Drawer::drawTab(const Rect& area, WidgetState state, const char* text)
 {
-  drawElement(area, m_theme->tabElements[state]);
+  drawElement(area, m_theme->m_tabElements[state]);
   drawText(area, text, Alignment(), state);
 }
 
@@ -483,12 +483,7 @@ void Drawer::setCurrentFont(Font* newFont)
   if (newFont)
     m_font = newFont;
   else
-    m_font = m_theme->font;
-}
-
-float Drawer::currentEM() const
-{
-  return m_font->height();
+    m_font = m_theme->m_font;
 }
 
 Drawer* Drawer::create(RenderContext& context)
@@ -595,7 +590,7 @@ bool Drawer::init()
       return false;
     }
 
-    m_font = m_theme->font;
+    m_font = m_theme->m_font;
   }
 
   // Set up solid pass
@@ -627,7 +622,7 @@ bool Drawer::init()
     m_elementPass.setProgram(program);
     m_elementPass.setDepthTesting(false);
     m_elementPass.setDepthWriting(false);
-    m_elementPass.setSamplerState("image", m_theme->texture);
+    m_elementPass.setSamplerState("image", m_theme->m_texture);
     m_elementPass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
     m_elementPass.setMultisampling(false);
 

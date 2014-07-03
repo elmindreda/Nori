@@ -44,8 +44,7 @@ Popup::Popup(Layer& layer, Widget* parent):
   m_selection(NO_ITEM),
   m_menu(nullptr)
 {
-  const float em = layer.drawer().currentEM();
-
+  const float em = layer.drawer().theme().em();
   setDesiredSize(vec2(em * 10.f, em * 2.f));
 
   m_menu = new Menu(layer);
@@ -180,12 +179,13 @@ void Popup::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
+    drawer.setCurrentFont(nullptr);
     drawer.drawButton(area, state());
 
     if (m_selection != NO_ITEM)
     {
       const Item* item = m_menu->item(m_selection);
-      const float em = drawer.currentEM();
+      const float em = drawer.theme().em();
       const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                           area.size - vec2(em, 0.f));
 

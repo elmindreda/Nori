@@ -45,7 +45,7 @@ Slider::Slider(Layer& layer, Widget* parent, Orientation orientation):
   m_value(0.f),
   m_orientation(orientation)
 {
-  const float em = layer.drawer().currentEM();
+  const float em = layer.drawer().theme().em();
 
   if (m_orientation == HORIZONTAL)
     setDesiredSize(vec2(em * 10.f, em * 1.5f));

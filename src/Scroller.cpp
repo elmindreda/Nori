@@ -46,7 +46,7 @@ Scroller::Scroller(Layer& layer, Widget* parent, Orientation orientation):
   m_reference(0.f),
   m_orientation(orientation)
 {
-  const float em = layer.drawer().currentEM();
+  const float em = layer.drawer().theme().em();
 
   if (m_orientation == HORIZONTAL)
     setDesiredSize(vec2(0.f, em * 1.5f));
@@ -263,7 +263,7 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::handleSize() const
 {
-  const float em = layer().drawer().currentEM();
+  const float em = layer().drawer().theme().em();
 
   if (m_orientation == HORIZONTAL)
     return max(width() * m_percentage, em);

@@ -65,15 +65,9 @@ Button::Button(Layer& layer, Widget* parent, ButtonType type, const char* text):
   m_selected(false),
   m_checked(false)
 {
-  Drawer& drawer = layer.drawer();
-  drawer.setCurrentFont(nullptr);
-  const float em = drawer.currentEM();
-
-  float textWidth;
-  if (m_text.empty())
-    textWidth = em * 3.f;
-  else
-    textWidth = drawer.currentFont().boundsOf(m_text.c_str()).size.x;
+  Font& font = layer.drawer().theme().font();
+  const float em = font.height();
+  const float textWidth = font.boundsOf(m_text.c_str()).size.x;
 
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
@@ -94,6 +88,7 @@ void Button::draw() const
     else
       hoverState = state();
 
+    drawer.setCurrentFont(nullptr);
     if (m_type == PUSH_BUTTON)
       drawer.drawButton(area, hoverState, m_text.c_str());
     else if (m_type == CHECK_BUTTON)

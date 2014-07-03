@@ -55,14 +55,13 @@ bool Item::operator < (const Item& other) const
 
 float Item::width() const
 {
-  Drawer& drawer = m_layer.drawer();
-  return drawer.currentEM() * 2.f +
-    drawer.currentFont().boundsOf(m_value.c_str()).size.x;
+  Font& font = m_layer.drawer().theme().font();
+  return font.height() * 2.f + font.boundsOf(m_value.c_str()).size.x;
 }
 
 float Item::height() const
 {
-  return m_layer.drawer().currentEM() * 1.5f;
+  return m_layer.drawer().theme().em() * 1.5f;
 }
 
 ItemID Item::id() const
@@ -84,17 +83,18 @@ void Item::setValue(const char* newValue)
 void Item::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = m_layer.drawer();
-
-  const float em = drawer.currentEM();
+  Font& font = drawer.theme().font();
+  const float em = font.height();
   const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                       area.size - vec2(em, 0.f));
 
   if (state == STATE_SELECTED)
   {
-    const vec3 color = drawer.theme().backColors[STATE_SELECTED];
+    const vec3 color = drawer.theme().backgroundColor(STATE_SELECTED);
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 
+  drawer.setCurrentFont(nullptr);
   drawer.drawText(textArea, m_value.c_str(), LEFT_ALIGNED, state);
 }
 
@@ -107,12 +107,12 @@ SeparatorItem::SeparatorItem(Layer& layer):
 
 float SeparatorItem::width() const
 {
-  return m_layer.drawer().currentEM() * 2.f;
+  return m_layer.drawer().theme().em() * 2.f;
 }
 
 float SeparatorItem::height() const
 {
-  return m_layer.drawer().currentEM() / 2.f;
+  return m_layer.drawer().theme().em() / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
@@ -139,12 +139,12 @@ TextureItem::TextureItem(Layer& layer,
 
 float TextureItem::width() const
 {
-  return Item::width() + m_layer.drawer().currentEM() * 3.f;
+  return Item::width() + m_layer.drawer().theme().em() * 3.f;
 }
 
 float TextureItem::height() const
 {
-  return m_layer.drawer().currentEM() * 3.f;
+  return m_layer.drawer().theme().em() * 3.f;
 }
 
 Texture& TextureItem::texture() const
@@ -155,17 +155,17 @@ Texture& TextureItem::texture() const
 void TextureItem::draw(const Rect& area, WidgetState state) const
 {
   Drawer& drawer = m_layer.drawer();
-
-  const float em = drawer.currentEM();
+  const float em = drawer.theme().em();
   const Rect textArea(area.position + vec2(em * 3.5f, 0.f),
                       area.size - vec2(em, 0.f));
 
   if (state == STATE_SELECTED)
   {
-    const vec3 color = drawer.theme().backColors[STATE_SELECTED];
+    const vec3 color = drawer.theme().backgroundColor(STATE_SELECTED);
     drawer.fillRectangle(area, vec4(color, 1.f));
   }
 
+  drawer.setCurrentFont(nullptr);
   drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
 
   const Rect textureArea(area.position, vec2(em * 3.f));

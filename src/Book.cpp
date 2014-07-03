@@ -101,8 +101,8 @@ void Book::draw() const
   {
     if (!m_pages.empty())
     {
-      const vec2 tabSize(area.size.x / m_pages.size(),
-                         drawer.currentEM() * 2.f);
+      const float em = drawer.theme().em();
+      const vec2 tabSize(area.size.x / m_pages.size(), em * 2.f);
 
       Rect tabArea(area.position.x,
                    area.position.y + area.size.y - tabSize.y,
@@ -122,6 +122,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
+        drawer.setCurrentFont(nullptr);
         drawer.drawTab(tabArea, state, p->text().c_str());
 
         tabArea.position.x += tabSize.x;
@@ -136,7 +137,7 @@ void Book::draw() const
 
 void Book::onPageAdded(Page& page)
 {
-  const float em = layer().drawer().currentEM();
+  const float em = layer().drawer().theme().em();
 
   page.setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
 
@@ -163,7 +164,7 @@ void Book::onPageRemoved(Page& page)
 
 void Book::onAreaChanged()
 {
-  const float em = layer().drawer().currentEM();
+  const float em = layer().drawer().theme().em();
 
   for (Page* p : m_pages)
     p->setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
