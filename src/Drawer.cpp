@@ -226,6 +226,7 @@ void Drawer::begin()
 
   m_context.setCurrentSharedProgramState(m_state);
   m_context.setViewportArea(Recti(0, 0, width, height));
+  m_context.setScissorArea(Recti(0, 0, width, height));
 
   m_state->setOrthoProjectionMatrix(float(width), float(height));
 }

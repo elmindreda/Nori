@@ -52,20 +52,15 @@ void Canvas::draw() const
   Drawer& drawer = layer().drawer();
   RenderContext& context = drawer.context();
 
+  drawer.end();
+
   const Recti area(0, 0, int(width()), int(height()));
-
-  const Recti oldViewport = context.viewportArea();
-  const Recti oldScissor = context.scissorArea();
-
   context.setViewportArea(area);
   context.setScissorArea(area);
 
-  drawer.end();
   m_drawSignal(*this);
-  drawer.begin();
 
-  context.setViewportArea(oldViewport);
-  context.setScissorArea(oldScissor);
+  drawer.begin();
 
   Widget::draw();
 }
