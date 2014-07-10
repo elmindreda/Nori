@@ -31,7 +31,7 @@
 // This path may need to be changed if you build GLFW using your own setup
 // We ship and use our own copy of wglext.h since GLFW uses fairly new
 // extensions and not all operating systems come with an up-to-date version
-#include "../deps/GL/wglext.h"
+#include "GL/wglext.h"
 
 #define _GLFW_PLATFORM_FBCONFIG                 int             wgl
 #define _GLFW_PLATFORM_CONTEXT_STATE            _GLFWcontextWGL wgl

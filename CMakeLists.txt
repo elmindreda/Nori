@@ -68,7 +68,7 @@ find_package(OpenGL REQUIRED)
 
 add_subdirectory(deps)
 
-list(APPEND wendy_CORE_LIBRARIES pugixml png z pcre vorbis ogg)
+list(APPEND wendy_CORE_LIBRARIES pugixml pcre vorbis ogg)
 
 list(APPEND wendy_LIBRARIES greg glfw ${GLFW_LIBRARIES})
 if (WENDY_INCLUDE_AUDIO)
