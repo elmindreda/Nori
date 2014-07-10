@@ -275,7 +275,17 @@ void WidgetReader::addFactory(const String& name, WidgetFactory factory)
   m_factories[name] = factory;
 }
 
+bool WidgetReader::read(Widget& parent, const String& name)
+{
+  return read(parent.layer(), &parent, name);
+}
+
 bool WidgetReader::read(Layer& layer, const String& name)
+{
+  return read(layer, nullptr, name);
+}
+
+bool WidgetReader::read(Layer& layer, Widget* parent, const String& name)
 {
   const Path path = m_cache.findFile(name);
 
@@ -305,7 +315,7 @@ bool WidgetReader::read(Layer& layer, const String& name)
   }
 
   for (auto wn : root.children())
-    read(layer, nullptr, wn);
+    read(layer, parent, wn);
 
   return true;
 }

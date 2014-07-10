@@ -44,6 +44,7 @@ class WidgetReader
 public:
   WidgetReader(ResourceCache& cache);
   void addFactory(const String& name, WidgetFactory factory);
+  bool read(Widget& parent, const String& name);
   bool read(Layer& layer, const String& name);
   template <typename T>
   T* find(const String& name)
@@ -55,6 +56,7 @@ public:
     return dynamic_cast<T*>(entry->second);
   }
 private:
+  bool read(Layer& layer, Widget* parent, const String& name);
   void read(Layer& layer, Widget* parent, pugi::xml_node wn);
   ResourceCache& m_cache;
   std::map<String,WidgetFactory> m_factories;
