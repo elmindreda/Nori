@@ -99,6 +99,9 @@ public:
 Rect rectCast(const String& string);
 Recti rectiCast(const String& string);
 
+String stringCast(const Rect& v);
+String stringCast(const Recti& v);
+
 ///////////////////////////////////////////////////////////////////////
 
 template<typename T>

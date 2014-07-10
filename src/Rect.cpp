@@ -515,6 +515,26 @@ Recti rectiCast(const String& string)
   return result;
 }
 
+String stringCast(const Rect& v)
+{
+  std::ostringstream stream;
+
+  stream << v.position.x << ' ' << v.position.y << ' '
+         << v.size.x << ' ' << v.size.y;
+
+  return stream.str();
+}
+
+String stringCast(const Recti& v)
+{
+  std::ostringstream stream;
+
+  stream << v.position.x << ' ' << v.position.y << ' '
+         << v.size.x << ' ' << v.size.y;
+
+  return stream.str();
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 } /*namespace wendy*/
