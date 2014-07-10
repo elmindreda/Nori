@@ -113,6 +113,7 @@ public:
    *  @return @c true if successful, otherwise @c false.
    */
   std::vector<String> childrenMatching(const Regex& regex) const;
+  std::vector<Path> glob(const String& pattern) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */

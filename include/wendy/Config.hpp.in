@@ -17,6 +17,8 @@
 #cmakedefine WENDY_HAVE_FCNTL_H 1
 /* Define this to 1 if unistd.h is available */
 #cmakedefine WENDY_HAVE_UNISTD_H 1
+/* Define this to 1 if glob.h is available */
+#cmakedefine WENDY_HAVE_GLOB_H 1
 /* Define this to 1 if dirent.h is available */
 #cmakedefine WENDY_HAVE_DIRENT_H 1
 

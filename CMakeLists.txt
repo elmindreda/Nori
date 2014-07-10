@@ -44,6 +44,7 @@ if (WIN32)
 else()
   check_include_file(dirent.h WENDY_HAVE_DIRENT_H)
   check_include_file(unistd.h WENDY_HAVE_UNISTD_H)
+  check_include_file(glob.h WENDY_HAVE_GLOB_H)
 endif()
 
 if (WIN32)

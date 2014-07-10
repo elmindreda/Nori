@@ -57,6 +57,10 @@
 #include <io.h>
 #endif
 
+#if WENDY_HAVE_GLOB_H
+#include <glob.h>
+#endif
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -262,18 +266,17 @@ std::vector<String> Path::childrenMatching(const Regex& regex) const
   std::vector<String> children;
 
 #if WENDY_SYSTEM_WIN32
-  WIN32_FIND_DATA data;
-  HANDLE search;
+  WIN32_FIND_DATA wfd;
 
-  search = FindFirstFile(m_string.c_str(), &data);
+  HANDLE search = FindFirstFile(m_string.c_str(), &wfd);
   if (search != INVALID_HANDLE_VALUE)
   {
     do
     {
-      if (regex.matches(data.cFileName))
-        children.push_back(data.cFileName);
+      if (regex.matches(wfd.cFileName))
+        children.push_back(wfd.cFileName);
     }
-    while (FindNextFile(search, &data));
+    while (FindNextFile(search, &wfd));
 
     FindClose(search);
   }
@@ -295,6 +298,40 @@ std::vector<String> Path::childrenMatching(const Regex& regex) const
 #endif
 
   return children;
+}
+
+std::vector<Path> Path::glob(const String& pattern) const
+{
+  std::vector<Path> descendants;
+
+#if WENDY_SYSTEM_WIN32
+  WIN32_FIND_DATA wfd;
+
+  HANDLE search = FindFirstFile((m_string + '/' + pattern).c_str(), &wfd);
+  if (search != INVALID_HANDLE_VALUE)
+  {
+    do
+    {
+      if (regex.matches(wfd.cFileName))
+        descendants.push_back(wfd.cFileName);
+    }
+    while (FindNextFile(search, &wfd));
+
+    FindClose(search);
+  }
+#else
+  glob_t result;
+
+  if (::glob((m_string + '/' + pattern).c_str(), 0, nullptr, &result) == 0)
+  {
+    for (size_t i = 0;  i < result.gl_pathc;  i++)
+      descendants.push_back(Path(result.gl_pathv[i]));
+
+    globfree(&result);
+  }
+#endif
+
+  return descendants;
 }
 
 String Path::suffix() const
