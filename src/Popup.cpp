@@ -210,7 +210,7 @@ void Popup::onMouseButton(vec2 point,
                           Action action,
                           uint mods)
 {
-  if (action == PRESSED)
+  if (button == MOUSE_BUTTON_LEFT && action == PRESSED)
     display();
 
   Widget::onMouseButton(point, button, action, mods);
