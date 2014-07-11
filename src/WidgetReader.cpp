@@ -247,6 +247,11 @@ Widget* createSlider(Layer& layer, Widget* parent, pugi::xml_node wn)
   return slider;
 }
 
+Widget* createWidget(Layer& layer, Widget* parent, pugi::xml_node wn)
+{
+  return new Widget(layer, parent);
+}
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -268,6 +273,7 @@ WidgetReader::WidgetReader(ResourceCache& cache):
   m_factories["push"] = createPushButton;
   m_factories["scroller"] = createScroller;
   m_factories["slider"] = createSlider;
+  m_factories["widget"] = createWidget;
 }
 
 void WidgetReader::addFactory(const String& name, WidgetFactory factory)
