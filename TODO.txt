@@ -1,88 +1,26 @@
 
-Global
-======
+Text selection
+Clipboard support
 
+Tooltip system
+Toolbar widget
 
-Core
-====
+Resource reloading
 
-Add resource reloading [Pod]
+Audio file streaming
 
-Make frustum-AABB intersection test less conservative [Pod]
+VAO support
+UBO support
 
+Scene root nodes with optional skeletons
+Root node integer pos and scene scale
+Manual root node bounds
 
-Audio
-=====
+Squirrel iterators
+Squirrel parameter type mask generation
 
-Add streaming of audio files [Pod]
+NanoVG support
 
-
-Render
-======
-
-Separate formats from vertex and index buffer [Pod]
-Add binding objects connecting a VAO with a program using a vertex format [Mac]
-
-Remove last string compares in render code [opt]
-Add value cache to Uniform [opt]
-
-Add procedural generation of texture contents using fragment shader [Pod]
-
-Add simple, distance-based DLOD to Model [Pod]
-
-Add surface shaders [Pod]
-Add forward renderer lighting system [Pod]
-
-
-Scene
-=====
-
-Add list of elements (non-culled renderables) to Scene [Pod]
-
-Replace generic hierarchy with entities and skeletons [Pod]
-Make entity positions integer with per-scene scale [Pod]
-
-Replace node bounds tracking with manual setting [opt]
-
-
-Squirrel
-========
-
-Add parameter type mask generation
-Add collection iteration [Pod]
-
-
-Input
-=====
-
-Add selection to TextController
-Add clipboard support to TextController
-
-
-UI
-==
-
-Add color picker widget [Pod]
-
-Add tooltip system [Pod]
-
-
-Bullet
-======
-
-Add debug drawer [Pod]
-
-
-Debug
-=====
-
-Add graphs to stats items [Pod]
-Add drawing of profiling graph [Pod]
-Add support for custom debug bar entries [Pod]
-
-
-Tools
-=====
-
-Add resource dependency checker [Pod]
+Custom debug UI entries
+Debug bar entry graphs
 
