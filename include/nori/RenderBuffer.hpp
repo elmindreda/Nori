@@ -36,7 +36,7 @@ class RenderContext;
 
 /*! @brief Primitive type enumeration.
  */
-enum PrimitiveType
+enum PrimitiveMode
 {
   POINT_LIST,
   LINE_LIST,
@@ -45,6 +45,12 @@ enum PrimitiveType
   TRIANGLE_LIST,
   TRIANGLE_STRIP,
   TRIANGLE_FAN
+};
+
+enum BufferType
+{
+  VERTEX_BUFFER,
+  INDEX_BUFFER
 };
 
 /*! Index buffer element type enumeration.
@@ -59,7 +65,8 @@ enum IndexType
   INDEX_UINT16,
   /*! Indices are 32-bit unsigned integers.
    */
-  INDEX_UINT32
+  INDEX_UINT32,
+  NO_INDICES
 };
 
 /*! Index buffer usage hint enumeration.
@@ -77,211 +84,89 @@ enum BufferUsage
   USAGE_DYNAMIC
 };
 
+size_t getIndexTypeSize(IndexType type);
+
 /*! @brief Vertex buffer.
  */
-class VertexBuffer : public RefObject
+class Buffer
 {
+  friend class VertexArray;
   friend class RenderContext;
 public:
   /*! Destructor.
    */
-  ~VertexBuffer();
+  ~Buffer();
   /*! Discards the current data.
    */
   void discard();
-  /*! Copies the specified data into this vertex buffer, starting at the
+  /*! Copies the specified data into this buffer, starting at the
    *  specified offset.
    *  @param[in] source The base address of the source data.
-   *  @param[in] count The number of vertices to copy.
-   *  @param[in] start The index of the first vertex to be written to.
+   *  @param[in] size The size, in bytes, of the data to copy.
+   *  @param[in] offset The offset, in bytes, of the data to copy.
    */
-  void copyFrom(const void* source, size_t count, size_t start = 0);
-  /*! Copies the specified number of bytes from this vertex buffer, starting
-   *  at the specified offset.
+  void copyFrom(const void* source, size_t size, size_t offset = 0);
+  /*! Copies the specified data from this buffer, starting at the specified
+   *  offset.
    *  @param[in,out] target The base address of the destination buffer.
-   *  @param[in] count The number of vertices to copy.
-   *  @param[in] start The index of the first vertex to read from.
+   *  @param[in] size The size, in bytes, of the data to copy.
+   *  @param[in] offset The offset, in bytes, of the data to copy.
    */
-  void copyTo(void* target, size_t count, size_t start = 0);
-  /*! @return The usage hint of this vertex buffer.
-   */
-  BufferUsage usage() const;
-  /*! @return The format of this vertex buffer.
-   */
-  const VertexFormat& format() const { return m_format; }
-  /*! @return The number of vertices in this vertex buffer.
-   */
-  size_t count() const { return m_count; }
+  void copyTo(void* target, size_t size, size_t start = 0);
   /*! @return The size, in bytes, of the data in this vertex buffer.
    */
-  size_t size() const { return m_count * m_format.size(); }
-  /*! Creates a vertex buffer with the specified properties.
-   *  @param count The desired number of vertices.
-   *  @param format The desired format of the vertices.
-   *  @param usage The desired usage hint.
-   *  @return The newly created vertex buffer, or @c nullptr if an error occurred.
-   */
-  static Ref<VertexBuffer> create(RenderContext& context,
-                                  size_t count,
-                                  const VertexFormat& format,
-                                  BufferUsage usage);
+  size_t size() const { return m_size; }
+  static std::unique_ptr<Buffer> create(RenderContext& context,
+                                        BufferType type,
+                                        size_t count,
+                                        BufferUsage usage);
+protected:
+  Buffer(RenderContext& context, BufferType type);
 private:
-  VertexBuffer(RenderContext& context);
-  VertexBuffer(const VertexBuffer&) = delete;
-  bool init(const VertexFormat& format, size_t count, BufferUsage usage);
-  VertexBuffer& operator = (const VertexBuffer&) = delete;
+  Buffer(const Buffer&) = delete;
+  bool init(size_t size, BufferUsage usage);
+  Buffer& operator = (const Buffer&) = delete;
   RenderContext& m_context;
-  VertexFormat m_format;
+  BufferType m_type;
   uint m_bufferID;
-  size_t m_count;
+  size_t m_size;
   BufferUsage m_usage;
 };
 
-/*! @brief Index (or element) buffer.
- */
-class IndexBuffer : public RefObject
-{
-  friend class RenderContext;
-public:
-  /*! Destructor.
-   */
-  ~IndexBuffer();
-  /*! Copies the specified data into this index buffer, starting at the
-   *  specified offset.
-   *  @param[in] source The base address of the source data.
-   *  @param[in] count The number of indices to copy.
-   *  @param[in] start The index of the first index to be written to.
-   */
-  void copyFrom(const void* source, size_t count, size_t start = 0);
-  /*! Copies the specified number of bytes from this index buffer, starting
-   *  at the specified offset.
-   *  @param[in,out] target The base address of the destination buffer.
-   *  @param[in] count The number of indices to copy.
-   *  @param[in] start The index of the first index to read from.
-   */
-  void copyTo(void* target, size_t count, size_t start = 0);
-  /*! @return The type of the index elements in this index buffer.
-   */
-  IndexType type() const { return m_type; }
-  /*! @return The usage hint of this index buffer.
-   */
-  BufferUsage usage() const { return m_usage; }
-  /*! @return The number of index elements in this index buffer.
-   */
-  size_t count() const { return m_count; }
-  /*! @return The size, in bytes, of the data in this index buffer.
-   */
-  size_t size() const;
-  /*! Creates an index buffer with the specified properties.
-   *  @param count The desired number of index elements.
-   *  @param type The desired type of the index elements.
-   *  @param usage The desired usage hint.
-   *  @return The newly created index buffer, or @c nullptr if an error
-   *  occurred.
-   */
-  static Ref<IndexBuffer> create(RenderContext& context,
-                                 size_t count,
-                                 IndexType type,
-                                 BufferUsage usage);
-  /*! @return The size, in bytes, of the specified element type.
-   */
-  static size_t typeSize(IndexType type);
-private:
-  IndexBuffer(RenderContext& context);
-  IndexBuffer(const IndexBuffer&) = delete;
-  bool init(size_t count, IndexType type, BufferUsage usage);
-  IndexBuffer& operator = (const IndexBuffer&) = delete;
-  RenderContext& m_context;
-  IndexType m_type;
-  BufferUsage m_usage;
-  uint m_bufferID;
-  size_t m_count;
-};
-
-/*! @brief Vertex buffer range.
+/*! @brief Buffer range.
  *
- *  This class represents a contigous range of an vertex buffer object.
- *  This is useful for allocation schemes where many smaller objects
- *  are fitted into a single vertex buffer for performance reasons.
+ *  This class represents a contigous range of a buffer object.
  */
-class VertexRange
+class BufferRange
 {
 public:
   /*! Constructor.
    */
-  VertexRange();
+  BufferRange();
   /*! Constructor.
    */
-  VertexRange(VertexBuffer& vertexBuffer);
+  BufferRange(Buffer& buffer);
   /*! Constructor.
    */
-  VertexRange(VertexBuffer& vertexBuffer, size_t start, size_t count);
-  /*! Copies the specified data into this vertex range.
+  BufferRange(Buffer& buffer, size_t size, size_t offset = 0);
+  /*! Copies the specified data into this buffer range.
    *  @param[in] source The base address of the source data.
    */
   void copyFrom(const void* source);
-  /*! Copies the specified number of bytes from this vertex range.
+  /*! Copies the specified number of bytes from this buffer range.
    *  @param[in,out] target The base address of the destination buffer.
    */
   void copyTo(void* target);
-  /*! @return @c true if this vertex range is empty, or @c false otherwise.
+  bool isEmpty() const;
+  /*! The buffer to use.
    */
-  bool isEmpty() const { return m_count == 0; }
-  /*! @return The vertex buffer underlying this vertex range.
+  Buffer* buffer;
+  /*! The size, in bytes, of this range.
    */
-  VertexBuffer* vertexBuffer() const { return m_buffer; }
-  /*! @return The index of the first vertex in this vertex range.
+  size_t size;
+  /*! The offset, in bytes, of this range within the buffer.
    */
-  size_t start() const { return m_start; }
-  /*! @return The number of vertices in this vertex range.
-   */
-  size_t count() const { return m_count; }
-private:
-  VertexBuffer* m_buffer;
-  size_t m_start;
-  size_t m_count;
-};
-
-/*! @brief Index buffer range.
- *
- *  This class represents a contigous range of an index buffer object.
- *  This is useful for allocation schemes where many smaller objects
- *  are fitted into a single index buffer for performance reasons.
- */
-class IndexRange
-{
-public:
-  /*! Creates an empty range not referencing any index buffer.
-   */
-  IndexRange();
-  /*! Creates a range spanning the entire specified index buffer.
-   *  @param[in] indexBuffer The index buffer this range will refer to.
-   */
-  IndexRange(IndexBuffer& buffer);
-  /*! Creates the specified range within the specified index buffer.
-   */
-  IndexRange(IndexBuffer& buffer, size_t start, size_t count);
-  /*! Copies the specified data into this index range.
-   *  @param[in] source The base address of the source data.
-   */
-  void copyFrom(const void* source);
-  /*! Copies the specified number of bytes from this index range.
-   *  @param[in,out] target The base address of the destination buffer.
-   */
-  void copyTo(void* target);
-  /*! @return The index buffer underlying this index range.
-   */
-  IndexBuffer* indexBuffer() const { return m_buffer; }
-  /*! @return The index of the first index in this index range.
-   */
-  size_t start() const { return m_start; }
-  /*! @return The number of indices in this index range.
-   */
-  size_t count() const { return m_count; }
-private:
-  IndexBuffer* m_buffer;
-  size_t m_start;
-  size_t m_count;
+  size_t offset;
 };
 
 /*! @brief Geometric primitive range.
@@ -289,74 +174,19 @@ private:
 class PrimitiveRange
 {
 public:
-  /*! Creates an empty primitive range not referencing any buffers.
+  /*! Creates an empty primitive range.
    */
   PrimitiveRange();
-  /*! Creates a primitive range of the specified type, using the entire
-   *  specified vertex buffer.
-   */
-  PrimitiveRange(PrimitiveType type, VertexBuffer& vertexBuffer);
-  /*! Creates a primitive range of the specified type, using the specified
-   *  range of vertices.
-   */
-  PrimitiveRange(PrimitiveType type, const VertexRange& vertexRange);
-  /*! Creates a primitive range of the specified type, using the entire
-   *  specified index buffer to reference vertices in the specified vertex
-   *  buffer.
-   */
-  PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
-                 IndexBuffer& indexBuffer,
-                 size_t base = 0);
-  /*! Creates a primitive range of the specified type, using the specified
-   *  range of indices to refer to vertices in the specified vertex buffer.
-   */
-  PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
-                 const IndexRange& indexRange,
-                 size_t base = 0);
-  /*! Creates a primitive range of the specified type, using the specified
-   *  range of the specified vertex buffer.
-   */
-  PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
+  PrimitiveRange(PrimitiveMode mode,
+                 IndexType type,
                  size_t start,
                  size_t count,
                  size_t base = 0);
-  /*! Creates a primitive range of the specified type, using the specified
-   *  range of the specified index buffer to reference vertices in the
-   *  specified vertex buffer.
-   */
-  PrimitiveRange(PrimitiveType type,
-                 VertexBuffer& vertexBuffer,
-                 IndexBuffer& indexBuffer,
-                 size_t start,
-                 size_t count,
-                 size_t base = 0);
-  /*! @return @c true if this primitive range contains zero primitives,
-   *  otherwise @c false.
-   */
-  bool isEmpty() const;
-  /*! @return The type of primitives in this range.
-   */
-  PrimitiveType type() const { return m_type; }
-  /*! @return The vertex buffer used by this primitive range.
-   */
-  VertexBuffer* vertexBuffer() const { return m_vertexBuffer; }
-  /*! @return The index buffer used by this primitive range, or @c nullptr if no
-   *  index buffer is used.
-   */
-  IndexBuffer* indexBuffer() const { return m_indexBuffer; }
-  size_t start() const { return m_start; }
-  size_t count() const { return m_count; }
-  size_t base() const { return m_base; }
-private:
-  PrimitiveType m_type;
-  VertexBuffer* m_vertexBuffer;
-  IndexBuffer* m_indexBuffer;
-  size_t m_start;
-  size_t m_count;
-  size_t m_base;
+  PrimitiveMode mode;
+  IndexType type;
+  size_t start;
+  size_t count;
+  size_t base;
 };
 
 /*! @brief Framebuffer.

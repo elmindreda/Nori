@@ -127,7 +127,7 @@ void Sprite3::enqueue(RenderQueue& queue,
     return;
   }
 
-  VertexRange range = queue.context().allocateVertices(4, Vertex2ft3fv::format);
+  BufferRange range = queue.context().allocateVertices(4, Vertex2ft3fv::format.size());
   if (range.isEmpty())
     return;
 
@@ -138,10 +138,12 @@ void Sprite3::enqueue(RenderQueue& queue,
   realizeSpriteVertices(vertices, cameraPos, spritePos, size, angle, type);
   range.copyFrom(vertices);
 
+  /*
   queue.createOperations(Transform3::IDENTITY,
-                         PrimitiveRange(TRIANGLE_FAN, range),
+                         PrimitiveRange(TRIANGLE_FAN, NO_INDICES, range),
                          *material,
                          camera.normalizedDepth(spritePos));
+  */
 }
 
 Sphere Sprite3::bounds() const

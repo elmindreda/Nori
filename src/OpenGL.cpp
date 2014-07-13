@@ -89,6 +89,19 @@ bool checkGL(const char* format, ...)
   return false;
 }
 
+GLenum convertToGL(BufferType type)
+{
+  switch (type)
+  {
+    case VERTEX_BUFFER:
+      return GL_ARRAY_BUFFER;
+    case INDEX_BUFFER:
+      return GL_ELEMENT_ARRAY_BUFFER;
+  }
+
+  panic("Invalid buffer type %u", type);
+}
+
 GLenum convertToGL(IndexType type)
 {
   switch (type)

@@ -30,6 +30,7 @@ namespace nori
 
 NORI_CHECKFORMAT(1, bool checkGL(const char* format, ...));
 
+GLenum convertToGL(BufferType type);
 GLenum convertToGL(IndexType type);
 GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(const PixelFormat& format, bool sRGB);

@@ -137,6 +137,7 @@ public:
   /*! The primitive range to render.
    */
   PrimitiveRange range;
+  IndexType type;
   /*! The render technique to use.
    */
   const Pass* state;
@@ -144,6 +145,9 @@ public:
    *  geometry already is in world space.
    */
   mat4 transform;
+  /*! The vertex array ID.
+   */
+  uint arrayID;
 };
 
 /*! @brief Render operation bucket.

@@ -168,9 +168,9 @@ const char* getFramebufferStatusMessage(GLenum status)
   return "Unknown framebuffer status";
 }
 
-GLenum convertToGL(PrimitiveType type)
+GLenum convertToGL(PrimitiveMode mode)
 {
-  switch (type)
+  switch (mode)
   {
     case POINT_LIST:
       return GL_POINTS;
@@ -188,7 +188,7 @@ GLenum convertToGL(PrimitiveType type)
       return GL_TRIANGLE_FAN;
   }
 
-  panic("Invalid primitive type %u", type);
+  panic("Invalid primitive mode %u", mode);
 }
 
 GLenum convertToGL(PolygonFace face)
@@ -433,13 +433,13 @@ void RenderStats::addStateChange()
   frame.stateChangeCount++;
 }
 
-void RenderStats::addPrimitives(PrimitiveType type, uint vertexCount)
+void RenderStats::addPrimitives(PrimitiveMode mode, uint vertexCount)
 {
   Frame& frame = m_frames.front();
   frame.vertexCount += vertexCount;
   frame.operationCount++;
 
-  switch (type)
+  switch (mode)
   {
     case POINT_LIST:
       frame.pointCount += vertexCount;
@@ -460,7 +460,7 @@ void RenderStats::addPrimitives(PrimitiveType type, uint vertexCount)
       frame.triangleCount += vertexCount - 2;
       break;
     default:
-      panic("Invalid primitive type %u", type);
+      panic("Invalid primitive mode %u", mode);
   }
 }
 
@@ -862,8 +862,7 @@ RenderContext::~RenderContext()
   m_framebuffer = nullptr;
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-  setVertexBuffer(nullptr);
-  setIndexBuffer(nullptr);
+  setVertexArray(0);
   setProgram(nullptr);
 
   for (uint i = 0;  i < m_textureUnits.size();  i++)
@@ -950,22 +949,13 @@ void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 
 void RenderContext::render(const PrimitiveRange& range)
 {
-  if (range.isEmpty())
+  ProfileNodeCall call("RenderContext::render");
+
+  if (!m_vertexArrayID)
   {
-    logWarning("Rendering empty primitive range with shader program %s",
-               m_program->name().c_str());
+    logError("Cannot render without a current vertex array");
     return;
   }
-
-  setVertexBuffer(range.vertexBuffer());
-  setIndexBuffer(range.indexBuffer());
-
-  render(range.type(), range.start(), range.count(), range.base());
-}
-
-void RenderContext::render(PrimitiveType type, uint start, uint count, uint base)
-{
-  ProfileNodeCall call("RenderContext::render");
 
   if (!m_program)
   {
@@ -973,119 +963,52 @@ void RenderContext::render(PrimitiveType type, uint start, uint count, uint base
     return;
   }
 
-  if (!m_vertexBuffer)
-  {
-    logError("Cannot render without a current vertex buffer");
-    return;
-  }
-
-  if (m_dirtyBinding)
-  {
-    const VertexFormat& format = m_vertexBuffer->format();
-
-    if (m_program->attributeCount() > format.components().size())
-    {
-      logError("Shader program %s has more attributes than vertex format has components",
-               m_program->name().c_str());
-      return;
-    }
-
-    for (size_t i = 0;  i < m_program->attributeCount();  i++)
-    {
-      Attribute& attribute = m_program->attribute(i);
-
-      const VertexComponent* component = format.findComponent(attribute.name().c_str());
-      if (!component)
-      {
-        logError("Attribute %s of program %s has no corresponding vertex format component",
-                 attribute.name().c_str(),
-                 m_program->name().c_str());
-        return;
-      }
-
-      if (!isCompatible(attribute, *component))
-      {
-        logError("Attribute %s of shader program %s has incompatible type",
-                 attribute.name().c_str(),
-                 m_program->name().c_str());
-        return;
-      }
-
-      attribute.bind(format.size(), component->offset());
-    }
-
-    m_dirtyBinding = false;
-  }
-
-#if NORI_DEBUG
+#if WENDY_DEBUG
   if (!m_program->isValid())
     return;
 #endif
 
-  if (m_indexBuffer)
-  {
-    const size_t size = IndexBuffer::typeSize(m_indexBuffer->type());
-
-    glDrawElementsBaseVertex(convertToGL(type),
-                             count,
-                             convertToGL(m_indexBuffer->type()),
-                             (GLvoid*) (size * start),
-                             base);
-  }
+  if (range.type == NO_INDICES)
+    glDrawArrays(convertToGL(range.mode), range.start, range.count);
   else
-    glDrawArrays(convertToGL(type), start, count);
+  {
+    const size_t size = getIndexTypeSize(range.type);
+
+    if (range.base)
+    {
+      glDrawElementsBaseVertex(convertToGL(range.mode),
+                               range.count,
+                               convertToGL(range.type),
+                               (GLvoid*) (size * range.start),
+                               range.base);
+    }
+    else
+    {
+      glDrawElements(convertToGL(range.mode),
+                     range.count,
+                     convertToGL(range.type),
+                     (GLvoid*) (size * range.start));
+    }
+  }
 
   if (m_stats)
-    m_stats->addPrimitives(type, count);
+    m_stats->addPrimitives(range.mode, range.count);
 }
 
-VertexRange RenderContext::allocateVertices(uint count, const VertexFormat& format)
+BufferRange RenderContext::allocateVertices(uint count, size_t size)
 {
   if (!count)
-    return VertexRange();
+    return BufferRange();
 
-  Slot* slot = nullptr;
+  const size_t quux = m_buffer->size() - m_available + size - 1;
+  const size_t offset = quux - quux % size;
 
-  for (Slot& s : m_slots)
-  {
-    if (s.buffer->format() == format && s.available >= count)
-    {
-      slot = &s;
-      break;
-    }
-  }
+  if (size * count > m_available)
+    return BufferRange();
 
-  if (!slot)
-  {
-    m_slots.push_back(Slot());
-    slot = &(m_slots.back());
+  m_available -= size * count;
 
-    const size_t granularity = 16384;
-
-    const uint actualCount = granularity * ((count + granularity - 1) / granularity);
-
-    slot->buffer = VertexBuffer::create(*this,
-                                        actualCount,
-                                        format,
-                                        USAGE_DYNAMIC);
-    if (!slot->buffer)
-    {
-      m_slots.pop_back();
-      return VertexRange();
-    }
-
-    log("Allocated vertex pool of size %u format %s",
-        actualCount,
-        stringCast(format).c_str());
-
-    slot->available = slot->buffer->count();
-  }
-
-  const uint start = slot->buffer->count() - slot->available;
-
-  slot->available -= count;
-
-  return VertexRange(*(slot->buffer), start, count);
+  return BufferRange(*m_buffer, size * count, offset);
 }
 
 void RenderContext::createSharedUniform(const char* name, UniformType type, int ID)
@@ -1214,12 +1137,7 @@ void RenderContext::setProgram(Program* newProgram)
 {
   if (newProgram != m_program)
   {
-    if (m_program)
-      m_program->unbind();
-
     m_program = newProgram;
-    m_dirtyBinding = true;
-
     if (m_program)
       m_program->bind();
     else
@@ -1227,42 +1145,13 @@ void RenderContext::setProgram(Program* newProgram)
   }
 }
 
-void RenderContext::setVertexBuffer(VertexBuffer* newVertexBuffer)
+void RenderContext::setVertexArray(uint arrayID)
 {
-  if (newVertexBuffer != m_vertexBuffer)
-  {
-    m_vertexBuffer = newVertexBuffer;
-    m_dirtyBinding = true;
+  if (m_vertexArrayID == arrayID)
+    return;
 
-    if (m_vertexBuffer)
-      glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer->m_bufferID);
-    else
-      glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-#if NORI_DEBUG
-    if (!checkGL("Failed to make index buffer current"))
-      return;
-#endif
-  }
-}
-
-void RenderContext::setIndexBuffer(IndexBuffer* newIndexBuffer)
-{
-  if (newIndexBuffer != m_indexBuffer)
-  {
-    m_indexBuffer = newIndexBuffer;
-    m_dirtyBinding = true;
-
-    if (m_indexBuffer)
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer->m_bufferID);
-    else
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-#if NORI_DEBUG
-    if (!checkGL("Failed to apply index buffer"))
-      return;
-#endif
-  }
+  glBindVertexArray(arrayID);
+  m_vertexArrayID = arrayID;
 }
 
 void RenderContext::setTexture(Texture* newTexture)
@@ -1368,7 +1257,6 @@ RenderContext::RenderContext(ResourceCache& cache):
   m_cache(cache),
   m_handle(nullptr),
   m_debug(false),
-  m_dirtyBinding(true),
   m_dirtyState(true),
   m_cullingInverted(false),
   m_textureUnit(0),
@@ -1739,8 +1627,6 @@ void RenderContext::onFrame()
 #endif
 
   setProgram(nullptr);
-  setVertexBuffer(nullptr);
-  setIndexBuffer(nullptr);
 
   for (size_t i = 0;  i < m_textureUnits.size();  i++)
   {
@@ -1751,11 +1637,8 @@ void RenderContext::onFrame()
     }
   }
 
-  for (Slot& s : m_slots)
-  {
-    s.available = s.buffer->count();
-    s.buffer->discard();
-  }
+  m_available = m_buffer->size();
+  m_buffer->discard();
 
   if (m_stats)
     m_stats->addFrame();

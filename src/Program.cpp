@@ -135,6 +135,23 @@ GLenum convertToGL(ShaderType type)
   panic("Invalid GLSL shader type %i", type);
 }
 
+bool isCompatible(const Attribute& attribute, const VertexComponent& component)
+{
+  switch (attribute.type())
+  {
+    case ATTRIBUTE_FLOAT:
+      return component.elementCount() == 1;
+    case ATTRIBUTE_VEC2:
+      return component.elementCount() == 2;
+    case ATTRIBUTE_VEC3:
+      return component.elementCount() == 3;
+    case ATTRIBUTE_VEC4:
+      return component.elementCount() == 4;
+  }
+
+  return false;
+}
+
 } /*namespace*/
 
 Shader::~Shader()
@@ -303,20 +320,6 @@ bool Attribute::isVector() const
 uint Attribute::elementCount() const
 {
   return attributeTypes[m_type].elementCount;
-}
-
-void Attribute::bind(size_t stride, size_t offset)
-{
-  glVertexAttribPointer(m_location,
-                        attributeTypes[m_type].elementCount,
-                        attributeTypes[m_type].elementType,
-                        GL_FALSE,
-                        (GLsizei) stride,
-                        (const void*) offset);
-
-#if NORI_DEBUG
-  checkGL("Failed to set attribute %s", m_name.c_str());
-#endif
 }
 
 void Uniform::copyFrom(const void* data)
@@ -712,15 +715,6 @@ bool Program::retrieveAttributes()
 void Program::bind()
 {
   glUseProgram(m_programID);
-
-  for (const Attribute& a : m_attributes)
-    glEnableVertexAttribArray(a.m_location);
-}
-
-void Program::unbind()
-{
-  for (const Attribute& a : m_attributes)
-    glDisableVertexAttribArray(a.m_location);
 }
 
 bool Program::isValid() const
@@ -887,6 +881,97 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   }
 
   return true;
+}
+
+VertexArray* VertexArray::create(RenderContext& context,
+                                 const Program& program,
+                                 const Buffer& vertexBuffer,
+                                 const VertexFormat& format)
+{
+  std::unique_ptr<VertexArray> array(new VertexArray());
+  if (!array->init(context, program, vertexBuffer, format))
+    return nullptr;
+
+  return array.release();
+}
+
+VertexArray* VertexArray::create(RenderContext& context,
+                                 const Program& program,
+                                 const Buffer& indexBuffer,
+                                 const Buffer& vertexBuffer,
+                                 const VertexFormat& format)
+{
+  std::unique_ptr<VertexArray> array(new VertexArray());
+  if (!array->init(context, program, indexBuffer, vertexBuffer, format))
+    return nullptr;
+
+  return array.release();
+}
+
+VertexArray::VertexArray():
+  m_arrayID(0)
+{
+}
+
+bool VertexArray::init(RenderContext& context,
+                       const Program& program,
+                       const Buffer& vertexBuffer,
+                       const VertexFormat& format)
+{
+  if (program.attributeCount() > format.components().size())
+  {
+    logError("Shader program %s has more attributes than vertex format has components",
+             program.name().c_str());
+    return false;
+  }
+
+  glGenVertexArrays(1, &m_arrayID);
+  context.setVertexArray(m_arrayID);
+  glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.m_bufferID);
+
+  for (uint i = 0;  i < program.attributeCount();  i++)
+  {
+    const Attribute& attribute = program.attribute(i);
+
+    const VertexComponent* component = format.findComponent(attribute.name().c_str());
+    if (!component)
+    {
+      logError("Attribute %s of program %s has no corresponding vertex format component",
+               attribute.name().c_str(),
+               program.name().c_str());
+      return false;
+    }
+
+    if (!isCompatible(attribute, *component))
+    {
+      logError("Attribute %s of shader program %s has incompatible type",
+               attribute.name().c_str(),
+               program.name().c_str());
+      return false;
+    }
+
+    glEnableVertexAttribArray(attribute.m_location);
+    glVertexAttribPointer(attribute.m_location,
+                          attributeTypes[attribute.m_type].elementCount,
+                          attributeTypes[attribute.m_type].elementType,
+                          GL_FALSE,
+                          (GLsizei) format.size(),
+                          (const void*) component->offset());
+  }
+
+  return true;
+}
+
+bool VertexArray::init(RenderContext& context,
+                       const Program& program,
+                       const Buffer& indexBuffer,
+                       const Buffer& vertexBuffer,
+                       const VertexFormat& format)
+{
+  if (!init(context, program, vertexBuffer, format))
+    return false;
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.m_bufferID);
 }
 
 } /*namespace nori*/

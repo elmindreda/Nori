@@ -229,13 +229,13 @@ void Drawer::drawPoint(vec2 point, vec4 color)
   Vertex2fv vertex;
   vertex.position = point;
 
-  VertexRange range = m_context.allocateVertices(1, Vertex2fv::format);
+  BufferRange range = m_context.allocateVertices(1, Vertex2fv::format.size());
   if (range.isEmpty())
     return;
 
   range.copyFrom(&vertex);
   setDrawingState(color, true);
-  m_context.render(PrimitiveRange(POINT_LIST, range));
+  //m_context.render(PrimitiveRange(POINT_LIST, range));
 }
 
 void Drawer::drawLine(vec2 start, vec2 end, vec4 color)
@@ -244,13 +244,13 @@ void Drawer::drawLine(vec2 start, vec2 end, vec4 color)
   vertices[0].position = start;
   vertices[1].position = end;
 
-  VertexRange range = m_context.allocateVertices(2, Vertex2fv::format);
+  BufferRange range = m_context.allocateVertices(2, Vertex2fv::format.size());
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
   setDrawingState(color, true);
-  m_context.render(PrimitiveRange(LINE_LIST, range));
+  //m_context.render(PrimitiveRange(LINE_LIST, range));
 }
 
 void Drawer::drawRect(const Rect& rect, vec4 color)
@@ -267,13 +267,13 @@ void Drawer::drawRect(const Rect& rect, vec4 color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  VertexRange range = m_context.allocateVertices(4, Vertex2fv::format);
+  BufferRange range = m_context.allocateVertices(4, Vertex2fv::format.size());
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
   setDrawingState(color, true);
-  m_context.render(PrimitiveRange(LINE_LOOP, range));
+  //m_context.render(PrimitiveRange(LINE_LOOP, range));
 }
 
 void Drawer::fillRect(const Rect& rect, vec4 color)
@@ -290,13 +290,13 @@ void Drawer::fillRect(const Rect& rect, vec4 color)
   vertices[2].position = vec2(maxX, maxY);
   vertices[3].position = vec2(minX, maxY);
 
-  VertexRange range = m_context.allocateVertices(4, Vertex2fv::format);
+  BufferRange range = m_context.allocateVertices(4, Vertex2fv::format.size());
   if (range.isEmpty())
     return;
 
   range.copyFrom(vertices);
   setDrawingState(color, false);
-  m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
+  //m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
 void Drawer::blitTexture(const Rect& area, Texture& texture, vec4 color)
@@ -317,7 +317,7 @@ void Drawer::blitTexture(const Rect& area, Texture& texture, vec4 color)
   vertices[3].texcoord = vec2(0.f, 1.f);
   vertices[3].position = vec2(minX, maxY);
 
-  VertexRange range = m_context.allocateVertices(4, Vertex2ft2fv::format);
+  BufferRange range = m_context.allocateVertices(4, Vertex2ft2fv::format.size());
   if (range.isEmpty())
     return;
 
@@ -332,7 +332,7 @@ void Drawer::blitTexture(const Rect& area, Texture& texture, vec4 color)
   m_blitPass.setUniformTexture("image", &texture);
   m_blitPass.apply();
 
-  m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
+  //m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
 void Drawer::drawText(const Rect& area,
@@ -472,7 +472,7 @@ bool Drawer::init()
 
   // Set up element geometry
   {
-    m_vertexBuffer = VertexBuffer::create(m_context, 16, ElementVertex::format, USAGE_STATIC);
+    m_vertexBuffer = Buffer::create(m_context, VERTEX_BUFFER, ElementVertex::format.size() * 16, USAGE_STATIC);
     if (!m_vertexBuffer)
       return false;
 
@@ -515,7 +515,7 @@ bool Drawer::init()
 
     m_vertexBuffer->copyFrom(vertices, 16);
 
-    m_indexBuffer = IndexBuffer::create(m_context, 54, INDEX_UINT8, USAGE_STATIC);
+    m_indexBuffer = Buffer::create(m_context, INDEX_BUFFER, 54, USAGE_STATIC);
     if (!m_indexBuffer)
       return false;
 
@@ -540,7 +540,12 @@ bool Drawer::init()
 
     m_indexBuffer->copyFrom(indices, 54);
 
-    m_range = PrimitiveRange(TRIANGLE_LIST, *m_vertexBuffer, *m_indexBuffer);
+    /*
+    m_range = PrimitiveRange(TRIANGLE_LIST,
+                             INDEX_UINT8,
+                             *m_vertexBuffer,
+                             *m_indexBuffer);
+    */
   }
 
   // Load default theme

@@ -44,10 +44,10 @@ class ModelSection
 public:
   /*! Constructor.
    */
-  ModelSection(const IndexRange& range, Material* material);
+  ModelSection(const PrimitiveRange& range, Material* material);
   /*! @return The range of indices used by this geometry.
    */
-  const IndexRange& indexRange() const { return m_range; }
+  const PrimitiveRange& range() const { return m_range; }
   /*! @return The %render material used by this geometry.
    */
   Material* material() const { return m_material; }
@@ -55,7 +55,7 @@ public:
    */
   void setMaterial(Material* newMaterial);
 private:
-  IndexRange m_range;
+  PrimitiveRange m_range;
   Ref<Material> m_material;
 };
 
@@ -83,16 +83,16 @@ public:
   const std::vector<ModelSection>& sections() { return m_sections; }
   /*! @return The vertex buffer used by this model.
    */
-  VertexBuffer& vertexBuffer() { return *m_vertexBuffer; }
+  Buffer& vertexBuffer() { return *m_vertexBuffer; }
   /*! @return The vertex buffer used by this model.
    */
-  const VertexBuffer& vertexBuffer() const { return *m_vertexBuffer; }
+  const Buffer& vertexBuffer() const { return *m_vertexBuffer; }
   /*! @return The index buffer used by this model.
    */
-  IndexBuffer& indexBuffer() { return *m_indexBuffer; }
+  Buffer& indexBuffer() { return *m_indexBuffer; }
   /*! @return The index buffer used by this model.
    */
-  const IndexBuffer& indexBuffer() const { return *m_indexBuffer; }
+  const Buffer& indexBuffer() const { return *m_indexBuffer; }
   /*! Creates a model from the specified mesh.
    *  @param[in] info The resource info for the texture.
    *  @param[in] context The render context within which to create the texture.
@@ -117,8 +117,8 @@ private:
   bool init(RenderContext& context, const Mesh& data, const MaterialMap& materials);
   Model& operator = (const Model&) = delete;
   std::vector<ModelSection> m_sections;
-  Ref<VertexBuffer> m_vertexBuffer;
-  Ref<IndexBuffer> m_indexBuffer;
+  std::unique_ptr<Buffer> m_vertexBuffer;
+  std::unique_ptr<Buffer> m_indexBuffer;
   Sphere m_boundingSphere;
   AABB m_boundingAABB;
 };

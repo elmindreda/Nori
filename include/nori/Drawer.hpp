@@ -176,13 +176,13 @@ private:
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(vec4 color, bool wireframe);
   RenderContext& m_context;
-  Ref<Theme> m_theme;
-  Ref<VertexBuffer> m_vertexBuffer;
-  Ref<IndexBuffer> m_indexBuffer;
+  std::unique_ptr<Buffer> m_vertexBuffer;
+  std::unique_ptr<Buffer> m_indexBuffer;
   Ref<SharedProgramState> m_state;
+  PrimitiveRange m_range;
+  Ref<Theme> m_theme;
   Ref<Font> m_font;
   RectClipStackf m_clipAreaStack;
-  PrimitiveRange m_range;
   Pass m_drawPass;
   Pass m_blitPass;
   Pass m_elementPass;

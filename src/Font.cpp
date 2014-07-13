@@ -96,9 +96,10 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
   if (!vertexCount)
     return;
 
-  VertexRange range = m_context.allocateVertices(vertexCount,
-                                                 Vertex2ft2fv::format);
-  if (range.isEmpty())
+  const size_t vertexSize = sizeof(m_vertices[0]);
+
+  BufferRange range = m_context.allocateVertices(vertexCount, vertexSize);
+  if (!range.size)
   {
     logError("Failed to allocate vertices for text drawing");
     return;
@@ -109,7 +110,10 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
   m_pass.setUniformState(m_colorIndex, color);
   m_pass.apply();
 
-  m_context.render(PrimitiveRange(TRIANGLE_LIST, range));
+  m_context.render(PrimitiveRange(TRIANGLE_LIST,
+                                  NO_INDICES,
+                                  range.offset / vertexSize,
+                                  vertexCount));
 }
 
 Rect Font::boundsOf(const char* text)

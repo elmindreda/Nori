@@ -38,8 +38,6 @@ namespace nori
 {
 
 class AABB;
-class VertexBuffer;
-class IndexBuffer;
 class RenderContext;
 class PrimitiveRange;
 
@@ -262,7 +260,7 @@ public:
   RenderStats();
   void addFrame();
   void addStateChange();
-  void addPrimitives(PrimitiveType type, uint vertexCount);
+  void addPrimitives(PrimitiveMode mode, uint vertexCount);
   void addTexture(size_t size);
   void removeTexture(size_t size);
   void addVertexBuffer(size_t size);
@@ -423,24 +421,18 @@ public:
                     float depth = 1.f,
                     uint value = 0);
   /*! Renders the specified primitive range to the current framebuffer, using
-   *  the current GLSL program.
-   *  @pre A GLSL program must be set before calling this method.
+   *  the current vertex array and program.
    */
   void render(const PrimitiveRange& range);
-  /*! Renders the specified primitive range to the current framebuffer, using
-   *  the current GLSL program.
-   *  @pre A GLSL program must be set before calling this method.
-   */
-  void render(PrimitiveType type, uint start, uint count, uint base = 0);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[in] count The number of vertices to allocate.
-   *  @param[in] format The format of vertices to allocate.
-   *  @return @c The newly allocated vertex range.
+   *  @param[in] size The size, in bytes, of a single vertex.
+   *  @return @c The newly allocated buffer range.
    *
-   *  @remarks The allocated vertex range is only valid until the end of the
+   *  @remarks The allocated buffer range is only valid until the end of the
    *  current frame.
    */
-  VertexRange allocateVertices(uint count, const VertexFormat& format);
+  BufferRange allocateVertices(uint count, size_t size);
   /*! Reserves the specified uniform signature as shared.
    */
   void createSharedUniform(const char* name, UniformType type, int ID);
@@ -500,12 +492,9 @@ public:
    *  the current program.
    */
   void setProgram(Program* newProgram);
-  /*! Sets the current vertex buffer.
+  /*! @note Unless you are Nori, you probably don't need to call this.
    */
-  void setVertexBuffer(VertexBuffer* newVertexBuffer);
-  /*! Sets the current index buffer.
-   */
-  void setIndexBuffer(IndexBuffer* newIndexBuffer);
+  void setVertexArray(uint arrayID);
   /*! @note Unless you are Nori, you probably don't need to call this.
    */
   void setTexture(Texture* newTexture);
@@ -545,11 +534,6 @@ private:
   void forceState(const RenderState& newState);
   RenderContext& operator = (const RenderContext&) = delete;
   void onFrame();
-  struct Slot
-  {
-    Ref<VertexBuffer> buffer;
-    uint available;
-  };
   class SharedUniform;
   ResourceCache& m_cache;
   Window m_window;
@@ -559,20 +543,19 @@ private:
   int m_swapInterval;
   Recti m_scissorArea;
   Recti m_viewportArea;
-  bool m_dirtyBinding;
   bool m_dirtyState;
   bool m_cullingInverted;
   std::vector<Ref<Texture>> m_textureUnits;
   uint m_textureUnit;
+  uint m_vertexArrayID;
   RenderState m_renderState;
   Ref<Program> m_program;
-  Ref<VertexBuffer> m_vertexBuffer;
-  Ref<IndexBuffer> m_indexBuffer;
   Ref<Framebuffer> m_framebuffer;
   Ref<SharedProgramState> m_sharedProgramState;
   Ref<WindowFramebuffer> m_windowFramebuffer;
   std::vector<SharedUniform> m_uniforms;
-  std::vector<Slot> m_slots;
+  std::unique_ptr<Buffer> m_buffer;
+  size_t m_available;
   std::string m_declaration;
   RenderStats* m_stats;
 };
