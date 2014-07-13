@@ -52,6 +52,12 @@ Rect::Rect(float x, float y, float width, float height):
 {
 }
 
+Rect::Rect(const Recti& source):
+  position(source.position),
+  size(source.size)
+{
+}
+
 bool Rect::contains(const vec2& point) const
 {
   float minX, minY, maxX, maxY;
@@ -285,6 +291,12 @@ Recti::Recti(const ivec2& initPosition, const ivec2& initSize):
 Recti::Recti(int x, int y, int width, int height):
   position(x, y),
   size(width, height)
+{
+}
+
+Recti::Recti(const Rect& source):
+  position(source.position),
+  size(source.size)
 {
 }
 

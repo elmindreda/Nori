@@ -31,12 +31,17 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
+class Recti;
+
+///////////////////////////////////////////////////////////////////////
+
 class Rect
 {
 public:
   Rect();
   Rect(const vec2& position, const vec2& size);
   Rect(float x, float y, float width, float height);
+  explicit Rect(const Recti& source);
   bool contains(const vec2& point) const;
   bool contains(const Rect& other) const;
   bool intersects(const Rect& other) const;
@@ -70,6 +75,7 @@ public:
   Recti();
   Recti(const ivec2& position, const ivec2& size);
   Recti(int x, int y, int width, int height);
+  explicit Recti(const Rect& source);
   bool contains(const ivec2& point) const;
   bool contains(const Recti& other) const;
   bool intersects(const Recti& other) const;
