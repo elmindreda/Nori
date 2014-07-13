@@ -28,6 +28,7 @@
 #include <wendy/Rect.hpp>
 
 #include <sstream>
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -36,11 +37,7 @@ namespace wendy
 
 ///////////////////////////////////////////////////////////////////////
 
-Rect::Rect()
-{
-}
-
-Rect::Rect(const vec2& initPosition, const vec2& initSize):
+Rect::Rect(vec2 initPosition, vec2 initSize):
   position(initPosition),
   size(initSize)
 {
@@ -58,7 +55,7 @@ Rect::Rect(const Recti& source):
 {
 }
 
-bool Rect::contains(const vec2& point) const
+bool Rect::contains(vec2 point) const
 {
   float minX, minY, maxX, maxY;
   bounds(minX, minY, maxX, maxY);
@@ -120,30 +117,19 @@ bool Rect::clipBy(const Rect& other)
   if (minY > otherMaxY || maxY < otherMinY)
     return false;
 
-  if (minX < otherMinX)
-    minX = otherMinX;
-  if (minY < otherMinY)
-    minY = otherMinY;
-  if (maxX > otherMaxX)
-    maxX = otherMaxX;
-  if (maxY > otherMaxY)
-    maxY = otherMaxY;
+  setBounds(max(minY, otherMinX), max(minY, otherMinY),
+            min(maxX, otherMaxX), min(maxY, otherMaxY));
 
-  setBounds(minX, minY, maxX, maxY);
   return true;
 }
 
-void Rect::envelop(const vec2& other)
+void Rect::envelop(vec2 other)
 {
   float minX, minY, maxX, maxY;
   bounds(minX, minY, maxX, maxY);
 
-  minX = min(minX, other.x);
-  minY = min(minY, other.y);
-  maxX = max(maxX, other.x);
-  maxY = max(maxY, other.y);
-
-  setBounds(minX, minY, maxX, maxY);
+  setBounds(min(minX, other.x), min(minY, other.y),
+            max(maxX, other.x), max(maxY, other.y));
 }
 
 void Rect::envelop(const Rect& other)
@@ -154,31 +140,14 @@ void Rect::envelop(const Rect& other)
   float otherMinX, otherMinY, otherMaxX, otherMaxY;
   other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
-  if (minX > otherMinX)
-    minX = otherMinX;
-  if (minY > otherMinY)
-    minY = otherMinY;
-  if (maxX < otherMaxX)
-    maxX = otherMaxX;
-  if (maxY < otherMaxY)
-    maxY = otherMaxY;
-
-  setBounds(minX, minY, maxX, maxY);
+  setBounds(min(minX, otherMinX), min(minY, otherMinY),
+            max(maxX, otherMaxX), min(maxY, otherMaxY));
 }
 
 void Rect::normalize()
 {
-  if (size.x < 0.f)
-  {
-    position.x += size.x;
-    size.x = -size.x;
-  }
-
-  if (size.y < 0.f)
-  {
-    position.y += size.y;
-    size.y = -size.y;
-  }
+  position += min(size, vec2(0.f));
+  size = abs(size);
 }
 
 bool Rect::operator == (const Rect& other) const
@@ -191,71 +160,17 @@ bool Rect::operator != (const Rect& other) const
   return position != other.position || size != other.size;
 }
 
-Rect Rect::operator + (const vec2& offset) const
-{
-  return Rect(position + offset, size);
-}
-
-Rect Rect::operator - (const vec2& offset) const
-{
-  return Rect(position - offset, size);
-}
-
-Rect Rect::operator * (const vec2& scale) const
-{
-  return Rect(position * scale, size * scale);
-}
-
-Rect& Rect::operator += (const vec2& offset)
-{
-  position += offset;
-  return *this;
-}
-
-Rect& Rect::operator -= (const vec2& offset)
-{
-  position -= offset;
-  return *this;
-}
-
-Rect& Rect::operator *= (const vec2& scale)
-{
-  position *= scale;
-  size *= scale;
-  return *this;
-}
-
-vec2 Rect::center() const
-{
-  return position + size / 2.f;
-}
-
-void Rect::setCenter(const vec2& newCenter)
+void Rect::setCenter(vec2 newCenter)
 {
   position = newCenter - size / 2.f;
 }
 
 void Rect::bounds(float& minX, float& minY, float& maxX, float& maxY) const
 {
-  minX = position.x;
-  minY = position.y;
-
-  maxX = position.x + size.x;
-  maxY = position.y + size.y;
-
-  if (minX > maxX)
-  {
-    float quux = minX;
-    minX = maxX;
-    maxX = quux;
-  }
-
-  if (minY > maxY)
-  {
-    float quux = minY;
-    minY = maxY;
-    maxY = quux;
-  }
+  minX = position.x + min(size.x, 0.f);
+  minY = position.y + min(size.y, 0.f);
+  maxX = minX + abs(size.x);
+  maxY = minY + abs(size.y);
 }
 
 void Rect::setBounds(float minX, float minY, float maxX, float maxY)
@@ -264,7 +179,7 @@ void Rect::setBounds(float minX, float minY, float maxX, float maxY)
   size = vec2(maxX - minX, maxY - minY);
 }
 
-void Rect::set(const vec2& newPosition, const vec2& newSize)
+void Rect::set(vec2 newPosition, vec2 newSize)
 {
   position = newPosition;
   size = newSize;
@@ -278,11 +193,7 @@ void Rect::set(float x, float y, float width, float height)
 
 ///////////////////////////////////////////////////////////////////////
 
-Recti::Recti()
-{
-}
-
-Recti::Recti(const ivec2& initPosition, const ivec2& initSize):
+Recti::Recti(ivec2 initPosition, ivec2 initSize):
   position(initPosition),
   size(initSize)
 {
@@ -300,7 +211,7 @@ Recti::Recti(const Rect& source):
 {
 }
 
-bool Recti::contains(const ivec2& point) const
+bool Recti::contains(ivec2 point) const
 {
   int minX, minY, maxX, maxY;
   bounds(minX, minY, maxX, maxY);
@@ -362,16 +273,9 @@ bool Recti::clipBy(const Recti& other)
   if (minY > otherMaxY || maxY < otherMinY)
     return false;
 
-  if (minX < otherMinX)
-    minX = otherMinX;
-  if (minY < otherMinY)
-    minY = otherMinY;
-  if (maxX > otherMaxX)
-    maxX = otherMaxX;
-  if (maxY > otherMaxY)
-    maxY = otherMaxY;
+  setBounds(max(minY, otherMinX), max(minY, otherMinY),
+            min(maxX, otherMaxX), min(maxY, otherMaxY));
 
-  setBounds(minX, minY, maxX, maxY);
   return true;
 }
 
@@ -383,31 +287,14 @@ void Recti::envelop(const Recti& other)
   int otherMinX, otherMinY, otherMaxX, otherMaxY;
   other.bounds(otherMinX, otherMinY, otherMaxX, otherMaxY);
 
-  if (minX > otherMinX)
-    minX = otherMinX;
-  if (minY > otherMinY)
-    minY = otherMinY;
-  if (maxX < otherMaxX)
-    maxX = otherMaxX;
-  if (maxY < otherMaxY)
-    maxY = otherMaxY;
-
-  setBounds(minX, minY, maxX, maxY);
+  setBounds(min(minX, otherMinX), min(minY, otherMinY),
+            max(maxX, otherMaxX), min(maxY, otherMaxY));
 }
 
 void Recti::normalize()
 {
-  if (size.x < 0)
-  {
-    position.x += size.x;
-    size.x = -size.x;
-  }
-
-  if (size.y < 0)
-  {
-    position.y += size.y;
-    size.y = -size.y;
-  }
+  position += min(size, ivec2(0));
+  size = abs(size);
 }
 
 bool Recti::operator == (const Recti& other) const
@@ -420,71 +307,17 @@ bool Recti::operator != (const Recti& other) const
   return position != other.position || size != other.size;
 }
 
-Recti Recti::operator + (const ivec2& offset) const
-{
-  return Recti(position + offset, size);
-}
-
-Recti Recti::operator - (const ivec2& offset) const
-{
-  return Recti(position - offset, size);
-}
-
-Recti Recti::operator * (const ivec2& scale) const
-{
-  return Recti(position * scale, size * scale);
-}
-
-Recti& Recti::operator += (const ivec2& offset)
-{
-  position += offset;
-  return *this;
-}
-
-Recti& Recti::operator -= (const ivec2& offset)
-{
-  position -= offset;
-  return *this;
-}
-
-Recti& Recti::operator *= (const ivec2& scale)
-{
-  position *= scale;
-  size *= scale;
-  return *this;
-}
-
-ivec2 Recti::center() const
-{
-  return position + size / 2;
-}
-
-void Recti::setCenter(const ivec2& newCenter)
+void Recti::setCenter(ivec2 newCenter)
 {
   position = newCenter - size / 2;
 }
 
 void Recti::bounds(int& minX, int& minY, int& maxX, int& maxY) const
 {
-  minX = position.x;
-  minY = position.y;
-
-  maxX = position.x + size.x;
-  maxY = position.y + size.y;
-
-  if (minX > maxX)
-  {
-    int quux = minX;
-    minX = maxX;
-    maxX = quux;
-  }
-
-  if (minY > maxY)
-  {
-    int quux = minY;
-    minY = maxY;
-    maxY = quux;
-  }
+  minX = position.x + min(size.x, 0);
+  minY = position.y + min(size.y, 0);
+  maxX = minX + abs(size.x);
+  maxY = minY + abs(size.y);
 }
 
 void Recti::setBounds(int minX, int minY, int maxX, int maxY)
@@ -493,7 +326,7 @@ void Recti::setBounds(int minX, int minY, int maxX, int maxY)
   size = ivec2(maxX - minX, maxY - minY);
 }
 
-void Recti::set(const ivec2& newPosition, const ivec2& newSize)
+void Recti::set(ivec2 newPosition, ivec2 newSize)
 {
   position = newPosition;
   size = newSize;
