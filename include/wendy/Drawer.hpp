@@ -181,7 +181,7 @@ public:
   void drawLine(vec2 start, vec2 end, const vec4& color);
   void drawRectangle(const Rect& rectangle, const vec4& color);
   void fillRectangle(const Rect& rectangle, const vec4& color);
-  void blitTexture(const Rect& area, Texture& texture);
+  void blitTexture(const Rect& area, Texture& texture, const vec4& color);
   void drawText(const Rect& area,
                 const char* text,
                 Alignment alignment,

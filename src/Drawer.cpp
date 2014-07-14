@@ -321,7 +321,7 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
-void Drawer::blitTexture(const Rect& area, Texture& texture)
+void Drawer::blitTexture(const Rect& area, Texture& texture, const vec4& color)
 {
   float minX, minY, maxX, maxY;
   area.bounds(minX, minY, maxX, maxY);
@@ -345,17 +345,16 @@ void Drawer::blitTexture(const Rect& area, Texture& texture)
 
   range.copyFrom(vertices);
 
-  if (texture.format().semantic() == PixelFormat::RGBA)
+  if (color.a < 1.f || texture.format().semantic() == PixelFormat::RGBA)
     m_blitPass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   else
     m_blitPass.setBlendFactors(BLEND_ONE, BLEND_ZERO);
 
+  m_blitPass.setUniformState("color", color);
   m_blitPass.setSamplerState("image", &texture);
   m_blitPass.apply();
 
   m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
-
-  m_blitPass.setSamplerState("image", nullptr);
 }
 
 void Drawer::drawText(const Rect& area,
@@ -675,6 +674,7 @@ bool Drawer::init()
 
     ProgramInterface interface;
     interface.addSampler("image", SAMPLER_2D);
+    interface.addUniform("color", UNIFORM_VEC4);
     interface.addAttributes(Vertex2ft2fv::format);
 
     if (!interface.matches(*program, true))

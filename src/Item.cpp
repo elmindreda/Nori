@@ -169,7 +169,7 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
   drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
 
   const Rect textureArea(area.position, vec2(em * 3.f));
-  drawer.blitTexture(textureArea, *m_texture);
+  drawer.blitTexture(textureArea, *m_texture, vec4(1.f));
 }
 
 ///////////////////////////////////////////////////////////////////////
