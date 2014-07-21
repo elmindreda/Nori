@@ -40,7 +40,7 @@ class Book;
 class Page : public Widget
 {
 public:
-  Page(Layer& layer, Book& parent, const char* text);
+  Page(Layer& layer, Book& parent, const char* text = "");
   ~Page();
   const String& text() const;
   void setText(const char* newText);
