@@ -68,6 +68,14 @@ void Popup::addItem(Item& item)
     m_selection = 0;
 }
 
+void Popup::insertItem(Item& item, uint index)
+{
+  m_menu->insertItem(item, index);
+
+  if (m_selection == NO_ITEM)
+    m_selection = 0;
+}
+
 void Popup::createItem(const char* value, ItemID ID)
 {
   Item* item = new Item(layer(), value, ID);
@@ -84,6 +92,11 @@ const Item* Popup::findItem(const char* value) const
   return m_menu->findItem(value);
 }
 
+void Popup::sortItems()
+{
+  m_menu->sortItems();
+}
+
 void Popup::destroyItem(Item& item)
 {
   m_menu->destroyItem(item);
@@ -96,17 +109,12 @@ void Popup::destroyItems()
   m_selection = NO_ITEM;
 }
 
-uint Popup::selection() const
-{
-  return m_selection;
-}
-
 void Popup::setSelection(uint newIndex)
 {
-  if (m_menu->itemCount())
-    m_selection = min(newIndex, m_menu->itemCount() - 1);
-  else
+  if (m_menu->items().empty())
     m_selection = NO_ITEM;
+  else
+    m_selection = min(newIndex, uint(m_menu->items().size()) - 1);
 }
 
 Item* Popup::selectedItem()
@@ -114,7 +122,7 @@ Item* Popup::selectedItem()
   if (m_selection == NO_ITEM)
     return nullptr;
 
-  return m_menu->item(m_selection);
+  return m_menu->items().at(m_selection);
 }
 
 void Popup::setSelectedItem(Item& newItem)
@@ -147,26 +155,6 @@ void Popup::setSelectedID(ItemID newItemID)
   }
 }
 
-uint Popup::itemCount() const
-{
-  return m_menu->itemCount();
-}
-
-Item* Popup::item(uint index)
-{
-  return m_menu->item(index);
-}
-
-const Item* Popup::item(uint index) const
-{
-  return m_menu->item(index);
-}
-
-const std::vector<Item*>& Popup::items() const
-{
-  return m_menu->items();
-}
-
 SignalProxy<void, Popup&, uint> Popup::itemSelectedSignal()
 {
   return m_itemSelectedSignal;
@@ -184,7 +172,7 @@ void Popup::draw() const
 
     if (m_selection != NO_ITEM)
     {
-      const Item* item = m_menu->item(m_selection);
+      const Item* item = m_menu->items().at(m_selection);
       const float em = drawer.theme().em();
       const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                           area.size - vec2(em, 0.f));

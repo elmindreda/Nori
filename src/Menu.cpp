@@ -87,25 +87,13 @@ void Menu::display()
 
 void Menu::addItem(Item& item)
 {
-  auto i = std::find(m_items.begin(), m_items.end(), &item);
-  if (i != m_items.end())
-    return;
-
   m_items.push_back(&item);
-
   sizeToFit();
 }
 
-void Menu::addItemAt(Item& item, uint index)
+void Menu::insertItem(Item& item, uint index)
 {
-  auto i = std::find(m_items.begin(), m_items.end(), &item);
-  if (i != m_items.end())
-    return;
-
-  i = m_items.begin();
-  std::advance(i, min(index, (uint) m_items.size()));
-  m_items.insert(i, &item);
-
+  m_items.insert(m_items.begin() + min(index, uint(m_items.size())), &item);
   sizeToFit();
 }
 

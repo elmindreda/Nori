@@ -161,20 +161,12 @@ Widget* createList(Layer& layer, Widget* parent, pugi::xml_node wn)
   if (pugi::xml_attribute a = wn.attribute("editable"))
     list->setEditable(a.as_bool());
 
-  for (pugi::xml_node in : wn.children("item"))
-    list->createItem(in.attribute("text").value(), in.attribute("id").as_int());
-
   return list;
 }
 
 Widget* createMenu(Layer& layer, Widget* parent, pugi::xml_node wn)
 {
-  Menu* menu = new Menu(layer);
-
-  for (pugi::xml_node in : wn.children("item"))
-    menu->createItem(in.attribute("text").value(), in.attribute("id").as_int());
-
-  return menu;
+  return new Menu(layer);
 }
 
 Widget* createPage(Layer& layer, Widget* parent, pugi::xml_node wn)
@@ -187,12 +179,7 @@ Widget* createPage(Layer& layer, Widget* parent, pugi::xml_node wn)
 
 Widget* createPopup(Layer& layer, Widget* parent, pugi::xml_node wn)
 {
-  Popup* popup = new Popup(layer, parent);
-
-  for (pugi::xml_node in : wn.children("item"))
-    popup->createItem(in.attribute("text").value(), in.attribute("id").as_int());
-
-  return popup;
+  return new Popup(layer, parent);
 }
 
 Widget* createProgress(Layer& layer, Widget* parent, pugi::xml_node wn)
@@ -252,6 +239,26 @@ Widget* createWidget(Layer& layer, Widget* parent, pugi::xml_node wn)
   return new Widget(layer, parent);
 }
 
+Widget* createItem(Layer& layer, Widget* parent, pugi::xml_node wn)
+{
+  if (ItemContainer* container = dynamic_cast<ItemContainer*>(parent))
+  {
+    container->addItem(*new Item(layer,
+                                 wn.attribute("text").value(),
+                                 wn.attribute("id").as_int()));
+  }
+
+  return nullptr;
+}
+
+Widget* createSeparatorItem(Layer& layer, Widget* parent, pugi::xml_node wn)
+{
+  if (ItemContainer* container = dynamic_cast<ItemContainer*>(parent))
+    container->addItem(*new SeparatorItem(layer));
+
+  return nullptr;
+}
+
 } /*namespace*/
 
 ///////////////////////////////////////////////////////////////////////
@@ -263,6 +270,7 @@ WidgetReader::WidgetReader(ResourceCache& cache):
   m_factories["canvas"] = createCanvas;
   m_factories["check"] = createCheckButton;
   m_factories["entry"] = createEntry;
+  m_factories["item"] = createItem;
   m_factories["label"] = createLabel;
   m_factories["layout"] = createLayout;
   m_factories["list"] = createList;
@@ -272,6 +280,7 @@ WidgetReader::WidgetReader(ResourceCache& cache):
   m_factories["progress"] = createProgress;
   m_factories["push"] = createPushButton;
   m_factories["scroller"] = createScroller;
+  m_factories["separator"] = createSeparatorItem;
   m_factories["slider"] = createSlider;
   m_factories["widget"] = createWidget;
 }
@@ -337,10 +346,7 @@ void WidgetReader::read(Layer& layer, Widget* parent, pugi::xml_node wn)
 
   Widget* widget = entry->second(layer, parent, wn);
   if (!widget)
-  {
-    logError("Failed to create %s", wn.name());
     return;
-  }
 
   if (pugi::xml_attribute a = wn.attribute("area"))
     widget->setArea(rectCast(a.value()));

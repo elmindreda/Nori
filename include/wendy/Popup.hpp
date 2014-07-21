@@ -33,29 +33,27 @@ namespace wendy
 
 /*! @ingroup ui
  */
-class Popup : public Widget
+class Popup : public Widget, public ItemContainer
 {
 public:
   Popup(Layer& layer, Widget* parent = nullptr);
   ~Popup();
   void addItem(Item& item);
-  void addItemAt(Item& item, uint index);
+  void insertItem(Item& item, uint index);
   void createItem(const char* value, ItemID ID = 0);
   void createSeparatorItem();
   Item* findItem(const char* value);
   const Item* findItem(const char* value) const;
+  void sortItems();
   void destroyItem(Item& item);
   void destroyItems();
-  uint selection() const;
+  uint selection() const { return m_selection; }
   void setSelection(uint newIndex);
   Item* selectedItem();
   void setSelectedItem(Item& newItem);
   ItemID selectedID();
   void setSelectedID(ItemID newItemID);
-  uint itemCount() const;
-  Item* item(uint index);
-  const Item* item(uint index) const;
-  const std::vector<Item*>& items() const;
+  const std::vector<Item*>& items() const { return m_menu->items(); }
   SignalProxy<void, Popup&, uint> itemSelectedSignal();
 protected:
   void draw() const;

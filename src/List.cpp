@@ -67,14 +67,16 @@ List::~List()
 
 void List::addItem(Item& item)
 {
-  if (std::find(m_items.begin(), m_items.end(), &item) != m_items.end())
-    return;
-
   m_items.push_back(&item);
   updateScroller();
 
   if (m_selection == NO_ITEM)
     m_selection = 0;
+}
+
+void List::insertItem(Item& item, uint index)
+{
+  m_items.insert(m_items.begin() + min(index, uint(m_items.size())), &item);
 }
 
 void List::createItem(const char* value, ItemID ID)
@@ -222,28 +224,6 @@ void List::setSelectedID(ItemID newItemID)
       break;
     }
   }
-}
-
-uint List::itemCount() const
-{
-  return (uint) m_items.size();
-}
-
-Item* List::item(uint index)
-{
-  assert(index < m_items.size());
-  return m_items[index];
-}
-
-const Item* List::item(uint index) const
-{
-  assert(index < m_items.size());
-  return m_items[index];
-}
-
-const std::vector<Item*>& List::items() const
-{
-  return m_items;
 }
 
 SignalProxy<void, List&> List::itemSelectedSignal()

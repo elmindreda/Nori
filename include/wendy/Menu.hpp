@@ -33,7 +33,7 @@ namespace wendy
 
 /*! @ingroup ui
  */
-class Menu : public Widget
+class Menu : public Widget, public ItemContainer
 {
 public:
   Menu(Layer& layer);
@@ -41,7 +41,7 @@ public:
   void display(const vec2& point);
   void display();
   void addItem(Item& item);
-  void addItemAt(Item& item, uint index);
+  void insertItem(Item& item, uint index);
   void createItem(const char* value, ItemID ID = 0);
   void createSeparatorItem();
   Item* findItem(const char* value);
@@ -49,9 +49,6 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
-  uint itemCount() const { return (uint) m_items.size(); }
-  Item* item(uint index) { return m_items[index]; }
-  const Item* item(uint index) const { return m_items[index]; }
   const std::vector<Item*>& items() const { return m_items; }
   SignalProxy<void, Menu&, uint> itemSelectedSignal();
 private:

@@ -113,6 +113,22 @@ public:
 
 ///////////////////////////////////////////////////////////////////////
 
+class ItemContainer
+{
+public:
+  virtual ~ItemContainer() { }
+  virtual void addItem(Item& item) = 0;
+  virtual void insertItem(Item& item, uint index) = 0;
+  virtual void destroyItem(Item& item) = 0;
+  virtual void destroyItems() = 0;
+  virtual Item* findItem(const char* value) = 0;
+  virtual const Item* findItem(const char* value) const = 0;
+  virtual void sortItems() = 0;
+  virtual const std::vector<Item*>& items() const = 0;
+};
+
+///////////////////////////////////////////////////////////////////////
+
 } /*namespace wendy*/
 
 ///////////////////////////////////////////////////////////////////////
