@@ -341,12 +341,12 @@ void Menu::onKey(Key key, Action action, uint mods)
   Widget::onKey(key, action, mods);
 }
 
-void Menu::onDragEnded(vec2 point)
+void Menu::onDragEnded(vec2 point, MouseButton button)
 {
   if (!area().contains(transformToLocal(point)))
     hide();
 
-  Widget::onDragEnded(point);
+  Widget::onDragEnded(point, button);
 }
 
 void Menu::sizeToFit()

@@ -206,31 +206,36 @@ void Scroller::onScroll(vec2 offset)
   Widget::onScroll(offset);
 }
 
-void Scroller::onDragBegun(vec2 point)
+void Scroller::onDragBegun(vec2 point, MouseButton button)
 {
-  const vec2 local = transformToLocal(point);
-  const float size = handleSize();
-  const float offset = handleOffset();
-
-  if (m_orientation == HORIZONTAL)
+  if (button == MOUSE_BUTTON_LEFT)
   {
-    if (local.x >= offset && local.x < offset + size)
-      m_reference = local.x - offset;
+    const vec2 local = transformToLocal(point);
+    const float size = handleSize();
+    const float offset = handleOffset();
+
+    if (m_orientation == HORIZONTAL)
+    {
+      if (local.x >= offset && local.x < offset + size)
+        m_reference = local.x - offset;
+      else
+        cancelDragging();
+    }
     else
-      cancelDragging();
+    {
+      if (local.y <= height() - offset && local.y > height() - offset - size)
+        m_reference = height() - local.y - offset;
+      else
+        cancelDragging();
+    }
+
+    Widget::onDragBegun(point, button);
   }
   else
-  {
-    if (local.y <= height() - offset && local.y > height() - offset - size)
-      m_reference = height() - local.y - offset;
-    else
-      cancelDragging();
-  }
-
-  Widget::onDragBegun(point);
+    cancelDragging();
 }
 
-void Scroller::onDragMoved(vec2 point)
+void Scroller::onDragMoved(vec2 point, MouseButton button)
 {
   const vec2 local = transformToLocal(point);
   const float size = handleSize();
@@ -244,7 +249,7 @@ void Scroller::onDragMoved(vec2 point)
 
   setValue(m_minValue + (m_maxValue - m_minValue) * scale, true);
 
-  Widget::onDragMoved(point);
+  Widget::onDragMoved(point, button);
 }
 
 void Scroller::setValue(float newValue, bool notify)

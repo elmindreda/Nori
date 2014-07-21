@@ -125,7 +125,7 @@ void Layer::cancelDragging()
 {
   if (m_dragging)
   {
-    m_draggedWidget->onDragEnded(cursorPoint());
+    m_draggedWidget->onDragEnded(cursorPoint(), m_dragButton);
     m_dragging = false;
   }
 
@@ -334,13 +334,13 @@ void Layer::onCursorPos(vec2 point)
   if (m_draggedWidget)
   {
     if (m_dragging)
-      m_draggedWidget->onDragMoved(point);
+      m_draggedWidget->onDragMoved(point, m_dragButton);
     else
     {
       // TODO: Add insensitivity radius.
 
       m_dragging = true;
-      m_draggedWidget->onDragBegun(point);
+      m_draggedWidget->onDragBegun(point, m_dragButton);
     }
   }
 }
@@ -368,7 +368,12 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
         clickedWidget->activate();
 
         if (!m_captureWidget && clickedWidget->isDraggable())
+        {
+          if (m_draggedWidget != clickedWidget)
+            m_dragButton = button;
+
           m_draggedWidget = clickedWidget;
+        }
       }
 
       clickedWidget->onMouseButton(point, button, action, mods);
@@ -380,7 +385,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
     {
       if (m_dragging)
       {
-        m_draggedWidget->onDragEnded(point);
+        m_draggedWidget->onDragEnded(point, m_dragButton);
         m_dragging = false;
       }
 

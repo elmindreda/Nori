@@ -391,19 +391,19 @@ void Widget::onCursorLeft()
   m_cursorLeftSignal(*this);
 }
 
-void Widget::onDragBegun(vec2 point)
+void Widget::onDragBegun(vec2 point, MouseButton button)
 {
-  m_dragBegunSignal(*this, point);
+  m_dragBegunSignal(*this, point, button);
 }
 
-void Widget::onDragMoved(vec2 point)
+void Widget::onDragMoved(vec2 point, MouseButton button)
 {
-  m_dragMovedSignal(*this, point);
+  m_dragMovedSignal(*this, point, button);
 }
 
-void Widget::onDragEnded(vec2 point)
+void Widget::onDragEnded(vec2 point, MouseButton button)
 {
-  m_dragEndedSignal(*this, point);
+  m_dragEndedSignal(*this, point, button);
 }
 
 ///////////////////////////////////////////////////////////////////////

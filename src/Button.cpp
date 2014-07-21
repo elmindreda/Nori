@@ -134,12 +134,20 @@ void Button::onCursorLeft()
     invalidate();
 }
 
-void Button::onDragEnded(vec2 point)
+void Button::onDragBegun(vec2 point, MouseButton button)
+{
+  if (button == MOUSE_BUTTON_LEFT)
+    Widget::onDragBegun(point, button);
+  else
+    cancelDragging();
+}
+
+void Button::onDragEnded(vec2 point, MouseButton button)
 {
   m_selected = false;
   invalidate();
 
-  Widget::onDragEnded(point);
+  Widget::onDragEnded(point, button);
 }
 
 void Button::onKey(Key key, Action action, uint mods)

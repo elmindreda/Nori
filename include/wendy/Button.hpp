@@ -59,7 +59,8 @@ protected:
                      uint mods) override;
   void onCursorEntered() override;
   void onCursorLeft() override;
-  void onDragEnded(vec2 point) override;
+  void onDragBegun(vec2 point, MouseButton button) override;
+  void onDragEnded(vec2 point, MouseButton button) override;
   void onKey(Key key, Action action, uint mods) override;
 private:
   Signal<void, Button&> m_pushedSignal;

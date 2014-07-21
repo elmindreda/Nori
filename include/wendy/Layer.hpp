@@ -105,6 +105,7 @@ private:
   Window& m_window;
   Drawer& m_drawer;
   bool m_dragging;
+  MouseButton m_dragButton;
   std::vector<Widget*> m_roots;
   Widget* m_activeWidget;
   Widget* m_draggedWidget;

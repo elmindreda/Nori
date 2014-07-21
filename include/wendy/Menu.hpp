@@ -64,7 +64,7 @@ private:
                      Action action,
                      uint mods) override;
   void onKey(Key key, Action action, uint mods) override;
-  void onDragEnded(vec2 point) override;
+  void onDragEnded(vec2 point, MouseButton button) override;
   void sizeToFit();
   std::vector<Item*> m_items;
   int m_selection;

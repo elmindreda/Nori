@@ -174,10 +174,19 @@ void Slider::onScroll(vec2 offset)
   Widget::onScroll(offset);
 }
 
-void Slider::onDragMoved(vec2 point)
+void Slider::onDragBegun(vec2 point, MouseButton button)
+{
+  if (button == MOUSE_BUTTON_LEFT)
+    Widget::onDragBegun(point, button);
+  else
+    cancelDragging();
+}
+
+void Slider::onDragMoved(vec2 point, MouseButton button)
 {
   setValue(transformToLocal(point));
-  Widget::onDragMoved(point);
+
+  Widget::onDragMoved(point, button);
 }
 
 void Slider::setValue(const vec2& position)

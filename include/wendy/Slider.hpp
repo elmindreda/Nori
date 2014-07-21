@@ -52,10 +52,11 @@ private:
   void onMouseButton(vec2 point,
                      MouseButton button,
                      Action action,
-                     uint mods);
-  void onKey(Key key, Action action, uint mods);
-  void onScroll(vec2 offset);
-  void onDragMoved(vec2 point);
+                     uint mods) override;
+  void onKey(Key key, Action action, uint mods) override;
+  void onScroll(vec2 offset) override;
+  void onDragBegun(vec2 point, MouseButton button) override;
+  void onDragMoved(vec2 point, MouseButton button) override;
   void setValue(const vec2& position);
   void setValue(float newValue, bool notify);
   Signal<void, Slider&> m_valueChangedSignal;

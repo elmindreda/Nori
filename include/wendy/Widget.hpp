@@ -200,9 +200,9 @@ public:
   SignalProxy<void, Widget&, vec2> cursorPosSignal() { return m_cursorPosSignal; }
   SignalProxy<void, Widget&> cursorEnteredSignal() { return m_cursorEnteredSignal; }
   SignalProxy<void, Widget&> cursorLeftSignal() { return m_cursorLeftSignal; }
-  SignalProxy<void, Widget&, vec2> dragBegunSignal() { return m_dragBegunSignal; }
-  SignalProxy<void, Widget&, vec2> dragMovedSignal() { return m_dragMovedSignal; }
-  SignalProxy<void, Widget&, vec2> dragEndedSignal() { return m_dragEndedSignal; }
+  SignalProxy<void, Widget&, vec2, MouseButton> dragBegunSignal() { return m_dragBegunSignal; }
+  SignalProxy<void, Widget&, vec2, MouseButton> dragMovedSignal() { return m_dragMovedSignal; }
+  SignalProxy<void, Widget&, vec2, MouseButton> dragEndedSignal() { return m_dragEndedSignal; }
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -222,9 +222,9 @@ protected:
   virtual void onCursorPos(vec2 point);
   virtual void onCursorEntered();
   virtual void onCursorLeft();
-  virtual void onDragBegun(vec2 point);
-  virtual void onDragMoved(vec2 point);
-  virtual void onDragEnded(vec2 point);
+  virtual void onDragBegun(vec2 point, MouseButton button);
+  virtual void onDragMoved(vec2 point, MouseButton button);
+  virtual void onDragEnded(vec2 point, MouseButton button);
 private:
   Signal<void, Widget&> m_destroyedSignal;
   Signal<void, Widget&> m_areaChangedSignal;
@@ -236,9 +236,9 @@ private:
   Signal<void, Widget&, vec2> m_cursorPosSignal;
   Signal<void, Widget&> m_cursorEnteredSignal;
   Signal<void, Widget&> m_cursorLeftSignal;
-  Signal<void, Widget&, vec2> m_dragBegunSignal;
-  Signal<void, Widget&, vec2> m_dragMovedSignal;
-  Signal<void, Widget&, vec2> m_dragEndedSignal;
+  Signal<void, Widget&, vec2, MouseButton> m_dragBegunSignal;
+  Signal<void, Widget&, vec2, MouseButton> m_dragMovedSignal;
+  Signal<void, Widget&, vec2, MouseButton> m_dragEndedSignal;
   Layer& m_layer;
   Widget* m_parent;
   std::vector<Widget*> m_children;
