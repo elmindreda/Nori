@@ -360,7 +360,7 @@ void Layer::onMouseButton(MouseButton button, Action action, uint mods)
 
     if (clickedWidget)
     {
-      while (!clickedWidget->isEnabled())
+      if (!clickedWidget->isEnabled())
         return;
 
       if (clickedWidget->isFocusable())
