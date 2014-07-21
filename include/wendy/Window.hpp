@@ -175,6 +175,7 @@ enum Key
  */
 enum KeyModifier
 {
+  MOD_NONE    = 0x00,
   MOD_SHIFT   = 0x01,
   MOD_CONTROL = 0x02,
   MOD_ALT     = 0x04,
