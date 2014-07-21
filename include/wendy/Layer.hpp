@@ -89,12 +89,7 @@ public:
   void setActiveWidget(Widget* widget);
   LayerStack* stack() const { return m_stack; }
   SignalProxy<void, Layer&> sizeChangedSignal();
-private:
-  void updateHoveredWidget();
-  void activateWidget(int offset);
-  void removeWidget(Widget& widget);
-  void focusableWidgets(std::vector<Widget*>& target,
-                        const std::vector<Widget*>& source) const;
+protected:
   void onWindowSize(uint width, uint height) override;
   void onKey(Key key, Action action, uint mods) override;
   void onCharacter(uint32 codepoint) override;
@@ -102,6 +97,12 @@ private:
   void onMouseButton(MouseButton button, Action action, uint mods) override;
   void onScroll(vec2 offset) override;
   void onFocus(bool activated) override;
+private:
+  void updateHoveredWidget();
+  void activateWidget(int offset);
+  void removeWidget(Widget& widget);
+  void focusableWidgets(std::vector<Widget*>& target,
+                        const std::vector<Widget*>& source) const;
   Window& m_window;
   Drawer& m_drawer;
   bool m_dragging;

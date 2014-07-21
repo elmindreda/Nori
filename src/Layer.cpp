@@ -200,101 +200,6 @@ SignalProxy<void, Layer&> Layer::sizeChangedSignal()
   return m_sizeChangedSignal;
 }
 
-void Layer::updateHoveredWidget()
-{
-  if (m_captureWidget)
-    return;
-
-  Widget* newWidget = findWidgetByPoint(cursorPoint());
-  if (newWidget == m_hoveredWidget)
-    return;
-
-  Widget* ancestor = m_hoveredWidget;
-  while (ancestor)
-  {
-    // Find the common ancestor (or NULL) and notify each non-common ancestor
-
-    if (newWidget == ancestor)
-      break;
-
-    if (newWidget && newWidget->isChildOf(*ancestor))
-      break;
-
-    ancestor->onCursorLeft();
-    ancestor = ancestor->parent();
-  }
-
-  m_hoveredWidget = newWidget;
-
-  while (newWidget)
-  {
-    // Notify each widget up to but not including the common ancestor
-
-    if (newWidget == ancestor)
-      break;
-
-    newWidget->onCursorEntered();
-    newWidget = newWidget->parent();
-  }
-}
-
-void Layer::activateWidget(int offset)
-{
-  std::vector<Widget*> focusable;
-  focusableWidgets(focusable, m_roots);
-
-  if (!focusable.empty())
-  {
-    auto i = std::find(focusable.begin(), focusable.end(), m_activeWidget);
-    const size_t count = focusable.size();
-    const size_t index = i - focusable.begin();
-
-    focusable[(index + count + offset) % count]->activate();
-  }
-}
-
-void Layer::removeWidget(Widget& widget)
-{
-  if (m_activeWidget)
-  {
-    if (m_activeWidget == &widget || m_activeWidget->isChildOf(widget))
-      setActiveWidget(widget.parent());
-  }
-
-  if (m_hoveredWidget)
-  {
-    if (m_hoveredWidget == &widget || m_hoveredWidget->isChildOf(widget))
-      m_hoveredWidget = nullptr;
-  }
-
-  if (m_captureWidget)
-  {
-    if (m_captureWidget == &widget || m_captureWidget->isChildOf(widget))
-      releaseCursor();
-  }
-
-  if (m_draggedWidget)
-  {
-    if (m_draggedWidget == &widget || m_draggedWidget->isChildOf(widget))
-      cancelDragging();
-  }
-}
-
-void Layer::focusableWidgets(std::vector<Widget*>& target,
-                             const std::vector<Widget*>& source) const
-{
-  for (Widget* widget : source)
-  {
-    if (widget->isVisible() && widget->isEnabled())
-    {
-      if (widget->isFocusable())
-        target.push_back(widget);
-
-      focusableWidgets(target, widget->m_children);
-    }
-  }
-}
-
 void Layer::onWindowSize(uint width, uint height)
 {
   m_sizeChangedSignal(*this);
@@ -412,6 +317,101 @@ void Layer::onFocus(bool activated)
   {
     cancelDragging();
     releaseCursor();
+  }
+}
+
+void Layer::updateHoveredWidget()
+{
+  if (m_captureWidget)
+    return;
+
+  Widget* newWidget = findWidgetByPoint(cursorPoint());
+  if (newWidget == m_hoveredWidget)
+    return;
+
+  Widget* ancestor = m_hoveredWidget;
+  while (ancestor)
+  {
+    // Find the common ancestor (or NULL) and notify each non-common ancestor
+
+    if (newWidget == ancestor)
+      break;
+
+    if (newWidget && newWidget->isChildOf(*ancestor))
+      break;
+
+    ancestor->onCursorLeft();
+    ancestor = ancestor->parent();
+  }
+
+  m_hoveredWidget = newWidget;
+
+  while (newWidget)
+  {
+    // Notify each widget up to but not including the common ancestor
+
+    if (newWidget == ancestor)
+      break;
+
+    newWidget->onCursorEntered();
+    newWidget = newWidget->parent();
+  }
+}
+
+void Layer::activateWidget(int offset)
+{
+  std::vector<Widget*> focusable;
+  focusableWidgets(focusable, m_roots);
+
+  if (!focusable.empty())
+  {
+    auto i = std::find(focusable.begin(), focusable.end(), m_activeWidget);
+    const size_t count = focusable.size();
+    const size_t index = i - focusable.begin();
+
+    focusable[(index + count + offset) % count]->activate();
+  }
+}
+
+void Layer::removeWidget(Widget& widget)
+{
+  if (m_activeWidget)
+  {
+    if (m_activeWidget == &widget || m_activeWidget->isChildOf(widget))
+      setActiveWidget(widget.parent());
+  }
+
+  if (m_hoveredWidget)
+  {
+    if (m_hoveredWidget == &widget || m_hoveredWidget->isChildOf(widget))
+      m_hoveredWidget = nullptr;
+  }
+
+  if (m_captureWidget)
+  {
+    if (m_captureWidget == &widget || m_captureWidget->isChildOf(widget))
+      releaseCursor();
+  }
+
+  if (m_draggedWidget)
+  {
+    if (m_draggedWidget == &widget || m_draggedWidget->isChildOf(widget))
+      cancelDragging();
+  }
+}
+
+void Layer::focusableWidgets(std::vector<Widget*>& target,
+                             const std::vector<Widget*>& source) const
+{
+  for (Widget* widget : source)
+  {
+    if (widget->isVisible() && widget->isEnabled())
+    {
+      if (widget->isFocusable())
+        target.push_back(widget);
+
+      focusableWidgets(target, widget->m_children);
+    }
   }
 }
 
