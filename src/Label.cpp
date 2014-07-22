@@ -47,20 +47,10 @@ Label::Label(Layer& layer, Widget* parent, const char* text, Alignment alignment
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
-const String& Label::text() const
-{
-  return m_text;
-}
-
 void Label::setText(const char* newText)
 {
   m_text = newText;
   invalidate();
-}
-
-const Alignment& Label::textAlignment() const
-{
-  return m_textAlignment;
 }
 
 void Label::setTextAlignment(const Alignment& newAlignment)

@@ -38,11 +38,6 @@ void Button::setChecked(bool checked)
   m_checked = checked;
 }
 
-const String& Button::text() const
-{
-  return m_text;
-}
-
 void Button::setText(const char* newText)
 {
   m_text = newText;

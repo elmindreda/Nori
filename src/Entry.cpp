@@ -55,11 +55,6 @@ Entry::Entry(Layer& layer, Widget* parent, const char* text):
   setFocusable(true);
 }
 
-const String& Entry::text() const
-{
-  return m_controller.text();
-}
-
 void Entry::setText(const String& newText)
 {
   setText(newText.c_str());
@@ -69,11 +64,6 @@ void Entry::setText(const char* newText)
 {
   m_controller.setText(newText);
   invalidate();
-}
-
-uint Entry::caretPosition() const
-{
-  return uint(m_controller.caretPosition());
 }
 
 void Entry::setCaretPosition(uint newPosition)

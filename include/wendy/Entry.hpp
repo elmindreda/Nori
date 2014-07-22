@@ -34,10 +34,10 @@ class Entry : public Widget
 {
 public:
   Entry(Layer& layer, Widget* parent = nullptr, const char* text = "");
-  const String& text() const;
+  const String& text() const { return m_controller.text(); }
   void setText(const String& newText);
   void setText(const char* newText);
-  uint caretPosition() const;
+  uint caretPosition() const { return uint(m_controller.caretPosition()); }
   void setCaretPosition(uint newPosition);
   SignalProxy<void, Entry&> textChangedSignal() { return m_textChangedSignal; }
   SignalProxy<void, Entry&> caretMovedSignal() { return m_caretMovedSignal; }

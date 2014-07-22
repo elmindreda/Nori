@@ -48,11 +48,6 @@ Page::~Page()
   m_book.onPageRemoved(*this);
 }
 
-const String& Page::text() const
-{
-  return m_text;
-}
-
 void Page::setText(const char* newText)
 {
   m_text = newText;
@@ -69,11 +64,6 @@ Book::Book(Layer& layer, Widget* parent):
 Book::~Book()
 {
   destroyChildren();
-}
-
-Page* Book::activePage() const
-{
-  return m_activePage;
 }
 
 void Book::setActivePage(Page* newPage)

@@ -136,11 +136,6 @@ void List::sortItems()
   updateScroller();
 }
 
-bool List::isEditable() const
-{
-  return m_editable;
-}
-
 void List::setEditable(bool newState)
 {
   if (m_editable == newState)
@@ -164,20 +159,10 @@ void List::setEditable(bool newState)
   }
 }
 
-uint List::offset() const
-{
-  return m_offset;
-}
-
 void List::setOffset(uint newOffset)
 {
   m_offset = min(newOffset, m_maxOffset);
   m_scroller->setValue(float(m_offset));
-}
-
-uint List::selection() const
-{
-  return m_selection;
 }
 
 void List::setSelection(uint newSelection)

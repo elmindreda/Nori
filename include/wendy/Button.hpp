@@ -42,7 +42,7 @@ public:
   ButtonType type() const { return m_type; }
   bool checked() const { return m_checked; }
   void setChecked(bool checked);
-  const String& text() const;
+  const String& text() const { return m_text; }
   void setText(const char* newText);
   SignalProxy<void, Button&> pushedSignal();
 protected:

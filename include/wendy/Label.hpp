@@ -34,9 +34,9 @@ class Label : public Widget
 {
 public:
   Label(Layer& layer, Widget* parent = nullptr, const char* text = "", Alignment alignment = LEFT_ALIGNED);
-  const String& text() const;
+  const String& text() const { return m_text; }
   void setText(const char* newText);
-  const Alignment& textAlignment() const;
+  const Alignment& textAlignment() const { return m_textAlignment; }
   void setTextAlignment(const Alignment& newAlignment);
 private:
   void draw() const;

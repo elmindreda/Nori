@@ -35,10 +35,6 @@
 namespace wendy
 {
 
-Frustum::Frustum()
-{
-}
-
 Frustum::Frustum(float FOV, float aspectRatio, float nearZ, float farZ)
 {
   setPerspective(FOV, aspectRatio, nearZ, farZ);

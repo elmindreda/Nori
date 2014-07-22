@@ -438,7 +438,7 @@ public:
   void setClipboardText(const String& newText);
   /*! @return The signal for per-frame post-render clean-up.
    */
-  SignalProxy<void> frameSignal();
+  SignalProxy<void> frameSignal() { return m_frameSignal; }
   EventHook* hook() const { return m_hook; }
   void setHook(EventHook* newHook);
   EventTarget* target() const { return m_target; }

@@ -402,11 +402,6 @@ void Window::setClipboardText(const String& newText)
   glfwSetClipboardString(m_handle, newText.c_str());
 }
 
-SignalProxy<void> Window::frameSignal()
-{
-  return m_frameSignal;
-}
-
 void Window::setHook(EventHook* newHook)
 {
   m_hook = newHook;

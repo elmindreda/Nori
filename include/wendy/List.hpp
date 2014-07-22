@@ -43,11 +43,11 @@ public:
   void destroyItem(Item& item);
   void destroyItems();
   void sortItems();
-  bool isEditable() const;
+  bool isEditable() const { return m_editable; }
   void setEditable(bool newState);
-  uint offset() const;
+  uint offset() const { return m_offset; }
   void setOffset(uint newOffset);
-  uint selection() const;
+  uint selection() const { return m_selection; }
   void setSelection(uint newSelection);
   Item* selectedItem();
   void setSelectedItem(Item& newItem);

@@ -37,7 +37,7 @@ class Page : public Widget
 public:
   Page(Layer& layer, Book& parent, const char* text = "");
   ~Page();
-  const String& text() const;
+  const String& text() const { return m_text; }
   void setText(const char* newText);
 private:
   Book& m_book;
@@ -52,7 +52,7 @@ class Book : public Widget
 public:
   Book(Layer& layer, Widget* parent = nullptr);
   ~Book();
-  Page* activePage() const;
+  Page* activePage() const { return m_activePage; }
   void setActivePage(Page* newPage);
   SignalProxy<void, Book&> pageChangedSignal();
 protected:
