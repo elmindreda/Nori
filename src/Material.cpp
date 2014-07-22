@@ -40,12 +40,8 @@
 
 #include <pugixml.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -142,8 +138,6 @@ void initializeMaps()
 }
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 {
@@ -471,8 +465,6 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Ref<Material> Material::create(const ResourceInfo& info, RenderContext& context)
 {
   return new Material(info);
@@ -488,8 +480,6 @@ Material::Material(const ResourceInfo& info):
   Resource(info)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 MaterialReader::MaterialReader(RenderContext& context):
   ResourceReader<Material>(context.cache()),
@@ -548,8 +538,5 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
   return material;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

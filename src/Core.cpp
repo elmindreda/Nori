@@ -36,12 +36,8 @@
 #include <cstring>
 #include <cstdio>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -49,8 +45,6 @@ namespace
 std::vector<LogConsumer*> consumers;
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 String stringCast(const vec2& v)
 {
@@ -207,8 +201,6 @@ String vlformat(const char* format, va_list vl)
   return String(buffer);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 StringHash hashString(const String& string)
 {
   return hashString(string.c_str());
@@ -297,8 +289,6 @@ void panic(const char* format, ...)
   std::terminate();
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Exception::Exception(const char* initMessage):
   message(initMessage)
 {
@@ -308,8 +298,6 @@ const char* Exception::what() const throw()
 {
   return message;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 bool RefBase::unreferenced(RefObject* object)
 {
@@ -325,8 +313,6 @@ void RefBase::decrement(RefObject* object)
 {
   object->count--;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 RefObject::RefObject():
   count(0)
@@ -347,8 +333,6 @@ RefObject& RefObject::operator = (const RefObject& source)
   return *this;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 LogConsumer::LogConsumer()
 {
   consumers.push_back(this);
@@ -359,8 +343,5 @@ LogConsumer::~LogConsumer()
   consumers.erase(std::find(consumers.begin(), consumers.end(), this));
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

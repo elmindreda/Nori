@@ -30,12 +30,8 @@
 #include <sstream>
 #include <utility>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 Rect::Rect(vec2 initPosition, vec2 initSize):
   position(initPosition),
@@ -191,8 +187,6 @@ void Rect::set(float x, float y, float width, float height)
   size = vec2(width, height);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Recti::Recti(ivec2 initPosition, ivec2 initSize):
   position(initPosition),
   size(initSize)
@@ -338,8 +332,6 @@ void Recti::set(int x, int y, int width, int height)
   size = ivec2(width, height);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Rect rectCast(const String& string)
 {
   std::istringstream stream(string, std::ios::in);
@@ -380,8 +372,5 @@ String stringCast(const Recti& v)
   return stream.str();
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

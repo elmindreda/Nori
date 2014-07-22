@@ -45,12 +45,8 @@
 
 #include <fstream>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -58,8 +54,6 @@ namespace
 const uint MODEL_XML_VERSION = 3;
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 ModelSection::ModelSection(const IndexRange& range,
                            Material* material):
@@ -72,8 +66,6 @@ void ModelSection::setMaterial(Material* newMaterial)
 {
   m_material = newMaterial;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 void Model::enqueue(RenderQueue& queue, const Camera& camera, const Transform3& transform) const
 {
@@ -229,8 +221,6 @@ Ref<Model> Model::read(RenderContext& context, const String& name)
   return reader.read(name);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 ModelReader::ModelReader(RenderContext& context):
   ResourceReader<Model>(context.cache()),
   m_context(context)
@@ -313,8 +303,5 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
   return Model::create(ResourceInfo(cache, name, path), m_context, *mesh, materials);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

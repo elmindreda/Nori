@@ -39,12 +39,8 @@
 
 #include <cstring>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -297,8 +293,6 @@ void registerCoreClasses(SqVM& vm)
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 namespace detail
 {
 
@@ -476,8 +470,6 @@ void push(HSQUIRRELVM vm, vec4 value)
 
 } /*namespace detail*/
 
-///////////////////////////////////////////////////////////////////////
-
 SqVM::SqVM(ResourceCache& cache):
   m_cache(cache),
   m_vm(nullptr)
@@ -622,8 +614,6 @@ SQInteger SqVM::onRuntimeError(HSQUIRRELVM vm)
 
   return 0;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 SqObject::SqObject():
   m_vm(nullptr)
@@ -776,8 +766,6 @@ SQInteger SqObject::size() const
   return size;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 SqArray::SqArray(HSQUIRRELVM vm):
   SqObject(vm)
 {
@@ -872,8 +860,6 @@ SqObject SqArray::operator [] (SQInteger index) const
   return result;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 SqTable::SqTable(HSQUIRRELVM vm):
   SqObject(vm)
 {
@@ -914,8 +900,6 @@ SqTable SqTable::constTable(HSQUIRRELVM vm)
 
   return table;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 SqClass::SqClass(HSQUIRRELVM vm):
   SqObject(vm)
@@ -984,8 +968,6 @@ SqTable SqClass::memberAttributes(const char* name)
   return result;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 SqInstance::SqInstance(const SqObject& source):
   SqObject(source)
 {
@@ -1020,8 +1002,5 @@ void* SqInstance::pointer()
   return result;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

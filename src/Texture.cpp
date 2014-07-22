@@ -36,12 +36,8 @@
 
 #include <glm/gtx/bit.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -162,8 +158,6 @@ const char* asString(TextureType type)
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 TextureData::TextureData(const Image& image):
   format(image.format()),
   width(image.width()),
@@ -202,8 +196,6 @@ uint TextureData::dimensionCount() const
   return 1;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 TextureParams::TextureParams(TextureType initType,
                              uint initFlags,
                              FilterMode initFilterMode,
@@ -219,15 +211,11 @@ TextureParams::TextureParams(TextureType initType,
     flags &= ~TF_MIPMAPPED;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 TextureImage::TextureImage(uint initLevel, CubeFace initFace):
   level(initLevel),
   face(initFace)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Texture::~Texture()
 {
@@ -797,8 +785,5 @@ void Texture::detach(int attachment)
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

@@ -40,12 +40,8 @@
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtc/epsilon.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -214,16 +210,12 @@ struct FaceGroup
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 void MeshTriangle::setIndices(uint32 a, uint32 b, uint32 c)
 {
   indices[0] = a;
   indices[1] = b;
   indices[2] = c;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Mesh::Mesh(const ResourceInfo& info):
   Resource(info)
@@ -380,8 +372,6 @@ Ref<Mesh> Mesh::read(ResourceCache& cache, const String& name)
   MeshReader reader(cache);
   return reader.read(name);
 }
-
-///////////////////////////////////////////////////////////////////////
 
 MeshReader::MeshReader(ResourceCache& index):
   ResourceReader<Mesh>(index)
@@ -638,8 +628,6 @@ bool MeshReader::interesting(const char** text)
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 bool MeshWriter::write(const Path& path, const Mesh& mesh)
 {
   std::ofstream stream(path.name());
@@ -680,8 +668,5 @@ bool MeshWriter::write(const Path& path, const Mesh& mesh)
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

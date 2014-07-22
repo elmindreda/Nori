@@ -45,12 +45,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -73,8 +69,6 @@ PixelFormat convertToPixelFormat(int format)
 }
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 bool Image::transformTo(const PixelFormat& format, PixelTransform& transform)
 {
@@ -317,8 +311,6 @@ bool Image::init(const PixelFormat& format,
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 ImageReader::ImageReader(ResourceCache& cache):
   ResourceReader<Image>(cache)
 {
@@ -365,8 +357,6 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   return result;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 bool ImageWriter::write(const Path& path, const Image& image)
 {
   if (image.dimensionCount() > 2)
@@ -390,8 +380,5 @@ bool ImageWriter::write(const Path& path, const Image& image)
                         start, -stride) != 0;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

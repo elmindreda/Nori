@@ -31,12 +31,8 @@
 #include <memory>
 #include <cstring>
 
-//////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -44,8 +40,6 @@ namespace
 const size_t MAX_EVENT_SIZE = 1024;
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 PacketData::PacketData():
   m_data(nullptr),
@@ -178,8 +172,6 @@ const void* PacketData::data() const
   return m_data;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 bool Peer::sendPacket(ChannelID channel,
                       PacketType type,
                       const PacketData& data)
@@ -238,13 +230,9 @@ Peer::Peer(void* peer, TargetID targetID, const char* name):
 {
 }
 
-///////////////////////////////////////////////////////////////////////
-
 HostObserver::~HostObserver()
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Host::~Host()
 {
@@ -640,8 +628,6 @@ bool Host::broadcast(ChannelID channel, PacketType type, const PacketData& data)
 
 uint Host::m_count = 0;
 
-///////////////////////////////////////////////////////////////////////
-
 NetworkObject::NetworkObject(Host& host, NetworkObjectID objectID):
   m_id(objectID),
   m_host(host)
@@ -721,8 +707,5 @@ void NetworkObject::receiveEvent(TargetID senderID,
 {
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

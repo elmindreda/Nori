@@ -33,14 +33,10 @@
 
 #include <wendy/Bullet.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
   namespace bullet
   {
-
-///////////////////////////////////////////////////////////////////////
 
 Transform3 convert(const btTransform& transform, float scale)
 {
@@ -104,8 +100,6 @@ btTriangleMesh* convert(const Mesh& data)
   return mesh;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::create(const ResourceInfo& info,
                                                        const Mesh& data)
 {
@@ -149,8 +143,6 @@ bool BvhTriangleMeshShape::init(const Mesh& data)
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 AvatarSweepCallback::AvatarSweepCallback(const btCollisionObject* initSelf):
   self(initSelf)
 {
@@ -183,9 +175,6 @@ btScalar AvatarSweepCallback::addSingleResult(btCollisionWorld::LocalConvexResul
   return m_closestHitFraction = result.m_hitFraction;
 }
 
-///////////////////////////////////////////////////////////////////////
-
   } /*namespace bullet*/
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

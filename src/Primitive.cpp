@@ -31,12 +31,8 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/intersect.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 void Ray3::set(const vec3& newOrigin, const vec3& newDirection)
 {
@@ -48,8 +44,6 @@ Ray3 operator * (const Transform3& transform, const Ray3& ray)
 {
   return Ray3(transform * ray.origin, transform.rotation * ray.direction);
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Plane::Plane(const vec3& P0, const vec3& P1, const vec3& P2)
 {
@@ -125,8 +119,6 @@ Plane operator * (const Transform3& transform, const Plane& plane)
   const float offset = dot(normal, transform.position) * transform.scale;
   return Plane(normal, plane.distance + offset);
 }
-
-///////////////////////////////////////////////////////////////////////
 
 bool Sphere::contains(vec3 point) const
 {
@@ -219,8 +211,6 @@ Sphere operator * (const Transform3& transform, const Sphere& sphere)
   return Sphere(transform * sphere.center, transform.scale * sphere.radius);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 bool AABB::contains(vec3 point) const
 {
   vec3 minimum, maximum;
@@ -305,8 +295,5 @@ void AABB::set(float newWidth, float newHeight, float newDepth)
   size = vec3(newWidth, newHeight, newDepth);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

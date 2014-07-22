@@ -46,12 +46,8 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/constants.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -62,8 +58,6 @@ Window& windowFromHandle(GLFWwindow* handle)
 }
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 EventHook::~EventHook()
 {
@@ -114,8 +108,6 @@ bool EventHook::onScroll(vec2 offset)
   return false;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 EventTarget::~EventTarget()
 {
 }
@@ -164,8 +156,6 @@ void EventTarget::onFocus(bool activated)
 {
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Resolution::Resolution():
   width(0),
   height(0)
@@ -177,8 +167,6 @@ Resolution::Resolution(uint initWidth, uint initHeight):
   height(initHeight)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 WindowConfig::WindowConfig():
   title("Wendy"),
@@ -210,8 +198,6 @@ WindowConfig::WindowConfig(const String& initTitle,
   resizable(initResizable)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 bool Gamepad::isButtonDown(uint button) const
 {
@@ -272,8 +258,6 @@ bool Gamepad::present()
 {
   return glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Window::~Window()
 {
@@ -596,8 +580,6 @@ std::vector<Resolution> Window::resolutions()
   return resolutions;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 SpectatorController::SpectatorController():
   m_angleX(0.f),
   m_angleY(0.f),
@@ -753,8 +735,6 @@ void SpectatorController::setRotation(float newAngleX, float newAngleY)
   const quat axisY = angleAxis(m_angleY, 0.f, 1.f, 0.f);
   m_transform.rotation = axisY * axisX;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 TextController::TextController():
   m_caretPosition(0)
@@ -939,8 +919,5 @@ void TextController::setCaretPosition(size_t newPosition)
   m_caretMovedSignal();
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

@@ -39,12 +39,8 @@
 
 #include <fstream>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -52,8 +48,6 @@ namespace
 const uint FONT_XML_VERSION = 2;
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 void Font::drawText(vec2 pen, vec4 color, const char* text)
 {
@@ -361,8 +355,6 @@ bool Font::addGlyphTextureRow()
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 FontReader::FontReader(RenderContext& context):
   ResourceReader<Font>(context.cache()),
   m_context(context)
@@ -412,8 +404,5 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
   return Font::create(ResourceInfo(cache, name, path), m_context, *face, height);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

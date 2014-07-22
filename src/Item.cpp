@@ -30,12 +30,8 @@
 #include <wendy/Widget.hpp>
 #include <wendy/Item.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 Item::Item(Layer& layer, const char* value, ItemID id):
   m_layer(layer),
@@ -98,8 +94,6 @@ void Item::draw(const Rect& area, WidgetState state) const
   drawer.drawText(textArea, m_value.c_str(), LEFT_ALIGNED, state);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 SeparatorItem::SeparatorItem(Layer& layer):
   Item(layer)
 {
@@ -125,8 +119,6 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 
   drawer.drawLine(start, end, vec4(vec3(0.f), 1.f));
 }
-
-///////////////////////////////////////////////////////////////////////
 
 TextureItem::TextureItem(Layer& layer,
                          Texture& texture,
@@ -172,8 +164,5 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
   drawer.blitTexture(textureArea, *m_texture, vec4(1.f));
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

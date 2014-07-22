@@ -23,24 +23,17 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_SQUIRREL_HPP
-#define WENDY_SQUIRREL_HPP
-///////////////////////////////////////////////////////////////////////
+
+#pragma once
 
 #include <squirrel.h>
-
-///////////////////////////////////////////////////////////////////////
 
 namespace wendy
 {
 
-///////////////////////////////////////////////////////////////////////
-
 class SqObject;
 class SqTable;
 class SqInstance;
-
-///////////////////////////////////////////////////////////////////////
 
 namespace detail
 {
@@ -163,8 +156,6 @@ inline SQFUNCTION demarshaller(R (T::*method)(A...) const)
 
 } /*namespace detail*/
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Squirrel %VM instance.
  *  @ingroup squirrel
  */
@@ -195,8 +186,6 @@ private:
   ResourceCache& m_cache;
   HSQUIRRELVM m_vm;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @brief Squirrel object reference.
  *  @ingroup squirrel
@@ -368,8 +357,6 @@ inline bool SqObject::set(const char* name, T value)
   return SQ_SUCCEEDED(result);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Squirrel array reference.
  *  @ingroup squirrel
  */
@@ -463,8 +450,6 @@ inline bool SqArray::set(SQInteger index, T value)
   return SQ_SUCCEEDED(result);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Squirrel table reference.
  *  @ingroup squirrel
  */
@@ -486,8 +471,6 @@ public:
   static SqTable rootTable(HSQUIRRELVM vm);
   static SqTable constTable(HSQUIRRELVM vm);
 };
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @brief Squirrel class reference.
  *  @ingroup squirrel
@@ -513,8 +496,6 @@ public:
   SqTable memberAttributes(const char* name);
 };
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Squirrel class instance reference.
  *  @ingroup squirrel
  */
@@ -531,8 +512,6 @@ public:
   void* pointer();
   SqClass class_() const;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup squirrel
  */
@@ -607,8 +586,6 @@ inline SQInteger SqDataClass<T>::destructor(SQUserPointer pointer, SQInteger siz
 
 template <typename T>
 int SqDataClass<T>::m_tag = 0;
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @ingroup squirrel
  */
@@ -690,8 +667,6 @@ inline SQInteger SqRefClass<T>::destructor(SQUserPointer pointer, SQInteger size
 template <typename T>
 int SqRefClass<T>::m_tag = 0;
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @ingroup squirrel
  */
 template <typename T>
@@ -725,10 +700,5 @@ inline T* SqNativeInstance<T>::native()
   return static_cast<T*>(pointer());
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_SQUIRREL_HPP*/
-///////////////////////////////////////////////////////////////////////

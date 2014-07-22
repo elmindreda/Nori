@@ -47,12 +47,8 @@
 
 #include <algorithm>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -334,8 +330,6 @@ void setBooleanState(uint state, bool value)
 
 } /*namespace (and Gandalf)*/
 
-///////////////////////////////////////////////////////////////////////
-
 RenderConfig::RenderConfig(uint initColorBits,
                            uint initDepthBits,
                            uint initStencilBits,
@@ -348,8 +342,6 @@ RenderConfig::RenderConfig(uint initColorBits,
   debug(initDebug)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 RenderState::RenderState():
   depthTesting(true),
@@ -376,8 +368,6 @@ RenderState::RenderState():
   }
 }
 
-///////////////////////////////////////////////////////////////////////
-
 RenderLimits::RenderLimits(RenderContext& context)
 {
   maxColorAttachments = getInteger(GL_MAX_COLOR_ATTACHMENTS);
@@ -397,8 +387,6 @@ RenderLimits::RenderLimits(RenderContext& context)
   else
     maxTextureAnisotropy = 1.f;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 RenderStats::RenderStats():
   m_frameCount(0),
@@ -521,8 +509,6 @@ void RenderStats::removeProgram()
   m_programCount--;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 RenderStats::Frame::Frame():
   stateChangeCount(0),
   operationCount(0),
@@ -533,8 +519,6 @@ RenderStats::Frame::Frame():
   duration(0.0)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 SharedProgramState::SharedProgramState():
   m_dirtyModelView(true),
@@ -864,8 +848,6 @@ void SharedProgramState::updateTo(Uniform& uniform)
            uniform.name().c_str());
 }
 
-///////////////////////////////////////////////////////////////////////
-
 class RenderContext::SharedSampler
 {
 public:
@@ -880,8 +862,6 @@ public:
   int ID;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 class RenderContext::SharedUniform
 {
 public:
@@ -895,8 +875,6 @@ public:
   UniformType type;
   int ID;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 RenderContext::~RenderContext()
 {
@@ -1844,8 +1822,5 @@ void RenderContext::onFrame()
     m_stats->addFrame();
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

@@ -31,12 +31,8 @@
 #include <sstream>
 #include <cctype>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 PixelFormat::PixelFormat(Semantic semantic, Type type):
   m_semantic(semantic),
@@ -221,13 +217,9 @@ const PixelFormat PixelFormat::DEPTH32(PixelFormat::DEPTH, PixelFormat::UINT32);
 const PixelFormat PixelFormat::DEPTH16F(PixelFormat::DEPTH, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::DEPTH32F(PixelFormat::DEPTH, PixelFormat::FLOAT32);
 
-///////////////////////////////////////////////////////////////////////
-
 PixelTransform::~PixelTransform()
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 bool RGBtoRGBA::supports(const PixelFormat& targetFormat,
                          const PixelFormat& sourceFormat)
@@ -263,8 +255,5 @@ void RGBtoRGBA::convert(void* target,
   }
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

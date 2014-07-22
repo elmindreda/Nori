@@ -34,12 +34,8 @@
 
 #include <internal/OpenGL.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -112,8 +108,6 @@ bool isColorAttachment(TextureFramebuffer::Attachment attachment)
 }
 
 } /*namespace*/
-
-///////////////////////////////////////////////////////////////////////
 
 VertexBuffer::~VertexBuffer()
 {
@@ -221,8 +215,6 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, BufferUsage us
 
   return true;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 IndexBuffer::~IndexBuffer()
 {
@@ -338,8 +330,6 @@ bool IndexBuffer::init(size_t count, IndexBufferType type, BufferUsage usage)
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 VertexRange::VertexRange():
   m_buffer(nullptr),
   m_start(0),
@@ -381,8 +371,6 @@ void VertexRange::copyTo(void* target)
   m_buffer->copyTo(target, m_count, m_start);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 IndexRange::IndexRange():
   m_buffer(nullptr),
   m_start(0),
@@ -423,8 +411,6 @@ void IndexRange::copyTo(void* target)
 
   m_buffer->copyTo(target, m_count, m_start);
 }
-
-///////////////////////////////////////////////////////////////////////
 
 PrimitiveRange::PrimitiveRange():
   m_type(TRIANGLE_LIST),
@@ -529,8 +515,6 @@ bool PrimitiveRange::isEmpty() const
   return m_count == 0;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Framebuffer::~Framebuffer()
 {
 }
@@ -589,8 +573,6 @@ Framebuffer::Framebuffer(RenderContext& context):
 {
 }
 
-///////////////////////////////////////////////////////////////////////
-
 DefaultFramebuffer::DefaultFramebuffer(RenderContext& context):
   Framebuffer(context)
 {
@@ -614,8 +596,6 @@ uint DefaultFramebuffer::height() const
 {
   return context().window().height();
 }
-
-///////////////////////////////////////////////////////////////////////
 
 TextureFramebuffer::~TextureFramebuffer()
 {
@@ -764,8 +744,5 @@ void TextureFramebuffer::apply() const
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

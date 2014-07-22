@@ -30,12 +30,8 @@
 #include <wendy/Primitive.hpp>
 #include <wendy/Pass.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -50,8 +46,6 @@ IDPool<PassID> passIDs;
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 UniformStateIndex::UniformStateIndex():
   index(0xffff),
   offset(0xffff)
@@ -64,8 +58,6 @@ UniformStateIndex::UniformStateIndex(uint16 initIndex, uint16 initOffset):
 {
 }
 
-///////////////////////////////////////////////////////////////////////
-
 SamplerStateIndex::SamplerStateIndex():
   index(0xffff),
   unit(0xffff)
@@ -77,8 +69,6 @@ SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
   unit(initUnit)
 {
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Pass::Pass():
   m_ID(passIDs.allocateID())
@@ -761,8 +751,5 @@ UniformType Pass::uniformType<mat4>()
   return UNIFORM_MAT4;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

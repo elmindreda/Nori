@@ -41,12 +41,8 @@
 
 #include <pugixml.hpp>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -200,8 +196,6 @@ GLenum convertToGL(ShaderType type)
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 Shader::~Shader()
 {
   if (m_shaderID)
@@ -351,8 +345,6 @@ bool Shader::init(const String& text)
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 bool Attribute::isScalar() const
 {
   return attributeTypes[m_type].scalar;
@@ -387,14 +379,10 @@ const char* Attribute::typeName(AttributeType type)
   return attributeTypes[type].name;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 const char* Sampler::typeName(SamplerType type)
 {
   return samplerTypes[type].name;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 void Uniform::copyFrom(const void* data)
 {
@@ -458,8 +446,6 @@ const char* Uniform::typeName(UniformType type)
 {
   return uniformTypes[type].name;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 Program::~Program()
 {
@@ -855,8 +841,6 @@ String Program::infoLog() const
   return result;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 void ProgramInterface::addSampler(const char* name, SamplerType type)
 {
   samplers.push_back(std::make_pair(name, type));
@@ -1024,8 +1008,5 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

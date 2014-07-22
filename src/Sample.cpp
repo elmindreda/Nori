@@ -31,12 +31,8 @@
 
 #include <vorbis/vorbisfile.h>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -62,8 +58,6 @@ const char* getErrorString(int error)
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 Sample::Sample(const ResourceInfo& info,
                const char* initData,
                size_t initSize,
@@ -81,8 +75,6 @@ Ref<Sample> Sample::read(ResourceCache& cache, const String& name)
   SampleReader reader(cache);
   return reader.read(name);
 }
-
-///////////////////////////////////////////////////////////////////////
 
 SampleReader::SampleReader(ResourceCache& cache):
   ResourceReader(cache)
@@ -173,8 +165,5 @@ Ref<Sample> SampleReader::read(const String& name, const Path& path)
                     frequency);
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

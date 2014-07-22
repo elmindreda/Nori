@@ -34,12 +34,8 @@
 
 #include <fstream>
 
-///////////////////////////////////////////////////////////////////////
-
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 namespace
 {
@@ -67,8 +63,6 @@ const uint THEME_XML_VERSION = 3;
 
 } /*namespace*/
 
-///////////////////////////////////////////////////////////////////////
-
 Alignment::Alignment(HorzAlignment horizontal, VertAlignment vertical):
   horizontal(horizontal),
   vertical(vertical)
@@ -81,8 +75,6 @@ void Alignment::set(HorzAlignment newHorizontal, VertAlignment newVertical)
   vertical = newVertical;
 }
 
-///////////////////////////////////////////////////////////////////////
-
 Theme::Theme(const ResourceInfo& info):
   Resource(info)
 {
@@ -93,8 +85,6 @@ Ref<Theme> Theme::read(RenderContext& context, const String& name)
   ThemeReader reader(context);
   return reader.read(name);
 }
-
-///////////////////////////////////////////////////////////////////////
 
 ThemeReader::ThemeReader(RenderContext& context):
   ResourceReader<Theme>(context.cache()),
@@ -215,8 +205,6 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
   return theme;
 }
-
-///////////////////////////////////////////////////////////////////////
 
 void Drawer::begin()
 {
@@ -718,8 +706,5 @@ void Drawer::setDrawingState(const vec4& color, bool wireframe)
   m_drawPass.apply();
 }
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////

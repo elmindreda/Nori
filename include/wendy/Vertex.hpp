@@ -22,14 +22,11 @@
 //     distribution.
 //
 ///////////////////////////////////////////////////////////////////////
-#ifndef WENDY_VERTEX_HPP
-#define WENDY_VERTEX_HPP
-///////////////////////////////////////////////////////////////////////
+
+#pragma once
 
 namespace wendy
 {
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @brief Vertex format component descriptor.
  *
@@ -73,8 +70,6 @@ private:
   size_t m_offset;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Vertex format descriptor.
  *
  *  This class describes a mapping between the physical layout and the semantic
@@ -107,8 +102,6 @@ private:
   std::vector<VertexComponent> m_components;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Predefined vertex format.
  */
 class Vertex3fv
@@ -117,8 +110,6 @@ public:
   vec3 position;
   static const VertexFormat format;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @brief Predefined vertex format.
  */
@@ -130,8 +121,6 @@ public:
   static const VertexFormat format;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Predefined vertex format.
  */
 class Vertex2fv
@@ -140,8 +129,6 @@ public:
   vec2 position;
   static const VertexFormat format;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @brief Predefined vertex format.
  */
@@ -153,8 +140,6 @@ public:
   static const VertexFormat format;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Predefined vertex format.
  */
 class Vertex2ft3fv
@@ -164,8 +149,6 @@ public:
   vec3 position;
   static const VertexFormat format;
 };
-
-///////////////////////////////////////////////////////////////////////
 
 /*! @brief Predefined vertex format.
  */
@@ -178,8 +161,6 @@ public:
   static const VertexFormat format;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 /*! @brief Predefined vertex format.
  */
 class Vertex3fn2ft3fv
@@ -191,10 +172,5 @@ public:
   static const VertexFormat format;
 };
 
-///////////////////////////////////////////////////////////////////////
-
 } /*namespace wendy*/
 
-///////////////////////////////////////////////////////////////////////
-#endif /*WENDY_VERTEX_HPP*/
-///////////////////////////////////////////////////////////////////////
