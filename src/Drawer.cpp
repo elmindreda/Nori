@@ -45,7 +45,7 @@ Bimap<String, WidgetState> widgetStateMap;
 class ElementVertex
 {
 public:
-  inline void set(const vec2& newSizeScale, const vec2& newOffsetScale, const vec2& newTexScale)
+  inline void set(vec2 newSizeScale, vec2 newOffsetScale, vec2 newTexScale)
   {
     sizeScale = newSizeScale;
     offsetScale = newOffsetScale;
@@ -234,7 +234,7 @@ void Drawer::popClipArea()
   m_clipAreaStack.pop();
 }
 
-void Drawer::drawPoint(const vec2& point, const vec4& color)
+void Drawer::drawPoint(vec2 point, vec4 color)
 {
   Vertex2fv vertex;
   vertex.position = point;
@@ -248,7 +248,7 @@ void Drawer::drawPoint(const vec2& point, const vec4& color)
   m_context.render(PrimitiveRange(POINT_LIST, range));
 }
 
-void Drawer::drawLine(vec2 start, vec2 end, const vec4& color)
+void Drawer::drawLine(vec2 start, vec2 end, vec4 color)
 {
   Vertex2fv vertices[2];
   vertices[0].position = start;
@@ -263,7 +263,7 @@ void Drawer::drawLine(vec2 start, vec2 end, const vec4& color)
   m_context.render(PrimitiveRange(LINE_LIST, range));
 }
 
-void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
+void Drawer::drawRectangle(const Rect& rectangle, vec4 color)
 {
   float minX, minY, maxX, maxY;
   rectangle.bounds(minX, minY, maxX, maxY);
@@ -286,7 +286,7 @@ void Drawer::drawRectangle(const Rect& rectangle, const vec4& color)
   m_context.render(PrimitiveRange(LINE_LOOP, range));
 }
 
-void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
+void Drawer::fillRectangle(const Rect& rectangle, vec4 color)
 {
   float minX, minY, maxX, maxY;
   rectangle.bounds(minX, minY, maxX, maxY);
@@ -309,7 +309,7 @@ void Drawer::fillRectangle(const Rect& rectangle, const vec4& color)
   m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
 }
 
-void Drawer::blitTexture(const Rect& area, Texture& texture, const vec4& color)
+void Drawer::blitTexture(const Rect& area, Texture& texture, vec4 color)
 {
   float minX, minY, maxX, maxY;
   area.bounds(minX, minY, maxX, maxY);
@@ -693,7 +693,7 @@ void Drawer::drawElement(const Rect& area, const Rect& mapping)
   m_context.render(m_range);
 }
 
-void Drawer::setDrawingState(const vec4& color, bool wireframe)
+void Drawer::setDrawingState(vec4 color, bool wireframe)
 {
   m_drawPass.setUniformState("color", color);
 

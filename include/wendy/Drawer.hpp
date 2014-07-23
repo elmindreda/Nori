@@ -158,11 +158,11 @@ public:
    *  previously current clipping area.
    */
   void popClipArea();
-  void drawPoint(const vec2& point, const vec4& color);
-  void drawLine(vec2 start, vec2 end, const vec4& color);
-  void drawRectangle(const Rect& rectangle, const vec4& color);
-  void fillRectangle(const Rect& rectangle, const vec4& color);
-  void blitTexture(const Rect& area, Texture& texture, const vec4& color);
+  void drawPoint(vec2 point, vec4 color);
+  void drawLine(vec2 start, vec2 end, vec4 color);
+  void drawRectangle(const Rect& rectangle, vec4 color);
+  void fillRectangle(const Rect& rectangle, vec4 color);
+  void blitTexture(const Rect& area, Texture& texture, vec4 color);
   void drawText(const Rect& area,
                 const char* text,
                 Alignment alignment,
@@ -186,7 +186,7 @@ private:
   Drawer(RenderContext& context);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
-  void setDrawingState(const vec4& color, bool wireframe);
+  void setDrawingState(vec4 color, bool wireframe);
   RectClipStackf m_clipAreaStack;
   Ref<VertexBuffer> m_vertexBuffer;
   Ref<IndexBuffer> m_indexBuffer;
