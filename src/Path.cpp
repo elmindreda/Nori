@@ -229,7 +229,7 @@ std::vector<String> Path::children() const
   WIN32_FIND_DATA data;
   HANDLE search;
 
-  search = FindFirstFile(m_string.c_str(), &data);
+  search = FindFirstFile((m_string + "/*").c_str(), &data);
   if (search != INVALID_HANDLE_VALUE)
   {
     do
@@ -265,7 +265,7 @@ std::vector<String> Path::childrenMatching(const Regex& regex) const
   WIN32_FIND_DATA data;
   HANDLE search;
 
-  search = FindFirstFile(m_string.c_str(), &data);
+  search = FindFirstFile((m_string + "/*").c_str(), &data);
   if (search != INVALID_HANDLE_VALUE)
   {
     do
