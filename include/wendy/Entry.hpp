@@ -37,8 +37,8 @@ public:
   const String& text() const { return m_controller.text(); }
   void setText(const String& newText);
   void setText(const char* newText);
-  uint caretPosition() const { return uint(m_controller.caretPosition()); }
-  void setCaretPosition(uint newPosition);
+  size_t caretPosition() const { return m_controller.caretPosition(); }
+  void setCaretPosition(size_t newPosition);
   SignalProxy<void, Entry&> textChangedSignal() { return m_textChangedSignal; }
   SignalProxy<void, Entry&> caretMovedSignal() { return m_caretMovedSignal; }
 protected:

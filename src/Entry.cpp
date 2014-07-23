@@ -66,7 +66,7 @@ void Entry::setText(const char* newText)
   invalidate();
 }
 
-void Entry::setCaretPosition(uint newPosition)
+void Entry::setCaretPosition(size_t newPosition)
 {
   m_controller.setCaretPosition(newPosition);
 }
@@ -127,9 +127,9 @@ void Entry::onMouseButton(vec2 point,
     const float position = transformToLocal(point).x - em / 2.f;
     const auto layout = font.layoutOf(m_controller.text().c_str());
 
-    uint caretPosition = uint(layout.size());
+    size_t caretPosition = layout.size();
 
-    for (uint i = 0;  i < layout.size();  i++)
+    for (size_t i = 0;  i < layout.size();  i++)
     {
       if (position < layout[i].position.x + layout[i].size.x / 2.f)
       {
