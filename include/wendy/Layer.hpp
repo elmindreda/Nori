@@ -43,7 +43,7 @@ class Layer : public EventTarget, public Trackable, public RefObject
 public:
   /*! Constructor.
    */
-  Layer(Window& window, Drawer& drawer);
+  Layer(Drawer& drawer);
   /*! Destructor.
    */
   ~Layer();

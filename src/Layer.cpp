@@ -36,8 +36,8 @@
 namespace wendy
 {
 
-Layer::Layer(Window& window, Drawer& drawer):
-  m_window(window),
+Layer::Layer(Drawer& drawer):
+  m_window(drawer.context().window()),
   m_drawer(drawer),
   m_dragging(false),
   m_activeWidget(nullptr),
