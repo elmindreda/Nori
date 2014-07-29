@@ -10,6 +10,7 @@ include_directories(${pugixml_SOURCE_DIR}
                     ${GLFW_SOURCE_DIR}
                     ${libogg_SOURCE_DIR}
                     ${libvorbis_SOURCE_DIR}
+                    ${nanovg_SOURCE_DIR}
                     ${stb_SOURCE_DIR}
                     ${utf8cpp_SOURCE_DIR})
 
@@ -34,7 +35,8 @@ if (NORI_INCLUDE_RENDERER)
   list(APPEND nori_SOURCES Font.cpp Material.cpp Model.cpp OpenGL.cpp Pass.cpp
                            Program.cpp Query.cpp RenderBuffer.cpp
                            RenderContext.cpp RenderQueue.cpp Renderer.cpp
-                           Scene.cpp Sprite.cpp Texture.cpp Window.cpp)
+                           Scene.cpp Sprite.cpp Texture.cpp VectorContext.cpp
+                           Window.cpp)
 endif()
 
 if (NORI_INCLUDE_SQUIRREL)

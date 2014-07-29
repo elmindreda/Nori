@@ -441,6 +441,7 @@ public:
    *  current frame.
    */
   VertexRange allocateVertices(uint count, const VertexFormat& format);
+  void invalidateStateCache();
   /*! Reserves the specified uniform signature as shared.
    */
   void createSharedUniform(const char* name, UniformType type, int ID);

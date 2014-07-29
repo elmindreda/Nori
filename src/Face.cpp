@@ -33,7 +33,6 @@
 #include <nori/Image.hpp>
 #include <nori/Face.hpp>
 
-#define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 
 #include <fstream>

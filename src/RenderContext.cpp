@@ -1039,6 +1039,18 @@ void RenderContext::render(PrimitiveType type, uint start, uint count, uint base
     m_stats->addPrimitives(type, count);
 }
 
+void RenderContext::invalidateStateCache()
+{
+  m_dirtyState = true;
+  m_dirtyBinding = true;
+  m_program = nullptr;
+  m_indexBuffer = nullptr;
+  m_vertexBuffer = nullptr;
+  std::fill(m_textureUnits.begin(), m_textureUnits.end(), nullptr);
+  glActiveTexture(GL_TEXTURE0 + m_textureUnit);
+  glBindVertexArray(0);
+}
+
 VertexRange RenderContext::allocateVertices(uint count, const VertexFormat& format)
 {
   if (!count)

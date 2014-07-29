@@ -70,7 +70,7 @@ add_subdirectory(deps)
 
 list(APPEND nori_CORE_LIBRARIES pugixml)
 
-list(APPEND nori_LIBRARIES glfw ${GLFW_LIBRARIES})
+list(APPEND nori_LIBRARIES nanovg glfw ${GLFW_LIBRARIES})
 if (NORI_INCLUDE_AUDIO)
   list(APPEND nori_LIBRARIES ${OPENAL_LIBRARY})
 endif()
@@ -78,7 +78,8 @@ endif()
 list(APPEND nori_INCLUDE_DIRS ${nori_SOURCE_DIR}/include
                               ${nori_BINARY_DIR}/include
                               ${glm_SOURCE_DIR}
-                              ${pugixml_SOURCE_DIR})
+                              ${pugixml_SOURCE_DIR}
+                              ${nanovg_SOURCE_DIR})
 
 if (NORI_INCLUDE_NETWORK)
   list(APPEND nori_CORE_LIBRARIES enet)
