@@ -10,6 +10,8 @@ set(GLFW_VERSION_EXTRA "")
 set(GLFW_VERSION "${GLFW_VERSION_MAJOR}.${GLFW_VERSION_MINOR}")
 set(GLFW_VERSION_FULL "${GLFW_VERSION}.${GLFW_VERSION_PATCH}${GLFW_VERSION_EXTRA}")
 
+find_package(Threads REQUIRED)
+
 set(_GLFW_USE_OPENGL 1)
 find_package(OpenGL REQUIRED)
 
@@ -39,7 +41,7 @@ if (_GLFW_X11)
   find_package(X11 REQUIRED)
 
   list(APPEND glfw_INCLUDE_DIRS ${X11_X11_INCLUDE_PATH})
-  list(APPEND glfw_LIBRARIES ${X11_X11_LIB})
+  list(APPEND glfw_LIBRARIES ${X11_X11_LIB} ${CMAKE_THREAD_LIBS_INIT})
 
   if (NOT X11_Xrandr_FOUND)
     message(FATAL_ERROR "The RandR library and headers were not found")
