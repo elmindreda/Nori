@@ -428,6 +428,11 @@ public:
    *  @pre A GLSL program must be set before calling this method.
    */
   void render(const PrimitiveRange& range);
+  /*! Renders the specified primitive range to the current framebuffer, using
+   *  the current GLSL program.
+   *  @pre A GLSL program must be set before calling this method.
+   */
+  void render(PrimitiveType type, uint start, uint count, uint base = 0);
   /*! Allocates a range of temporary vertices of the specified format.
    *  @param[in] count The number of vertices to allocate.
    *  @param[in] format The format of vertices to allocate.
@@ -437,11 +442,6 @@ public:
    *  current frame.
    */
   VertexRange allocateVertices(uint count, const VertexFormat& format);
-  /*! Renders the specified primitive range to the current framebuffer, using
-   *  the current GLSL program.
-   *  @pre A GLSL program must be set before calling this method.
-   */
-  void render(PrimitiveType type, uint start, uint count, uint base = 0);
   /*! Reserves the specified sampler uniform signature as shared.
    */
   void createSharedSampler(const char* name, SamplerType type, int ID);
