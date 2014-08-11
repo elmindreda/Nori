@@ -80,7 +80,7 @@ void Panel::draw() const
 }
 
 Interface::Interface(Window& window, Drawer& drawer):
-  Layer(window, drawer),
+  Layer(drawer),
   root(nullptr)
 {
   root = new Panel(*this);
