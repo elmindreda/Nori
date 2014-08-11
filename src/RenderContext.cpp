@@ -900,10 +900,8 @@ RenderContext::~RenderContext()
 
 void RenderContext::clearColorBuffer(const vec4& color)
 {
-  if (m_dirtyState)
-    forceState(m_currentState);
-  if (!m_currentState.colorWriting)
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  m_currentState.colorWriting = true;
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -911,17 +909,12 @@ void RenderContext::clearColorBuffer(const vec4& color)
 #if WENDY_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
-
-  if (!m_currentState.colorWriting)
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 }
 
 void RenderContext::clearDepthBuffer(float depth)
 {
-  if (m_dirtyState)
-    forceState(m_currentState);
-  if (!m_currentState.depthWriting)
-    glDepthMask(GL_TRUE);
+  glDepthMask(GL_TRUE);
+  m_currentState.depthWriting = true;
 
   glClearDepth(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -929,17 +922,12 @@ void RenderContext::clearDepthBuffer(float depth)
 #if WENDY_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
-
-  if (!m_currentState.depthWriting)
-    glDepthMask(GL_FALSE);
 }
 
 void RenderContext::clearStencilBuffer(uint value)
 {
-  if (m_dirtyState)
-    forceState(m_currentState);
-  if (m_currentState.stencilTesting)
-    glDisable(GL_STENCIL_TEST);
+  glDisable(GL_STENCIL_TEST);
+  m_currentState.stencilTesting = false;
 
   glClearStencil(value);
   glClear(GL_STENCIL_BUFFER_BIT);
@@ -947,21 +935,16 @@ void RenderContext::clearStencilBuffer(uint value)
 #if WENDY_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
-
-  if (m_currentState.stencilTesting)
-    glEnable(GL_STENCIL_TEST);
 }
 
 void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 {
-  if (m_dirtyState)
-    forceState(m_currentState);
-  if (!m_currentState.colorWriting)
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-  if (!m_currentState.depthWriting)
-    glDepthMask(GL_TRUE);
-  if (m_currentState.stencilTesting)
-    glDisable(GL_STENCIL_TEST);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  glDepthMask(GL_TRUE);
+  glDisable(GL_STENCIL_TEST);
+  m_currentState.colorWriting = true;
+  m_currentState.depthWriting = true;
+  m_currentState.stencilTesting = false;
 
   glClearColor(color.r, color.g, color.b, color.a);
   glClearDepth(depth);
@@ -972,13 +955,6 @@ void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 #if WENDY_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
-
-  if (!m_currentState.colorWriting)
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-  if (!m_currentState.depthWriting)
-    glDepthMask(GL_FALSE);
-  if (m_currentState.stencilTesting)
-    glEnable(GL_STENCIL_TEST);
 }
 
 void RenderContext::render(const PrimitiveRange& range)
