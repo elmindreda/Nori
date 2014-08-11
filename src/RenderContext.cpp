@@ -1399,6 +1399,7 @@ RenderContext* RenderContext::create(ResourceCache& cache,
 RenderContext::RenderContext(ResourceCache& cache):
   m_cache(cache),
   m_handle(nullptr),
+  m_debug(false),
   m_dirtyBinding(true),
   m_dirtyState(true),
   m_cullingInverted(false),
@@ -1479,6 +1480,8 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
     {
       glDebugMessageCallback(debugCallback, nullptr);
       glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
+      m_debug = true;
     }
   }
 

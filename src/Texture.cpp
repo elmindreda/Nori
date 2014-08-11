@@ -561,6 +561,9 @@ bool Texture::init(const TextureData& data)
 
   glGenTextures(1, &m_textureID);
 
+  if (m_context.debug())
+    glObjectLabel(GL_TEXTURE, m_textureID, name().length(), name().c_str());
+
   m_context.setCurrentTexture(this);
 
   if (m_params.type == TEXTURE_1D)

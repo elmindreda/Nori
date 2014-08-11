@@ -292,6 +292,10 @@ bool Shader::init(const String& text)
   strings[0] = (const GLchar*) shader.c_str();
 
   m_shaderID = glCreateShader(convertToGL(m_type));
+
+  if (m_context.debug())
+    glObjectLabel(GL_SHADER, m_shaderID, name().length(), name().c_str());
+
   glShaderSource(m_shaderID, 1, strings, lengths);
   glCompileShader(m_shaderID);
 
@@ -641,6 +645,9 @@ bool Program::init(Shader& vertexShader, Shader& fragmentShader)
     logError("Failed to create OpenGL object for program %s", name().c_str());
     return false;
   }
+
+  if (m_context.debug())
+    glObjectLabel(GL_PROGRAM, m_programID, name().length(), name().c_str());
 
   glAttachShader(m_programID, m_vertexShader->m_shaderID);
   glAttachShader(m_programID, m_fragmentShader->m_shaderID);

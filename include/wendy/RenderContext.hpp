@@ -523,6 +523,7 @@ public:
   void setCullingInversion(bool newState);
   const RenderState& currentRenderState() const;
   void setCurrentRenderState(const RenderState& newState);
+  bool debug() const { return m_debug; }
   RenderStats* stats() const;
   void setStats(RenderStats* newStats);
   /*! @return The limits of this context.
@@ -561,6 +562,7 @@ private:
   ResourceCache& m_cache;
   Window m_window;
   GLFWwindow* m_handle;
+  bool m_debug;
   std::unique_ptr<RenderLimits> m_limits;
   int m_swapInterval;
   Recti m_scissorArea;
