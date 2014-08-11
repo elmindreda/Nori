@@ -87,25 +87,6 @@ GLint convertToGL(FilterMode mode, bool mipmapped)
   panic("Invalid texture filter mode %u", mode);
 }
 
-GLenum convertToProxyGL(TextureType type)
-{
-  switch (type)
-  {
-    case TEXTURE_1D:
-      return GL_PROXY_TEXTURE_1D;
-    case TEXTURE_2D:
-      return GL_PROXY_TEXTURE_2D;
-    case TEXTURE_3D:
-      return GL_PROXY_TEXTURE_3D;
-    case TEXTURE_RECT:
-      return GL_PROXY_TEXTURE_RECTANGLE;
-    case TEXTURE_CUBE:
-      return GL_PROXY_TEXTURE_CUBE_MAP;
-  }
-
-  panic("Invalid texture type %u", type);
-}
-
 GLenum convertToGL(CubeFace face)
 {
   switch (face)
@@ -506,57 +487,6 @@ bool Texture::init(const TextureData& data)
     width = data.width;
     height = data.height;
     depth = data.depth;
-  }
-
-  if (m_params.type == TEXTURE_1D)
-  {
-    glTexImage1D(convertToProxyGL(m_params.type),
-                 0,
-                 convertToGL(m_format, sRGB),
-                 width,
-                 0,
-                 convertToGL(m_format.semantic()),
-                 convertToGL(m_format.type()),
-                 nullptr);
-  }
-  else if (m_params.type == TEXTURE_3D)
-  {
-    glTexImage3D(convertToProxyGL(m_params.type),
-                 0,
-                 convertToGL(m_format, sRGB),
-                 width, height, depth,
-                 0,
-                 convertToGL(m_format.semantic()),
-                 convertToGL(m_format.type()),
-                 nullptr);
-  }
-  else
-  {
-    glTexImage2D(convertToProxyGL(m_params.type),
-                 0,
-                 convertToGL(m_format, sRGB),
-                 width, height,
-                 0,
-                 convertToGL(m_format.semantic()),
-                 convertToGL(m_format.type()),
-                 nullptr);
-  }
-
-  GLint proxyWidth;
-  glGetTexLevelParameteriv(convertToProxyGL(m_params.type),
-                           0,
-                           GL_TEXTURE_WIDTH,
-                           &proxyWidth);
-
-  if (proxyWidth == 0)
-  {
-    logError("Cannot create texture %s type %s size %ux%ux%u format %s",
-             name().c_str(),
-             asString(m_params.type),
-             width, height, depth,
-             m_format.asString().c_str());
-
-    return false;
   }
 
   glGenTextures(1, &m_textureID);
