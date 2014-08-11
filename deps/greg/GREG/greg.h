@@ -66,10 +66,9 @@ extern "C" {
 #define GL_VERSION_3_1 1
 #define GL_VERSION_3_2 1
 
-#define GL_ARB_debug_output 1
-#define GL_ARB_half_float_pixel 1
 #define GL_ARB_texture_float 1
 #define GL_EXT_texture_filter_anisotropic 1
+#define GL_KHR_debug 1
 
 
 /* Client API feature and extension booleans */
@@ -85,10 +84,9 @@ extern int GREG_VERSION_3_0;
 extern int GREG_VERSION_3_1;
 extern int GREG_VERSION_3_2;
 
-extern int GREG_ARB_debug_output;
-extern int GREG_ARB_half_float_pixel;
 extern int GREG_ARB_texture_float;
 extern int GREG_EXT_texture_filter_anisotropic;
+extern int GREG_KHR_debug;
 
 
 /* Client API types */
@@ -146,14 +144,14 @@ typedef float GLclampf;
 typedef double GLdouble;
 typedef double GLclampd;
 typedef char GLchar;
-typedef unsigned short GLhalfARB;
 typedef unsigned short GLhalf;
 typedef ptrdiff_t GLintptr;
 typedef ptrdiff_t GLsizeiptr;
 typedef int64_t GLint64;
 typedef uint64_t GLuint64;
 typedef struct __GLsync *GLsync;
-typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+typedef void (GLAPIENTRY *GLDEBUGPROC)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
+typedef void (GLAPIENTRY *GLDEBUGPROCKHR)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,const void *userParam);
 
 
 /* Client API enumeration values */
@@ -183,6 +181,8 @@ typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GL
 #define GL_CLIENT_VERTEX_ARRAY_BIT 0x00000002
 #define GL_CLIENT_ALL_ATTRIB_BITS 0xFFFFFFFF
 #define GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT 0x00000001
+#define GL_CONTEXT_FLAG_DEBUG_BIT 0x00000002
+#define GL_CONTEXT_FLAG_DEBUG_BIT_KHR 0x00000002
 #define GL_CONTEXT_CORE_PROFILE_BIT 0x00000001
 #define GL_CONTEXT_COMPATIBILITY_PROFILE_BIT 0x00000002
 #define GL_MAP_READ_BIT 0x0001
@@ -253,7 +253,9 @@ typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GL
 #define GL_INVALID_VALUE 0x0501
 #define GL_INVALID_OPERATION 0x0502
 #define GL_STACK_OVERFLOW 0x0503
+#define GL_STACK_OVERFLOW_KHR 0x0503
 #define GL_STACK_UNDERFLOW 0x0504
+#define GL_STACK_UNDERFLOW_KHR 0x0504
 #define GL_OUT_OF_MEMORY 0x0505
 #define GL_INVALID_FRAMEBUFFER_OPERATION 0x0506
 #define GL_2D 0x0600
@@ -524,7 +526,6 @@ typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GL
 #define GL_4_BYTES 0x1409
 #define GL_DOUBLE 0x140A
 #define GL_HALF_FLOAT 0x140B
-#define GL_HALF_FLOAT_ARB 0x140B
 #define GL_CLEAR 0x1500
 #define GL_AND 0x1501
 #define GL_AND_REVERSE 0x1502
@@ -719,6 +720,7 @@ typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GL
 #define GL_TEXTURE_WRAP_R 0x8072
 #define GL_MAX_3D_TEXTURE_SIZE 0x8073
 #define GL_VERTEX_ARRAY 0x8074
+#define GL_VERTEX_ARRAY_KHR 0x8074
 #define GL_NORMAL_ARRAY 0x8075
 #define GL_COLOR_ARRAY 0x8076
 #define GL_INDEX_ARRAY 0x8077
@@ -818,22 +820,64 @@ typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GL
 #define GL_RG16UI 0x823A
 #define GL_RG32I 0x823B
 #define GL_RG32UI 0x823C
-#define GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB 0x8242
-#define GL_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH_ARB 0x8243
-#define GL_DEBUG_CALLBACK_FUNCTION_ARB 0x8244
-#define GL_DEBUG_CALLBACK_USER_PARAM_ARB 0x8245
-#define GL_DEBUG_SOURCE_API_ARB 0x8246
-#define GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB 0x8247
-#define GL_DEBUG_SOURCE_SHADER_COMPILER_ARB 0x8248
-#define GL_DEBUG_SOURCE_THIRD_PARTY_ARB 0x8249
-#define GL_DEBUG_SOURCE_APPLICATION_ARB 0x824A
-#define GL_DEBUG_SOURCE_OTHER_ARB 0x824B
-#define GL_DEBUG_TYPE_ERROR_ARB 0x824C
-#define GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB 0x824D
-#define GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB 0x824E
-#define GL_DEBUG_TYPE_PORTABILITY_ARB 0x824F
-#define GL_DEBUG_TYPE_PERFORMANCE_ARB 0x8250
-#define GL_DEBUG_TYPE_OTHER_ARB 0x8251
+#define GL_DEBUG_OUTPUT_SYNCHRONOUS 0x8242
+#define GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR 0x8242
+#define GL_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH 0x8243
+#define GL_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH_KHR 0x8243
+#define GL_DEBUG_CALLBACK_FUNCTION 0x8244
+#define GL_DEBUG_CALLBACK_FUNCTION_KHR 0x8244
+#define GL_DEBUG_CALLBACK_USER_PARAM 0x8245
+#define GL_DEBUG_CALLBACK_USER_PARAM_KHR 0x8245
+#define GL_DEBUG_SOURCE_API 0x8246
+#define GL_DEBUG_SOURCE_API_KHR 0x8246
+#define GL_DEBUG_SOURCE_WINDOW_SYSTEM 0x8247
+#define GL_DEBUG_SOURCE_WINDOW_SYSTEM_KHR 0x8247
+#define GL_DEBUG_SOURCE_SHADER_COMPILER 0x8248
+#define GL_DEBUG_SOURCE_SHADER_COMPILER_KHR 0x8248
+#define GL_DEBUG_SOURCE_THIRD_PARTY 0x8249
+#define GL_DEBUG_SOURCE_THIRD_PARTY_KHR 0x8249
+#define GL_DEBUG_SOURCE_APPLICATION 0x824A
+#define GL_DEBUG_SOURCE_APPLICATION_KHR 0x824A
+#define GL_DEBUG_SOURCE_OTHER 0x824B
+#define GL_DEBUG_SOURCE_OTHER_KHR 0x824B
+#define GL_DEBUG_TYPE_ERROR 0x824C
+#define GL_DEBUG_TYPE_ERROR_KHR 0x824C
+#define GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR 0x824D
+#define GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_KHR 0x824D
+#define GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR 0x824E
+#define GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_KHR 0x824E
+#define GL_DEBUG_TYPE_PORTABILITY 0x824F
+#define GL_DEBUG_TYPE_PORTABILITY_KHR 0x824F
+#define GL_DEBUG_TYPE_PERFORMANCE 0x8250
+#define GL_DEBUG_TYPE_PERFORMANCE_KHR 0x8250
+#define GL_DEBUG_TYPE_OTHER 0x8251
+#define GL_DEBUG_TYPE_OTHER_KHR 0x8251
+#define GL_DEBUG_TYPE_MARKER 0x8268
+#define GL_DEBUG_TYPE_MARKER_KHR 0x8268
+#define GL_DEBUG_TYPE_PUSH_GROUP 0x8269
+#define GL_DEBUG_TYPE_PUSH_GROUP_KHR 0x8269
+#define GL_DEBUG_TYPE_POP_GROUP 0x826A
+#define GL_DEBUG_TYPE_POP_GROUP_KHR 0x826A
+#define GL_DEBUG_SEVERITY_NOTIFICATION 0x826B
+#define GL_DEBUG_SEVERITY_NOTIFICATION_KHR 0x826B
+#define GL_MAX_DEBUG_GROUP_STACK_DEPTH 0x826C
+#define GL_MAX_DEBUG_GROUP_STACK_DEPTH_KHR 0x826C
+#define GL_DEBUG_GROUP_STACK_DEPTH 0x826D
+#define GL_DEBUG_GROUP_STACK_DEPTH_KHR 0x826D
+#define GL_BUFFER 0x82E0
+#define GL_BUFFER_KHR 0x82E0
+#define GL_SHADER 0x82E1
+#define GL_SHADER_KHR 0x82E1
+#define GL_PROGRAM 0x82E2
+#define GL_PROGRAM_KHR 0x82E2
+#define GL_QUERY 0x82E3
+#define GL_QUERY_KHR 0x82E3
+#define GL_PROGRAM_PIPELINE 0x82E4
+#define GL_SAMPLER 0x82E6
+#define GL_SAMPLER_KHR 0x82E6
+#define GL_DISPLAY_LIST 0x82E7
+#define GL_MAX_LABEL_LENGTH 0x82E8
+#define GL_MAX_LABEL_LENGTH_KHR 0x82E8
 #define GL_UNSIGNED_BYTE_2_3_3_REV 0x8362
 #define GL_UNSIGNED_SHORT_5_6_5 0x8363
 #define GL_UNSIGNED_SHORT_5_6_5_REV 0x8364
@@ -1409,12 +1453,20 @@ typedef void (GLAPIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GL
 #define GL_MAX_GEOMETRY_OUTPUT_COMPONENTS 0x9124
 #define GL_MAX_FRAGMENT_INPUT_COMPONENTS 0x9125
 #define GL_CONTEXT_PROFILE_MASK 0x9126
-#define GL_MAX_DEBUG_MESSAGE_LENGTH_ARB 0x9143
-#define GL_MAX_DEBUG_LOGGED_MESSAGES_ARB 0x9144
-#define GL_DEBUG_LOGGED_MESSAGES_ARB 0x9145
-#define GL_DEBUG_SEVERITY_HIGH_ARB 0x9146
-#define GL_DEBUG_SEVERITY_MEDIUM_ARB 0x9147
-#define GL_DEBUG_SEVERITY_LOW_ARB 0x9148
+#define GL_MAX_DEBUG_MESSAGE_LENGTH 0x9143
+#define GL_MAX_DEBUG_MESSAGE_LENGTH_KHR 0x9143
+#define GL_MAX_DEBUG_LOGGED_MESSAGES 0x9144
+#define GL_MAX_DEBUG_LOGGED_MESSAGES_KHR 0x9144
+#define GL_DEBUG_LOGGED_MESSAGES 0x9145
+#define GL_DEBUG_LOGGED_MESSAGES_KHR 0x9145
+#define GL_DEBUG_SEVERITY_HIGH 0x9146
+#define GL_DEBUG_SEVERITY_HIGH_KHR 0x9146
+#define GL_DEBUG_SEVERITY_MEDIUM 0x9147
+#define GL_DEBUG_SEVERITY_MEDIUM_KHR 0x9147
+#define GL_DEBUG_SEVERITY_LOW 0x9148
+#define GL_DEBUG_SEVERITY_LOW_KHR 0x9148
+#define GL_DEBUG_OUTPUT 0x92E0
+#define GL_DEBUG_OUTPUT_KHR 0x92E0
 
 
 /* Client API functions */
@@ -1516,9 +1568,12 @@ typedef void  (GLAPIENTRY *PFNGLCOPYTEXSUBIMAGE3DPROC)(GLenum, GLint, GLint, GLi
 typedef GLuint (GLAPIENTRY *PFNGLCREATEPROGRAMPROC)(void);
 typedef GLuint (GLAPIENTRY *PFNGLCREATESHADERPROC)(GLenum);
 typedef void  (GLAPIENTRY *PFNGLCULLFACEPROC)(GLenum);
-typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGECALLBACKARBPROC)(GLDEBUGPROCARB, const void *);
-typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGECONTROLARBPROC)(GLenum, GLenum, GLenum, GLsizei, const GLuint *, GLboolean);
-typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGEINSERTARBPROC)(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar *);
+typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGECALLBACKPROC)(GLDEBUGPROC, const void *);
+typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGECALLBACKKHRPROC)(GLDEBUGPROCKHR, const void *);
+typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGECONTROLPROC)(GLenum, GLenum, GLenum, GLsizei, const GLuint *, GLboolean);
+typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGECONTROLKHRPROC)(GLenum, GLenum, GLenum, GLsizei, const GLuint *, GLboolean);
+typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGEINSERTPROC)(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar *);
+typedef void  (GLAPIENTRY *PFNGLDEBUGMESSAGEINSERTKHRPROC)(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar *);
 typedef void  (GLAPIENTRY *PFNGLDELETEBUFFERSPROC)(GLsizei, const GLuint *);
 typedef void  (GLAPIENTRY *PFNGLDELETEFRAMEBUFFERSPROC)(GLsizei, const GLuint *);
 typedef void  (GLAPIENTRY *PFNGLDELETELISTSPROC)(GLuint, GLsizei);
@@ -1618,7 +1673,8 @@ typedef void  (GLAPIENTRY *PFNGLGETBUFFERPOINTERVPROC)(GLenum, GLenum, void **);
 typedef void  (GLAPIENTRY *PFNGLGETBUFFERSUBDATAPROC)(GLenum, GLintptr, GLsizeiptr, void *);
 typedef void  (GLAPIENTRY *PFNGLGETCLIPPLANEPROC)(GLenum, GLdouble *);
 typedef void  (GLAPIENTRY *PFNGLGETCOMPRESSEDTEXIMAGEPROC)(GLenum, GLint, void *);
-typedef GLuint (GLAPIENTRY *PFNGLGETDEBUGMESSAGELOGARBPROC)(GLuint, GLsizei, GLenum *, GLenum *, GLuint *, GLenum *, GLsizei *, GLchar *);
+typedef GLuint (GLAPIENTRY *PFNGLGETDEBUGMESSAGELOGPROC)(GLuint, GLsizei, GLenum *, GLenum *, GLuint *, GLenum *, GLsizei *, GLchar *);
+typedef GLuint (GLAPIENTRY *PFNGLGETDEBUGMESSAGELOGKHRPROC)(GLuint, GLsizei, GLenum *, GLenum *, GLuint *, GLenum *, GLsizei *, GLchar *);
 typedef void  (GLAPIENTRY *PFNGLGETDOUBLEVPROC)(GLenum, GLdouble *);
 typedef GLenum (GLAPIENTRY *PFNGLGETERRORPROC)(void);
 typedef void  (GLAPIENTRY *PFNGLGETFLOATVPROC)(GLenum, GLfloat *);
@@ -1636,10 +1692,15 @@ typedef void  (GLAPIENTRY *PFNGLGETMAPIVPROC)(GLenum, GLenum, GLint *);
 typedef void  (GLAPIENTRY *PFNGLGETMATERIALFVPROC)(GLenum, GLenum, GLfloat *);
 typedef void  (GLAPIENTRY *PFNGLGETMATERIALIVPROC)(GLenum, GLenum, GLint *);
 typedef void  (GLAPIENTRY *PFNGLGETMULTISAMPLEFVPROC)(GLenum, GLuint, GLfloat *);
+typedef void  (GLAPIENTRY *PFNGLGETOBJECTLABELPROC)(GLenum, GLuint, GLsizei, GLsizei *, GLchar *);
+typedef void  (GLAPIENTRY *PFNGLGETOBJECTLABELKHRPROC)(GLenum, GLuint, GLsizei, GLsizei *, GLchar *);
+typedef void  (GLAPIENTRY *PFNGLGETOBJECTPTRLABELPROC)(const void *, GLsizei, GLsizei *, GLchar *);
+typedef void  (GLAPIENTRY *PFNGLGETOBJECTPTRLABELKHRPROC)(const void *, GLsizei, GLsizei *, GLchar *);
 typedef void  (GLAPIENTRY *PFNGLGETPIXELMAPFVPROC)(GLenum, GLfloat *);
 typedef void  (GLAPIENTRY *PFNGLGETPIXELMAPUIVPROC)(GLenum, GLuint *);
 typedef void  (GLAPIENTRY *PFNGLGETPIXELMAPUSVPROC)(GLenum, GLushort *);
 typedef void  (GLAPIENTRY *PFNGLGETPOINTERVPROC)(GLenum, void **);
+typedef void  (GLAPIENTRY *PFNGLGETPOINTERVKHRPROC)(GLenum, void **);
 typedef void  (GLAPIENTRY *PFNGLGETPOLYGONSTIPPLEPROC)(GLubyte *);
 typedef void  (GLAPIENTRY *PFNGLGETPROGRAMINFOLOGPROC)(GLuint, GLsizei, GLsizei *, GLchar *);
 typedef void  (GLAPIENTRY *PFNGLGETPROGRAMIVPROC)(GLuint, GLenum, GLint *);
@@ -1790,6 +1851,10 @@ typedef void  (GLAPIENTRY *PFNGLNORMAL3IVPROC)(const GLint *);
 typedef void  (GLAPIENTRY *PFNGLNORMAL3SPROC)(GLshort, GLshort, GLshort);
 typedef void  (GLAPIENTRY *PFNGLNORMAL3SVPROC)(const GLshort *);
 typedef void  (GLAPIENTRY *PFNGLNORMALPOINTERPROC)(GLenum, GLsizei, const void *);
+typedef void  (GLAPIENTRY *PFNGLOBJECTLABELPROC)(GLenum, GLuint, GLsizei, const GLchar *);
+typedef void  (GLAPIENTRY *PFNGLOBJECTLABELKHRPROC)(GLenum, GLuint, GLsizei, const GLchar *);
+typedef void  (GLAPIENTRY *PFNGLOBJECTPTRLABELPROC)(const void *, GLsizei, const GLchar *);
+typedef void  (GLAPIENTRY *PFNGLOBJECTPTRLABELKHRPROC)(const void *, GLsizei, const GLchar *);
 typedef void  (GLAPIENTRY *PFNGLORTHOPROC)(GLdouble, GLdouble, GLdouble, GLdouble, GLdouble, GLdouble);
 typedef void  (GLAPIENTRY *PFNGLPASSTHROUGHPROC)(GLfloat);
 typedef void  (GLAPIENTRY *PFNGLPIXELMAPFVPROC)(GLenum, GLsizei, const GLfloat *);
@@ -1810,6 +1875,8 @@ typedef void  (GLAPIENTRY *PFNGLPOLYGONOFFSETPROC)(GLfloat, GLfloat);
 typedef void  (GLAPIENTRY *PFNGLPOLYGONSTIPPLEPROC)(const GLubyte *);
 typedef void  (GLAPIENTRY *PFNGLPOPATTRIBPROC)(void);
 typedef void  (GLAPIENTRY *PFNGLPOPCLIENTATTRIBPROC)(void);
+typedef void  (GLAPIENTRY *PFNGLPOPDEBUGGROUPPROC)(void);
+typedef void  (GLAPIENTRY *PFNGLPOPDEBUGGROUPKHRPROC)(void);
 typedef void  (GLAPIENTRY *PFNGLPOPMATRIXPROC)(void);
 typedef void  (GLAPIENTRY *PFNGLPOPNAMEPROC)(void);
 typedef void  (GLAPIENTRY *PFNGLPRIMITIVERESTARTINDEXPROC)(GLuint);
@@ -1817,6 +1884,8 @@ typedef void  (GLAPIENTRY *PFNGLPRIORITIZETEXTURESPROC)(GLsizei, const GLuint *,
 typedef void  (GLAPIENTRY *PFNGLPROVOKINGVERTEXPROC)(GLenum);
 typedef void  (GLAPIENTRY *PFNGLPUSHATTRIBPROC)(GLbitfield);
 typedef void  (GLAPIENTRY *PFNGLPUSHCLIENTATTRIBPROC)(GLbitfield);
+typedef void  (GLAPIENTRY *PFNGLPUSHDEBUGGROUPPROC)(GLenum, GLuint, GLsizei, const GLchar *);
+typedef void  (GLAPIENTRY *PFNGLPUSHDEBUGGROUPKHRPROC)(GLenum, GLuint, GLsizei, const GLchar *);
 typedef void  (GLAPIENTRY *PFNGLPUSHMATRIXPROC)(void);
 typedef void  (GLAPIENTRY *PFNGLPUSHNAMEPROC)(GLuint);
 typedef void  (GLAPIENTRY *PFNGLRASTERPOS2DPROC)(GLdouble, GLdouble);
@@ -2187,9 +2256,12 @@ extern PFNGLCOPYTEXSUBIMAGE3DPROC greg_glCopyTexSubImage3D;
 extern PFNGLCREATEPROGRAMPROC greg_glCreateProgram;
 extern PFNGLCREATESHADERPROC greg_glCreateShader;
 extern PFNGLCULLFACEPROC greg_glCullFace;
-extern PFNGLDEBUGMESSAGECALLBACKARBPROC greg_glDebugMessageCallbackARB;
-extern PFNGLDEBUGMESSAGECONTROLARBPROC greg_glDebugMessageControlARB;
-extern PFNGLDEBUGMESSAGEINSERTARBPROC greg_glDebugMessageInsertARB;
+extern PFNGLDEBUGMESSAGECALLBACKPROC greg_glDebugMessageCallback;
+extern PFNGLDEBUGMESSAGECALLBACKKHRPROC greg_glDebugMessageCallbackKHR;
+extern PFNGLDEBUGMESSAGECONTROLPROC greg_glDebugMessageControl;
+extern PFNGLDEBUGMESSAGECONTROLKHRPROC greg_glDebugMessageControlKHR;
+extern PFNGLDEBUGMESSAGEINSERTPROC greg_glDebugMessageInsert;
+extern PFNGLDEBUGMESSAGEINSERTKHRPROC greg_glDebugMessageInsertKHR;
 extern PFNGLDELETEBUFFERSPROC greg_glDeleteBuffers;
 extern PFNGLDELETEFRAMEBUFFERSPROC greg_glDeleteFramebuffers;
 extern PFNGLDELETELISTSPROC greg_glDeleteLists;
@@ -2289,7 +2361,8 @@ extern PFNGLGETBUFFERPOINTERVPROC greg_glGetBufferPointerv;
 extern PFNGLGETBUFFERSUBDATAPROC greg_glGetBufferSubData;
 extern PFNGLGETCLIPPLANEPROC greg_glGetClipPlane;
 extern PFNGLGETCOMPRESSEDTEXIMAGEPROC greg_glGetCompressedTexImage;
-extern PFNGLGETDEBUGMESSAGELOGARBPROC greg_glGetDebugMessageLogARB;
+extern PFNGLGETDEBUGMESSAGELOGPROC greg_glGetDebugMessageLog;
+extern PFNGLGETDEBUGMESSAGELOGKHRPROC greg_glGetDebugMessageLogKHR;
 extern PFNGLGETDOUBLEVPROC greg_glGetDoublev;
 extern PFNGLGETERRORPROC greg_glGetError;
 extern PFNGLGETFLOATVPROC greg_glGetFloatv;
@@ -2307,10 +2380,15 @@ extern PFNGLGETMAPIVPROC greg_glGetMapiv;
 extern PFNGLGETMATERIALFVPROC greg_glGetMaterialfv;
 extern PFNGLGETMATERIALIVPROC greg_glGetMaterialiv;
 extern PFNGLGETMULTISAMPLEFVPROC greg_glGetMultisamplefv;
+extern PFNGLGETOBJECTLABELPROC greg_glGetObjectLabel;
+extern PFNGLGETOBJECTLABELKHRPROC greg_glGetObjectLabelKHR;
+extern PFNGLGETOBJECTPTRLABELPROC greg_glGetObjectPtrLabel;
+extern PFNGLGETOBJECTPTRLABELKHRPROC greg_glGetObjectPtrLabelKHR;
 extern PFNGLGETPIXELMAPFVPROC greg_glGetPixelMapfv;
 extern PFNGLGETPIXELMAPUIVPROC greg_glGetPixelMapuiv;
 extern PFNGLGETPIXELMAPUSVPROC greg_glGetPixelMapusv;
 extern PFNGLGETPOINTERVPROC greg_glGetPointerv;
+extern PFNGLGETPOINTERVKHRPROC greg_glGetPointervKHR;
 extern PFNGLGETPOLYGONSTIPPLEPROC greg_glGetPolygonStipple;
 extern PFNGLGETPROGRAMINFOLOGPROC greg_glGetProgramInfoLog;
 extern PFNGLGETPROGRAMIVPROC greg_glGetProgramiv;
@@ -2461,6 +2539,10 @@ extern PFNGLNORMAL3IVPROC greg_glNormal3iv;
 extern PFNGLNORMAL3SPROC greg_glNormal3s;
 extern PFNGLNORMAL3SVPROC greg_glNormal3sv;
 extern PFNGLNORMALPOINTERPROC greg_glNormalPointer;
+extern PFNGLOBJECTLABELPROC greg_glObjectLabel;
+extern PFNGLOBJECTLABELKHRPROC greg_glObjectLabelKHR;
+extern PFNGLOBJECTPTRLABELPROC greg_glObjectPtrLabel;
+extern PFNGLOBJECTPTRLABELKHRPROC greg_glObjectPtrLabelKHR;
 extern PFNGLORTHOPROC greg_glOrtho;
 extern PFNGLPASSTHROUGHPROC greg_glPassThrough;
 extern PFNGLPIXELMAPFVPROC greg_glPixelMapfv;
@@ -2481,6 +2563,8 @@ extern PFNGLPOLYGONOFFSETPROC greg_glPolygonOffset;
 extern PFNGLPOLYGONSTIPPLEPROC greg_glPolygonStipple;
 extern PFNGLPOPATTRIBPROC greg_glPopAttrib;
 extern PFNGLPOPCLIENTATTRIBPROC greg_glPopClientAttrib;
+extern PFNGLPOPDEBUGGROUPPROC greg_glPopDebugGroup;
+extern PFNGLPOPDEBUGGROUPKHRPROC greg_glPopDebugGroupKHR;
 extern PFNGLPOPMATRIXPROC greg_glPopMatrix;
 extern PFNGLPOPNAMEPROC greg_glPopName;
 extern PFNGLPRIMITIVERESTARTINDEXPROC greg_glPrimitiveRestartIndex;
@@ -2488,6 +2572,8 @@ extern PFNGLPRIORITIZETEXTURESPROC greg_glPrioritizeTextures;
 extern PFNGLPROVOKINGVERTEXPROC greg_glProvokingVertex;
 extern PFNGLPUSHATTRIBPROC greg_glPushAttrib;
 extern PFNGLPUSHCLIENTATTRIBPROC greg_glPushClientAttrib;
+extern PFNGLPUSHDEBUGGROUPPROC greg_glPushDebugGroup;
+extern PFNGLPUSHDEBUGGROUPKHRPROC greg_glPushDebugGroupKHR;
 extern PFNGLPUSHMATRIXPROC greg_glPushMatrix;
 extern PFNGLPUSHNAMEPROC greg_glPushName;
 extern PFNGLRASTERPOS2DPROC greg_glRasterPos2d;
@@ -2858,9 +2944,12 @@ extern PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 #define glCreateProgram greg_glCreateProgram
 #define glCreateShader greg_glCreateShader
 #define glCullFace greg_glCullFace
-#define glDebugMessageCallbackARB greg_glDebugMessageCallbackARB
-#define glDebugMessageControlARB greg_glDebugMessageControlARB
-#define glDebugMessageInsertARB greg_glDebugMessageInsertARB
+#define glDebugMessageCallback greg_glDebugMessageCallback
+#define glDebugMessageCallbackKHR greg_glDebugMessageCallbackKHR
+#define glDebugMessageControl greg_glDebugMessageControl
+#define glDebugMessageControlKHR greg_glDebugMessageControlKHR
+#define glDebugMessageInsert greg_glDebugMessageInsert
+#define glDebugMessageInsertKHR greg_glDebugMessageInsertKHR
 #define glDeleteBuffers greg_glDeleteBuffers
 #define glDeleteFramebuffers greg_glDeleteFramebuffers
 #define glDeleteLists greg_glDeleteLists
@@ -2960,7 +3049,8 @@ extern PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 #define glGetBufferSubData greg_glGetBufferSubData
 #define glGetClipPlane greg_glGetClipPlane
 #define glGetCompressedTexImage greg_glGetCompressedTexImage
-#define glGetDebugMessageLogARB greg_glGetDebugMessageLogARB
+#define glGetDebugMessageLog greg_glGetDebugMessageLog
+#define glGetDebugMessageLogKHR greg_glGetDebugMessageLogKHR
 #define glGetDoublev greg_glGetDoublev
 #define glGetError greg_glGetError
 #define glGetFloatv greg_glGetFloatv
@@ -2978,10 +3068,15 @@ extern PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 #define glGetMaterialfv greg_glGetMaterialfv
 #define glGetMaterialiv greg_glGetMaterialiv
 #define glGetMultisamplefv greg_glGetMultisamplefv
+#define glGetObjectLabel greg_glGetObjectLabel
+#define glGetObjectLabelKHR greg_glGetObjectLabelKHR
+#define glGetObjectPtrLabel greg_glGetObjectPtrLabel
+#define glGetObjectPtrLabelKHR greg_glGetObjectPtrLabelKHR
 #define glGetPixelMapfv greg_glGetPixelMapfv
 #define glGetPixelMapuiv greg_glGetPixelMapuiv
 #define glGetPixelMapusv greg_glGetPixelMapusv
 #define glGetPointerv greg_glGetPointerv
+#define glGetPointervKHR greg_glGetPointervKHR
 #define glGetPolygonStipple greg_glGetPolygonStipple
 #define glGetProgramInfoLog greg_glGetProgramInfoLog
 #define glGetProgramiv greg_glGetProgramiv
@@ -3132,6 +3227,10 @@ extern PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 #define glNormal3s greg_glNormal3s
 #define glNormal3sv greg_glNormal3sv
 #define glNormalPointer greg_glNormalPointer
+#define glObjectLabel greg_glObjectLabel
+#define glObjectLabelKHR greg_glObjectLabelKHR
+#define glObjectPtrLabel greg_glObjectPtrLabel
+#define glObjectPtrLabelKHR greg_glObjectPtrLabelKHR
 #define glOrtho greg_glOrtho
 #define glPassThrough greg_glPassThrough
 #define glPixelMapfv greg_glPixelMapfv
@@ -3152,6 +3251,8 @@ extern PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 #define glPolygonStipple greg_glPolygonStipple
 #define glPopAttrib greg_glPopAttrib
 #define glPopClientAttrib greg_glPopClientAttrib
+#define glPopDebugGroup greg_glPopDebugGroup
+#define glPopDebugGroupKHR greg_glPopDebugGroupKHR
 #define glPopMatrix greg_glPopMatrix
 #define glPopName greg_glPopName
 #define glPrimitiveRestartIndex greg_glPrimitiveRestartIndex
@@ -3159,6 +3260,8 @@ extern PFNGLWINDOWPOS3SVPROC greg_glWindowPos3sv;
 #define glProvokingVertex greg_glProvokingVertex
 #define glPushAttrib greg_glPushAttrib
 #define glPushClientAttrib greg_glPushClientAttrib
+#define glPushDebugGroup greg_glPushDebugGroup
+#define glPushDebugGroupKHR greg_glPushDebugGroupKHR
 #define glPushMatrix greg_glPushMatrix
 #define glPushName greg_glPushName
 #define glRasterPos2d greg_glRasterPos2d

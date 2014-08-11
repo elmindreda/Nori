@@ -57,17 +57,17 @@ const char* getMessageSourceName(GLenum source)
 {
   switch (source)
   {
-    case GL_DEBUG_SOURCE_API_ARB:
+    case GL_DEBUG_SOURCE_API:
       return "API";
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
       return "window system";
-    case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
       return "shader compiler";
-    case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
       return "third party";
-    case GL_DEBUG_SOURCE_APPLICATION_ARB:
+    case GL_DEBUG_SOURCE_APPLICATION:
       return "application";
-    case GL_DEBUG_SOURCE_OTHER_ARB:
+    case GL_DEBUG_SOURCE_OTHER:
       return "other";
   }
 
@@ -78,17 +78,17 @@ const char* getMessageTypeName(GLenum type)
 {
   switch (type)
   {
-    case GL_DEBUG_TYPE_ERROR_ARB:
+    case GL_DEBUG_TYPE_ERROR:
       return "error";
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
       return "deprecated behavior";
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
       return "undefined behavior";
-    case GL_DEBUG_TYPE_PORTABILITY_ARB:
+    case GL_DEBUG_TYPE_PORTABILITY:
       return "portability issue";
-    case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+    case GL_DEBUG_TYPE_PERFORMANCE:
       return "performance issue";
-    case GL_DEBUG_TYPE_OTHER_ARB:
+    case GL_DEBUG_TYPE_OTHER:
       return "issue";
   }
 
@@ -99,11 +99,11 @@ const char* getMessageSeverityName(GLenum severity)
 {
   switch (severity)
   {
-    case GL_DEBUG_SEVERITY_HIGH_ARB:
+    case GL_DEBUG_SEVERITY_HIGH:
       return "high";
-    case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+    case GL_DEBUG_SEVERITY_MEDIUM:
       return "medium";
-    case GL_DEBUG_SEVERITY_LOW_ARB:
+    case GL_DEBUG_SEVERITY_LOW:
       return "low";
   }
 
@@ -123,7 +123,7 @@ void GLAPIENTRY debugCallback(GLenum source,
                               const GLchar* message,
                               const GLvoid* userParam)
 {
-  if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+  if (severity == GL_DEBUG_SEVERITY_HIGH)
   {
     logError("OpenGL reported %s severity %s %s %u: %s",
              getMessageSeverityName(severity),
@@ -1475,10 +1475,10 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
         (const char*) glGetString(GL_RENDERER),
         (const char*) glGetString(GL_VENDOR));
 
-    if (rc.debug && GREG_ARB_debug_output)
+    if (rc.debug && GREG_KHR_debug)
     {
-      glDebugMessageCallbackARB(debugCallback, nullptr);
-      glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+      glDebugMessageCallback(debugCallback, nullptr);
+      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
   }
 
