@@ -40,7 +40,6 @@
 #include <wendy/Frustum.hpp>
 #include <wendy/Camera.hpp>
 
-#include <wendy/Regex.hpp>
 #include <wendy/Pixel.hpp>
 #include <wendy/Vertex.hpp>
 

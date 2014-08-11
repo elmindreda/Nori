@@ -6,7 +6,6 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 include_directories(${pugixml_SOURCE_DIR}
-                    ${PCRE_SOURCE_DIR}
                     ${greg_SOURCE_DIR}
                     ${GLFW_SOURCE_DIR}
                     ${libogg_SOURCE_DIR}
@@ -18,8 +17,8 @@ set(wendy_SOURCES
     Wendy.cpp
 
     Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp Path.cpp
-    Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Regex.cpp Resource.cpp
-    Sample.cpp Signal.cpp Time.cpp Transform.cpp Vertex.cpp)
+    Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Resource.cpp Sample.cpp
+    Signal.cpp Time.cpp Transform.cpp Vertex.cpp)
 
 if (WENDY_INCLUDE_NETWORK)
   include_directories(${enet_SOURCE_DIR})

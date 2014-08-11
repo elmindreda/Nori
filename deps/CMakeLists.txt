@@ -1,5 +1,4 @@
 
-add_subdirectory(pcre)
 add_subdirectory(pugixml)
 add_subdirectory(glfw)
 add_subdirectory(greg)

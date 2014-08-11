@@ -25,10 +25,10 @@
 
 #pragma once
 
+#include <regex>
+
 namespace wendy
 {
-
-class Regex;
 
 /*! @brief File system path descriptor.
  *
@@ -106,7 +106,7 @@ public:
    *  @param[in] regex The regex to use.
    *  @return @c true if successful, otherwise @c false.
    */
-  std::vector<String> childrenMatching(const Regex& regex) const;
+  std::vector<String> childrenMatching(const std::regex& regex) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */

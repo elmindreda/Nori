@@ -26,7 +26,6 @@
 #include <wendy/Config.hpp>
 
 #include <wendy/Core.hpp>
-#include <wendy/Regex.hpp>
 
 #include <wendy/Drawer.hpp>
 #include <wendy/Layer.hpp>
@@ -61,24 +60,25 @@ const uint WIDGETS_XML_VERSION = 1;
 
 Alignment alignmentCast(const String& name)
 {
-  static const Regex regex("(left|center|right) (top|center|bottom)");
+  static const std::regex regex("(left|center|right) (top|center|bottom)");
 
   Alignment value;
+  std::smatch match;
 
-  if (RegexMatch match = regex.match(name))
+  if (std::regex_match(name, match, regex))
   {
-    if (match.string(0) == "left")
+    if (match[1] == "left")
       value.horizontal = LEFT_ALIGNED;
-    else if (match.string(0) == "center")
+    else if (match[1] == "center")
       value.horizontal = CENTERED_ON_X;
-    else if (match.string(0) == "right")
+    else if (match[1] == "right")
       value.horizontal = RIGHT_ALIGNED;
 
-    if (match.string(1) == "top")
+    if (match[2] == "top")
       value.vertical = TOP_ALIGNED;
-    else if (match.string(1) == "center")
+    else if (match[2] == "center")
       value.vertical = CENTERED_ON_Y;
-    else if (match.string(1) == "bottom")
+    else if (match[2] == "bottom")
       value.vertical = BOTTOM_ALIGNED;
   }
 

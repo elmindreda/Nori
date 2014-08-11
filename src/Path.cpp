@@ -26,7 +26,6 @@
 #include <wendy/Config.hpp>
 
 #include <wendy/Core.hpp>
-#include <wendy/Regex.hpp>
 #include <wendy/Path.hpp>
 
 #if WENDY_HAVE_SYS_STAT_H
@@ -251,9 +250,10 @@ std::vector<String> Path::children() const
   return children;
 }
 
-std::vector<String> Path::childrenMatching(const Regex& regex) const
+std::vector<String> Path::childrenMatching(const std::regex& regex) const
 {
   std::vector<String> children;
+  std::cmatch match;
 
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
@@ -264,7 +264,7 @@ std::vector<String> Path::childrenMatching(const Regex& regex) const
   {
     do
     {
-      if (regex.matches(data.cFileName))
+      if (std::regex_match(data.cFileName, match, regex))
         children.push_back(data.cFileName);
     }
     while (FindNextFile(search, &data));
@@ -280,7 +280,7 @@ std::vector<String> Path::childrenMatching(const Regex& regex) const
   {
     while ((entry = readdir(stream)))
     {
-      if (regex.matches(entry->d_name))
+      if (std::regex_match(entry->d_name, match, regex))
         children.push_back(entry->d_name);
     }
 
