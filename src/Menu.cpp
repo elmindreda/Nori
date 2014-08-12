@@ -231,6 +231,7 @@ void Menu::onCursorPos(vec2 point)
 void Menu::onCursorLeft()
 {
   m_selection = NO_ITEM;
+  invalidate();
 
   Widget::onCursorLeft();
 }
