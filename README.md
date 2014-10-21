@@ -48,7 +48,6 @@ Wendy comes with internal versions of the following libraries:
  - [GLM](http://glm.g-truc.net/) for vector math and explicitly sized types
  - [libogg](http://www.xiph.org/ogg/) for reading Ogg files
  - [libvorbis](http://xiph.org/vorbis/) for decoding Vorbis audio data
- - [PCRE](http://www.pcre.org/) for regular expression support
  - [pugixml](http://pugixml.org/) for reading and writing XML files
  - [Squirrel](http://squirrel-lang.org/) for embedded scripting
  - [stb\_image](http://nothings.org/) for reading and writing image files
