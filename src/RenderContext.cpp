@@ -35,6 +35,8 @@
 #include <wendy/Program.hpp>
 #include <wendy/RenderContext.hpp>
 
+#define GREG_IMPLEMENTATION
+#define GREG_USE_GLFW3
 #include <GREG/greg.h>
 
 #include <internal/OpenGL.hpp>
@@ -42,7 +44,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define GLFW_NO_GLU
 #include <GLFW/glfw3.h>
 
 #include <algorithm>

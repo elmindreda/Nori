@@ -70,7 +70,7 @@ add_subdirectory(deps)
 
 list(APPEND wendy_CORE_LIBRARIES pugixml vorbis ogg)
 
-list(APPEND wendy_LIBRARIES greg glfw ${GLFW_LIBRARIES})
+list(APPEND wendy_LIBRARIES glfw ${GLFW_LIBRARIES})
 if (WENDY_INCLUDE_AUDIO)
   list(APPEND wendy_LIBRARIES ${OPENAL_LIBRARY})
 endif()
