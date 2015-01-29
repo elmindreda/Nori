@@ -18,7 +18,8 @@ SQRESULT sq_getfunctioninfo(HSQUIRRELVM v,SQInteger level,SQFunctionInfo *fi)
 			SQFunctionProto *proto = c->_function;
 			fi->funcid = proto;
 			fi->name = type(proto->_name) == OT_STRING?_stringval(proto->_name):_SC("unknown");
-			fi->source = type(proto->_name) == OT_STRING?_stringval(proto->_sourcename):_SC("unknown");
+			fi->source = type(proto->_sourcename) == OT_STRING?_stringval(proto->_sourcename):_SC("unknown");
+			fi->line = proto->_lineinfos[0]._line;
 			return SQ_OK;
 		}
 	}
@@ -59,7 +60,8 @@ void SQVM::Raise_Error(const SQChar *s, ...)
 {
 	va_list vl;
 	va_start(vl, s);
-	scvsprintf(_sp(rsl((SQInteger)scstrlen(s)+(NUMBER_MAX_CHAR*2))), s, vl);
+	SQInteger buffersize = (SQInteger)scstrlen(s)+(NUMBER_MAX_CHAR*2);
+	scvsprintf(_sp(rsl(buffersize)),buffersize, s, vl);
 	va_end(vl);
 	_lasterror = SQString::Create(_ss(this),_spval,-1);
 }
@@ -74,11 +76,11 @@ SQString *SQVM::PrintObjVal(const SQObjectPtr &o)
 	switch(type(o)) {
 	case OT_STRING: return _string(o);
 	case OT_INTEGER:
-		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)), _PRINT_INT_FMT, _integer(o));
+		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)),rsl(NUMBER_MAX_CHAR), _PRINT_INT_FMT, _integer(o));
 		return SQString::Create(_ss(this), _spval);
 		break;
 	case OT_FLOAT:
-		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)), _SC("%.14g"), _float(o));
+		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)), rsl(NUMBER_MAX_CHAR), _SC("%.14g"), _float(o));
 		return SQString::Create(_ss(this), _spval);
 		break;
 	default:

@@ -80,7 +80,7 @@ public:
 		_lineinfo = lineinfo;_raiseerror = raiseerror;
 		_scope.outers = 0;
 		_scope.stacksize = 0;
-		_compilererror[0] = 0;
+		_compilererror[0] = _SC('\0');
 	}
 	static void ThrowError(void *ud, const SQChar *s) {
 		SQCompiler *c = (SQCompiler *)ud;
@@ -90,7 +90,7 @@ public:
 	{
 		va_list vl;
 		va_start(vl, s);
-		scvsprintf(_compilererror, s, vl);
+		scvsprintf(_compilererror, MAX_COMPILER_ERROR_LEN, s, vl);
 		va_end(vl);
 		longjmp(_errorjmp,1);
 	}
@@ -338,7 +338,6 @@ public:
 			_fs->PushTarget(p1);
 			//EmitCompArithLocal(tok, p1, p1, p2);
 			_fs->AddInstruction(ChooseArithOpByToken(tok),p1, p2, p1, 0);
-			_fs->SnoozeOpt();
 				   }
 			break;
 		case OBJECT:
@@ -386,7 +385,6 @@ public:
 			SQInteger pos = _es.epos;
 			if(ds == EXPR) Error(_SC("can't assign expression"));
 			else if(ds == BASE) Error(_SC("'base' cannot be modified"));
-
 			Lex(); Expression();
 
 			switch(op){
@@ -502,7 +500,7 @@ public:
 			_fs->SetIntructionParam(jpos, 1, (_fs->GetCurrentPos() - jpos));
 			break;
 			}
-    
+		
 		default:
 			return;
 		}
@@ -730,8 +728,8 @@ public:
 
 				switch(_token) {
 					case TK_IDENTIFIER:  id = _fs->CreateString(_lex._svalue);       break;
-					case TK_THIS:        id = _fs->CreateString(_SC("this"));        break;
-					case TK_CONSTRUCTOR: id = _fs->CreateString(_SC("constructor")); break;
+					case TK_THIS:        id = _fs->CreateString(_SC("this"),4);        break;
+					case TK_CONSTRUCTOR: id = _fs->CreateString(_SC("constructor"),11); break;
 				}
 
 				SQInteger pos = -1;
@@ -778,6 +776,7 @@ public:
 					switch(ctype) {
 						case OT_INTEGER: EmitLoadConstInt(_integer(constval),_es.epos); break;
 						case OT_FLOAT: EmitLoadConstFloat(_float(constval),_es.epos); break;
+						case OT_BOOL: _fs->AddInstruction(_OP_LOADBOOL, _es.epos, _integer(constval)); break;
 						default: _fs->AddInstruction(_OP_LOAD,_es.epos,_fs->GetConstant(constval)); break;
 					}
 					_es.etype = EXPR;
@@ -861,6 +860,8 @@ public:
 		case TK_DELETE : DeleteExpr(); break;
 		case _SC('('): Lex(); CommaExpr(); Expect(_SC(')'));
 			break;
+		case TK___LINE__: EmitLoadConstInt(_lex._currentline,-1); Lex(); break;
+        case TK___FILE__: _fs->AddInstruction(_OP_LOAD, _fs->PushTarget(), _fs->GetConstant(_sourcename)); Lex(); break;
 		default: Error(_SC("expression expected"));
 		}
 		return -1;
@@ -1017,32 +1018,32 @@ public:
 		} while(1);
 	}
 	void IfStatement()
-    {
-        SQInteger jmppos;
-        bool haselse = false;
-        Lex(); Expect(_SC('(')); CommaExpr(); Expect(_SC(')'));
-        _fs->AddInstruction(_OP_JZ, _fs->PopTarget());
-        SQInteger jnepos = _fs->GetCurrentPos();
-        BEGIN_SCOPE();
-        
-        Statement();
-        //
-        if(_token != _SC('}') && _token != TK_ELSE) OptionalSemicolon();
-        
-        END_SCOPE();
-        SQInteger endifblock = _fs->GetCurrentPos();
-        if(_token == TK_ELSE){
-            haselse = true;
-            BEGIN_SCOPE();
-            _fs->AddInstruction(_OP_JMP);
-            jmppos = _fs->GetCurrentPos();
-            Lex();
-            Statement(); if(_lex._prevtoken != _SC('}')) OptionalSemicolon();
-            END_SCOPE();
-            _fs->SetIntructionParam(jmppos, 1, _fs->GetCurrentPos() - jmppos);
-        }
-        _fs->SetIntructionParam(jnepos, 1, endifblock - jnepos + (haselse?1:0));
-    }
+	{
+		SQInteger jmppos;
+		bool haselse = false;
+		Lex(); Expect(_SC('(')); CommaExpr(); Expect(_SC(')'));
+		_fs->AddInstruction(_OP_JZ, _fs->PopTarget());
+		SQInteger jnepos = _fs->GetCurrentPos();
+		BEGIN_SCOPE();
+		
+		Statement();
+		//
+		if(_token != _SC('}') && _token != TK_ELSE) OptionalSemicolon();
+		
+		END_SCOPE();
+		SQInteger endifblock = _fs->GetCurrentPos();
+		if(_token == TK_ELSE){
+			haselse = true;
+			BEGIN_SCOPE();
+			_fs->AddInstruction(_OP_JMP);
+			jmppos = _fs->GetCurrentPos();
+			Lex();
+			Statement(); if(_lex._prevtoken != _SC('}')) OptionalSemicolon();
+			END_SCOPE();
+			_fs->SetIntructionParam(jmppos, 1, _fs->GetCurrentPos() - jmppos);
+		}
+		_fs->SetIntructionParam(jnepos, 1, endifblock - jnepos + (haselse?1:0));
+	}
 	void WhileStatement()
 	{
 		SQInteger jzpos, jmppos;

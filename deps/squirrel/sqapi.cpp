@@ -34,7 +34,7 @@ bool sq_aux_gettypedarg(HSQUIRRELVM v,SQInteger idx,SQObjectType type,SQObjectPt
 
 SQInteger sq_aux_invalidtype(HSQUIRRELVM v,SQObjectType type)
 {
-	scsprintf(_ss(v)->GetScratchPad(100), _SC("unexpected type %s"), IdType2Name(type));
+	scsprintf(_ss(v)->GetScratchPad(100), 100 *sizeof(SQChar), _SC("unexpected type %s"), IdType2Name(type));
 	return sq_throwerror(v, _ss(v)->GetScratchPad(-1));
 }
 
@@ -128,7 +128,7 @@ SQRESULT sq_compile(HSQUIRRELVM v,SQLEXREADFUNC read,SQUserPointer p,const SQCha
 	SQObjectPtr o;
 #ifndef NO_COMPILER
 	if(Compile(v, read, p, sourcename, o, raiseerror?true:false, _ss(v)->_debuginfo)) {
-		v->Push(SQClosure::Create(_ss(v), _funcproto(o)));
+		v->Push(SQClosure::Create(_ss(v), _funcproto(o), _table(v->_roottable)->GetWeakRef(OT_TABLE)));
 		return SQ_OK;
 	}
 	return SQ_ERROR;
@@ -253,7 +253,7 @@ void sq_pushuserpointer(HSQUIRRELVM v,SQUserPointer p)
 
 SQUserPointer sq_newuserdata(HSQUIRRELVM v,SQUnsignedInteger size)
 {
-	SQUserData *ud = SQUserData::Create(_ss(v), size);
+	SQUserData *ud = SQUserData::Create(_ss(v), size + SQ_ALIGNMENT);
 	v->Push(ud);
 	return (SQUserPointer)sq_aligning(ud + 1);
 }
@@ -487,6 +487,27 @@ SQRESULT sq_getclosurename(HSQUIRRELVM v,SQInteger idx)
 	return SQ_OK;
 }
 
+SQRESULT sq_setclosureroot(HSQUIRRELVM v,SQInteger idx)
+{
+	SQObjectPtr &c = stack_get(v,idx);
+	SQObject o = stack_get(v, -1);
+	if(!sq_isclosure(c)) return sq_throwerror(v, _SC("closure expected"));
+	if(sq_istable(o)) {
+		_closure(c)->SetRoot(_table(o)->GetWeakRef(OT_TABLE));
+		v->Pop();
+		return SQ_OK;
+	}
+	return sq_throwerror(v, _SC("ivalid type"));
+}
+
+SQRESULT sq_getclosureroot(HSQUIRRELVM v,SQInteger idx)
+{
+	SQObjectPtr &c = stack_get(v,idx);
+	if(!sq_isclosure(c)) return sq_throwerror(v, _SC("closure expected"));
+	v->Push(_closure(c)->_root->_obj);
+	return SQ_OK;
+}
+
 SQRESULT sq_clear(HSQUIRRELVM v,SQInteger idx)
 {
 	SQObject &o=stack_get(v,idx);
@@ -546,6 +567,36 @@ void sq_setforeignptr(HSQUIRRELVM v,SQUserPointer p)
 SQUserPointer sq_getforeignptr(HSQUIRRELVM v)
 {
 	return v->_foreignptr;
+}
+
+void sq_setsharedforeignptr(HSQUIRRELVM v,SQUserPointer p)
+{
+	_ss(v)->_foreignptr = p;
+}
+
+SQUserPointer sq_getsharedforeignptr(HSQUIRRELVM v)
+{
+	return _ss(v)->_foreignptr;
+}
+
+void sq_setvmreleasehook(HSQUIRRELVM v,SQRELEASEHOOK hook)
+{
+	v->_releasehook = hook;
+}
+
+SQRELEASEHOOK sq_getvmreleasehook(HSQUIRRELVM v)
+{
+	return v->_releasehook;
+}
+
+void sq_setsharedreleasehook(HSQUIRRELVM v,SQRELEASEHOOK hook)
+{
+	_ss(v)->_releasehook = hook;
+}
+
+SQRELEASEHOOK sq_getsharedreleasehook(HSQUIRRELVM v)
+{
+	return _ss(v)->_releasehook;
 }
 
 void sq_push(HSQUIRRELVM v,SQInteger idx)

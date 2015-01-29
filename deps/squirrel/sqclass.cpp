@@ -181,9 +181,6 @@ void SQInstance::Finalize()
 	SQUnsignedInteger nvalues = _class->_defaultvalues.size();
 	__ObjRelease(_class);
 	_NULL_SQOBJECT_VECTOR(_values,nvalues);
-	//for(SQUnsignedInteger i = 0; i < nvalues; i++) {
-//		_values[i].Null();
-//	}
 }
 
 SQInstance::~SQInstance()

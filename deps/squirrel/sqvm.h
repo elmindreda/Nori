@@ -9,6 +9,7 @@
 
 #define SQ_SUSPEND_FLAG -666
 #define DONT_FALL_BACK 666
+#define EXISTS_FALL_BACK -1
 //base lib
 void sq_base_register(HSQUIRRELVM v);
 
@@ -163,11 +164,12 @@ public:
 
 	ExceptionsTraps _etraps;
 	CallInfo *ci;
-	void *_foreignptr;
+	SQUserPointer _foreignptr;
 	//VMs sharing the same state
 	SQSharedState *_sharedstate;
 	SQInteger _nnativecalls;
 	SQInteger _nmetamethodscall;
+	SQRELEASEHOOK _releasehook;
 	//suspend infos
 	SQBool _suspended;
 	SQBool _suspended_root;

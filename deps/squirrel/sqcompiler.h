@@ -58,8 +58,8 @@ struct SQVM;
 #define TK_CONSTRUCTOR 310
 #define TK_INSTANCEOF 311
 #define TK_VARPARAMS 312
-//#define TK_VARGC 313
-//#define TK_VARGV 314
+#define TK___LINE__ 313
+#define TK___FILE__ 314
 #define TK_TRUE 315
 #define TK_FALSE 316
 #define TK_MULEQ 317
@@ -70,6 +70,7 @@ struct SQVM;
 #define TK_STATIC 322
 #define TK_ENUM 323
 #define TK_CONST 324
+
 
 
 typedef void(*CompilerErrorFunc)(void *ud, const SQChar *s);

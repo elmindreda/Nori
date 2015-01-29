@@ -120,11 +120,13 @@ SQVM::SQVM(SQSharedState *ss)
 	_debughook_closure.Null();
 	_openouters = NULL;
 	ci = NULL;
+	_releasehook = NULL;
 	INIT_CHAIN();ADD_TO_CHAIN(&_ss(this)->_gc_chain,this);
 }
 
 void SQVM::Finalize()
 {
+	if(_releasehook) { _releasehook(_foreignptr,0); _releasehook = NULL; }
 	if(_openouters) CloseOuters(&_stack._vals[0]);
 	_roottable.Null();
 	_lasterror.Null();
@@ -282,13 +284,13 @@ bool SQVM::ToString(const SQObjectPtr &o,SQObjectPtr &res)
 		res = o;
 		return true;
 	case OT_FLOAT:
-		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)),_SC("%g"),_float(o));
+		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)),rsl(NUMBER_MAX_CHAR),_SC("%g"),_float(o));
 		break;
 	case OT_INTEGER:
-		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)),_PRINT_INT_FMT,_integer(o));
+		scsprintf(_sp(rsl(NUMBER_MAX_CHAR+1)),rsl(NUMBER_MAX_CHAR),_PRINT_INT_FMT,_integer(o));
 		break;
 	case OT_BOOL:
-		scsprintf(_sp(rsl(6)),_integer(o)?_SC("true"):_SC("false"));
+		scsprintf(_sp(rsl(6)),rsl(6),_integer(o)?_SC("true"):_SC("false"));
 		break;
 	case OT_TABLE:
 	case OT_USERDATA:
@@ -307,7 +309,7 @@ bool SQVM::ToString(const SQObjectPtr &o,SQObjectPtr &res)
 			}
 		}
 	default:
-		scsprintf(_sp(rsl(sizeof(void*)+20)),_SC("(%s : 0x%p)"),GetTypeName(o),(void*)_rawval(o));
+		scsprintf(_sp(rsl(sizeof(void*)+20)),rsl(sizeof(void*)+20),_SC("(%s : 0x%p)"),GetTypeName(o),(void*)_rawval(o));
 	}
 	res = SQString::Create(_ss(this),_spval);
 	return true;
@@ -349,8 +351,10 @@ bool SQVM::Init(SQVM *friendvm, SQInteger stacksize)
 	_callsstack = &_callstackdata[0];
 	_stackbase = 0;
 	_top = 0;
-	if(!friendvm) 
+	if(!friendvm) {
 		_roottable = SQTable::Create(_ss(this), 0);
+		sq_base_register(this);
+	}
 	else {
 		_roottable = friendvm->_roottable;
 		_errorhandler = friendvm->_errorhandler;
@@ -359,7 +363,7 @@ bool SQVM::Init(SQVM *friendvm, SQInteger stacksize)
 		_debughook_closure = friendvm->_debughook_closure;
 	}
 	
-	sq_base_register(this);
+	
 	return true;
 }
 
@@ -576,7 +580,7 @@ bool SQVM::FOREACH_OP(SQObjectPtr &o1,SQObjectPtr &o2,SQObjectPtr
 bool SQVM::CLOSURE_OP(SQObjectPtr &target, SQFunctionProto *func)
 {
 	SQInteger nouters;
-	SQClosure *closure = SQClosure::Create(_ss(this), func);
+	SQClosure *closure = SQClosure::Create(_ss(this), func,_table(_roottable)->GetWeakRef(OT_TABLE));
 	if((nouters = func->_noutervalues)) {
 		for(SQInteger i = 0; i<nouters; i++) {
 			SQOuterVar &v = func->_outervalues[i];
@@ -619,7 +623,10 @@ bool SQVM::CLASS_OP(SQObjectPtr &target,SQInteger baseclass,SQInteger attributes
 		int nparams = 2;
 		SQObjectPtr ret;
 		Push(target); Push(attrs);
-		Call(_class(target)->_metamethods[MT_INHERITED],nparams,_top - nparams, ret, false);
+		if(!Call(_class(target)->_metamethods[MT_INHERITED],nparams,_top - nparams, ret, false)) {
+			Pop(nparams);
+			return false;
+		}
 		Pop(nparams);
 	}
 	_class(target)->_attributes = attrs;
@@ -656,7 +663,7 @@ bool SQVM::IsFalse(SQObjectPtr &o)
 	}
 	return false;
 }
-
+extern SQInstructionDesc g_InstrDesc[];
 bool SQVM::Execute(SQObjectPtr &closure, SQInteger nargs, SQInteger stackbase,SQObjectPtr &outres, SQBool raiseerror,ExecutionType et)
 {
 	if ((_nnativecalls + 1) > MAX_NATIVE_CALLS) { Raise_Error(_SC("Native stack overflow")); return false; }
@@ -697,7 +704,7 @@ exception_restore:
 		{
 			const SQInstruction &_i_ = *ci->_ip++;
 			//dumpstack(_stackbase);
-			//scprintf("\n[%d] %s %d %d %d %d\n",ci->_ip-ci->_iv->_vals,g_InstrDesc[_i_.op].name,arg0,arg1,arg2,arg3);
+			//scprintf("\n[%d] %s %d %d %d %d\n",ci->_ip-_closure(ci->_closure)->_function->_instructions,g_InstrDesc[_i_.op].name,arg0,arg1,arg2,arg3);
 			switch(_i_.op)
 			{
 			case _OP_LINE: if (_debughook) CallDebugHook(_SC('l'),arg1); continue;
@@ -846,7 +853,15 @@ exception_restore:
 				}
 				continue;
 			case _OP_LOADNULLS:{ for(SQInt32 n=0; n < arg1; n++) STK(arg0+n).Null(); }continue;
-			case _OP_LOADROOT:	TARGET = _roottable; continue;
+			case _OP_LOADROOT:	{
+				SQWeakRef *w = _closure(ci->_closure)->_root;
+				if(type(w->_obj) != OT_NULL) {
+					TARGET = w->_obj;
+				} else {
+					TARGET = _roottable; //shoud this be like this? or null
+				}
+								}
+				continue;
 			case _OP_LOADBOOL: TARGET = arg1?true:false; continue;
 			case _OP_DMOVE: STK(arg0) = STK(arg1); STK(arg2) = STK(arg3); continue;
 			case _OP_JMP: ci->_ip += (sarg1); continue;
@@ -937,7 +952,7 @@ exception_restore:
 				
 						} continue;
 			case _OP_CMP:	_GUARD(CMP_OP((CmpOP)arg3,STK(arg2),STK(arg1),TARGET))	continue;
-			case _OP_EXISTS: TARGET = Get(STK(arg1), STK(arg2), temp_reg, true,DONT_FALL_BACK)?true:false;continue;
+			case _OP_EXISTS: TARGET = Get(STK(arg1), STK(arg2), temp_reg, true, EXISTS_FALL_BACK)?true:false;continue;
 			case _OP_INSTANCEOF: 
 				if(type(STK(arg1)) != OT_CLASS)
 				{Raise_Error(_SC("cannot apply instanceof between a %s and a %s"),GetTypeName(STK(arg1)),GetTypeName(STK(arg2))); SQ_THROW();}
@@ -1190,7 +1205,7 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 		if(_table(self)->Get(key,dest))return true;
 		break;
 	case OT_ARRAY:
-		if(sq_isnumeric(key)) { if(_array(self)->Get(tointeger(key),dest)) { return true; } Raise_IdxError(key); return false; }
+		if(sq_isnumeric(key)) { if(_array(self)->Get(tointeger(key),dest)) { return true; } if(selfidx != EXISTS_FALL_BACK) Raise_IdxError(key); return false; }
 		break;
 	case OT_INSTANCE:
 		if(_instance(self)->Get(key,dest)) return true;
@@ -1206,7 +1221,7 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 				dest = SQInteger(_stringval(self)[n]);
 				return true;
 			}
-			Raise_IdxError(key);
+			if(selfidx != EXISTS_FALL_BACK) Raise_IdxError(key);
 			return false;
 		}
 		break;
@@ -1224,10 +1239,15 @@ bool SQVM::Get(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,
 	}
 //#ifdef ROOT_FALLBACK
 	if(selfidx == 0) {
-		if(_table(_roottable)->Get(key,dest)) return true;
+		SQWeakRef *w = _closure(ci->_closure)->_root;
+		if(type(w->_obj) != OT_NULL) 
+		{
+			if(Get(*((const SQObjectPtr *)&w->_obj),key,dest,false,DONT_FALL_BACK)) return true;
+		}
+		
 	}
 //#endif
-	Raise_IdxError(key);
+	if(selfidx != EXISTS_FALL_BACK) Raise_IdxError(key);
 	return false;
 }
 

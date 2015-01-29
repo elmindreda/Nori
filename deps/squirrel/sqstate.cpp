@@ -25,6 +25,8 @@ SQSharedState::SQSharedState()
 	_errorfunc = NULL;
 	_debuginfo = false;
 	_notifyallexceptions = false;
+	_foreignptr = NULL;
+	_releasehook = NULL;
 }
 
 #define newsysstring(s) {	\
@@ -163,6 +165,7 @@ void SQSharedState::Init()
 
 SQSharedState::~SQSharedState()
 {
+	if(_releasehook) { _releasehook(_foreignptr,0); _releasehook = NULL; }
 	_constructoridx.Null();
 	_table(_registry)->Finalize();
 	_table(_consts)->Finalize();

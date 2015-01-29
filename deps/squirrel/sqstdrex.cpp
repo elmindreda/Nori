@@ -5,12 +5,6 @@
 #include <setjmp.h>
 #include <sqstdstring.h>
 
-#ifdef _UINCODE
-#define scisprint iswprint
-#else
-#define scisprint isprint
-#endif
-
 #ifdef _DEBUG
 #include <stdio.h>
 
@@ -459,7 +453,7 @@ static const SQChar *sqstd_rex_matchnode(SQRex* exp,SQRexNode *node,const SQChar
 				exp->_matches[capture].begin = cur;
 				exp->_currsubexp++;
 			}
-			int tempcap = exp->_currsubexp;
+			SQInteger tempcap = exp->_currsubexp;
 			do {
 				SQRexNode *subnext = NULL;
 				if(n->next != -1) {

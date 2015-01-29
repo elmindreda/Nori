@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 
-bool str2num(const SQChar *s,SQObjectPtr &res)
+bool str2num(const SQChar *s,SQObjectPtr &res,SQInteger base)
 {
 	SQChar *end;
 	const SQChar *e = s;
@@ -33,7 +33,7 @@ bool str2num(const SQChar *s,SQObjectPtr &res)
 		res = r;
 	}
 	else{
-		SQInteger r = SQInteger(scstrtol(s,&end,10));
+		SQInteger r = SQInteger(scstrtol(s,&end,(int)base));
 		if(s == end) return false;
 		res = r;
 	}
@@ -185,19 +185,27 @@ static SQInteger get_slice_params(HSQUIRRELVM v,SQInteger &sidx,SQInteger &eidx,
 static SQInteger base_print(HSQUIRRELVM v)
 {
 	const SQChar *str;
-	sq_tostring(v,2);
-	sq_getstring(v,-1,&str);
-	if(_ss(v)->_printfunc) _ss(v)->_printfunc(v,_SC("%s"),str);
-	return 0;
+	if(SQ_SUCCEEDED(sq_tostring(v,2)))
+	{
+ 		if(SQ_SUCCEEDED(sq_getstring(v,-1,&str))) {
+			if(_ss(v)->_printfunc) _ss(v)->_printfunc(v,_SC("%s"),str);
+			return 0;
+		}
+	}
+	return SQ_ERROR;
 }
 
 static SQInteger base_error(HSQUIRRELVM v)
 {
 	const SQChar *str;
-	sq_tostring(v,2);
-	sq_getstring(v,-1,&str);
-	if(_ss(v)->_errorfunc) _ss(v)->_errorfunc(v,_SC("%s"),str);
-	return 0;
+	if(SQ_SUCCEEDED(sq_tostring(v,2)))
+	{
+ 		if(SQ_SUCCEEDED(sq_getstring(v,-1,&str))) {
+			if(_ss(v)->_errorfunc) _ss(v)->_errorfunc(v,_SC("%s"),str);
+			return 0;
+		}
+	}
+	return SQ_ERROR;
 }
 
 static SQInteger base_compilestring(HSQUIRRELVM v)
@@ -332,7 +340,7 @@ static SQInteger default_delegate_tofloat(HSQUIRRELVM v)
 	switch(type(o)){
 	case OT_STRING:{
 		SQObjectPtr res;
-		if(str2num(_stringval(o),res)){
+		if(str2num(_stringval(o),res,10)){
 			v->Push(SQObjectPtr(tofloat(res)));
 			break;
 		}}
@@ -354,10 +362,14 @@ static SQInteger default_delegate_tofloat(HSQUIRRELVM v)
 static SQInteger default_delegate_tointeger(HSQUIRRELVM v)
 {
 	SQObjectPtr &o=stack_get(v,1);
+	SQInteger base = 10;
+	if(sq_gettop(v) > 1) {
+		sq_getinteger(v,2,&base);
+	}
 	switch(type(o)){
 	case OT_STRING:{
 		SQObjectPtr res;
-		if(str2num(_stringval(o),res)){
+		if(str2num(_stringval(o),res,base)){
 			v->Push(SQObjectPtr(tointeger(res)));
 			break;
 		}}
@@ -378,7 +390,8 @@ static SQInteger default_delegate_tointeger(HSQUIRRELVM v)
 
 static SQInteger default_delegate_tostring(HSQUIRRELVM v)
 {
-	sq_tostring(v,1);
+	if(SQ_FAILED(sq_tostring(v,1)))
+		return SQ_ERROR;
 	return 1;
 }
 
@@ -832,7 +845,7 @@ STRING_TOFUNCZ(toupper)
 
 SQRegFunction SQSharedState::_string_default_delegate_funcz[]={
 	{_SC("len"),default_delegate_len,1, _SC("s")},
-	{_SC("tointeger"),default_delegate_tointeger,1, _SC("s")},
+	{_SC("tointeger"),default_delegate_tointeger,-1, _SC("sn")},
 	{_SC("tofloat"),default_delegate_tofloat,1, _SC("s")},
 	{_SC("tostring"),default_delegate_tostring,1, _SC(".")},
 	{_SC("slice"),string_slice,-1, _SC(" s n  n")},
@@ -886,6 +899,20 @@ static SQInteger closure_pacall(HSQUIRRELVM v)
 static SQInteger closure_bindenv(HSQUIRRELVM v)
 {
 	if(SQ_FAILED(sq_bindenv(v,1)))
+		return SQ_ERROR;
+	return 1;
+}
+
+static SQInteger closure_getroot(HSQUIRRELVM v)
+{
+	if(SQ_FAILED(sq_getclosureroot(v,-1)))
+		return SQ_ERROR;
+	return 1;
+}
+
+static SQInteger closure_setroot(HSQUIRRELVM v)
+{
+	if(SQ_FAILED(sq_setclosureroot(v,-2)))
 		return SQ_ERROR;
 	return 1;
 }
@@ -944,6 +971,8 @@ SQRegFunction SQSharedState::_closure_default_delegate_funcz[]={
 	{_SC("tostring"),default_delegate_tostring,1, _SC(".")},
 	{_SC("bindenv"),closure_bindenv,2, _SC("c x|y|t")},
 	{_SC("getinfos"),closure_getinfos,1, _SC("c")},
+	{_SC("getroot"),closure_getroot,1, _SC("c")},
+	{_SC("setroot"),closure_setroot,2, _SC("ct")},
 	{0,0}
 };
 
