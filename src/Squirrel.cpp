@@ -256,39 +256,29 @@ String vecToString(T v) { return stringCast(v); }
 template <typename T>
 float vecDot(T a, T b) { return dot(a, b); }
 
+template <typename T>
+void registerVectorClass(SqVM& vm, const char* name)
+{
+  SqTable rootTable(vm.rootTable());
+
+  SqDataClass<T> vecClass(vm);
+  vecClass.addMethod("_add", &vecAdd<T>);
+  vecClass.addMethod("_sub", &vecSub<T>);
+  vecClass.addMethod("_mul", &vecMul<T>);
+  vecClass.addMethod("_div", &vecDiv<T>);
+  vecClass.addMethod("_unm", &vecUnm<T>);
+  vecClass.addMethod("_tostring", &vecToString<T>);
+  vecClass.addMethod("dot", &vecDot<T>);
+  rootTable.addSlot(name, (SqClass) vecClass);
+}
+
 void registerCoreClasses(SqVM& vm)
 {
   SqTable rootTable(vm.rootTable());
 
-  SqDataClass<vec2> vec2Class(vm);
-  vec2Class.addMethod("_add", &vecAdd<vec2>);
-  vec2Class.addMethod("_sub", &vecSub<vec2>);
-  vec2Class.addMethod("_mul", &vecMul<vec2>);
-  vec2Class.addMethod("_div", &vecDiv<vec2>);
-  vec2Class.addMethod("_unm", &vecUnm<vec2>);
-  vec2Class.addMethod("_tostring", &vecToString<vec2>);
-  vec2Class.addMethod("dot", &vecDot<vec2>);
-  rootTable.addSlot("Vec2", (SqClass) vec2Class);
-
-  SqDataClass<vec3> vec3Class(vm);
-  vec3Class.addMethod("_add", &vecAdd<vec3>);
-  vec3Class.addMethod("_sub", &vecSub<vec3>);
-  vec3Class.addMethod("_mul", &vecMul<vec3>);
-  vec3Class.addMethod("_div", &vecDiv<vec3>);
-  vec3Class.addMethod("_unm", &vecUnm<vec3>);
-  vec3Class.addMethod("_tostring", &vecToString<vec3>);
-  vec3Class.addMethod("dot", &vecDot<vec3>);
-  rootTable.addSlot("Vec3", (SqClass) vec3Class);
-
-  SqDataClass<vec4> vec4Class(vm);
-  vec4Class.addMethod("_add", &vecAdd<vec4>);
-  vec4Class.addMethod("_sub", &vecSub<vec4>);
-  vec4Class.addMethod("_mul", &vecMul<vec4>);
-  vec4Class.addMethod("_div", &vecDiv<vec4>);
-  vec4Class.addMethod("_unm", &vecUnm<vec4>);
-  vec4Class.addMethod("_tostring", &vecToString<vec4>);
-  vec4Class.addMethod("dot", &vecDot<vec4>);
-  rootTable.addSlot("Vec4", (SqClass) vec4Class);
+  registerVectorClass<vec2>(vm, "Vec2");
+  registerVectorClass<vec3>(vm, "Vec3");
+  registerVectorClass<vec4>(vm, "Vec4");
 }
 
 } /*namespace*/
