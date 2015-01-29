@@ -218,14 +218,6 @@ template <typename T>
 class Ref : public RefBase
 {
 public:
-  /*! Swaps the specified references.
-   */
-  friend void swap(Ref<T>& first, Ref<T> second)
-  {
-    using std::swap;
-
-    swap(first.m_object, second.m_object);
-  }
   /*! Default constructor.
    */
   Ref(T* object = nullptr):
@@ -234,12 +226,18 @@ public:
     operator = (object);
   }
   /*! Copy constructor.
-   *  @param source The pointer object to inherit from.
    */
   Ref(const Ref<T>& source):
     m_object(nullptr)
   {
     operator = (source);
+  }
+  /*! Move constructor.
+   */
+  Ref(Ref<T>&& source):
+    m_object(source.m_object)
+  {
+    source.m_object = nullptr;
   }
   /*! Destructor
    */
@@ -281,6 +279,14 @@ public:
   Ref<T>& operator = (const Ref<T>& source)
   {
     return operator = (source.m_object);
+  }
+  /*! Move assignment operator.
+   */
+  Ref<T>& operator = (Ref<T>&& source)
+  {
+    m_object = source.m_object;
+    source.m_object = nullptr;
+    return *this;
   }
   /*! @return The currently owned object.
    */
