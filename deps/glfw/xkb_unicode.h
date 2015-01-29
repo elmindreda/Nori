@@ -1,10 +1,7 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    Cocoa
-// API Version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.1 Linux - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2014 Jonas Ådahl <jadahl@gmail.com>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -27,27 +24,10 @@
 //
 //========================================================================
 
-#include "internal.h"
+#ifndef _xkb_unicode_h_
+#define _xkb_unicode_h_
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+long _glfwKeySym2Unicode(unsigned int keysym);
 
-//========================================================================
-// Enable and disable system keys
-//========================================================================
-
-void _glfwPlatformEnableSystemKeys(_GLFWwindow* window)
-{
-    // This is checked in cocoa_window.m; no action needed here
-}
-
-void _glfwPlatformDisableSystemKeys(_GLFWwindow* window)
-{
-    // This is checked in cocoa_window.m; no action needed here
-
-    // Note that it may not be possible to disable things like Exposé
-    // except in full-screen mode.
-}
-
+#endif // _xkb_unicode_h_

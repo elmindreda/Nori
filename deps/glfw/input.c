@@ -55,24 +55,27 @@ static void setCursorMode(_GLFWwindow* window, int newMode)
 
     window->cursorMode = newMode;
 
-    if (window == _glfw.focusedWindow)
+    if (_glfw.focusedWindow == window)
     {
         if (oldMode == GLFW_CURSOR_DISABLED)
         {
-            window->cursorPosX = _glfw.cursorPosX;
-            window->cursorPosY = _glfw.cursorPosY;
-
-            _glfwPlatformSetCursorPos(window, _glfw.cursorPosX, _glfw.cursorPosY);
+            _glfwPlatformSetCursorPos(window,
+                                      _glfw.cursorPosX,
+                                      _glfw.cursorPosY);
         }
         else if (newMode == GLFW_CURSOR_DISABLED)
         {
             int width, height;
 
-            _glfw.cursorPosX = window->cursorPosX;
-            _glfw.cursorPosY = window->cursorPosY;
+            _glfwPlatformGetCursorPos(window,
+                                      &_glfw.cursorPosX,
+                                      &_glfw.cursorPosY);
+
+            window->cursorPosX = _glfw.cursorPosX;
+            window->cursorPosY = _glfw.cursorPosY;
 
             _glfwPlatformGetWindowSize(window, &width, &height);
-            _glfwPlatformSetCursorPos(window, width / 2.0, height / 2.0);
+            _glfwPlatformSetCursorPos(window, width / 2, height / 2);
         }
 
         _glfwPlatformApplyCursorMode(window);
@@ -198,22 +201,13 @@ void _glfwInputCursorMotion(_GLFWwindow* window, double x, double y)
 
         window->cursorPosX += x;
         window->cursorPosY += y;
-    }
-    else
-    {
-        if (window->cursorPosX == x && window->cursorPosY == y)
-            return;
 
-        window->cursorPosX = x;
-        window->cursorPosY = y;
+        x = window->cursorPosX;
+        y = window->cursorPosY;
     }
 
     if (window->callbacks.cursorPos)
-    {
-        window->callbacks.cursorPos((GLFWwindow*) window,
-                                    window->cursorPosX,
-                                    window->cursorPosY);
-    }
+        window->callbacks.cursorPos((GLFWwindow*) window, x, y);
 }
 
 void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
@@ -222,10 +216,10 @@ void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
         window->callbacks.cursorEnter((GLFWwindow*) window, entered);
 }
 
-void _glfwInputDrop(_GLFWwindow* window, int count, const char** names)
+void _glfwInputDrop(_GLFWwindow* window, int count, const char** paths)
 {
     if (window->callbacks.drop)
-        window->callbacks.drop((GLFWwindow*) window, count, names);
+        window->callbacks.drop((GLFWwindow*) window, count, paths);
 }
 
 
@@ -332,10 +326,15 @@ GLFWAPI void glfwGetCursorPos(GLFWwindow* handle, double* xpos, double* ypos)
 
     _GLFW_REQUIRE_INIT();
 
-    if (xpos)
-        *xpos = window->cursorPosX;
-    if (ypos)
-        *ypos = window->cursorPosY;
+    if (window->cursorMode == GLFW_CURSOR_DISABLED)
+    {
+        if (xpos)
+            *xpos = window->cursorPosX;
+        if (ypos)
+            *ypos = window->cursorPosY;
+    }
+    else
+        _glfwPlatformGetCursorPos(window, xpos, ypos);
 }
 
 GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, double xpos, double ypos)
@@ -347,20 +346,17 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, double xpos, double ypos)
     if (_glfw.focusedWindow != window)
         return;
 
-    // Don't do anything if the cursor position did not change
-    if (xpos == window->cursorPosX && ypos == window->cursorPosY)
-        return;
-
-    // Set GLFW cursor position
-    window->cursorPosX = xpos;
-    window->cursorPosY = ypos;
-
-    // Do not move physical cursor if it is disabled
     if (window->cursorMode == GLFW_CURSOR_DISABLED)
-        return;
-
-    // Update physical cursor position
-    _glfwPlatformSetCursorPos(window, xpos, ypos);
+    {
+        // Only update the accumulated position if the cursor is disabled
+        window->cursorPosX = xpos;
+        window->cursorPosY = ypos;
+    }
+    else
+    {
+        // Update system cursor position
+        _glfwPlatformSetCursorPos(window, xpos, ypos);
+    }
 }
 
 GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)
@@ -374,6 +370,25 @@ GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)
     _glfw.cursorListHead = cursor;
 
     if (!_glfwPlatformCreateCursor(cursor, image, xhot, yhot))
+    {
+        glfwDestroyCursor((GLFWcursor*) cursor);
+        return NULL;
+    }
+
+    return (GLFWcursor*) cursor;
+}
+
+GLFWAPI GLFWcursor* glfwCreateStandardCursor(int shape)
+{
+    _GLFWcursor* cursor;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    cursor = calloc(1, sizeof(_GLFWcursor));
+    cursor->next = _glfw.cursorListHead;
+    _glfw.cursorListHead = cursor;
+
+    if (!_glfwPlatformCreateStandardCursor(cursor, shape))
     {
         glfwDestroyCursor((GLFWcursor*) cursor);
         return NULL;
@@ -495,5 +510,87 @@ GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* handle, GLFWdropfun cbfun)
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
     _GLFW_SWAP_POINTERS(window->callbacks.drop, cbfun);
     return cbfun;
+}
+
+GLFWAPI int glfwJoystickPresent(int joy)
+{
+    _GLFW_REQUIRE_INIT_OR_RETURN(0);
+
+    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    {
+        _glfwInputError(GLFW_INVALID_ENUM, NULL);
+        return 0;
+    }
+
+    return _glfwPlatformJoystickPresent(joy);
+}
+
+GLFWAPI const float* glfwGetJoystickAxes(int joy, int* count)
+{
+    *count = 0;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    {
+        _glfwInputError(GLFW_INVALID_ENUM, NULL);
+        return NULL;
+    }
+
+    return _glfwPlatformGetJoystickAxes(joy, count);
+}
+
+GLFWAPI const unsigned char* glfwGetJoystickButtons(int joy, int* count)
+{
+    *count = 0;
+
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    {
+        _glfwInputError(GLFW_INVALID_ENUM, NULL);
+        return NULL;
+    }
+
+    return _glfwPlatformGetJoystickButtons(joy, count);
+}
+
+GLFWAPI const char* glfwGetJoystickName(int joy)
+{
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+
+    if (joy < 0 || joy > GLFW_JOYSTICK_LAST)
+    {
+        _glfwInputError(GLFW_INVALID_ENUM, NULL);
+        return NULL;
+    }
+
+    return _glfwPlatformGetJoystickName(joy);
+}
+
+GLFWAPI void glfwSetClipboardString(GLFWwindow* handle, const char* string)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    _GLFW_REQUIRE_INIT();
+    _glfwPlatformSetClipboardString(window, string);
+}
+
+GLFWAPI const char* glfwGetClipboardString(GLFWwindow* handle)
+{
+    _GLFWwindow* window = (_GLFWwindow*) handle;
+    _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
+    return _glfwPlatformGetClipboardString(window);
+}
+
+GLFWAPI double glfwGetTime(void)
+{
+    _GLFW_REQUIRE_INIT_OR_RETURN(0.0);
+    return _glfwPlatformGetTime();
+}
+
+GLFWAPI void glfwSetTime(double time)
+{
+    _GLFW_REQUIRE_INIT();
+    _glfwPlatformSetTime(time);
 }
 
