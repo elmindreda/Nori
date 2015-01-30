@@ -208,15 +208,15 @@ public:
   /*! @param[in] level The desired mipmap level.
    *  @return The width, in pixels, of the specified mipmap level of this texture.
    */
-  uint width(uint level = 0) const { return m_sizes[level].x; }
+  uint width(uint level = 0) const;
   /*! @param[in] level The desired mipmap level.
    *  @return The height, in pixels, of the specified mipmap level of this texture.
    */
-  uint height(uint level = 0) const { return m_sizes[level].y; }
+  uint height(uint level = 0) const;
   /*! @param[in] level The desired mipmap level.
    *  @return The depth, in pixels, of the specified mipmap level of this texture.
    */
-  uint depth(uint level = 0) const { return m_sizes[level].z; }
+  uint depth(uint level = 0) const;
   /*! @return The size, in bytes, of the pixel data in this texture.
    */
   size_t size() const { return m_size; }
@@ -263,17 +263,17 @@ private:
           const TextureParams& params);
   Texture(const Texture&) = delete;
   bool init(const TextureData& data);
-  void retrieveSizes();
-  uint retrieveTargetSizes(uint target, CubeFace face);
   void attach(int attachment, const TextureImage& image, uint z);
   void detach(int attachment);
   Texture& operator = (const Texture&) = delete;
   RenderContext& m_context;
   const TextureParams m_params;
   uint m_textureID;
+  uint m_width;
+  uint m_height;
+  uint m_depth;
   uint m_levels;
   PixelFormat m_format;
-  std::vector<uvec3> m_sizes;
   size_t m_size;
 };
 

@@ -79,7 +79,7 @@ bool Image::transformTo(const PixelFormat& format, PixelTransform& transform)
     return false;
 
   std::vector<char> temp(m_width * m_height * m_depth * format.size());
-  transform.convert(&temp[0], format, &m_data[0], m_format, m_width * m_height * m_depth);
+  transform.convert(temp.data(), format, m_data.data(), m_format, m_width * m_height * m_depth);
   std::swap(m_data, temp);
 
   m_format = format;
@@ -103,10 +103,10 @@ bool Image::crop(const Recti& area)
   const size_t pixelSize = m_format.size();
   std::vector<char> temp(area.size.x * area.size.y * pixelSize);
 
-  for (size_t y = 0;  y < (size_t) area.size.y;  y++)
+  for (uint y = 0;  y < (size_t) area.size.y;  y++)
   {
-    std::memcpy(&temp[0] + y * area.size.x * pixelSize,
-                &m_data[0] + ((y + area.position.y) * m_width + area.position.x) * pixelSize,
+    std::memcpy(temp.data() + y * area.size.x * pixelSize,
+                m_data.data() + ((y + area.position.y) * m_width + area.position.x) * pixelSize,
                 area.size.x * pixelSize);
   }
 
@@ -122,14 +122,14 @@ void Image::flipHorizontal()
   const size_t rowSize = m_width * m_format.size();
   std::vector<char> temp(m_data.size());
 
-  for (size_t z = 0;  z < m_depth;  z++)
+  for (uint z = 0;  z < m_depth;  z++)
   {
     const size_t sliceOffset = z * m_height * rowSize;
 
-    for (size_t y = 0;  y < m_height;  y++)
+    for (uint y = 0;  y < m_height;  y++)
     {
-      std::memcpy(&temp[0] + sliceOffset + rowSize * (m_height - y - 1),
-                  &m_data[0] + sliceOffset + rowSize * y,
+      std::memcpy(temp.data() + sliceOffset + rowSize * (m_height - y - 1),
+                  m_data.data() + sliceOffset + rowSize * y,
                   rowSize);
     }
   }
@@ -142,12 +142,12 @@ void Image::flipVertical()
   const size_t pixelSize = m_format.size();
   std::vector<char> temp(m_data.size());
 
-  for (size_t z = 0;  z < m_depth;  z++)
+  for (uint z = 0;  z < m_depth;  z++)
   {
-    for (size_t y = 0;  y < m_height;  y++)
+    for (uint y = 0;  y < m_height;  y++)
     {
-      const char* source = &m_data[0] + (z * m_height + y) * m_width * pixelSize;
-      char* target = &temp[0] + ((z * m_height + y + 1) * m_width - 1) * pixelSize;
+      const char* source = m_data.data() + (z * m_height + y) * m_width * pixelSize;
+      char* target = temp.data() + ((z * m_height + y + 1) * m_width - 1) * pixelSize;
 
       while (source < target)
       {
@@ -171,7 +171,7 @@ void* Image::pixel(uint x, uint y, uint z)
   if (x >= m_width || y >= m_height || z >= m_depth)
     return nullptr;
 
-  return &m_data[0] + ((z * m_height + y) * m_width + x) * m_format.size();
+  return m_data.data() + ((z * m_height + y) * m_width + x) * m_format.size();
 }
 
 const void* Image::pixel(uint x, uint y, uint z) const
@@ -179,7 +179,7 @@ const void* Image::pixel(uint x, uint y, uint z) const
   if (x >= m_width || y >= m_height || z >= m_depth)
     return nullptr;
 
-  return &m_data[0] + ((z * m_height + y) * m_width + x) * m_format.size();
+  return m_data.data() + ((z * m_height + y) * m_width + x) * m_format.size();
 }
 
 uint Image::dimensionCount() const
@@ -270,17 +270,11 @@ bool Image::init(const PixelFormat& format,
     return false;
   }
 
-  if ((m_height > 1) && (m_width == 1))
-  {
-    m_width = m_height;
-    m_height = 1;
-  }
+  if (m_height > 1 && m_width == 1)
+    std::swap(m_width, m_height);
 
-  if ((m_depth > 1) && (m_height == 1))
-  {
-    m_height = m_depth;
-    m_depth = 1;
-  }
+  if (m_depth > 1 && m_height == 1)
+    std::swap(m_height, m_depth);
 
   if (pixels)
   {
@@ -289,12 +283,12 @@ bool Image::init(const PixelFormat& format,
       const size_t pixelSize = m_format.size();
       m_data.resize(m_width * m_height * m_depth * pixelSize);
 
-      char* target = &m_data[0];
+      char* target = m_data.data();
       const char* source = pixels;
 
-      for (size_t z = 0;  z < m_depth;  z++)
+      for (uint z = 0;  z < m_depth;  z++)
       {
-        for (size_t y = 0;  y < m_height;  y++)
+        for (uint y = 0;  y < m_height;  y++)
         {
           std::memcpy(target, source, m_width * pixelSize);
           source += pitch;
@@ -330,7 +324,7 @@ Ref<Image> ImageReader::read(const String& name, const Path& path)
   stream.seekg(0, std::ios::end);
   data.resize((size_t) stream.tellg());
   stream.seekg(0, std::ios::beg);
-  stream.read(&data[0], data.size());
+  stream.read(data.data(), data.size());
 
   int width, height, format;
   stbi_uc* pixels = stbi_load_from_memory((stbi_uc*) data.data(), data.size(),

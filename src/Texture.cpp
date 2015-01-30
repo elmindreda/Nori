@@ -283,7 +283,6 @@ bool Texture::copyFrom(const TextureImage& image,
 void Texture::generateMipmaps()
 {
   glGenerateMipmap(convertToGL(m_params.type));
-  retrieveSizes();
   glTexParameteri(convertToGL(m_params.type),
                   GL_TEXTURE_MIN_FILTER,
                   convertToGL(m_params.filterMode, true));
@@ -316,16 +315,34 @@ bool Texture::isPOT() const
          isPowerOfTwo(depth(0));
 }
 
+uint Texture::width(uint level) const
+{
+  return uint(max(1.f, m_width / pow(2.f, float(level))));
+}
+
+uint Texture::height(uint level) const
+{
+  if (m_height == 1)
+    return m_height;
+  else
+    return uint(max(1.f, m_height / pow(2.f, float(level))));
+}
+
+uint Texture::depth(uint level) const
+{
+  if (m_depth == 1)
+    return m_depth;
+  else
+    return uint(max(1.f, m_depth / pow(2.f, float(level))));
+}
+
 Ref<Image> Texture::data(const TextureImage& image)
 {
-  uvec3 size;
-
-  if (isCube())
-    size = m_sizes[image.face * m_levels + image.level];
-  else
-    size = m_sizes[image.level];
-
-  Ref<Image> result = Image::create(cache(), m_format, size.x, size.y, size.z);
+  Ref<Image> result = Image::create(cache(),
+                                    m_format,
+                                    width(image.level),
+                                    height(image.level),
+                                    depth(image.level));
 
   m_context.setCurrentTexture(this);
 
@@ -409,7 +426,8 @@ Texture::Texture(const ResourceInfo& info,
   m_context(context),
   m_params(params),
   m_textureID(0),
-  m_levels(0)
+  m_levels(0),
+  m_size(0)
 {
 }
 
@@ -474,19 +492,17 @@ bool Texture::init(const TextureData& data)
     }
   }
 
-  uint width, height, depth;
-
   if (m_params.type == TEXTURE_CUBE)
   {
-    width = data.width / 6;
-    height = data.height;
-    depth = 1;
+    m_width = data.width / 6;
+    m_height = data.height;
+    m_depth = 1;
   }
   else
   {
-    width = data.width;
-    height = data.height;
-    depth = data.depth;
+    m_width = data.width;
+    m_height = data.height;
+    m_depth = data.depth;
   }
 
   glGenTextures(1, &m_textureID);
@@ -501,7 +517,7 @@ bool Texture::init(const TextureData& data)
     glTexImage1D(convertToGL(m_params.type),
                  0,
                  convertToGL(m_format, sRGB),
-                 width,
+                 m_width,
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
@@ -512,7 +528,7 @@ bool Texture::init(const TextureData& data)
     glTexImage3D(convertToGL(m_params.type),
                  0,
                  convertToGL(m_format, sRGB),
-                 width, height, depth,
+                 m_width, m_height, m_depth,
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
@@ -534,12 +550,12 @@ bool Texture::init(const TextureData& data)
 
     for (uint i = 0;  i < 6;  i++)
     {
-      glPixelStorei(GL_UNPACK_SKIP_PIXELS, i * width);
+      glPixelStorei(GL_UNPACK_SKIP_PIXELS, i * m_width);
 
       glTexImage2D(convertToGL(faces[i]),
                    0,
                    convertToGL(m_format, sRGB),
-                   width, height,
+                   m_width, m_height,
                    0,
                    convertToGL(m_format.semantic()),
                    convertToGL(m_format.type()),
@@ -554,7 +570,7 @@ bool Texture::init(const TextureData& data)
     glTexImage2D(convertToGL(m_params.type),
                  0,
                  convertToGL(m_format, sRGB),
-                 width, height,
+                 m_width, m_height,
                  0,
                  convertToGL(m_format.semantic()),
                  convertToGL(m_format.type()),
@@ -598,8 +614,19 @@ bool Texture::init(const TextureData& data)
 
   if (mipmapped)
     generateMipmaps();
+
+  if (mipmapped)
+    m_levels = uint(log2(float(max(max(m_width, m_height), m_depth))));
   else
-    retrieveSizes();
+    m_levels = 1;
+
+  for (uint i = 0;  i < m_levels;  i++)
+  {
+    if (m_params.type == TEXTURE_CUBE)
+      m_size += width(i) * height(i) * depth(i) * m_format.size();
+    else
+      m_size += width(i) * height(i) * depth(i) * m_format.size() * 6;
+  }
 
   if (!checkGL("OpenGL error during creation of texture %s format %s",
                name().c_str(),
@@ -612,46 +639,6 @@ bool Texture::init(const TextureData& data)
     stats->addTexture(size());
 
   return true;
-}
-
-void Texture::retrieveSizes()
-{
-  m_sizes.clear();
-  m_size = 0;
-
-  if (m_params.type == TEXTURE_CUBE)
-  {
-    for (uint i = 0;  i < 6;  i++)
-      m_levels = retrieveTargetSizes(convertToGL(CubeFace(i)), CubeFace(i));
-  }
-  else
-    m_levels = retrieveTargetSizes(convertToGL(m_params.type), NO_CUBE_FACE);
-
-  for (uvec3 s : m_sizes)
-    m_size += s.x * s.y * s.z * m_format.size();
-}
-
-uint Texture::retrieveTargetSizes(uint target, CubeFace face)
-{
-  uint level = 0;
-
-  for (;;)
-  {
-    uint width, height, depth;
-
-    glGetTexLevelParameteriv(target, level, GL_TEXTURE_WIDTH, (int*) &width);
-    glGetTexLevelParameteriv(target, level, GL_TEXTURE_HEIGHT, (int*) &height);
-    glGetTexLevelParameteriv(target, level, GL_TEXTURE_DEPTH, (int*) &depth);
-
-    if (width == 0)
-      break;
-
-    m_sizes.push_back(uvec3(width, height, depth));
-
-    level++;
-  }
-
-  return level;
 }
 
 void Texture::attach(int attachment, const TextureImage& image, uint z)
