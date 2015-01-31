@@ -29,7 +29,7 @@ else()
 endif()
 
 if (_GLFW_WIN32)
-  set(_GLFW_NO_DLOAD_WINMM ${BUILD_SHARED_LIBS})
+  set(_GLFW_USE_OPTIMUS_HPG TRUE)
 endif()
 
 if (_GLFW_WGL)
@@ -110,7 +110,10 @@ if (_GLFW_GLX)
 endif()
 
 if (_GLFW_COCOA AND _GLFW_NSGL)
-  set(_GLFW_CD_RESOURCES 1)
+  set(_GLFW_USE_CHDIR TRUE)
+  set(_GLFW_USE_MENUBAR TRUE)
+  set(_GLFW_USE_RETINA TRUE)
+
   find_library(COCOA_FRAMEWORK Cocoa)
   find_library(IOKIT_FRAMEWORK IOKit)
   find_library(CORE_FOUNDATION_FRAMEWORK CoreFoundation)
