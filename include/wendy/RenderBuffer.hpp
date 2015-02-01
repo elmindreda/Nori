@@ -407,7 +407,7 @@ private:
 
 /*! @brief %Framebuffer for rendering to the screen.
  */
-class DefaultFramebuffer : public Framebuffer
+class WindowFramebuffer : public Framebuffer
 {
   friend class RenderContext;
 public:
@@ -424,7 +424,7 @@ public:
   uint width() const;
   uint height() const;
 private:
-  DefaultFramebuffer(RenderContext& context);
+  WindowFramebuffer(RenderContext& context);
   void apply() const;
   uint m_colorBits;
   uint m_depthBits;
@@ -484,13 +484,17 @@ public:
    *  currently set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setColorBuffer(Texture* newTexture, const TextureImage& image, uint z = 0);
+  bool setColorBuffer(Texture* newTexture,
+                      const TextureImage& image = TextureImage(),
+                      uint z = 0);
   /*! sets the image to use as the depth buffer for this framebuffer.
    *  @param[in] newTexture The desired image, or @c nullptr to detach the
    *  currently set image.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setDepthBuffer(Texture* newTexture, const TextureImage& image, uint z = 0);
+  bool setDepthBuffer(Texture* newTexture,
+                      const TextureImage& image = TextureImage(),
+                      uint z = 0);
   /*! sets the image to use for the specified attachment point of this
    *  framebuffer.
    *  @param[in] newTexture The desired image, or @c nullptr to detach the
@@ -499,8 +503,10 @@ public:
    *  only applies to 3D textures.
    *  @return @c true if this framebuffer is complete, or @c false otherwise.
    */
-  bool setBuffer(Attachment attachment, Texture* newTexture,
-                 const TextureImage& image, uint z = 0);
+  bool setBuffer(Attachment attachment,
+                 Texture* newTexture,
+                 const TextureImage& image = TextureImage(),
+                 uint z = 0);
   /*! Creates an image framebuffer within the specified context.
    */
   static Ref<TextureFramebuffer> create(RenderContext& context);

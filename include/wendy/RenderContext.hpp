@@ -173,25 +173,25 @@ class RenderState
 {
 public:
   RenderState();
-  bool depthTesting;
-  bool depthWriting;
-  bool colorWriting;
-  bool stencilTesting;
-  bool wireframe;
-  bool lineSmoothing;
-  bool multisampling;
   float lineWidth;
-  PolygonFace cullFace;
-  BlendFactor srcFactor;
-  BlendFactor dstFactor;
-  FragmentFunction depthFunction;
+  BlendFactor srcFactor : 4;
+  BlendFactor dstFactor : 4;
+  PolygonFace cullFace : 2;
+  FragmentFunction depthFunction : 3;
+  bool depthTesting : 1;
+  bool depthWriting : 1;
+  bool colorWriting : 1;
+  bool stencilTesting : 1;
+  bool wireframe : 1;
+  bool lineSmoothing : 1;
+  bool multisampling : 1;
   struct {
-    FragmentFunction function;
     uint reference;
     uint mask;
-    StencilOp stencilFailOp;
-    StencilOp depthFailOp;
-    StencilOp depthPassOp;
+    FragmentFunction function : 3;
+    StencilOp stencilFailOp : 3;
+    StencilOp depthFailOp : 3;
+    StencilOp depthPassOp : 3;
   } stencil[2];
 };
 
@@ -302,14 +302,13 @@ public:
    */
   SharedProgramState();
   virtual void updateTo(Uniform& uniform);
-  virtual void updateTo(Sampler& uniform);
-  /*! @return The current model matrix.
+  /*! @return The model matrix.
    */
   const mat4& modelMatrix() const { return m_modelMatrix; }
-  /*! @return The current view matrix.
+  /*! @return The view matrix.
    */
   const mat4& viewMatrix() const { return m_viewMatrix; }
-  /*! @return The current projection matrix.
+  /*! @return The projection matrix.
    */
   const mat4& projectionMatrix() const { return m_projectionMatrix; }
   void cameraProperties(vec3& position,
@@ -442,27 +441,21 @@ public:
    *  current frame.
    */
   VertexRange allocateVertices(uint count, const VertexFormat& format);
-  /*! Reserves the specified sampler uniform signature as shared.
-   */
-  void createSharedSampler(const char* name, SamplerType type, int ID);
-  /*! Reserves the specified non-sampler uniform signature as shared.
+  /*! Reserves the specified uniform signature as shared.
    */
   void createSharedUniform(const char* name, UniformType type, int ID);
-  /*! @return The shared ID of the specified sampler uniform signature.
-   */
-  int sharedSamplerID(const char* name, SamplerType type) const;
-  /*! @return The shared ID of the specified non-sampler uniform signature.
+  /*! @return The shared ID of the specified uniform signature.
    */
   int sharedUniformID(const char* name, UniformType type) const;
   /*! @return The current shared program state, or @c nullptr if no shared
    *  program state is currently set.
    */
-  SharedProgramState* currentSharedProgramState() const;
+  SharedProgramState* sharedProgramState() const;
   /*! Sets the current shared program state.
    *  @param[in] newState The new state object.
    */
-  void setCurrentSharedProgramState(SharedProgramState* newState);
-  /*! @return GLSL declarations of all shared samplers and uniforms.
+  void setSharedProgramState(SharedProgramState* newState);
+  /*! @return GLSL declarations of all shared uniforms.
    */
   const char* sharedProgramStateDeclaration() const;
   /*! @return The swap interval of this context.
@@ -490,39 +483,39 @@ public:
   void setViewportArea(const Recti& newArea);
   /*! @return The current framebuffer.
    */
-  Framebuffer& currentFramebuffer() const;
+  Framebuffer& framebuffer() const;
   /*! @return The screen framebuffer.
    */
-  DefaultFramebuffer& defaultFramebuffer() const;
+  WindowFramebuffer& windowFramebuffer() const;
   /*! Makes the default framebuffer current.
    */
-  void setDefaultFramebufferCurrent();
+  void setWindowFramebuffer();
   /*! Makes the specified framebuffer current.
    *  @param[in] newFramebuffer The desired framebuffer.
    *  @return @c true if successful, or @c false otherwise.
    */
-  bool setCurrentFramebuffer(Framebuffer& newFramebuffer);
+  bool setFramebuffer(Framebuffer& newFramebuffer);
   /*! Sets the current GLSL program for use when rendering.
    *  @param[in] newProgram The desired GLSL program, or @c nullptr to unbind
    *  the current program.
    */
-  void setCurrentProgram(Program* newProgram);
+  void setProgram(Program* newProgram);
   /*! Sets the current vertex buffer.
    */
-  void setCurrentVertexBuffer(VertexBuffer* newVertexBuffer);
+  void setVertexBuffer(VertexBuffer* newVertexBuffer);
   /*! Sets the current index buffer.
    */
-  void setCurrentIndexBuffer(IndexBuffer* newIndexBuffer);
+  void setIndexBuffer(IndexBuffer* newIndexBuffer);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  void setCurrentTexture(Texture* newTexture);
+  void setTexture(Texture* newTexture);
   /*! @note Unless you are Wendy, you probably don't need to call this.
    */
-  void setActiveTextureUnit(uint unit);
+  void setTextureUnit(uint unit);
   bool isCullingInverted();
   void setCullingInversion(bool newState);
-  const RenderState& currentRenderState() const;
-  void setCurrentRenderState(const RenderState& newState);
+  const RenderState& renderState() const;
+  void setRenderState(const RenderState& newState);
   bool debug() const { return m_debug; }
   RenderStats* stats() const;
   void setStats(RenderStats* newStats);
@@ -557,7 +550,6 @@ private:
     Ref<VertexBuffer> buffer;
     uint available;
   };
-  class SharedSampler;
   class SharedUniform;
   ResourceCache& m_cache;
   Window m_window;
@@ -571,15 +563,14 @@ private:
   bool m_dirtyState;
   bool m_cullingInverted;
   std::vector<Ref<Texture>> m_textureUnits;
-  uint m_activeTextureUnit;
-  RenderState m_currentState;
-  Ref<Program> m_currentProgram;
-  Ref<VertexBuffer> m_currentVertexBuffer;
-  Ref<IndexBuffer> m_currentIndexBuffer;
-  Ref<Framebuffer> m_currentFramebuffer;
-  Ref<SharedProgramState> m_currentSharedState;
-  Ref<DefaultFramebuffer> m_defaultFramebuffer;
-  std::vector<SharedSampler> m_samplers;
+  uint m_textureUnit;
+  RenderState m_renderState;
+  Ref<Program> m_program;
+  Ref<VertexBuffer> m_vertexBuffer;
+  Ref<IndexBuffer> m_indexBuffer;
+  Ref<Framebuffer> m_framebuffer;
+  Ref<SharedProgramState> m_sharedProgramState;
+  Ref<WindowFramebuffer> m_windowFramebuffer;
   std::vector<SharedUniform> m_uniforms;
   std::vector<Slot> m_slots;
   std::string m_declaration;

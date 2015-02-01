@@ -48,10 +48,10 @@ public:
   void parse(const char* name);
   void parse(const char* name, const char* text);
   bool hasVersion() const;
-  const std::string& getOutput() const;
-  const std::string& getVersion() const;
-  const std::string& getNameList() const;
-  const std::vector<Path>& getPaths() const;
+  const std::string& output() const { return m_output; }
+  const std::string& version() const { return m_version; }
+  const std::string& names() const { return m_list; }
+  const std::vector<Path>& paths() const { return m_paths; }
 private:
   void addLine();
   void advance(size_t offset);
@@ -80,13 +80,13 @@ private:
   bool isFirstOnLine() const;
   void setFirstOnLine(bool newState);
   class File;
-  ResourceCache& cache;
-  std::vector<File> files;
-  std::vector<std::string> names;
-  std::vector<Path> paths;
-  std::string output;
-  std::string version;
-  std::string list;
+  ResourceCache& m_cache;
+  std::vector<File> m_files;
+  std::vector<std::string> m_names;
+  std::vector<Path> m_paths;
+  std::string m_output;
+  std::string m_version;
+  std::string m_list;
 };
 
 class Preprocessor::File

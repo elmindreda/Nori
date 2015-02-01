@@ -54,19 +54,6 @@ private:
   uint16 offset;
 };
 
-/*! @brief Opaque program state sampler index.
- */
-class SamplerStateIndex
-{
-  friend class Pass;
-public:
-  SamplerStateIndex();
-private:
-  SamplerStateIndex(uint16 index, uint16 unit);
-  uint16 index;
-  uint16 unit;
-};
-
 /*! @brief Render state object.
  *
  *  This class and its associated classes encapsulates most rendering state.
@@ -79,15 +66,12 @@ public:
   /*! Constructor.
    */
   Pass();
-  /*! Copy constructor.
-   */
   Pass(const Pass& source);
   ~Pass();
-  bool hasUniformState(const char* name) const;
-  bool hasSamplerState(const char* name) const;
   /*! Applies this render state to the current context.
    */
   void apply() const;
+  Pass& operator = (const Pass& source);
   /*! @return @c true if this render state uses any form of culling, otherwise
    *  @c false.
    */
@@ -226,50 +210,47 @@ public:
    *  @param[in] dst The desired destination factor.
    */
   void setBlendFactors(BlendFactor src, BlendFactor dst);
+  bool hasUniformState(const char* name) const;
   template <typename T>
-  void uniformState(const char* name, T& result) const
+  T uniformState(const char* name) const
   {
-    std::memcpy(&result, data(name, uniformType<T>()), sizeof(T));
+    return uniformState<T>(uniformStateIndex(name));
   }
   template <typename T>
-  void uniformState(UniformStateIndex index, T& result) const
+  T uniformState(UniformStateIndex index) const
   {
-    std::memcpy(&result, data(index, uniformType<T>()), sizeof(T));
+    return *static_cast<const T*>(data(index, uniformType<T>()));
   }
   template <typename T>
-  void setUniformState(const char* name, const T& newValue)
+  void setUniformState(const char* name, const T& value)
   {
-    std::memcpy(data(name, uniformType<T>()), &newValue, sizeof(T));
+    setUniformState(uniformStateIndex(name), value);
   }
   template <typename T>
-  void setUniformState(UniformStateIndex index, const T& newValue)
+  void setUniformState(UniformStateIndex index, const T& value)
   {
-    std::memcpy(data(index, uniformType<T>()), &newValue, sizeof(T));
+    *static_cast<T*>(data(index, uniformType<T>())) = value;
   }
-  Texture* samplerState(const char* name) const;
-  Texture* samplerState(SamplerStateIndex index) const;
-  void setSamplerState(const char* name, Texture* newTexture);
-  void setSamplerState(SamplerStateIndex index, Texture* newTexture);
+  Texture* uniformTexture(const char* name) const;
+  Texture* uniformTexture(UniformStateIndex index) const;
+  void setUniformTexture(const char* name, Texture* texture);
+  void setUniformTexture(UniformStateIndex index, Texture* texture);
   UniformStateIndex uniformStateIndex(const char* name) const;
-  SamplerStateIndex samplerStateIndex(const char* name) const;
   Program* program() const { return m_program; }
   /*! Sets the GLSL program used by this state object.
    *  @param[in] newProgram The desired GLSL program, or @c nullptr to detach
    *  the current program.
    */
-  void setProgram(Program* newProgram);
-  PassID ID() const { return m_ID; }
+  void setProgram(Program* program);
+  PassID id() const { return m_id; }
 private:
   template <typename T>
   static UniformType uniformType();
-  void* data(const char* name, UniformType type);
-  const void* data(const char* name, UniformType type) const;
   void* data(UniformStateIndex index, UniformType type);
   const void* data(UniformStateIndex index, UniformType type) const;
-  PassID m_ID;
+  PassID m_id;
   Ref<Program> m_program;
-  std::vector<float> m_floats;
-  std::vector<Ref<Texture>> m_textures;
+  std::vector<char> m_uniformState;
   RenderState m_state;
 };
 

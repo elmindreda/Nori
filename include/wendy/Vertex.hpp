@@ -96,11 +96,12 @@ public:
   const std::vector<VertexComponent>& components() const { return m_components; }
   bool operator == (const VertexFormat& other) const;
   bool operator != (const VertexFormat& other) const;
-  std::string asString() const;
   size_t size() const;
 private:
   std::vector<VertexComponent> m_components;
 };
+
+std::string stringCast(const VertexFormat& format);
 
 /*! @brief Predefined vertex format.
  */

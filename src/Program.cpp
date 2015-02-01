@@ -47,74 +47,58 @@ namespace wendy
 namespace
 {
 
-struct UniformTypeInfo
+const struct
 {
   bool scalar;
   bool vector;
   bool matrix;
+  bool sampler;
   uint elementCount;
+  GLenum nativeType;
   const char* name;
-};
-
-const UniformTypeInfo uniformTypes[] =
+} uniformTypes[] =
 {
-  {  true, false, false,  1, "int" },
-  {  true, false, false,  1, "unsigned int" },
-  {  true, false, false,  1, "float" },
-  { false,  true, false,  2, "vec2" },
-  { false,  true, false,  3, "vec3" },
-  { false,  true, false,  4, "vec4" },
-  { false, false,  true,  4, "mat2" },
-  { false, false,  true,  9, "mat3" },
-  { false, false,  true, 16, "mat4" }
+  { false, false, false, true,   1, GL_SAMPLER_1D,      "sampler1D" },
+  { false, false, false, true,   1, GL_SAMPLER_2D,      "sampler2D" },
+  { false, false, false, true,   1, GL_SAMPLER_3D,      "sampler3D" },
+  { false, false, false, true,   1, GL_SAMPLER_2D_RECT, "sampler2DRect" },
+  { false, false, false, true,   1, GL_SAMPLER_CUBE,    "samplerCube" },
+  {  true, false, false, false,  1, GL_INT,             "int" },
+  {  true, false, false, false,  1, GL_UNSIGNED_INT,    "unsigned int" },
+  {  true, false, false, false,  1, GL_FLOAT,           "float" },
+  { false,  true, false, false,  2, GL_FLOAT_VEC2,      "vec2" },
+  { false,  true, false, false,  3, GL_FLOAT_VEC3,      "vec3" },
+  { false,  true, false, false,  4, GL_FLOAT_VEC4,      "vec4" },
+  { false, false,  true, false,  4, GL_FLOAT_MAT2,      "mat2" },
+  { false, false,  true, false,  9, GL_FLOAT_MAT3,      "mat3" },
+  { false, false,  true, false, 16, GL_FLOAT_MAT4,      "mat4" }
 };
 
-struct AttributeTypeInfo
+const struct
 {
   bool scalar;
   bool vector;
   uint elementCount;
   GLenum elementType;
+  GLenum nativeType;
   const char* name;
-};
-
-const AttributeTypeInfo attributeTypes[] =
+} attributeTypes[] =
 {
-  {  true, false, 1, GL_FLOAT, "float" },
-  { false,  true, 2, GL_FLOAT,  "vec2" },
-  { false,  true, 3, GL_FLOAT,  "vec3" },
-  { false,  true, 4, GL_FLOAT,  "vec4" },
-};
-
-struct SamplerTypeInfo
-{
-  const char* name;
-};
-
-const SamplerTypeInfo samplerTypes[] =
-{
-  { "sampler1D" },
-  { "sampler2D" },
-  { "sampler3D" },
-  { "sampler2DRect" },
-  { "samplerCube" },
+  {  true, false, 1, GL_FLOAT, GL_FLOAT,      "float" },
+  { false,  true, 2, GL_FLOAT, GL_FLOAT_VEC2, "vec2" },
+  { false,  true, 3, GL_FLOAT, GL_FLOAT_VEC3, "vec3" },
+  { false,  true, 4, GL_FLOAT, GL_FLOAT_VEC4, "vec4" },
 };
 
 AttributeType convertAttributeType(GLenum type)
 {
-  switch (type)
+  for (uint i = 0;  i < sizeof(attributeTypes) / sizeof(attributeTypes[0]);  i++)
   {
-    case GL_FLOAT:
-      return ATTRIBUTE_FLOAT;
-    case GL_FLOAT_VEC2:
-      return ATTRIBUTE_VEC2;
-    case GL_FLOAT_VEC3:
-      return ATTRIBUTE_VEC3;
-    case GL_FLOAT_VEC4:
-      return ATTRIBUTE_VEC4;
-    default:
-      return AttributeType(-1);
+    if (attributeTypes[i].nativeType == type)
+      return AttributeType(i);
   }
+
+  return AttributeType(-1);
 }
 
 bool isSupportedAttributeType(GLenum type)
@@ -122,58 +106,15 @@ bool isSupportedAttributeType(GLenum type)
   return convertAttributeType(type) != -1;
 }
 
-SamplerType convertSamplerType(GLenum type)
-{
-  switch (type)
-  {
-    case GL_SAMPLER_1D:
-      return SAMPLER_1D;
-    case GL_SAMPLER_2D:
-      return SAMPLER_2D;
-    case GL_SAMPLER_3D:
-      return SAMPLER_3D;
-    case GL_SAMPLER_2D_RECT:
-      return SAMPLER_RECT;
-    case GL_SAMPLER_CUBE:
-      return SAMPLER_CUBE;
-    default:
-      return SamplerType(-1);
-  }
-}
-
-bool isSupportedSamplerType(GLenum type)
-{
-  return convertSamplerType(type) != -1;
-}
-
 UniformType convertUniformType(GLenum type)
 {
-  switch (type)
+  for (uint i = 0;  i < sizeof(uniformTypes) / sizeof(uniformTypes[0]);  i++)
   {
-    case GL_INT:
-      return UNIFORM_INT;
-    case GL_UNSIGNED_INT:
-      return UNIFORM_UINT;
-
-    case GL_FLOAT:
-      return UNIFORM_FLOAT;
-    case GL_FLOAT_VEC2:
-      return UNIFORM_VEC2;
-    case GL_FLOAT_VEC3:
-      return UNIFORM_VEC3;
-    case GL_FLOAT_VEC4:
-
-      return UNIFORM_VEC4;
-    case GL_FLOAT_MAT2:
-      return UNIFORM_MAT2;
-    case GL_FLOAT_MAT3:
-      return UNIFORM_MAT3;
-    case GL_FLOAT_MAT4:
-      return UNIFORM_MAT4;
-
-    default:
-      return UniformType(-1);
+    if (uniformTypes[i].nativeType == type)
+      return UniformType(i);
   }
+
+  return UniformType(-1);
 }
 
 bool isSupportedUniformType(GLenum type)
@@ -277,13 +218,13 @@ bool Shader::init(const std::string& text)
   if (spp.hasVersion())
   {
     shader += "#version ";
-    shader += spp.getVersion();
+    shader += spp.version();
     shader += "\n";
   }
 
   shader += "#line 0 0 /*shared program state*/\n";
   shader += m_context.sharedProgramStateDeclaration();
-  shader += spp.getOutput();
+  shader += spp.output();
 
   GLsizei lengths[1];
   const GLchar* strings[1];
@@ -323,7 +264,7 @@ bool Shader::init(const std::string& text)
       {
         logWarning("Warning(s) compiling shader %s:\n%s%s",
                    name().c_str(),
-                   spp.getNameList().c_str(),
+                   spp.names().c_str(),
                    infoLog.c_str());
       }
     }
@@ -335,7 +276,7 @@ bool Shader::init(const std::string& text)
       {
         logError("Failed to compile shader %s:\n%s%s",
                  name().c_str(),
-                 spp.getNameList().c_str(),
+                 spp.names().c_str(),
                  infoLog.c_str());
       }
 
@@ -376,16 +317,6 @@ void Attribute::bind(size_t stride, size_t offset)
 #if WENDY_DEBUG
   checkGL("Failed to set attribute %s", m_name.c_str());
 #endif
-}
-
-const char* Attribute::typeName(AttributeType type)
-{
-  return attributeTypes[type].name;
-}
-
-const char* Sampler::typeName(SamplerType type)
-{
-  return samplerTypes[type].name;
 }
 
 void Uniform::copyFrom(const void* data)
@@ -441,12 +372,22 @@ bool Uniform::isMatrix() const
   return uniformTypes[m_type].matrix;
 }
 
+bool Uniform::isSampler() const
+{
+  return uniformTypes[m_type].sampler;
+}
+
 uint Uniform::elementCount() const
 {
   return uniformTypes[m_type].elementCount;
 }
 
-const char* Uniform::typeName(UniformType type)
+const char* stringCast(AttributeType type)
+{
+  return attributeTypes[type].name;
+}
+
+const char* stringCast(UniformType type)
 {
   return uniformTypes[type].name;
 }
@@ -478,24 +419,6 @@ const Attribute* Program::findAttribute(const char* name) const
   return &(*a);
 }
 
-Sampler* Program::findSampler(const char* name)
-{
-  auto s = std::find(m_samplers.begin(), m_samplers.end(), name);
-  if (s == m_samplers.end())
-    return nullptr;
-
-  return &(*s);
-}
-
-const Sampler* Program::findSampler(const char* name) const
-{
-  auto s = std::find(m_samplers.begin(), m_samplers.end(), name);
-  if (s == m_samplers.end())
-    return nullptr;
-
-  return &(*s);
-}
-
 Uniform* Program::findUniform(const char* name)
 {
   auto u = std::find(m_uniforms.begin(), m_uniforms.end(), name);
@@ -521,27 +444,14 @@ uint Program::attributeCount() const
 
 Attribute& Program::attribute(uint index)
 {
+  assert(index < m_attributes.size());
   return m_attributes[index];
 }
 
 const Attribute& Program::attribute(uint index) const
 {
+  assert(index < m_attributes.size());
   return m_attributes[index];
-}
-
-uint Program::samplerCount() const
-{
-  return uint(m_samplers.size());
-}
-
-Sampler& Program::sampler(uint index)
-{
-  return m_samplers[index];
-}
-
-const Sampler& Program::sampler(uint index) const
-{
-  return m_samplers[index];
 }
 
 uint Program::uniformCount() const
@@ -551,11 +461,13 @@ uint Program::uniformCount() const
 
 Uniform& Program::uniform(uint index)
 {
+  assert(index < m_uniforms.size());
   return m_uniforms[index];
 }
 
 const Uniform& Program::uniform(uint index) const
 {
+  assert(index < m_uniforms.size());
   return m_uniforms[index];
 }
 
@@ -686,7 +598,7 @@ bool Program::init(Shader& vertexShader, Shader& fragmentShader)
 
 bool Program::retrieveUniforms()
 {
-  m_context.setCurrentProgram(this);
+  m_context.setProgram(this);
 
   GLint uniformCount;
   glGetProgramiv(m_programID, GL_ACTIVE_UNIFORMS, &uniformCount);
@@ -697,6 +609,7 @@ bool Program::retrieveUniforms()
   glGetProgramiv(m_programID, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
 
   char* uniformName = new char [maxNameLength + 1];
+  uint samplerIndex = 0;
 
   for (int i = 0;  i < uniformCount;  i++)
   {
@@ -728,17 +641,12 @@ bool Program::retrieveUniforms()
       uniform.m_type = convertUniformType(uniformType);
       uniform.m_location = glGetUniformLocation(m_programID, uniformName);
       uniform.m_sharedID = m_context.sharedUniformID(uniformName, uniform.type());
-    }
-    else if (isSupportedSamplerType(uniformType))
-    {
-      m_samplers.push_back(Sampler());
-      Sampler& sampler = m_samplers.back();
-      sampler.m_name = uniformName;
-      sampler.m_type = convertSamplerType(uniformType);
-      sampler.m_location = glGetUniformLocation(m_programID, uniformName);
-      sampler.m_sharedID = m_context.sharedSamplerID(uniformName, sampler.type());
 
-      glUniform1i(sampler.m_location, (GLuint) m_samplers.size() - 1);
+      if (uniform.isSampler())
+      {
+        glUniform1i(uniform.m_location, samplerIndex);
+        samplerIndex++;
+      }
     }
     else
       logWarning("Skipping uniform %s of unsupported type", uniformName);
@@ -746,7 +654,7 @@ bool Program::retrieveUniforms()
 
   delete [] uniformName;
 
-  m_context.setCurrentProgram(nullptr);
+  m_context.setProgram(nullptr);
 
   if (!checkGL("Failed to retrieve uniforms for program %s", name().c_str()))
     return false;
@@ -848,11 +756,6 @@ std::string Program::infoLog() const
   return result;
 }
 
-void ProgramInterface::addSampler(const char* name, SamplerType type)
-{
-  samplers.push_back(std::make_pair(name, type));
-}
-
 void ProgramInterface::addUniform(const char* name, UniformType type)
 {
   uniforms.push_back(std::make_pair(name, type));
@@ -893,35 +796,6 @@ void ProgramInterface::addAttributes(const VertexFormat& format)
 
 bool ProgramInterface::matches(const Program& program, bool verbose) const
 {
-  for (auto& s : samplers)
-  {
-    const Sampler* sampler = program.findSampler(s.first.c_str());
-    if (!sampler)
-    {
-      if (verbose)
-      {
-        logError("Sampler %s missing in program %s",
-                 s.first.c_str(),
-                 program.name().c_str());
-      }
-
-      return false;
-    }
-
-    if (sampler->type() != s.second)
-    {
-      if (verbose)
-      {
-        logError("Sampler %s in program %s has incorrect type; should be %s",
-                 s.first.c_str(),
-                 program.name().c_str(),
-                 Sampler::typeName(s.second));
-      }
-
-      return false;
-    }
-  }
-
   for (auto& u : uniforms)
   {
     const Uniform* uniform = program.findUniform(u.first.c_str());
@@ -944,7 +818,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Uniform %s in program %s has incorrect type; should be %s",
                  u.first.c_str(),
                  program.name().c_str(),
-                 Uniform::typeName(u.second));
+                 stringCast(u.second));
       }
 
       return false;
@@ -982,7 +856,7 @@ bool ProgramInterface::matches(const Program& program, bool verbose) const
         logError("Attribute %s in program %s has incorrect type; should be %s",
                 attributes[index].first.c_str(),
                 program.name().c_str(),
-                Attribute::typeName(attributes[index].second));
+                stringCast(attributes[index].second));
       }
 
       return false;

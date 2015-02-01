@@ -165,11 +165,11 @@ size_t VertexFormat::size() const
   return size;
 }
 
-std::string VertexFormat::asString() const
+std::string stringCast(const VertexFormat& format)
 {
   std::ostringstream result;
 
-  for (const VertexComponent& c : m_components)
+  for (const VertexComponent& c : format.components())
     result << c.elementCount() << 'f' << ':' << c.name() << ' ';
 
   return result.str();

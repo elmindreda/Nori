@@ -44,6 +44,7 @@ public:
    */
   SharedProgramState& sharedProgramState() { return *m_state; }
   void setSharedProgramState(SharedProgramState* newState);
+  RenderContext& context() const { return m_context; }
   /*! Creates a renderer object using the specified render context and the
    *  specified configuration.
    *  @return The newly constructed renderer object, or @c nullptr if an error

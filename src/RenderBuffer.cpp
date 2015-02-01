@@ -120,7 +120,7 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::discard()
 {
-  m_context.setCurrentVertexBuffer(this);
+  m_context.setVertexBuffer(this);
 
   glBufferData(GL_ARRAY_BUFFER,
                m_count * m_format.size(),
@@ -140,7 +140,7 @@ void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start
     return;
   }
 
-  m_context.setCurrentVertexBuffer(this);
+  m_context.setVertexBuffer(this);
 
   const size_t size = m_format.size();
   glBufferSubData(GL_ARRAY_BUFFER, start * size, sourceCount * size, source);
@@ -158,7 +158,7 @@ void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
     return;
   }
 
-  m_context.setCurrentVertexBuffer(this);
+  m_context.setVertexBuffer(this);
 
   const size_t size = m_format.size();
   glGetBufferSubData(GL_ARRAY_BUFFER, start * size, targetCount * size, target);
@@ -196,7 +196,7 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, BufferUsage us
 
   glGenBuffers(1, &m_bufferID);
 
-  m_context.setCurrentVertexBuffer(this);
+  m_context.setVertexBuffer(this);
 
   glBufferData(GL_ARRAY_BUFFER,
                m_count * m_format.size(),
@@ -204,9 +204,9 @@ bool VertexBuffer::init(const VertexFormat& format, size_t count, BufferUsage us
                convertToGL(m_usage));
 
   if (!checkGL("Error during creation of vertex buffer of format %s",
-               m_format.asString().c_str()))
+               stringCast(m_format).c_str()))
   {
-    m_context.setCurrentVertexBuffer(nullptr);
+    m_context.setVertexBuffer(nullptr);
     return false;
   }
 
@@ -233,7 +233,7 @@ void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
     return;
   }
 
-  m_context.setCurrentIndexBuffer(this);
+  m_context.setIndexBuffer(this);
 
   const size_t size = typeSize(m_type);
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, start * size, sourceCount * size, source);
@@ -251,7 +251,7 @@ void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
     return;
   }
 
-  m_context.setCurrentIndexBuffer(this);
+  m_context.setIndexBuffer(this);
 
   const size_t size = typeSize(m_type);
   glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, start * size, targetCount * size, target);
@@ -310,7 +310,7 @@ bool IndexBuffer::init(size_t count, IndexBufferType type, BufferUsage usage)
 
   glGenBuffers(1, &m_bufferID);
 
-  m_context.setCurrentIndexBuffer(this);
+  m_context.setIndexBuffer(this);
 
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                m_count * typeSize(m_type),
@@ -320,7 +320,7 @@ bool IndexBuffer::init(size_t count, IndexBufferType type, BufferUsage usage)
   if (!checkGL("Error during creation of index buffer of element size %u",
                (uint) typeSize(m_type)))
   {
-    m_context.setCurrentIndexBuffer(nullptr);
+    m_context.setIndexBuffer(nullptr);
     return false;
   }
 
@@ -527,7 +527,7 @@ Ref<Image> Framebuffer::data() const
   if (!image)
     return nullptr;
 
-  Framebuffer& previous = m_context.currentFramebuffer();
+  Framebuffer& previous = m_context.framebuffer();
   apply();
 
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -548,7 +548,7 @@ void Framebuffer::setSRGB(bool enabled)
   if (m_sRGB == enabled)
     return;
 
-  Framebuffer& previous = m_context.currentFramebuffer();
+  Framebuffer& previous = m_context.framebuffer();
   apply();
 
   if (enabled)
@@ -573,12 +573,18 @@ Framebuffer::Framebuffer(RenderContext& context):
 {
 }
 
-DefaultFramebuffer::DefaultFramebuffer(RenderContext& context):
-  Framebuffer(context)
+WindowFramebuffer::WindowFramebuffer(RenderContext& context):
+  Framebuffer(context),
+  m_colorBits(getInteger(GL_RED_BITS) +
+              getInteger(GL_GREEN_BITS) +
+              getInteger(GL_BLUE_BITS)),
+  m_depthBits(getInteger(GL_DEPTH_BITS)),
+  m_stencilBits(getInteger(GL_STENCIL_BITS)),
+  m_samples(getInteger(GL_SAMPLES))
 {
 }
 
-void DefaultFramebuffer::apply() const
+void WindowFramebuffer::apply() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -587,12 +593,12 @@ void DefaultFramebuffer::apply() const
 #endif
 }
 
-uint DefaultFramebuffer::width() const
+uint WindowFramebuffer::width() const
 {
   return context().window().width();
 }
 
-uint DefaultFramebuffer::height() const
+uint WindowFramebuffer::height() const
 {
   return context().window().height();
 }
@@ -677,7 +683,7 @@ bool TextureFramebuffer::setBuffer(Attachment attachment, Texture* newTexture,
     }
   }
 
-  Framebuffer& previous = m_context.currentFramebuffer();
+  Framebuffer& previous = m_context.framebuffer();
   apply();
 
   if (m_textures[attachment])

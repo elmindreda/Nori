@@ -177,24 +177,22 @@ uint TextureData::dimensionCount() const
   return 1;
 }
 
-TextureParams::TextureParams(TextureType initType,
-                             uint initFlags,
-                             FilterMode initFilterMode,
-                             AddressMode initAddressMode,
-                             float initMaxAnisotropy):
-  type(initType),
-  flags(initFlags),
-  filterMode(initFilterMode),
-  addressMode(initAddressMode),
-  maxAnisotropy(initMaxAnisotropy)
+TextureParams::TextureParams(TextureType type,
+                             uint flags,
+                             FilterMode filterMode,
+                             AddressMode addressMode,
+                             float maxAnisotropy):
+  type(type),
+  flags(flags),
+  filterMode(filterMode),
+  addressMode(addressMode),
+  maxAnisotropy(maxAnisotropy)
 {
-  if (type == TEXTURE_RECT)
-    flags &= ~TF_MIPMAPPED;
 }
 
-TextureImage::TextureImage(uint initLevel, CubeFace initFace):
-  level(initLevel),
-  face(initFace)
+TextureImage::TextureImage(uint level, CubeFace face):
+  level(level),
+  face(face)
 {
 }
 
@@ -227,7 +225,7 @@ bool Texture::copyFrom(const TextureImage& image,
       return false;
     }
 
-    m_context.setCurrentTexture(this);
+    m_context.setTexture(this);
 
     glTexSubImage1D(convertToGL(m_params.type),
                     image.level,
@@ -239,7 +237,7 @@ bool Texture::copyFrom(const TextureImage& image,
   }
   else if (is3D())
   {
-    m_context.setCurrentTexture(this);
+    m_context.setTexture(this);
 
     glTexSubImage3D(convertToGL(m_params.type),
                     image.level,
@@ -257,7 +255,7 @@ bool Texture::copyFrom(const TextureImage& image,
       return false;
     }
 
-    m_context.setCurrentTexture(this);
+    m_context.setTexture(this);
 
     glTexSubImage2D(convertToGL(m_params.type, image.face),
                     image.level,
@@ -310,9 +308,7 @@ bool Texture::isCube() const
 
 bool Texture::isPOT() const
 {
-  return isPowerOfTwo(width(0)) &&
-         isPowerOfTwo(height(0)) &&
-         isPowerOfTwo(depth(0));
+  return isPowerOfTwo(m_width) && isPowerOfTwo(m_height) && isPowerOfTwo(m_depth);
 }
 
 uint Texture::width(uint level) const
@@ -344,7 +340,7 @@ Ref<Image> Texture::data(const TextureImage& image)
                                     height(image.level),
                                     depth(image.level));
 
-  m_context.setCurrentTexture(this);
+  m_context.setTexture(this);
 
   glGetTexImage(convertToGL(m_params.type, image.face),
                 image.level,
@@ -442,7 +438,7 @@ bool Texture::init(const TextureData& data)
   {
     logError("Source image for texture %s has unsupported pixel format %s",
              name().c_str(),
-             m_format.asString().c_str());
+             stringCast(m_format).c_str());
     return false;
   }
 
@@ -510,7 +506,7 @@ bool Texture::init(const TextureData& data)
   if (m_context.debug())
     glObjectLabel(GL_TEXTURE, m_textureID, name().length(), name().c_str());
 
-  m_context.setCurrentTexture(this);
+  m_context.setTexture(this);
 
   if (m_params.type == TEXTURE_1D)
   {
@@ -630,7 +626,7 @@ bool Texture::init(const TextureData& data)
 
   if (!checkGL("OpenGL error during creation of texture %s format %s",
                name().c_str(),
-               m_format.asString().c_str()))
+               stringCast(m_format).c_str()))
   {
     return false;
   }

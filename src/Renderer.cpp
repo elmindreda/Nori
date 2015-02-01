@@ -45,7 +45,7 @@ void Renderer::render(const RenderQueue& queue, const Camera& camera)
 {
   ProfileNodeCall call("Renderer::render");
 
-  m_context.setCurrentSharedProgramState(m_state);
+  m_context.setSharedProgramState(m_state);
 
   const Recti& viewportArea = m_context.viewportArea();
   m_state->setViewportSize(float(viewportArea.size.x),
@@ -66,7 +66,7 @@ void Renderer::render(const RenderQueue& queue, const Camera& camera)
   renderOperations(queue.opaqueBucket());
   renderOperations(queue.blendedBucket());
 
-  m_context.setCurrentSharedProgramState(nullptr);
+  m_context.setSharedProgramState(nullptr);
 }
 
 void Renderer::setSharedProgramState(SharedProgramState* newState)

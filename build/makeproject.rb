@@ -150,7 +150,7 @@ bool #{@type}::init()
     return false;
   }
 
-  m_audioContext.reset(AudioContext::create(m_cache));
+  m_audioContext = AudioContext::create(m_cache);
   if (!m_audioContext)
   {
     logError("Failed to create audio context");
@@ -160,7 +160,7 @@ bool #{@type}::init()
   WindowConfig wc("#{@name.capitalize}");
   RenderConfig rc;
 
-  m_renderContext.reset(RenderContext::create(m_cache, wc, rc));
+  m_renderContext = RenderContext::create(m_cache, wc, rc);
   if (!m_renderContext)
   {
     logError("Failed to create render context");

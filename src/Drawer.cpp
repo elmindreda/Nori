@@ -208,11 +208,11 @@ Ref<Theme> ThemeReader::read(const std::string& name, const Path& path)
 
 void Drawer::begin()
 {
-  Framebuffer& framebuffer = m_context.currentFramebuffer();
+  Framebuffer& framebuffer = m_context.framebuffer();
   const uint width = framebuffer.width();
   const uint height = framebuffer.height();
 
-  m_context.setCurrentSharedProgramState(m_state);
+  m_context.setSharedProgramState(m_state);
   m_context.setViewportArea(Recti(0, 0, width, height));
   m_context.setScissorArea(Recti(0, 0, width, height));
 
@@ -221,7 +221,7 @@ void Drawer::begin()
 
 void Drawer::end()
 {
-  m_context.setCurrentSharedProgramState(nullptr);
+  m_context.setSharedProgramState(nullptr);
 }
 
 bool Drawer::pushClipArea(const Rect& area)
@@ -339,7 +339,7 @@ void Drawer::blitTexture(const Rect& area, Texture& texture, vec4 color)
     m_blitPass.setBlendFactors(BLEND_ONE, BLEND_ZERO);
 
   m_blitPass.setUniformState("color", color);
-  m_blitPass.setSamplerState("image", &texture);
+  m_blitPass.setUniformTexture("image", &texture);
   m_blitPass.apply();
 
   m_context.render(PrimitiveRange(TRIANGLE_FAN, range));
@@ -597,7 +597,7 @@ bool Drawer::init()
     interface.addUniform("elementSize", UNIFORM_VEC2);
     interface.addUniform("texPos", UNIFORM_VEC2);
     interface.addUniform("texSize", UNIFORM_VEC2);
-    interface.addSampler("image", SAMPLER_RECT);
+    interface.addUniform("image", UNIFORM_SAMPLER_RECT);
     interface.addAttributes(ElementVertex::format);
 
     if (!interface.matches(*program, true))
@@ -610,7 +610,7 @@ bool Drawer::init()
     m_elementPass.setProgram(program);
     m_elementPass.setDepthTesting(false);
     m_elementPass.setDepthWriting(false);
-    m_elementPass.setSamplerState("image", m_theme->m_texture);
+    m_elementPass.setUniformTexture("image", m_theme->m_texture);
     m_elementPass.setBlendFactors(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
     m_elementPass.setMultisampling(false);
 
@@ -661,7 +661,7 @@ bool Drawer::init()
     }
 
     ProgramInterface interface;
-    interface.addSampler("image", SAMPLER_2D);
+    interface.addUniform("image", UNIFORM_SAMPLER_2D);
     interface.addUniform("color", UNIFORM_VEC4);
     interface.addAttributes(Vertex2ft2fv::format);
 

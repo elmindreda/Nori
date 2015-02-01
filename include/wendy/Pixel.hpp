@@ -95,7 +95,6 @@ public:
   uint channelCount() const;
   /*! @return A string representation of this pixel format.
    */
-  std::string asString() const;
   static const PixelFormat L8;
   static const PixelFormat L16;
   static const PixelFormat L16F;
@@ -121,6 +120,10 @@ private:
   Semantic m_semantic;
   Type m_type;
 };
+
+const char* stringCast(PixelFormat::Semantic semantic);
+const char* stringCast(PixelFormat::Type type);
+std::string stringCast(PixelFormat format);
 
 /*! @brief Pixel transform interface.
  */

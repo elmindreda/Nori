@@ -36,11 +36,14 @@ namespace wendy
 namespace
 {
 
-bool samplerTypeMatchesTextureType(SamplerType samplerType,
-                                   TextureType textureType)
+const size_t uniformTypeSizes[] =
 {
-  return (int) samplerType == (int) textureType;
-}
+  sizeof(Texture*), sizeof(Texture*), sizeof(Texture*),
+  sizeof(Texture*), sizeof(Texture*),
+  sizeof(int), sizeof(uint), sizeof(float),
+  sizeof(vec2), sizeof(vec3), sizeof(vec4),
+  sizeof(mat2), sizeof(mat3), sizeof(mat4)
+};
 
 IDPool<PassID> passIDs;
 
@@ -58,80 +61,96 @@ UniformStateIndex::UniformStateIndex(uint16 initIndex, uint16 initOffset):
 {
 }
 
-SamplerStateIndex::SamplerStateIndex():
-  index(0xffff),
-  unit(0xffff)
-{
-}
-
-SamplerStateIndex::SamplerStateIndex(uint16 initIndex, uint16 initUnit):
-  index(initIndex),
-  unit(initUnit)
-{
-}
-
 Pass::Pass():
-  m_ID(passIDs.allocateID())
+  m_id(passIDs.allocateID())
 {
 }
 
 Pass::Pass(const Pass& source):
-  m_ID(passIDs.allocateID()),
-  m_program(source.m_program),
-  m_floats(source.m_floats),
-  m_textures(source.m_textures)
+  m_id(passIDs.allocateID())
 {
+  operator = (source);
 }
 
 Pass::~Pass()
 {
-  passIDs.releaseID(m_ID);
+  setProgram(nullptr);
+  passIDs.releaseID(m_id);
 }
 
 void Pass::apply() const
 {
-  if (!m_program)
-  {
-    logError("Applying program state with no program set");
-    return;
-  }
+  assert(m_program);
 
   RenderContext& context = m_program->context();
-  context.setCurrentProgram(m_program);
-  context.setCurrentRenderState(m_state);
+  context.setProgram(m_program);
+  context.setRenderState(m_state);
 
-  SharedProgramState* state = context.currentSharedProgramState();
-  assert(state != nullptr);
+  SharedProgramState* state = context.sharedProgramState();
+  assert(state);
 
-  uint textureIndex = 0, textureUnit = 0;
-
-  for (Sampler& sampler : m_program->m_samplers)
-  {
-    context.setActiveTextureUnit(textureUnit);
-
-    if (sampler.isShared())
-      state->updateTo(sampler);
-    else
-    {
-      context.setCurrentTexture(m_textures[textureIndex]);
-      textureIndex++;
-    }
-
-    textureUnit++;
-  }
-
+  uint textureUnit = 0;
   size_t offset = 0;
 
   for (Uniform& uniform : m_program->m_uniforms)
   {
-    if (uniform.isShared())
-      state->updateTo(uniform);
+    if (uniform.isSampler())
+    {
+      context.setTextureUnit(textureUnit);
+      textureUnit++;
+
+      if (uniform.isShared())
+        state->updateTo(uniform);
+      else
+      {
+        context.setTexture(*(Ref<Texture>*)(&m_uniformState[offset]));
+        offset += uniformTypeSizes[uniform.type()];
+      }
+    }
     else
     {
-      uniform.copyFrom(&m_floats[0] + offset);
-      offset += uniform.elementCount();
+      if (uniform.isShared())
+        state->updateTo(uniform);
+      else
+      {
+        uniform.copyFrom(&m_uniformState[offset]);
+        offset += uniformTypeSizes[uniform.type()];
+      }
     }
   }
+}
+
+Pass& Pass::operator = (const Pass& source)
+{
+  setProgram(source.m_program);
+  m_state = source.m_state;
+
+  if (m_program)
+  {
+    size_t offset = 0;
+
+    for (const Uniform& uniform : m_program->m_uniforms)
+    {
+      if (uniform.isShared())
+        continue;
+
+      if (uniform.isSampler())
+      {
+        *(Ref<Texture>*)(&m_uniformState[offset]) =
+          *(Ref<Texture>*)(&source.m_uniformState[offset]);
+      }
+      else
+      {
+        std::memcpy(&m_uniformState[offset],
+                    &source.m_uniformState[offset],
+                    uniformTypeSizes[uniform.type()]);
+      }
+
+      offset += uniformTypeSizes[uniform.type()];
+    }
+  }
+
+  return *this;
 }
 
 bool Pass::isCulling() const
@@ -177,30 +196,6 @@ bool Pass::isLineSmoothing() const
 bool Pass::isMultisampling() const
 {
   return m_state.multisampling;
-}
-
-bool Pass::hasUniformState(const char* name) const
-{
-  if (!m_program)
-    return false;
-
-  Uniform* uniform = m_program->findUniform(name);
-  if (!uniform)
-    return false;
-
-  return !uniform->isShared();
-}
-
-bool Pass::hasSamplerState(const char* name) const
-{
-  if (!m_program)
-    return false;
-
-  Sampler* sampler = m_program->findSampler(name);
-  if (!sampler)
-    return false;
-
-  return !sampler->isShared();
 }
 
 float Pass::lineWidth() const
@@ -404,101 +399,39 @@ void Pass::setLineWidth(float newWidth)
   m_state.lineWidth = newWidth;
 }
 
-Texture* Pass::samplerState(const char* name) const
+bool Pass::hasUniformState(const char* name) const
 {
   if (!m_program)
-  {
-    logError("Cannot retrieve sampler state on program state with no program");
-    return nullptr;
-  }
+    return false;
 
-  uint textureIndex = 0;
+  Uniform* uniform = m_program->findUniform(name);
+  if (!uniform)
+    return false;
 
-  for (const Sampler& sampler : m_program->m_samplers)
-  {
-    if (sampler.isShared())
-      continue;
-
-    if (sampler.name() == name)
-      return m_textures[textureIndex];
-
-    textureIndex++;
-  }
-
-  logError("Program %s has no sampler named %s",
-           m_program->name().c_str(),
-           name);
-  return nullptr;
+  return !uniform->isShared();
 }
 
-Texture* Pass::samplerState(SamplerStateIndex index) const
+Texture* Pass::uniformTexture(const char* name) const
 {
-  if (!m_program)
-  {
-    logError("Cannot retrieve sampler state on program state with no program");
-    return nullptr;
-  }
-
-  return m_textures[index.unit];
+  return uniformTexture(uniformStateIndex(name));
 }
 
-void Pass::setSamplerState(const char* name, Texture* newTexture)
+Texture* Pass::uniformTexture(UniformStateIndex index) const
 {
-  if (!m_program)
-  {
-    logError("Cannot set sampler state on program state with no program");
-    return;
-  }
-
-  uint textureIndex = 0;
-
-  for (const Sampler& sampler : m_program->m_samplers)
-  {
-    if (sampler.isShared())
-      continue;
-
-    if (sampler.name() == name)
-    {
-      if (newTexture)
-      {
-        if (samplerTypeMatchesTextureType(sampler.type(), newTexture->type()))
-          m_textures[textureIndex] = newTexture;
-        else
-          logError("Type mismatch between sampler %s and texture %s",
-                   sampler.name().c_str(),
-                   newTexture->name().c_str());
-      }
-      else
-        m_textures[textureIndex] = nullptr;
-
-      return;
-    }
-
-    textureIndex++;
-  }
+  assert(m_program);
+  return *(Ref<Texture>*)(&m_uniformState[index.offset]);
 }
 
-void Pass::setSamplerState(SamplerStateIndex index, Texture* newTexture)
+void Pass::setUniformTexture(const char* name, Texture* texture)
 {
-  if (!m_program)
-  {
-    logError("Cannot set sampler state on program state with no program");
-    return;
-  }
+  setUniformTexture(uniformStateIndex(name), texture);
+}
 
-  Sampler& sampler = m_program->sampler(index.index);
-
-  if (newTexture)
-  {
-    if (samplerTypeMatchesTextureType(sampler.type(), newTexture->type()))
-      m_textures[index.unit] = newTexture;
-    else
-      logError("Type mismatch between sampler %s and texture %s",
-                sampler.name().c_str(),
-                newTexture->name().c_str());
-  }
-  else
-    m_textures[index.unit] = nullptr;
+void Pass::setUniformTexture(UniformStateIndex index, Texture* texture)
+{
+  assert(m_program);
+  assert(m_program->uniform(index.index).type() == UniformType(texture->type()));
+  *(Ref<Texture>*)(&m_uniformState[index.offset]) = texture;
 }
 
 UniformStateIndex Pass::uniformStateIndex(const char* name) const
@@ -509,16 +442,16 @@ UniformStateIndex Pass::uniformStateIndex(const char* name) const
     return UniformStateIndex();
   }
 
-  uint index = 0, offset = 0;
+  size_t index = 0, offset = 0;
 
   for (const Uniform& uniform : m_program->m_uniforms)
   {
     if (!uniform.isShared())
     {
       if (uniform.name() == name)
-        return UniformStateIndex(index, offset);
+        return UniformStateIndex(uint16(index), uint16(offset));
 
-      offset += uniform.elementCount();
+      offset += uniformTypeSizes[uniform.type()];
     }
 
     index++;
@@ -527,229 +460,76 @@ UniformStateIndex Pass::uniformStateIndex(const char* name) const
   return UniformStateIndex();
 }
 
-SamplerStateIndex Pass::samplerStateIndex(const char* name) const
+void Pass::setProgram(Program* program)
 {
-  if (!m_program)
+  if (m_program)
   {
-    logError("Cannot retrieve sampler state indices with no program");
-    return SamplerStateIndex();
+    size_t offset = 0;
+
+    for (const Uniform& uniform : m_program->m_uniforms)
+    {
+      if (uniform.isShared())
+        continue;
+      if (uniform.isSampler())
+        *(Ref<Texture>*)(&m_uniformState[offset]) = nullptr;
+
+      offset += uniformTypeSizes[uniform.type()];
+    }
   }
 
-  uint index = 0, textureIndex = 0;
+  m_uniformState.clear();
+  m_program = program;
 
-  for (const Sampler& sampler : m_program->m_samplers)
+  if (m_program)
   {
-    if (!sampler.isShared())
-    {
-      if (sampler.name() == name)
-        return SamplerStateIndex(index, textureIndex);
+    size_t totalUniformSize = 0;
 
-      textureIndex++;
+    for (const Uniform& uniform : m_program->m_uniforms)
+    {
+      if (uniform.isShared())
+        continue;
+
+      totalUniformSize += uniformTypeSizes[uniform.type()];
     }
 
-    index++;
+    m_uniformState.insert(m_uniformState.end(), totalUniformSize, 0);
   }
-
-  return SamplerStateIndex();
-}
-
-void Pass::setProgram(Program* newProgram)
-{
-  m_floats.clear();
-  m_textures.clear();
-
-  m_program = newProgram;
-  if (!m_program)
-    return;
-
-  uint floatCount = 0;
-  uint textureCount = 0;
-
-  for (const Uniform& uniform : m_program->m_uniforms)
-  {
-    if (!uniform.isShared())
-      floatCount += uniform.elementCount();
-  }
-
-  for (const Sampler& sampler : m_program->m_samplers)
-  {
-    if (!sampler.isShared())
-      textureCount++;
-  }
-
-  m_floats.insert(m_floats.end(), floatCount, 0.f);
-  m_textures.resize(textureCount);
-}
-
-void* Pass::data(const char* name, UniformType type)
-{
-  if (!m_program)
-  {
-    logError("Cannot set uniform state on program state with no program");
-    return nullptr;
-  }
-
-  uint offset = 0;
-
-  for (const Uniform& uniform : m_program->m_uniforms)
-  {
-    if (uniform.isShared())
-      continue;
-
-    if (uniform.name() == name)
-    {
-      if (uniform.type() == type)
-        return &m_floats[0] + offset;
-
-      logError("Uniform %s of program %s is not of type %s",
-               uniform.name().c_str(),
-               m_program->name().c_str(),
-               Uniform::typeName(type));
-      return nullptr;
-    }
-
-    offset += uniform.elementCount();
-  }
-
-  logError("Program %s has no uniform named %s",
-           m_program->name().c_str(),
-           name);
-  return nullptr;
-}
-
-const void* Pass::data(const char* name, UniformType type) const
-{
-  if (!m_program)
-  {
-    logError("Cannot set uniform state on program state with no program");
-    return nullptr;
-  }
-
-  uint offset = 0;
-
-  for (const Uniform& uniform : m_program->m_uniforms)
-  {
-    if (uniform.isShared())
-      continue;
-
-    if (uniform.name() == name)
-    {
-      if (uniform.type() == type)
-        return &m_floats[0] + offset;
-
-      logError("Uniform %s of program %s is not of type %s",
-               uniform.name().c_str(),
-               m_program->name().c_str(),
-               Uniform::typeName(type));
-      return nullptr;
-    }
-
-    offset += uniform.elementCount();
-  }
-
-  logError("Program %s has no uniform named %s",
-           m_program->name().c_str(),
-           name);
-  return nullptr;
 }
 
 void* Pass::data(UniformStateIndex index, UniformType type)
 {
-  if (!m_program)
-  {
-    logError("Cannot set uniform state on program state with no program");
-    return nullptr;
-  }
+  assert(m_program);
+  assert(m_program->uniform(index.index).type() == type);
 
-  Uniform& uniform = m_program->uniform(index.index);
-
-  if (uniform.type() != type)
-  {
-    logError("Uniform %u of program %s is not of type %s",
-             index.index,
-             m_program->name().c_str(),
-             Uniform::typeName(type));
-    return nullptr;
-  }
-
-  return &m_floats[0] + index.offset;
+  return &m_uniformState[index.offset];
 }
 
 const void* Pass::data(UniformStateIndex index, UniformType type) const
 {
-  if (!m_program)
-  {
-    logError("Cannot set uniform state on program state with no program");
-    return nullptr;
-  }
+  assert(m_program);
+  assert(m_program->uniform(index.index).type() == type);
 
-  Uniform& uniform = m_program->uniform(index.index);
-
-  if (uniform.type() != type)
-  {
-    logError("Uniform %u of program %s is not of type %s",
-             index.index,
-             m_program->name().c_str(),
-             Uniform::typeName(type));
-    return nullptr;
-  }
-
-  return &m_floats[0] + index.offset;
+  return &m_uniformState[index.offset];
 }
 
 template <>
-UniformType Pass::uniformType<int>()
-{
-  return UNIFORM_INT;
-}
-
+UniformType Pass::uniformType<int>() { return UNIFORM_INT; }
 template <>
-UniformType Pass::uniformType<uint>()
-{
-  return UNIFORM_UINT;
-}
-
+UniformType Pass::uniformType<uint>() { return UNIFORM_UINT; }
 template <>
-UniformType Pass::uniformType<float>()
-{
-  return UNIFORM_FLOAT;
-}
-
+UniformType Pass::uniformType<float>() { return UNIFORM_FLOAT; }
 template <>
-UniformType Pass::uniformType<vec2>()
-{
-  return UNIFORM_VEC2;
-}
-
+UniformType Pass::uniformType<vec2>() { return UNIFORM_VEC2; }
 template <>
-UniformType Pass::uniformType<vec3>()
-{
-  return UNIFORM_VEC3;
-}
-
+UniformType Pass::uniformType<vec3>() { return UNIFORM_VEC3; }
 template <>
-UniformType Pass::uniformType<vec4>()
-{
-  return UNIFORM_VEC4;
-}
-
+UniformType Pass::uniformType<vec4>() { return UNIFORM_VEC4; }
 template <>
-UniformType Pass::uniformType<mat2>()
-{
-  return UNIFORM_MAT2;
-}
-
+UniformType Pass::uniformType<mat2>() { return UNIFORM_MAT2; }
 template <>
-UniformType Pass::uniformType<mat3>()
-{
-  return UNIFORM_MAT3;
-}
-
+UniformType Pass::uniformType<mat3>() { return UNIFORM_MAT3; }
 template <>
-UniformType Pass::uniformType<mat4>()
-{
-  return UNIFORM_MAT4;
-}
+UniformType Pass::uniformType<mat4>() { return UNIFORM_MAT4; }
 
 } /*namespace wendy*/
 

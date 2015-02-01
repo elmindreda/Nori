@@ -139,56 +139,49 @@ uint PixelFormat::channelCount() const
   }
 }
 
-std::string PixelFormat::asString() const
+const char* stringCast(PixelFormat::Semantic semantic)
 {
-  std::ostringstream result;
-
-  switch (m_semantic)
+  switch (semantic)
   {
-    case L:
-      result << "l";
-      break;
-    case LA:
-      result << "la";
-      break;
-    case RGB:
-      result << "rgb";
-      break;
-    case RGBA:
-      result << "rgba";
-      break;
-    case DEPTH:
-      result << "depth";
-      break;
+    case PixelFormat::L:
+      return "l";
+    case PixelFormat::LA:
+      return "la";
+    case PixelFormat::RGB:
+      return "rgb";
+    case PixelFormat::RGBA:
+      return "rgba";
+    case PixelFormat::DEPTH:
+      return "depth";
     default:
-      panic("Invalid pixel format semantic %i", m_semantic);
+      panic("Invalid pixel format semantic %i", semantic);
   }
+}
 
-  switch (m_type)
+const char* stringCast(PixelFormat::Type type)
+{
+  switch (type)
   {
-    case UINT8:
-      result << "8";
-      break;
-    case UINT16:
-      result << "16";
-      break;
-    case UINT24:
-      result << "24";
-      break;
-    case UINT32:
-      result << "32";
-      break;
-    case FLOAT16:
-      result << "16f";
-      break;
-    case FLOAT32:
-      result << "32f";
-      break;
+    case PixelFormat::UINT8:
+      return "8";
+    case PixelFormat::UINT16:
+      return "16";
+    case PixelFormat::UINT24:
+      return "24";
+    case PixelFormat::UINT32:
+      return "32";
+    case PixelFormat::FLOAT16:
+      return "16f";
+    case PixelFormat::FLOAT32:
+      return "32f";
     default:
-      panic("Invalid pixel format type %i", m_type);
+      panic("Invalid pixel format type %i", type);
   }
+}
 
-  return result.str();
+std::string stringCast(PixelFormat format)
+{
+  return std::string(stringCast(format.semantic())) + stringCast(format.type());
 }
 
 const PixelFormat PixelFormat::L8(PixelFormat::L, PixelFormat::UINT8);

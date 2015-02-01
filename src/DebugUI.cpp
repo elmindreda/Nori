@@ -137,7 +137,7 @@ void Interface::draw()
 {
   RenderContext& context = drawer().context();
 
-  Framebuffer& framebuffer = context.currentFramebuffer();
+  Framebuffer& framebuffer = context.framebuffer();
   root->setSize(vec2(150.f, float(framebuffer.height())));
 
   RenderStats* previous = context.stats();

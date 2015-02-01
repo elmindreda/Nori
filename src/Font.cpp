@@ -236,7 +236,7 @@ bool Font::init(Face& face, uint height)
     }
 
     ProgramInterface interface;
-    interface.addSampler("glyphs", SAMPLER_RECT);
+    interface.addUniform("glyphs", UNIFORM_SAMPLER_RECT);
     interface.addUniform("color", UNIFORM_VEC4);
     interface.addAttributes(Vertex2ft2fv::format);
 
@@ -351,7 +351,7 @@ bool Font::addGlyphTextureRow()
   if (glyphs)
     m_texture->copyFrom(0, *glyphs);
 
-  m_pass.setSamplerState("glyphs", m_texture);
+  m_pass.setUniformTexture("glyphs", m_texture);
   return true;
 }
 

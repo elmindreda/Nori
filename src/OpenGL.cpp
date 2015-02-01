@@ -297,7 +297,7 @@ GLenum convertToGL(const PixelFormat& format, bool sRGB)
   }
 
   logError("No OpenGL equivalent for pixel format %s",
-           format.asString().c_str());
+           stringCast(format).c_str());
   return 0;
 }
 
@@ -341,23 +341,23 @@ GLfloat getFloat(GLenum token)
   return value;
 }
 
-Preprocessor::Preprocessor(ResourceCache& initCache):
-  cache(initCache)
+Preprocessor::Preprocessor(ResourceCache& cache):
+  m_cache(cache)
 {
 }
 
 void Preprocessor::parse(const char* name)
 {
-  const Path path = cache.findFile(name);
+  const Path path = m_cache.findFile(name);
   if (path.isEmpty())
   {
-    if (files.empty())
+    if (m_files.empty())
       logError("Failed to find shader %s", name);
     else
     {
       logError("%s:%u: Failed to find shader %s",
-               files.back().name,
-               files.back().line,
+               m_files.back().name,
+               m_files.back().line,
                name);
     }
 
@@ -367,20 +367,20 @@ void Preprocessor::parse(const char* name)
   std::ifstream stream(path.name());
   if (stream.fail())
   {
-    if (files.empty())
+    if (m_files.empty())
       logError("Failed to open shader file %s", path.name().c_str());
     else
     {
       logError("%s:%u: Failed to open shader file %s",
-               files.back().name,
-               files.back().line,
+               m_files.back().name,
+               m_files.back().line,
                path.name().c_str());
     }
 
     throw Exception("Failed to open shader file");
   }
 
-  paths.push_back(path);
+  m_paths.push_back(path);
 
   std::string text;
 
@@ -395,18 +395,18 @@ void Preprocessor::parse(const char* name)
 
 void Preprocessor::parse(const char* name, const char* text)
 {
-  if (std::find(names.begin(), names.end(), name) != names.end())
+  if (std::find(m_names.begin(), m_names.end(), name) != m_names.end())
     return;
 
-  files.push_back(File(name, text));
-  names.push_back(name);
+  m_files.push_back(File(name, text));
+  m_names.push_back(name);
 
-  list += format("( file %u: %s )\n", (uint) names.size(), name);
+  m_list += format("( file %u: %s )\n", (uint) m_names.size(), name);
 
-  output.reserve(output.size() + std::strlen(text));
+  m_output.reserve(m_output.size() + std::strlen(text));
   appendToOutput(format("#line 0 %u /* entering %s */\n",
-                        (uint) files.size(),
-                        files.back().name).c_str());
+                        (uint) m_files.size(),
+                        m_files.back().name).c_str());
 
   while (hasMore())
   {
@@ -428,72 +428,52 @@ void Preprocessor::parse(const char* name, const char* text)
     }
   }
 
-  files.pop_back();
+  m_files.pop_back();
 
-  if (!files.empty())
+  if (!m_files.empty())
   {
     appendToOutput(format("\n#line %u %u /* returning to %s */",
-                          files.back().line,
-                          (uint) files.size(),
-                          files.back().name).c_str());
+                          m_files.back().line,
+                          (uint) m_files.size(),
+                          m_files.back().name).c_str());
   }
-}
-
-const std::string& Preprocessor::getOutput() const
-{
-  return output;
 }
 
 bool Preprocessor::hasVersion() const
 {
-  return !version.empty();
-}
-
-const std::string& Preprocessor::getVersion() const
-{
-  return version;
-}
-
-const std::string& Preprocessor::getNameList() const
-{
-  return list;
-}
-
-const std::vector<Path>& Preprocessor::getPaths() const
-{
-  return paths;
+  return !m_version.empty();
 }
 
 void Preprocessor::addLine()
 {
-  files.back().line++;
+  m_files.back().line++;
 }
 
 void Preprocessor::advance(size_t count)
 {
-  files.back().pos += count;
+  m_files.back().pos += count;
 }
 
 void Preprocessor::discard()
 {
-  files.back().base = files.back().pos;
+  m_files.back().base = m_files.back().pos;
 }
 
 void Preprocessor::appendToOutput()
 {
-  File& file = files.back();
-  output.append(file.base, file.pos);
+  File& file = m_files.back();
+  m_output.append(file.base, file.pos);
   file.base = file.pos;
 }
 
 void Preprocessor::appendToOutput(const char* text)
 {
-  output.append(text);
+  m_output.append(text);
 }
 
 char Preprocessor::c(ptrdiff_t offset) const
 {
-  return files.back().pos[offset];
+  return m_files.back().pos[offset];
 }
 
 void Preprocessor::passWhitespace()
@@ -546,8 +526,8 @@ void Preprocessor::parseMultiLineComment()
     if (!hasMore())
     {
       logError("%s:%u: Unexpected end of file in multi-line comment",
-               files.back().name,
-               files.back().line);
+               m_files.back().name,
+               m_files.back().line);
 
       throw Exception("Unexpected end of file in multi-line comment");
     }
@@ -570,7 +550,7 @@ std::string Preprocessor::passNumber()
 {
   if (!isNumeric())
   {
-    logError("%s:%u: Expected number", files.back().name, files.back().line);
+    logError("%s:%u: Expected number", m_files.back().name, m_files.back().line);
 
     throw Exception("Expected number");
   }
@@ -591,8 +571,8 @@ std::string Preprocessor::passIdentifier()
   if (!isAlpha())
   {
     logError("%s:%u: Expected identifier",
-             files.back().name,
-             files.back().line);
+             m_files.back().name,
+             m_files.back().line);
 
     throw Exception("Expected identifier");
   }
@@ -618,8 +598,8 @@ std::string Preprocessor::passShaderName()
   else
   {
     logError("%s:%u: Expected < or \" after #include",
-             files.back().name,
-             files.back().line);
+             m_files.back().name,
+             m_files.back().line);
 
     throw Exception("Expected < or \" after #include");
   }
@@ -633,8 +613,8 @@ std::string Preprocessor::passShaderName()
     if (!hasMore() || isNewLine())
     {
       logError("%s:%u: Expected %c after shader name",
-               files.back().name,
-               files.back().line,
+               m_files.back().name,
+               m_files.back().line,
                terminator);
 
       throw Exception("Expected < or \" after shader name");
@@ -671,17 +651,17 @@ void Preprocessor::parseCommand()
   }
   else if (command == "version")
   {
-    if (!version.empty())
+    if (!m_version.empty())
     {
       logError("%s:%u: Duplicate #version directive",
-               files.back().name,
-               files.back().line);
+               m_files.back().name,
+               m_files.back().line);
 
       throw Exception("Duplicate #version directive");
     }
 
     passWhitespace();
-    version = passNumber();
+    m_version = passNumber();
     discard();
   }
 
@@ -743,12 +723,12 @@ bool Preprocessor::isAlphaNumeric() const
 
 bool Preprocessor::isFirstOnLine() const
 {
-  return files.back().first;
+  return m_files.back().first;
 }
 
 void Preprocessor::setFirstOnLine(bool newState)
 {
-  files.back().first = newState;
+  m_files.back().first = newState;
 }
 
 Preprocessor::File::File(const char* name, const char* text):

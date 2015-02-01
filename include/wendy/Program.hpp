@@ -110,65 +110,21 @@ public:
   /*! @return The number of elements in this attribute.
    */
   uint elementCount() const;
-  /*! @return The GLSL name of the specified attribute type.
-   */
-  static const char* typeName(AttributeType type);
 private:
   AttributeType m_type;
   std::string m_name;
   int m_location;
 };
 
-/*! @brief %Sampler uniform type enumeration.
- */
-enum SamplerType
-{
-  SAMPLER_1D,
-  SAMPLER_2D,
-  SAMPLER_3D,
-  SAMPLER_RECT,
-  SAMPLER_CUBE
-};
-
-/*! @brief %Sampler uniform.
- */
-class Sampler
-{
-  friend class Program;
-public:
-  /*! @return @c true if the name of this sampler matches the specified string,
-   *  or @c false otherwise.
-   */
-  bool operator == (const char* string) const { return m_name == string; }
-  /*! @return @c true if this sampler is shared, or @c false otherwise.
-   *
-   *  @remarks Shared samplers get their values via the currently set shared
-   *  program state.
-   */
-  bool isShared() const { return m_sharedID != -1; }
-  /*! @return The type of this sampler.
-   */
-  SamplerType type() const { return m_type; }
-  /*! @return The name of this sampler.
-   */
-  const std::string& name() const { return m_name; }
-  /*! @return The shared ID of this sampler, or -1 if it is not shared.
-   */
-  int sharedID() const { return m_sharedID; }
-  /*! @return The GLSL name of the specified sampler type.
-   */
-  static const char* typeName(SamplerType type);
-private:
-  std::string m_name;
-  SamplerType m_type;
-  int m_location;
-  int m_sharedID;
-};
-
-/*! @brief Non-sampler uniform type enumeration.
+/*! @brief Uniform type enumeration.
  */
 enum UniformType
 {
+  UNIFORM_SAMPLER_1D,
+  UNIFORM_SAMPLER_2D,
+  UNIFORM_SAMPLER_3D,
+  UNIFORM_SAMPLER_RECT,
+  UNIFORM_SAMPLER_CUBE,
   UNIFORM_INT,
   UNIFORM_UINT,
   UNIFORM_FLOAT,
@@ -180,7 +136,7 @@ enum UniformType
   UNIFORM_MAT4
 };
 
-/*! @brief Program non-sampler uniform.
+/*! @brief Program uniform.
  */
 class Uniform
 {
@@ -212,6 +168,9 @@ public:
   /*! @return @c true if the type of this uniform is a matrix.
    */
   bool isMatrix() const;
+  /*! @return @c true if the type of this uniform is a sampler.
+   */
+  bool isSampler() const;
   /*! @return The type of this uniform.
    */
   UniformType type() const { return m_type; }
@@ -224,15 +183,15 @@ public:
   /*! @return The shared ID of this uniform, or -1 if it is not shared.
    */
   int sharedID() const { return m_sharedID; }
-  /*! @return The GLSL name of the specified uniform type.
-   */
-  static const char* typeName(UniformType type);
 private:
   std::string m_name;
   UniformType m_type;
   int m_location;
   int m_sharedID;
 };
+
+const char* stringCast(AttributeType type);
+const char* stringCast(UniformType type);
 
 /*! @brief %Shader program.
  */
@@ -244,16 +203,11 @@ public:
   ~Program();
   Attribute* findAttribute(const char* name);
   const Attribute* findAttribute(const char* name) const;
-  Sampler* findSampler(const char* name);
-  const Sampler* findSampler(const char* name) const;
   Uniform* findUniform(const char* name);
   const Uniform* findUniform(const char* name) const;
   uint attributeCount() const;
   Attribute& attribute(uint index);
   const Attribute& attribute(uint index) const;
-  uint samplerCount() const;
-  Sampler& sampler(uint index);
-  const Sampler& sampler(uint index) const;
   uint uniformCount() const;
   Uniform& uniform(uint index);
   const Uniform& uniform(uint index) const;
@@ -281,7 +235,6 @@ private:
   Ref<Shader> m_fragmentShader;
   uint m_programID;
   std::vector<Attribute> m_attributes;
-  std::vector<Sampler> m_samplers;
   std::vector<Uniform> m_uniforms;
 };
 
@@ -290,26 +243,21 @@ private:
 class ProgramInterface
 {
 public:
-  /*! Adds a sampler to this interface.
-   *  @param[in] name The name of the sampler.
-   *  @param[in] type The type of the sampler.
-   */
-  void addSampler(const char* name, SamplerType type);
-  /*! Adds a sampler to this interface.
-   *  @param[in] name The name of the sampler.
-   *  @param[in] type The type of the sampler.
+  /*! Adds a uniform to this interface.
+   *  @param[in] name The name of the uniform.
+   *  @param[in] type The type of the uniform.
    */
   void addUniform(const char* name, UniformType type);
-  /*! Adds a sampler to this interface.
-   *  @param[in] name The name of the sampler.
-   *  @param[in] type The type of the sampler.
+  /*! Adds an attribute to this interface.
+   *  @param[in] name The name of the attribute.
+   *  @param[in] type The type of the attribute.
    */
   void addAttribute(const char* name, AttributeType type);
   /*! Adds attributes for all components of the specified vertex format.
    *  @param[in] format The vertex format to use.
    */
   void addAttributes(const VertexFormat& format);
-  /*! Checks whether all samplers, uniforms and attributes of this interface
+  /*! Checks whether all uniforms and attributes of this interface
    *  are exposed by the specified program and are of the correct types.
    *  @param[in] program The program to match this interface against.
    *  @param[in] verbose @c true to %log errors and warnings, or @c false for
@@ -328,7 +276,6 @@ public:
    */
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
-  std::vector<std::pair<std::string, SamplerType>> samplers;
   std::vector<std::pair<std::string, UniformType>> uniforms;
   std::vector<std::pair<std::string, AttributeType>> attributes;
 };

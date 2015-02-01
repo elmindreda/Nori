@@ -154,7 +154,7 @@ void RenderQueue::addOperation(const RenderOp& operation, float depth, uint8 lay
   }
   else
   {
-    RenderOpKey key = RenderOpKey::makeOpaqueKey(layer, operation.state->ID(), depth);
+    RenderOpKey key = RenderOpKey::makeOpaqueKey(layer, operation.state->id(), depth);
     m_opaqueBucket.addOperation(operation, key);
   }
 }

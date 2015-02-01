@@ -54,9 +54,7 @@ Bimap<std::string, FilterMode> filterModeMap;
 Bimap<std::string, AddressMode> addressModeMap;
 Bimap<std::string, RenderPhase> phaseMap;
 
-Bimap<SamplerType, TextureType> textureTypeMap;
-
-const uint MATERIAL_XML_VERSION = 11;
+const uint MATERIAL_XML_VERSION = 12;
 
 void initializeMaps()
 {
@@ -118,15 +116,6 @@ void initializeMaps()
     filterModeMap["nearest"] = FILTER_NEAREST;
     filterModeMap["bilinear"] = FILTER_BILINEAR;
     filterModeMap["trilinear"] = FILTER_TRILINEAR;
-  }
-
-  if (textureTypeMap.isEmpty())
-  {
-    textureTypeMap[SAMPLER_1D] = TEXTURE_1D;
-    textureTypeMap[SAMPLER_2D] = TEXTURE_2D;
-    textureTypeMap[SAMPLER_3D] = TEXTURE_3D;
-    textureTypeMap[SAMPLER_RECT] = TEXTURE_RECT;
-    textureTypeMap[SAMPLER_CUBE] = TEXTURE_CUBE;
   }
 
   if (phaseMap.isEmpty())
@@ -315,89 +304,6 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
     pass.setProgram(program);
 
-    for (auto s : node.children("sampler"))
-    {
-      const std::string samplerName(s.attribute("name").value());
-      if (samplerName.empty())
-      {
-        logWarning("Program %s lists unnamed sampler uniform",
-                   program->name().c_str());
-
-        continue;
-      }
-
-      Sampler* sampler = program->findSampler(samplerName.c_str());
-      if (!sampler)
-      {
-        logWarning("Program %s does not have sampler uniform %s",
-                   program->name().c_str(),
-                   samplerName.c_str());
-
-        continue;
-      }
-
-      Ref<Texture> texture;
-
-      if (pugi::xml_attribute a = s.attribute("image"))
-      {
-        TextureParams params(textureTypeMap[sampler->type()], TF_NONE);
-
-        if (s.attribute("mipmapped").as_bool())
-          params.flags |= TF_MIPMAPPED;
-
-        if (s.attribute("sRGB").as_bool())
-          params.flags |= TF_SRGB;
-
-        if (pugi::xml_attribute a = s.attribute("filter"))
-        {
-          if (filterModeMap.hasKey(a.value()))
-            params.filterMode = filterModeMap[a.value()];
-          else
-          {
-            logError("Invalid filter mode name %s", a.value());
-            return false;
-          }
-        }
-
-        if (pugi::xml_attribute a = s.attribute("address"))
-        {
-          if (addressModeMap.hasKey(a.value()))
-            params.addressMode = addressModeMap[a.value()];
-          else
-          {
-            logError("Invalid address mode name %s", a.value());
-            return false;
-          }
-        }
-
-        if (pugi::xml_attribute a = s.attribute("anisotropy"))
-          params.maxAnisotropy = a.as_float();
-
-        texture = Texture::read(context, params, a.value());
-      }
-      else if (pugi::xml_attribute a = s.attribute("texture"))
-        texture = cache.find<Texture>(a.value());
-      else
-      {
-        logError("No texture specified for sampler %s of program %s",
-                  samplerName.c_str(),
-                  program->name().c_str());
-
-        return false;
-      }
-
-      if (!texture)
-      {
-        logError("Failed to find texture for sampler %s of program %s",
-                  samplerName.c_str(),
-                  program->name().c_str());
-
-        return false;
-      }
-
-      pass.setSamplerState(samplerName.c_str(), texture);
-    }
-
     for (auto u : node.children("uniform"))
     {
       const std::string uniformName(u.attribute("name").value());
@@ -419,45 +325,111 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
         continue;
       }
 
-      pugi::xml_attribute attribute = u.attribute("value");
-      if (!attribute)
+      if (uniform->isSampler())
       {
-        logError("Missing value for uniform %s of program %s",
-                 uniformName.c_str(),
-                 program->name().c_str());
+        Ref<Texture> texture;
 
-        return false;
+        if (pugi::xml_attribute a = u.attribute("image"))
+        {
+          TextureParams params(TextureType(uniform->type()), TF_NONE);
+
+          if (u.attribute("mipmapped").as_bool())
+            params.flags |= TF_MIPMAPPED;
+
+          if (u.attribute("sRGB").as_bool())
+            params.flags |= TF_SRGB;
+
+          if (pugi::xml_attribute a = u.attribute("filter"))
+          {
+            if (filterModeMap.hasKey(a.value()))
+              params.filterMode = filterModeMap[a.value()];
+            else
+            {
+              logError("Invalid filter mode name %s", a.value());
+              return false;
+            }
+          }
+
+          if (pugi::xml_attribute a = u.attribute("address"))
+          {
+            if (addressModeMap.hasKey(a.value()))
+              params.addressMode = addressModeMap[a.value()];
+            else
+            {
+              logError("Invalid address mode name %s", a.value());
+              return false;
+            }
+          }
+
+          if (pugi::xml_attribute a = u.attribute("anisotropy"))
+            params.maxAnisotropy = a.as_float();
+
+          texture = Texture::read(context, params, a.value());
+        }
+        else if (pugi::xml_attribute a = u.attribute("texture"))
+          texture = cache.find<Texture>(a.value());
+        else
+        {
+          logError("No texture specified for uniform %s of program %s",
+                   uniformName.c_str(),
+                   program->name().c_str());
+
+          return false;
+        }
+
+        if (!texture)
+        {
+          logError("Failed to find texture for uniform %s of program %s",
+                   uniformName.c_str(),
+                   program->name().c_str());
+
+          return false;
+        }
+
+        pass.setUniformTexture(uniformName.c_str(), texture);
       }
-
-      switch (uniform->type())
+      else
       {
-        case UNIFORM_INT:
-          pass.setUniformState(uniformName.c_str(), attribute.as_int());
-          break;
-        case UNIFORM_UINT:
-          pass.setUniformState(uniformName.c_str(), attribute.as_uint());
-          break;
-        case UNIFORM_FLOAT:
-          pass.setUniformState(uniformName.c_str(), attribute.as_float());
-          break;
-        case UNIFORM_VEC2:
-          pass.setUniformState(uniformName.c_str(), vec2Cast(attribute.value()));
-          break;
-        case UNIFORM_VEC3:
-          pass.setUniformState(uniformName.c_str(), vec3Cast(attribute.value()));
-          break;
-        case UNIFORM_VEC4:
-          pass.setUniformState(uniformName.c_str(), vec4Cast(attribute.value()));
-          break;
-        case UNIFORM_MAT2:
-          pass.setUniformState(uniformName.c_str(), mat2Cast(attribute.value()));
-          break;
-        case UNIFORM_MAT3:
-          pass.setUniformState(uniformName.c_str(), mat3Cast(attribute.value()));
-          break;
-        case UNIFORM_MAT4:
-          pass.setUniformState(uniformName.c_str(), mat4Cast(attribute.value()));
-          break;
+        pugi::xml_attribute attribute = u.attribute("value");
+        if (!attribute)
+        {
+          logError("Missing value for uniform %s of program %s",
+                   uniformName.c_str(),
+                   program->name().c_str());
+
+          return false;
+        }
+
+        switch (uniform->type())
+        {
+          case UNIFORM_INT:
+            pass.setUniformState(uniformName.c_str(), attribute.as_int());
+            break;
+          case UNIFORM_UINT:
+            pass.setUniformState(uniformName.c_str(), attribute.as_uint());
+            break;
+          case UNIFORM_FLOAT:
+            pass.setUniformState(uniformName.c_str(), attribute.as_float());
+            break;
+          case UNIFORM_VEC2:
+            pass.setUniformState(uniformName.c_str(), vec2Cast(attribute.value()));
+            break;
+          case UNIFORM_VEC3:
+            pass.setUniformState(uniformName.c_str(), vec3Cast(attribute.value()));
+            break;
+          case UNIFORM_VEC4:
+            pass.setUniformState(uniformName.c_str(), vec4Cast(attribute.value()));
+            break;
+          case UNIFORM_MAT2:
+            pass.setUniformState(uniformName.c_str(), mat2Cast(attribute.value()));
+            break;
+          case UNIFORM_MAT3:
+            pass.setUniformState(uniformName.c_str(), mat3Cast(attribute.value()));
+            break;
+          case UNIFORM_MAT4:
+            pass.setUniformState(uniformName.c_str(), mat4Cast(attribute.value()));
+            break;
+        }
       }
     }
   }

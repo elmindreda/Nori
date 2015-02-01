@@ -39,13 +39,13 @@ namespace detail
 {
 
 template <typename T>
-static T get(HSQUIRRELVM vm, SQInteger index);
+T get(HSQUIRRELVM vm, SQInteger index);
 
 template <typename T>
-static void push(HSQUIRRELVM vm, T value);
+void push(HSQUIRRELVM vm, T value);
 
 template <typename T, typename... A>
-static void push(HSQUIRRELVM vm, T value, A... args)
+void push(HSQUIRRELVM vm, T value, A... args)
 {
   detail::push(vm, value);
   detail::push(vm, args...);
@@ -123,14 +123,14 @@ public:
 };
 
 template <typename R, typename... A>
-static SQInteger demarshalFunction(HSQUIRRELVM vm)
+SQInteger demarshalFunction(HSQUIRRELVM vm)
 {
   Function<R>::template demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
   return 1;
 }
 
 template <typename T, typename R, typename... A>
-static SQInteger demarshalMethod(HSQUIRRELVM vm)
+SQInteger demarshalMethod(HSQUIRRELVM vm)
 {
   Method<T,R>::template demarshal<A...>(vm, IndexBuilder<sizeof...(A)>());
   return 1;
