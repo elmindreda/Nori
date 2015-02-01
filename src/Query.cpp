@@ -120,13 +120,13 @@ uint OcclusionQuery::result() const
   return result;
 }
 
-OcclusionQuery* OcclusionQuery::create(RenderContext& context)
+std::unique_ptr<OcclusionQuery> OcclusionQuery::create(RenderContext& context)
 {
   std::unique_ptr<OcclusionQuery> query(new OcclusionQuery(context));
   if (!query->init())
     return nullptr;
 
-  return query.release();
+  return query;
 }
 
 OcclusionQuery::OcclusionQuery(RenderContext& context):

@@ -541,9 +541,9 @@ public:
    *  @param[in] ctxconfig The desired context configuration.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static RenderContext* create(ResourceCache& cache,
-                               const WindowConfig& wc = WindowConfig(),
-                               const RenderConfig& rc = RenderConfig());
+  static std::unique_ptr<RenderContext> create(ResourceCache& cache,
+                                               const WindowConfig& wc = WindowConfig(),
+                                               const RenderConfig& rc = RenderConfig());
 private:
   RenderContext(ResourceCache& cache);
   RenderContext(const RenderContext&) = delete;

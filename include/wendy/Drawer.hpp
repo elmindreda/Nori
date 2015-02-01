@@ -181,7 +181,7 @@ public:
   RenderContext& context();
   Font& currentFont();
   void setCurrentFont(Font* newFont);
-  static Drawer* create(RenderContext& context);
+  static std::unique_ptr<Drawer> create(RenderContext& context);
 private:
   Drawer(RenderContext& context);
   bool init();

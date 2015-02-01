@@ -242,7 +242,7 @@ public:
    *  @param[in] cache The resource cache to use.
    *  @return @c true if successful, or @c false otherwise.
    */
-  static AudioContext* create(ResourceCache& cache);
+  static std::unique_ptr<AudioContext> create(ResourceCache& cache);
 private:
   AudioContext(ResourceCache& cache);
   AudioContext(const AudioContext&) = delete;

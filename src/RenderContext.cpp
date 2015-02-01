@@ -1386,15 +1386,15 @@ const RenderLimits& RenderContext::limits() const
   return *m_limits;
 }
 
-RenderContext* RenderContext::create(ResourceCache& cache,
-                                     const WindowConfig& wc,
-                                     const RenderConfig& rc)
+std::unique_ptr<RenderContext> RenderContext::create(ResourceCache& cache,
+                                                     const WindowConfig& wc,
+                                                     const RenderConfig& rc)
 {
   std::unique_ptr<RenderContext> context(new RenderContext(cache));
   if (!context->init(wc, rc))
     return nullptr;
 
-  return context.release();
+  return context;
 }
 
 RenderContext::RenderContext(ResourceCache& cache):

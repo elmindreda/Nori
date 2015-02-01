@@ -200,8 +200,12 @@ public:
   uint incomingBytesPerSecond() const;
   uint outgoingBytesPerSecond() const;
   void setObserver(HostObserver* newObserver);
-  static Host* create(uint16 port, size_t maxClientCount, uint8 maxChannelCount = 0);
-  static Host* connect(const String& name, uint16 port, uint8 maxChannelCount = 0);
+  static std::unique_ptr<Host> create(uint16 port,
+                                      size_t maxClientCount,
+                                      uint8 maxChannelCount = 0);
+  static std::unique_ptr<Host> connect(const String& name,
+                                       uint16 port,
+                                       uint8 maxChannelCount = 0);
 private:
   Host();
   Host(const Host&) = delete;

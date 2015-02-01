@@ -474,13 +474,13 @@ void Drawer::setCurrentFont(Font* newFont)
     m_font = m_theme->m_font;
 }
 
-Drawer* Drawer::create(RenderContext& context)
+std::unique_ptr<Drawer> Drawer::create(RenderContext& context)
 {
   std::unique_ptr<Drawer> drawer(new Drawer(context));
   if (!drawer->init())
     return nullptr;
 
-  return drawer.release();
+  return drawer;
 }
 
 Drawer::Drawer(RenderContext& context):

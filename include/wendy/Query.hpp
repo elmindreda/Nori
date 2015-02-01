@@ -66,7 +66,7 @@ public:
    *  @return The newly created query object, or @c nullptr if an error
    *  occurred.
    */
-  static OcclusionQuery* create(RenderContext& context);
+  static std::unique_ptr<OcclusionQuery> create(RenderContext& context);
 private:
   OcclusionQuery(RenderContext& context);
   OcclusionQuery(const OcclusionQuery&) = delete;

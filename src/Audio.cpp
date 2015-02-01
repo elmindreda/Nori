@@ -466,13 +466,13 @@ void AudioContext::setListenerGain(float newGain)
   }
 }
 
-AudioContext* AudioContext::create(ResourceCache& cache)
+std::unique_ptr<AudioContext> AudioContext::create(ResourceCache& cache)
 {
   std::unique_ptr<AudioContext> context(new AudioContext(cache));
   if (!context->init())
     return nullptr;
 
-  return context.release();
+  return context;
 }
 
 AudioContext::AudioContext(ResourceCache& cache):
