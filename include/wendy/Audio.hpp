@@ -67,7 +67,7 @@ public:
   static Ref<AudioBuffer> create(const ResourceInfo& info,
                                  AudioContext& context,
                                  const Sample& data);
-  static Ref<AudioBuffer> read(AudioContext& context, const String& sampleName);
+  static Ref<AudioBuffer> read(AudioContext& context, const std::string& sampleName);
 private:
   AudioBuffer(const ResourceInfo& info, AudioContext& context);
   AudioBuffer(const AudioBuffer&) = delete;

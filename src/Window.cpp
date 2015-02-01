@@ -177,7 +177,7 @@ WindowConfig::WindowConfig():
 {
 }
 
-WindowConfig::WindowConfig(const String& initTitle):
+WindowConfig::WindowConfig(const std::string& initTitle):
   title(initTitle),
   width(640),
   height(480),
@@ -186,7 +186,7 @@ WindowConfig::WindowConfig(const String& initTitle):
 {
 }
 
-WindowConfig::WindowConfig(const String& initTitle,
+WindowConfig::WindowConfig(const std::string& initTitle,
                            uint initWidth,
                            uint initHeight,
                            WindowMode initMode,
@@ -392,12 +392,12 @@ void Window::setCursorPosition(vec2 newPosition)
   glfwSetCursorPos(m_handle, newPosition.x, newPosition.y);
 }
 
-String Window::clipboardText() const
+std::string Window::clipboardText() const
 {
   return glfwGetClipboardString(m_handle);
 }
 
-void Window::setClipboardText(const String& newText)
+void Window::setClipboardText(const std::string& newText)
 {
   glfwSetClipboardString(m_handle, newText.c_str());
 }
@@ -736,7 +736,7 @@ TextController::TextController():
 {
 }
 
-TextController::TextController(const String& text):
+TextController::TextController(const std::string& text):
   m_text(text),
   m_caretPosition(0)
 {
@@ -753,9 +753,9 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
       if (caretPosition() > 0)
       {
-        String::iterator s = m_text.begin();
+        std::string::iterator s = m_text.begin();
         utf8::advance(s, caretPosition() - 1, m_text.end());
-        String::iterator e = s;
+        std::string::iterator e = s;
         utf8::next(e, m_text.end());
         m_text.erase(s, e);
         m_textChangedSignal();
@@ -772,9 +772,9 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
       if (caretPosition() < length())
       {
-        String::iterator s = m_text.begin();
+        std::string::iterator s = m_text.begin();
         utf8::advance(s, caretPosition(), m_text.end());
-        String::iterator e = s;
+        std::string::iterator e = s;
         utf8::next(e, m_text.end());
         m_text.erase(s, e);
         m_textChangedSignal();
@@ -825,7 +825,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
       {
-        String::iterator e = m_text.begin();
+        std::string::iterator e = m_text.begin();
         utf8::advance(e, caretPosition(), m_text.end());
         m_text.erase(m_text.begin(), e);
         setCaretPosition(0);
@@ -855,9 +855,9 @@ void TextController::inputKey(Key key, Action action, uint mods)
     {
       if (action != RELEASED && (mods & MOD_CONTROL))
       {
-        String::iterator e = m_text.begin();
+        std::string::iterator e = m_text.begin();
         utf8::advance(e, caretPosition(), m_text.end());
-        String::iterator s = e;
+        std::string::iterator s = e;
 
         while (s != m_text.begin())
         {
@@ -889,7 +889,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
 void TextController::inputCharacter(uint32 codepoint)
 {
-  String::iterator i = m_text.begin();
+  std::string::iterator i = m_text.begin();
   utf8::advance(i, caretPosition(), m_text.end());
   utf8::append(codepoint, std::inserter(m_text, i));
   setCaretPosition(caretPosition() + 1);
@@ -901,7 +901,7 @@ size_t TextController::length() const
   return utf8::distance(m_text.begin(), m_text.end());
 }
 
-void TextController::setText(const String& newText)
+void TextController::setText(const std::string& newText)
 {
   m_text = newText;
   setCaretPosition(caretPosition());

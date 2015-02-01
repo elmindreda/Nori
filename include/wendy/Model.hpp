@@ -67,7 +67,7 @@ private:
 class Model : public Renderable, public Resource
 {
 public:
-  typedef std::map<String, Ref<Material>> MaterialMap;
+  typedef std::map<std::string, Ref<Material>> MaterialMap;
   void enqueue(RenderQueue& queue,
                const Camera& camera,
                const Transform3& transform) const override;
@@ -110,7 +110,7 @@ public:
    *  @param[in] path The path of the specification file to use.
    *  @return The newly created model, or @c nullptr if an error occurred.
    */
-  static Ref<Model> read(RenderContext& context, const String& name);
+  static Ref<Model> read(RenderContext& context, const std::string& name);
 private:
   Model(const ResourceInfo& info);
   Model(const Model&) = delete;
@@ -128,7 +128,7 @@ class ModelReader : public ResourceReader<Model>
 public:
   ModelReader(RenderContext& context);
   using ResourceReader<Model>::read;
-  Ref<Model> read(const String& name, const Path& path);
+  Ref<Model> read(const std::string& name, const Path& path);
 private:
   RenderContext& m_context;
 };

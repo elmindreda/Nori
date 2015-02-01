@@ -81,11 +81,11 @@ public:
   ivec2 size;
 };
 
-Rect rectCast(const String& string);
-Recti rectiCast(const String& string);
+Rect rectCast(const std::string& string);
+Recti rectiCast(const std::string& string);
 
-String stringCast(const Rect& v);
-String stringCast(const Recti& v);
+std::string stringCast(const Rect& v);
+std::string stringCast(const Recti& v);
 
 template<typename T>
 class RectClipStack

@@ -111,9 +111,9 @@ Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::create(const ResourceInfo& info,
 }
 
 Ref<BvhTriangleMeshShape> BvhTriangleMeshShape::read(ResourceCache& cache,
-                                                     const String& meshName)
+                                                     const std::string& meshName)
 {
-  String name;
+  std::string name;
 
   name += "source:";
   name += meshName;

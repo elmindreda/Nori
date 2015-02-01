@@ -235,7 +235,7 @@ Ref<Image> Image::create(const ResourceInfo& info,
   return image;
 }
 
-Ref<Image> Image::read(ResourceCache& cache, const String& name)
+Ref<Image> Image::read(ResourceCache& cache, const std::string& name)
 {
   ImageReader reader(cache);
   return reader.read(name);
@@ -310,7 +310,7 @@ ImageReader::ImageReader(ResourceCache& cache):
 {
 }
 
-Ref<Image> ImageReader::read(const String& name, const Path& path)
+Ref<Image> ImageReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
   if (stream.fail())

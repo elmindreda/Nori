@@ -65,7 +65,7 @@ ItemID Item::id() const
   return m_id;
 }
 
-const String& Item::value() const
+const std::string& Item::value() const
 {
   return m_value;
 }

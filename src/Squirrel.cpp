@@ -45,9 +45,9 @@ namespace wendy
 namespace
 {
 
-String escapeString(const SQChar* string)
+std::string escapeString(const SQChar* string)
 {
-  String result;
+  std::string result;
   result.reserve(std::strlen(string));
 
   for (const SQChar* c = string;  *c;  c++)
@@ -252,7 +252,7 @@ T vecDiv(T a, T b) { return a / b; }
 template <typename T>
 T vecUnm(T v) { return -v; }
 template <typename T>
-String vecToString(T v) { return stringCast(v); }
+std::string vecToString(T v) { return stringCast(v); }
 template <typename T>
 float vecDot(T a, T b) { return dot(a, b); }
 
@@ -343,15 +343,15 @@ void push(HSQUIRRELVM vm, const char* value)
 }
 
 template <>
-String get(HSQUIRRELVM vm, SQInteger index)
+std::string get(HSQUIRRELVM vm, SQInteger index)
 {
   const SQChar* value;
   sq_getstring(vm, index, &value);
-  return String(value);
+  return std::string(value);
 }
 
 template <>
-void push(HSQUIRRELVM vm, String value)
+void push(HSQUIRRELVM vm, std::string value)
 {
   sq_pushstring(vm, value.c_str(), -1);
 }
@@ -504,7 +504,7 @@ bool SqVM::execute(const char* name)
 
   stream.seekg(0, std::ios::end);
 
-  String text;
+  std::string text;
   text.resize((uint) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
@@ -571,7 +571,7 @@ void SqVM::onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   log("%s", message.c_str());
@@ -582,7 +582,7 @@ void SqVM::onLogError(HSQUIRRELVM vm, const SQChar* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   logError("%s", message.c_str());
@@ -665,15 +665,15 @@ SqObject& SqObject::operator = (const SqObject& source)
   return *this;
 }
 
-String SqObject::asString() const
+std::string SqObject::asString() const
 {
   if (!m_vm)
-    return String();
+    return std::string();
 
   sq_pushobject(m_vm, m_handle);
   sq_tostring(m_vm, -1);
 
-  String result = detail::get<String>(m_vm, -1);
+  std::string result = detail::get<std::string>(m_vm, -1);
 
   sq_pop(m_vm, 2);
   return result;

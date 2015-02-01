@@ -46,13 +46,13 @@ namespace wendy
 namespace
 {
 
-Bimap<String, PolygonFace> polygonFaceMap;
-Bimap<String, BlendFactor> blendFactorMap;
-Bimap<String, FragmentFunction> functionMap;
-Bimap<String, StencilOp> operationMap;
-Bimap<String, FilterMode> filterModeMap;
-Bimap<String, AddressMode> addressModeMap;
-Bimap<String, RenderPhase> phaseMap;
+Bimap<std::string, PolygonFace> polygonFaceMap;
+Bimap<std::string, BlendFactor> blendFactorMap;
+Bimap<std::string, FragmentFunction> functionMap;
+Bimap<std::string, StencilOp> operationMap;
+Bimap<std::string, FilterMode> filterModeMap;
+Bimap<std::string, AddressMode> addressModeMap;
+Bimap<std::string, RenderPhase> phaseMap;
 
 Bimap<SamplerType, TextureType> textureTypeMap;
 
@@ -290,14 +290,14 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
   if (pugi::xml_node node = root.child("program"))
   {
-    const String vertexShaderName(node.attribute("vs").value());
+    const std::string vertexShaderName(node.attribute("vs").value());
     if (vertexShaderName.empty())
     {
       logError("No vertex shader specified");
       return false;
     }
 
-    const String fragmentShaderName(node.attribute("fs").value());
+    const std::string fragmentShaderName(node.attribute("fs").value());
     if (fragmentShaderName.empty())
     {
       logError("No fragment shader specified");
@@ -317,7 +317,7 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
     for (auto s : node.children("sampler"))
     {
-      const String samplerName(s.attribute("name").value());
+      const std::string samplerName(s.attribute("name").value());
       if (samplerName.empty())
       {
         logWarning("Program %s lists unnamed sampler uniform",
@@ -400,7 +400,7 @@ bool parsePass(RenderContext& context, Pass& pass, pugi::xml_node root)
 
     for (auto u : node.children("uniform"))
     {
-      const String uniformName(u.attribute("name").value());
+      const std::string uniformName(u.attribute("name").value());
       if (uniformName.empty())
       {
         logWarning("Program %s lists unnamed uniform",
@@ -470,7 +470,7 @@ Ref<Material> Material::create(const ResourceInfo& info, RenderContext& context)
   return new Material(info);
 }
 
-Ref<Material> Material::read(RenderContext& context, const String& name)
+Ref<Material> Material::read(RenderContext& context, const std::string& name)
 {
   MaterialReader reader(context);
   return reader.read(name);
@@ -488,7 +488,7 @@ MaterialReader::MaterialReader(RenderContext& context):
   initializeMaps();
 }
 
-Ref<Material> MaterialReader::read(const String& name, const Path& path)
+Ref<Material> MaterialReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name());
   if (stream.fail())
@@ -519,7 +519,7 @@ Ref<Material> MaterialReader::read(const String& name, const Path& path)
 
   for (auto pn : root.children("pass"))
   {
-    const String phaseName(pn.attribute("phase").value());
+    const std::string phaseName(pn.attribute("phase").value());
     if (!phaseMap.hasKey(phaseName))
     {
       logError("Invalid render phase %s in material %s",

@@ -37,12 +37,12 @@ public:
   bool operator == (const char* string) const;
   Time duration() const { return m_duration; }
   uint callCount() const { return m_calls; }
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   const std::vector<ProfileNode>& children() const { return m_children; }
 private:
   explicit ProfileNode(const char* name);
   ProfileNode* findChild(const char* name);
-  String m_name;
+  std::string m_name;
   Time m_duration;
   std::vector<ProfileNode> m_children;
   uint m_calls;

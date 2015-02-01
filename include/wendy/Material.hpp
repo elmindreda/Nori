@@ -71,7 +71,7 @@ public:
    *  @param[in] path The path of the material.
    *  @return The loaded material, or @c nullptr if an error occurred.
    */
-  static Ref<Material> read(RenderContext& context, const String& name);
+  static Ref<Material> read(RenderContext& context, const std::string& name);
 private:
   Material(const ResourceInfo& info);
   Pass m_passes[2];
@@ -84,7 +84,7 @@ class MaterialReader : public ResourceReader<Material>
 public:
   MaterialReader(RenderContext& context);
   using ResourceReader<Material>::read;
-  Ref<Material> read(const String& name, const Path& path);
+  Ref<Material> read(const std::string& name, const Path& path);
 private:
   RenderContext& m_context;
 };

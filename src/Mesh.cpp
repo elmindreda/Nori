@@ -205,7 +205,7 @@ struct Face
 struct FaceGroup
 {
   std::vector<Face> faces;
-  String name;
+  std::string name;
 };
 
 } /*namespace*/
@@ -367,7 +367,7 @@ size_t Mesh::triangleCount() const
   return count;
 }
 
-Ref<Mesh> Mesh::read(ResourceCache& cache, const String& name)
+Ref<Mesh> Mesh::read(ResourceCache& cache, const std::string& name)
 {
   MeshReader reader(cache);
   return reader.read(name);
@@ -378,7 +378,7 @@ MeshReader::MeshReader(ResourceCache& index):
 {
 }
 
-Ref<Mesh> MeshReader::read(const String& name, const Path& path)
+Ref<Mesh> MeshReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
   if (stream.fail())
@@ -387,7 +387,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  String line;
+  std::string line;
   uint lineNumber = 0;
 
   std::vector<vec3> positions;
@@ -408,7 +408,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
 
     try
     {
-      String command = parseName(&text);
+      std::string command = parseName(&text);
 
       if (command == "g")
       {
@@ -450,7 +450,7 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
       }
       else if (command == "usemtl")
       {
-        String materialName = parseName(&text);
+        std::string materialName = parseName(&text);
 
         group = nullptr;
 
@@ -577,12 +577,12 @@ Ref<Mesh> MeshReader::read(const String& name, const Path& path)
   return mesh;
 }
 
-String MeshReader::parseName(const char** text)
+std::string MeshReader::parseName(const char** text)
 {
   while (std::isspace(**text))
     (*text)++;
 
-  String result;
+  std::string result;
 
   while (std::isalnum(**text) || **text == '_')
   {

@@ -82,7 +82,7 @@ bool checkGL(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   logError("%s: %s", message.c_str(), getErrorString(error));
@@ -382,7 +382,7 @@ void Preprocessor::parse(const char* name)
 
   paths.push_back(path);
 
-  String text;
+  std::string text;
 
   stream.seekg(0, std::ios::end);
   text.resize((size_t) stream.tellg());
@@ -439,7 +439,7 @@ void Preprocessor::parse(const char* name, const char* text)
   }
 }
 
-const String& Preprocessor::getOutput() const
+const std::string& Preprocessor::getOutput() const
 {
   return output;
 }
@@ -449,12 +449,12 @@ bool Preprocessor::hasVersion() const
   return !version.empty();
 }
 
-const String& Preprocessor::getVersion() const
+const std::string& Preprocessor::getVersion() const
 {
   return version;
 }
 
-const String& Preprocessor::getNameList() const
+const std::string& Preprocessor::getNameList() const
 {
   return list;
 }
@@ -566,7 +566,7 @@ void Preprocessor::parseMultiLineComment()
   appendToOutput();
 }
 
-String Preprocessor::passNumber()
+std::string Preprocessor::passNumber()
 {
   if (!isNumeric())
   {
@@ -575,7 +575,7 @@ String Preprocessor::passNumber()
     throw Exception("Expected number");
   }
 
-  String number;
+  std::string number;
 
   while (isNumeric())
   {
@@ -586,7 +586,7 @@ String Preprocessor::passNumber()
   return number;
 }
 
-String Preprocessor::passIdentifier()
+std::string Preprocessor::passIdentifier()
 {
   if (!isAlpha())
   {
@@ -597,7 +597,7 @@ String Preprocessor::passIdentifier()
     throw Exception("Expected identifier");
   }
 
-  String identifier;
+  std::string identifier;
 
   while (isAlphaNumeric())
   {
@@ -608,7 +608,7 @@ String Preprocessor::passIdentifier()
   return identifier;
 }
 
-String Preprocessor::passShaderName()
+std::string Preprocessor::passShaderName()
 {
   char terminator;
   if (c(0) == '<')
@@ -626,7 +626,7 @@ String Preprocessor::passShaderName()
 
   advance(1);
 
-  String name;
+  std::string name;
 
   while (hasMore())
   {
@@ -661,11 +661,11 @@ void Preprocessor::parseCommand()
   setFirstOnLine(false);
   passWhitespace();
 
-  const String command = passIdentifier();
+  const std::string command = passIdentifier();
   if (command == "include")
   {
     passWhitespace();
-    const String name = passShaderName();
+    const std::string name = passShaderName();
     discard();
     parse(name.c_str());
   }

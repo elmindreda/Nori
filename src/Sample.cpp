@@ -70,7 +70,7 @@ Sample::Sample(const ResourceInfo& info,
 {
 }
 
-Ref<Sample> Sample::read(ResourceCache& cache, const String& name)
+Ref<Sample> Sample::read(ResourceCache& cache, const std::string& name)
 {
   SampleReader reader(cache);
   return reader.read(name);
@@ -81,7 +81,7 @@ SampleReader::SampleReader(ResourceCache& cache):
 {
 }
 
-Ref<Sample> SampleReader::read(const String& name, const Path& path)
+Ref<Sample> SampleReader::read(const std::string& name, const Path& path)
 {
   int result;
   OggVorbis_File file;

@@ -34,10 +34,10 @@ class ResourceInfo
 {
 public:
   ResourceInfo(ResourceCache& cache,
-               const String& name = String(),
+               const std::string& name = std::string(),
                const Path& path = Path());
   ResourceCache& cache;
-  String name;
+  std::string name;
   Path path;
 };
 
@@ -49,11 +49,11 @@ public:
   virtual ~Resource();
   Resource& operator = (const Resource& source);
   ResourceCache& cache() const { return m_cache; }
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   const Path& path() const { return m_path; }
 private:
   ResourceCache& m_cache;
-  String m_name;
+  std::string m_name;
   Path m_path;
 };
 
@@ -64,9 +64,9 @@ public:
   ~ResourceCache();
   bool addSearchPath(const Path& path);
   void removeSearchPath(const Path& path);
-  Resource* findResource(const String& name) const;
+  Resource* findResource(const std::string& name) const;
   template <typename T>
-  T* find(const String& name) const
+  T* find(const std::string& name) const
   {
     Resource* cached = findResource(name);
     if (!cached)
@@ -81,7 +81,7 @@ public:
 
     return cast;
   }
-  Path findFile(const String& name) const;
+  Path findFile(const std::string& name) const;
   const std::vector<Path>& searchPaths() const { return m_paths; }
 private:
   std::vector<Path> m_paths;
@@ -96,7 +96,7 @@ public:
     cache(initCache)
   {
   }
-  Ref<T> read(const String& name)
+  Ref<T> read(const std::string& name)
   {
     if (T* cached = cache.find<T>(name))
       return cached;
@@ -110,7 +110,7 @@ public:
 
     return read(name, path);
   }
-  virtual Ref<T> read(const String& name, const Path& path) = 0;
+  virtual Ref<T> read(const std::string& name, const Path& path) = 0;
 protected:
   ResourceCache& cache;
 };

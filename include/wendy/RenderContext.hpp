@@ -582,7 +582,7 @@ private:
   std::vector<SharedSampler> m_samplers;
   std::vector<SharedUniform> m_uniforms;
   std::vector<Slot> m_slots;
-  String m_declaration;
+  std::string m_declaration;
   RenderStats* m_stats;
 };
 

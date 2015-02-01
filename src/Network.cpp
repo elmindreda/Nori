@@ -28,7 +28,6 @@
 
 #include <enet/enet.h>
 
-#include <memory>
 #include <cstring>
 
 namespace wendy
@@ -97,12 +96,12 @@ float PacketData::read32f()
 }
 
 template <>
-String PacketData::read()
+std::string PacketData::read()
 {
   if (!std::memchr(m_data + m_offset, '\0', m_size - m_offset))
     panic("Missing null character in packet data");
 
-  String result((char*) (m_data + m_offset));
+  std::string result((char*) (m_data + m_offset));
   m_offset += result.length() + 1;
   return result;
 }
@@ -144,7 +143,7 @@ void PacketData::write32f(float value)
 }
 
 template <>
-void PacketData::write(const String& value)
+void PacketData::write(const std::string& value)
 {
   for (char c : value)
     write8(c);
@@ -502,7 +501,7 @@ std::unique_ptr<Host> Host::create(uint16 port,
   return host;
 }
 
-std::unique_ptr<Host> Host::connect(const String& name,
+std::unique_ptr<Host> Host::connect(const std::string& name,
                                     uint16 port,
                                     uint8 maxChannelCount)
 {
@@ -553,7 +552,7 @@ bool Host::init(uint16 port, size_t maxClientCount, uint8 maxChannelCount)
   return true;
 }
 
-bool Host::init(const String& name, uint16 port, uint8 maxChannelCount)
+bool Host::init(const std::string& name, uint16 port, uint8 maxChannelCount)
 {
   if (!m_count)
   {

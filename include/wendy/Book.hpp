@@ -37,11 +37,11 @@ class Page : public Widget
 public:
   Page(Layer& layer, Book& parent, const char* text = "");
   ~Page();
-  const String& text() const { return m_text; }
+  const std::string& text() const { return m_text; }
   void setText(const char* newText);
 private:
   Book& m_book;
-  String m_text;
+  std::string m_text;
 };
 
 /*! @ingroup ui

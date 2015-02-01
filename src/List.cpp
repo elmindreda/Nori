@@ -412,7 +412,7 @@ void List::beginEditing()
     for (uint i = m_offset;  i < m_selection;  i++)
       entryArea.position.y -= m_items[i]->height();
 
-    const String& value = selected->value();
+    const std::string& value = selected->value();
 
     m_entry->setArea(entryArea);
     m_entry->setText(value.c_str());

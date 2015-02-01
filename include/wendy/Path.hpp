@@ -39,7 +39,7 @@ class Path
 public:
   /*! Constructor. Creates a path object with the specified name.
    */
-  explicit Path(const String& name = "");
+  explicit Path(const std::string& name = "");
   /*! Creates a directory with this path.
    *  @return @c true if successful, otherwise @c false.
    */
@@ -54,22 +54,22 @@ public:
   bool exists() const;
   /*! @return This path represented as a string.
    */
-  const String& name() const { return m_string; }
+  const std::string& name() const { return m_string; }
   /*! Append operator. Creates a path with this path as the directory part and
    *  the specified name as the leaf (file or directory) name.
    *  @param[in] child The desired leaf name.
    *  @return The resulting path.
    */
-  Path operator + (const String& child) const;
+  Path operator + (const std::string& child) const;
   /*! Appends a path separator and then the specified string (relative path) to
    *  the name of this path.
    */
-  Path& operator += (const String& child);
+  Path& operator += (const std::string& child);
   bool operator == (const Path& other) const;
   bool operator != (const Path& other) const;
   /*! Assignment operator.
    */
-  Path& operator = (const String& newName);
+  Path& operator = (const std::string& newName);
   /*! @return @c true if this path is empty, otherwise @c false.
    */
   bool isEmpty() const { return m_string.empty(); }
@@ -99,23 +99,23 @@ public:
    *  @param[in,out] children The resulting list of names.
    *  @return @c true if successful, otherwise @c false.
    */
-  std::vector<String> children() const;
+  std::vector<std::string> children() const;
   /*! Returns the names of all files and directories in the directory with this
    *  path that match the specified regex.
    *  @param[in,out] children The resulting list of names.
    *  @param[in] regex The regex to use.
    *  @return @c true if successful, otherwise @c false.
    */
-  std::vector<String> childrenMatching(const std::regex& regex) const;
+  std::vector<std::string> childrenMatching(const std::regex& regex) const;
   /*! @return The suffix of the name of the represented path, or the empty
    *  string if no suffix is present.
    */
-  String suffix() const;
+  std::string suffix() const;
   /*! @return The name part of the filename, without the directory or suffix parts.
    */
-  String basename() const;
+  std::string basename() const;
 private:
-  String m_string;
+  std::string m_string;
 };
 
 } /*namespace wendy*/

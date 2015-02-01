@@ -114,7 +114,7 @@ bool VertexFormat::createComponents(const char* specification)
       return false;
     }
 
-    String name;
+    std::string name;
 
     while (*c != '\0' && *c != ' ')
       name += *c++;
@@ -165,7 +165,7 @@ size_t VertexFormat::size() const
   return size;
 }
 
-String VertexFormat::asString() const
+std::string VertexFormat::asString() const
 {
   std::ostringstream result;
 

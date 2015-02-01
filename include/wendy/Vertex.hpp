@@ -57,7 +57,7 @@ public:
   size_t size() const { return m_count * sizeof(float); }
   /*! @return The name of this component.
    */
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   /*! @return The offset, in bytes, of this component in a vertex.
    */
   size_t offset() const { return m_offset; }
@@ -65,7 +65,7 @@ public:
    */
   size_t elementCount() const { return m_count; }
 private:
-  String m_name;
+  std::string m_name;
   size_t m_count;
   size_t m_offset;
 };
@@ -96,7 +96,7 @@ public:
   const std::vector<VertexComponent>& components() const { return m_components; }
   bool operator == (const VertexFormat& other) const;
   bool operator != (const VertexFormat& other) const;
-  String asString() const;
+  std::string asString() const;
   size_t size() const;
 private:
   std::vector<VertexComponent> m_components;

@@ -98,7 +98,7 @@ public:
   vec3 textColor(WidgetState state) const { return m_textColors[state]; }
   vec3 backgroundColor(WidgetState state) const { return m_backColors[state]; }
   vec3 caretColor(WidgetState state) const { return m_caretColors[state]; }
-  static Ref<Theme> read(RenderContext& context, const String& name);
+  static Ref<Theme> read(RenderContext& context, const std::string& name);
 private:
   Rect m_buttonElements[4];
   Rect m_handleElements[4];
@@ -121,7 +121,7 @@ class ThemeReader : public ResourceReader<Theme>
 public:
   ThemeReader(RenderContext& context);
   using ResourceReader<Theme>::read;
-  Ref<Theme> read(const String& name, const Path& path);
+  Ref<Theme> read(const std::string& name, const Path& path);
 private:
   RenderContext& m_context;
 };

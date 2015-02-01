@@ -26,6 +26,7 @@
 #pragma once
 
 #include <list>
+#include <memory>
 
 #include <wendy/Core.hpp>
 #include <wendy/Time.hpp>
@@ -149,14 +150,14 @@ public:
   bool isClient() const { return m_id != SERVER; }
   bool isServer() const { return m_id == SERVER; }
   TargetID id() const { return m_id; }
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   uint32 address() const;
   Time roundTripTime() const;
 private:
   Peer(void* peer, TargetID targetID, const char* name);
   void* m_peer;
   TargetID m_id;
-  String m_name;
+  std::string m_name;
   bool m_disconnecting;
   uint32 m_reason;
 };
@@ -203,14 +204,14 @@ public:
   static std::unique_ptr<Host> create(uint16 port,
                                       size_t maxClientCount,
                                       uint8 maxChannelCount = 0);
-  static std::unique_ptr<Host> connect(const String& name,
+  static std::unique_ptr<Host> connect(const std::string& name,
                                        uint16 port,
                                        uint8 maxChannelCount = 0);
 private:
   Host();
   Host(const Host&) = delete;
   bool init(uint16 port, size_t maxClientCount, uint8 maxChannelCount);
-  bool init(const String& name, uint16 port, uint8 maxChannelCount);
+  bool init(const std::string& name, uint16 port, uint8 maxChannelCount);
   bool broadcast(ChannelID channel, PacketType type, const PacketData& data);
   Host& operator = (const Host&) = delete;
   void* m_object;

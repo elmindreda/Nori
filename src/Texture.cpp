@@ -378,11 +378,11 @@ Ref<Texture> Texture::create(const ResourceInfo& info,
 
 Ref<Texture> Texture::read(RenderContext& context,
                            const TextureParams& params,
-                           const String& imageName)
+                           const std::string& imageName)
 {
   ResourceCache& cache = context.cache();
 
-  String name;
+  std::string name;
   name += "image:";
   name += imageName;
 

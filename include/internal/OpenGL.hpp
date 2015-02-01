@@ -48,9 +48,9 @@ public:
   void parse(const char* name);
   void parse(const char* name, const char* text);
   bool hasVersion() const;
-  const String& getOutput() const;
-  const String& getVersion() const;
-  const String& getNameList() const;
+  const std::string& getOutput() const;
+  const std::string& getVersion() const;
+  const std::string& getNameList() const;
   const std::vector<Path>& getPaths() const;
 private:
   void addLine();
@@ -64,9 +64,9 @@ private:
   void parseNewLine();
   void parseSingleLineComment();
   void parseMultiLineComment();
-  String passNumber();
-  String passIdentifier();
-  String passShaderName();
+  std::string passNumber();
+  std::string passIdentifier();
+  std::string passShaderName();
   void parseCommand();
   bool hasMore() const;
   bool isNewLine() const;
@@ -82,11 +82,11 @@ private:
   class File;
   ResourceCache& cache;
   std::vector<File> files;
-  std::vector<String> names;
+  std::vector<std::string> names;
   std::vector<Path> paths;
-  String output;
-  String version;
-  String list;
+  std::string output;
+  std::string version;
+  std::string list;
 };
 
 class Preprocessor::File

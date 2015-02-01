@@ -123,7 +123,7 @@ bool checkAL(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   logError("%s: %s", message.c_str(), getErrorStringAL(error));
@@ -139,7 +139,7 @@ bool checkALC(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   logError("%s: %s", message.c_str(), getErrorStringALC(error));
@@ -175,11 +175,11 @@ Ref<AudioBuffer> AudioBuffer::create(const ResourceInfo& info,
   return buffer;
 }
 
-Ref<AudioBuffer> AudioBuffer::read(AudioContext& context, const String& sampleName)
+Ref<AudioBuffer> AudioBuffer::read(AudioContext& context, const std::string& sampleName)
 {
   ResourceCache& cache = context.cache();
 
-  String name;
+  std::string name;
   name += "sample:";
   name += sampleName;
 

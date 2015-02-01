@@ -256,7 +256,7 @@ public:
                              const TextureData& data);
   static Ref<Texture> read(RenderContext& context,
                            const TextureParams& params,
-                           const String& imageName);
+                           const std::string& imageName);
 private:
   Texture(const ResourceInfo& info,
           RenderContext& context,

@@ -46,7 +46,7 @@ std::vector<LogConsumer*> consumers;
 
 } /*namespace*/
 
-String stringCast(const vec2& v)
+std::string stringCast(const vec2& v)
 {
   std::ostringstream stream;
 
@@ -54,7 +54,7 @@ String stringCast(const vec2& v)
   return stream.str();
 }
 
-String stringCast(const vec3& v)
+std::string stringCast(const vec3& v)
 {
   std::ostringstream stream;
 
@@ -62,7 +62,7 @@ String stringCast(const vec3& v)
   return stream.str();
 }
 
-String stringCast(const vec4& v)
+std::string stringCast(const vec4& v)
 {
   std::ostringstream stream;
 
@@ -70,7 +70,7 @@ String stringCast(const vec4& v)
   return stream.str();
 }
 
-String stringCast(const mat2& v)
+std::string stringCast(const mat2& v)
 {
   std::ostringstream stream;
 
@@ -80,7 +80,7 @@ String stringCast(const mat2& v)
   return stream.str();
 }
 
-String stringCast(const mat3& v)
+std::string stringCast(const mat3& v)
 {
   std::ostringstream stream;
 
@@ -91,7 +91,7 @@ String stringCast(const mat3& v)
   return stream.str();
 }
 
-String stringCast(const mat4& v)
+std::string stringCast(const mat4& v)
 {
   std::ostringstream stream;
 
@@ -103,7 +103,7 @@ String stringCast(const mat4& v)
   return stream.str();
 }
 
-String stringCast(const quat& v)
+std::string stringCast(const quat& v)
 {
   std::ostringstream stream;
 
@@ -111,7 +111,7 @@ String stringCast(const quat& v)
   return stream.str();
 }
 
-vec2 vec2Cast(const String& string)
+vec2 vec2Cast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -120,7 +120,7 @@ vec2 vec2Cast(const String& string)
   return result;
 }
 
-vec3 vec3Cast(const String& string)
+vec3 vec3Cast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -129,7 +129,7 @@ vec3 vec3Cast(const String& string)
   return result;
 }
 
-vec4 vec4Cast(const String& string)
+vec4 vec4Cast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -138,7 +138,7 @@ vec4 vec4Cast(const String& string)
   return result;
 }
 
-mat2 mat2Cast(const String& string)
+mat2 mat2Cast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -148,7 +148,7 @@ mat2 mat2Cast(const String& string)
   return result;
 }
 
-mat3 mat3Cast(const String& string)
+mat3 mat3Cast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -159,7 +159,7 @@ mat3 mat3Cast(const String& string)
   return result;
 }
 
-mat4 mat4Cast(const String& string)
+mat4 mat4Cast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -171,7 +171,7 @@ mat4 mat4Cast(const String& string)
   return result;
 }
 
-quat quatCast(const String& string)
+quat quatCast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -180,50 +180,25 @@ quat quatCast(const String& string)
   return result;
 }
 
-String format(const char* format, ...)
+std::string format(const char* format, ...)
 {
   va_list vl;
 
   va_start(vl, format);
-  String result = vlformat(format, vl);
+  std::string result = vlformat(format, vl);
   va_end(vl);
 
   return result;
 }
 
-String vlformat(const char* format, va_list vl)
+std::string vlformat(const char* format, va_list vl)
 {
   char buffer[65536];
 
   if (vsnprintf(buffer, sizeof(buffer), format, vl) < 0)
     buffer[sizeof(buffer) - 1] = '\0';
 
-  return String(buffer);
-}
-
-StringHash hashString(const String& string)
-{
-  return hashString(string.c_str());
-}
-
-StringHash hashString(const char* string)
-{
-  // Hash function used in the ELF executable format
-
-  StringHash hash = 0;
-  StringHash temp;
-
-  while (*string != '\0')
-  {
-    hash = (hash << 4) + *string++;
-
-    if ((temp = hash & 0xf0000000))
-      hash ^= temp >> 24;
-
-    hash &= ~temp;
-  }
-
-  return hash;
+  return std::string(buffer);
 }
 
 void logError(const char* format, ...)
@@ -231,7 +206,7 @@ void logError(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   if (consumers.empty())
@@ -248,7 +223,7 @@ void logWarning(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   if (consumers.empty())
@@ -265,7 +240,7 @@ void log(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   if (consumers.empty())
@@ -282,7 +257,7 @@ void panic(const char* format, ...)
   va_list vl;
 
   va_start(vl, format);
-  String message = vlformat(format, vl);
+  std::string message = vlformat(format, vl);
   va_end(vl);
 
   std::cerr << message << std::endl;

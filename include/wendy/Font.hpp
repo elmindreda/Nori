@@ -81,7 +81,7 @@ public:
                           RenderContext& context,
                           Face& face,
                           uint height);
-  static Ref<Font> read(RenderContext& context, const String& name);
+  static Ref<Font> read(RenderContext& context, const std::string& name);
 private:
   class Glyph;
   Font(const ResourceInfo& info, RenderContext& context);
@@ -132,7 +132,7 @@ class FontReader : public ResourceReader<Font>
 public:
   FontReader(RenderContext& context);
   using ResourceReader<Font>::read;
-  Ref<Font> read(const String& name, const Path& path);
+  Ref<Font> read(const std::string& name, const Path& path);
 private:
   RenderContext& m_context;
 };

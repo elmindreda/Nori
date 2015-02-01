@@ -63,53 +63,45 @@ namespace wendy
 
 using namespace glm;
 
-/*! String type.
- */
-typedef std::string String;
-
-/*! String hash type.
- */
-typedef uint32 StringHash;
-
 /*! @brief Converts the specified value to a string.
  */
-String stringCast(const vec2& v);
-String stringCast(const vec3& v);
-String stringCast(const vec4& v);
-String stringCast(const mat2& v);
-String stringCast(const mat3& v);
-String stringCast(const mat4& v);
-String stringCast(const quat& v);
+std::string stringCast(const vec2& v);
+std::string stringCast(const vec3& v);
+std::string stringCast(const vec4& v);
+std::string stringCast(const mat2& v);
+std::string stringCast(const mat3& v);
+std::string stringCast(const mat4& v);
+std::string stringCast(const quat& v);
 
 /*! @brief Converts the specified string to a vec2.
  */
-vec2 vec2Cast(const String& string);
+vec2 vec2Cast(const std::string& string);
 /*! @brief Converts the specified string to a vec3.
  */
-vec3 vec3Cast(const String& string);
+vec3 vec3Cast(const std::string& string);
 /*! @brief Converts the specified string to a vec4.
  */
-vec4 vec4Cast(const String& string);
+vec4 vec4Cast(const std::string& string);
 
 /*! @brief Converts the specified string to a mat2.
  */
-mat2 mat2Cast(const String& string);
+mat2 mat2Cast(const std::string& string);
 /*! @brief Converts the specified string to a mat3.
  */
-mat3 mat3Cast(const String& string);
+mat3 mat3Cast(const std::string& string);
 /*! @brief Converts the specified string to a mat4.
  */
-mat4 mat4Cast(const String& string);
+mat4 mat4Cast(const std::string& string);
 
 /*! @brief Converts the specified string to a quat.
  */
-quat quatCast(const String& string);
+quat quatCast(const std::string& string);
 
 /*! @brief Creates a string using printf formatting.
  */
-WENDY_CHECKFORMAT(1, String format(const char* format, ...));
+WENDY_CHECKFORMAT(1, std::string format(const char* format, ...));
 
-String vlformat(const char* format, va_list vl);
+std::string vlformat(const char* format, va_list vl);
 
 class RefObject;
 
@@ -127,14 +119,6 @@ enum LogEntryType
     */
   INFO_LOG_ENTRY
 };
-
-/*! Returns a hash value of the specified string.
- */
-StringHash hashString(const String& string);
-
-/*! Returns a hash value of the specified string.
- */
-StringHash hashString(const char* string);
 
 /*! Writes an error message log entry to the log consumers,
  *  or to stderr if there are no log consumers.

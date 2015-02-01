@@ -858,7 +858,7 @@ public:
     ID(ID)
   {
   }
-  String name;
+  std::string name;
   SamplerType type;
   int ID;
 };
@@ -872,7 +872,7 @@ public:
     ID(ID)
   {
   }
-  String name;
+  std::string name;
   UniformType type;
   int ID;
 };

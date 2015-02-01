@@ -332,7 +332,7 @@ void Recti::set(int x, int y, int width, int height)
   size = ivec2(width, height);
 }
 
-Rect rectCast(const String& string)
+Rect rectCast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -342,7 +342,7 @@ Rect rectCast(const String& string)
   return result;
 }
 
-Recti rectiCast(const String& string)
+Recti rectiCast(const std::string& string)
 {
   std::istringstream stream(string, std::ios::in);
 
@@ -352,7 +352,7 @@ Recti rectiCast(const String& string)
   return result;
 }
 
-String stringCast(const Rect& v)
+std::string stringCast(const Rect& v)
 {
   std::ostringstream stream;
 
@@ -362,7 +362,7 @@ String stringCast(const Rect& v)
   return stream.str();
 }
 
-String stringCast(const Recti& v)
+std::string stringCast(const Recti& v)
 {
   std::ostringstream stream;
 

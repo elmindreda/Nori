@@ -205,7 +205,7 @@ Shader::~Shader()
 Ref<Shader> Shader::create(const ResourceInfo& info,
                           RenderContext& context,
                           ShaderType type,
-                          const String& text)
+                          const std::string& text)
 {
   Ref<Shader> shader(new Shader(info, context, type));
   if (!shader->init(text))
@@ -216,7 +216,7 @@ Ref<Shader> Shader::create(const ResourceInfo& info,
 
 Ref<Shader> Shader::read(RenderContext& context,
                          ShaderType type,
-                         const String& name)
+                         const std::string& name)
 {
   ResourceCache& cache = context.cache();
 
@@ -237,7 +237,7 @@ Ref<Shader> Shader::read(RenderContext& context,
     return nullptr;
   }
 
-  String text;
+  std::string text;
 
   stream.seekg(0, std::ios::end);
   text.resize((uint) stream.tellg());
@@ -258,7 +258,7 @@ Shader::Shader(const ResourceInfo& info,
 {
 }
 
-bool Shader::init(const String& text)
+bool Shader::init(const std::string& text)
 {
   Preprocessor spp(cache());
 
@@ -272,7 +272,7 @@ bool Shader::init(const String& text)
     return false;
   }
 
-  String shader;
+  std::string shader;
 
   if (spp.hasVersion())
   {
@@ -299,7 +299,7 @@ bool Shader::init(const String& text)
   glShaderSource(m_shaderID, 1, strings, lengths);
   glCompileShader(m_shaderID);
 
-  String infoLog;
+  std::string infoLog;
 
   // Retrieve shader info log
   {
@@ -577,12 +577,12 @@ Ref<Program> Program::create(const ResourceInfo& info,
 }
 
 Ref<Program> Program::read(RenderContext& context,
-                           const String& vertexShaderName,
-                           const String& fragmentShaderName)
+                           const std::string& vertexShaderName,
+                           const std::string& fragmentShaderName)
 {
   ResourceCache& cache = context.cache();
 
-  String name;
+  std::string name;
   name += "vs:";
   name += vertexShaderName;
   name += " fs:";
@@ -654,7 +654,7 @@ bool Program::init(Shader& vertexShader, Shader& fragmentShader)
 
   glLinkProgram(m_programID);
 
-  const String info = infoLog();
+  const std::string info = infoLog();
 
   int status;
   glGetProgramiv(m_programID, GL_LINK_STATUS, &status);
@@ -833,9 +833,9 @@ bool Program::isValid() const
   return true;
 }
 
-String Program::infoLog() const
+std::string Program::infoLog() const
 {
-  String result;
+  std::string result;
   GLint length;
 
   glGetProgramiv(m_programID, GL_INFO_LOG_LENGTH, &length);

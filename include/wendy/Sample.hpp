@@ -48,7 +48,7 @@ public:
          size_t size,
          SampleFormat format,
          unsigned long frequency);
-  static Ref<Sample> read(ResourceCache& cache, const String& name);
+  static Ref<Sample> read(ResourceCache& cache, const std::string& name);
   std::vector<char> data;
   SampleFormat format;
   unsigned long frequency;
@@ -59,7 +59,7 @@ class SampleReader : public ResourceReader<Sample>
 public:
   SampleReader(ResourceCache& cache);
   using ResourceReader<Sample>::read;
-  Ref<Sample> read(const String& name, const Path& path);
+  Ref<Sample> read(const std::string& name, const Path& path);
 };
 
 } /*namespace wendy*/

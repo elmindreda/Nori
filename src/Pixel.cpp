@@ -49,7 +49,7 @@ PixelFormat::PixelFormat(const char* specification):
   while (std::isspace(*c))
     c++;
 
-  String semanticName;
+  std::string semanticName;
 
   while (std::isalpha(*c))
     semanticName += std::tolower(*c++);
@@ -67,7 +67,7 @@ PixelFormat::PixelFormat(const char* specification):
   else
     throw Exception("Invalid pixel format semantic name");
 
-  String typeName;
+  std::string typeName;
 
   while (std::isdigit(*c) || std::isalpha(*c))
     typeName += std::tolower(*c++);
@@ -139,7 +139,7 @@ uint PixelFormat::channelCount() const
   }
 }
 
-String PixelFormat::asString() const
+std::string PixelFormat::asString() const
 {
   std::ostringstream result;
 

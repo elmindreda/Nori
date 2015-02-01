@@ -35,7 +35,7 @@ namespace wendy
 {
 
 ResourceInfo::ResourceInfo(ResourceCache& initCache,
-                           const String& initName,
+                           const std::string& initName,
                            const Path& initPath):
   cache(initCache),
   name(initName),
@@ -106,7 +106,7 @@ void ResourceCache::removeSearchPath(const Path& path)
   m_paths.erase(std::find(m_paths.begin(), m_paths.end(), path));
 }
 
-Resource* ResourceCache::findResource(const String& name) const
+Resource* ResourceCache::findResource(const std::string& name) const
 {
   for (Resource* r : m_resources)
   {
@@ -117,7 +117,7 @@ Resource* ResourceCache::findResource(const String& name) const
   return nullptr;
 }
 
-Path ResourceCache::findFile(const String& name) const
+Path ResourceCache::findFile(const std::string& name) const
 {
   if (m_paths.empty())
   {

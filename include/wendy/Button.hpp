@@ -42,7 +42,7 @@ public:
   ButtonType type() const { return m_type; }
   bool checked() const { return m_checked; }
   void setChecked(bool checked);
-  const String& text() const { return m_text; }
+  const std::string& text() const { return m_text; }
   void setText(const char* newText);
   SignalProxy<void, Button&> pushedSignal();
 protected:
@@ -60,7 +60,7 @@ protected:
 private:
   Signal<void, Button&> m_pushedSignal;
   ButtonType m_type;
-  String m_text;
+  std::string m_text;
   bool m_selected;
   bool m_checked;
 };

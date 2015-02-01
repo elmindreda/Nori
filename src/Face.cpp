@@ -159,7 +159,7 @@ Ref<Face> Face::create(const ResourceInfo& info, const char* data, size_t size)
   return face;
 }
 
-Ref<Face> Face::read(ResourceCache& cache, const String& name)
+Ref<Face> Face::read(ResourceCache& cache, const std::string& name)
 {
   FaceReader reader(cache);
   return reader.read(name);
@@ -190,7 +190,7 @@ FaceReader::FaceReader(ResourceCache& cache):
 {
 }
 
-Ref<Face> FaceReader::read(const String& name, const Path& path)
+Ref<Face> FaceReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
   if (stream.fail())

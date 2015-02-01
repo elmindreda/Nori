@@ -65,7 +65,7 @@ public:
   static Ref<BvhTriangleMeshShape> create(const ResourceInfo& info,
                                           const Mesh& data);
   static Ref<BvhTriangleMeshShape> read(ResourceCache& cache,
-                                        const String& meshName);
+                                        const std::string& meshName);
 private:
   BvhTriangleMeshShape(const ResourceInfo& info);
   bool init(const Mesh& data);

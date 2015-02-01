@@ -126,7 +126,7 @@ public:
                            uint depth = 1,
                            const void* pixels = nullptr,
                            ptrdiff_t pitch = 0);
-  static Ref<Image> read(ResourceCache& cache, const String& name);
+  static Ref<Image> read(ResourceCache& cache, const std::string& name);
 private:
   Image(const ResourceInfo& info);
   Image(const Image&) = delete;
@@ -149,7 +149,7 @@ class ImageReader : public ResourceReader<Image>
 public:
   ImageReader(ResourceCache& cache);
   using ResourceReader<Image>::read;
-  Ref<Image> read(const String& name, const Path& path);
+  Ref<Image> read(const std::string& name, const Path& path);
 };
 
 class ImageWriter

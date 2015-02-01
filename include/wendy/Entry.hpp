@@ -34,8 +34,8 @@ class Entry : public Widget
 {
 public:
   Entry(Layer& layer, Widget* parent = nullptr, const char* text = "");
-  const String& text() const { return m_controller.text(); }
-  void setText(const String& newText);
+  const std::string& text() const { return m_controller.text(); }
+  void setText(const std::string& newText);
   void setText(const char* newText);
   size_t caretPosition() const { return m_controller.caretPosition(); }
   void setCaretPosition(size_t newPosition);

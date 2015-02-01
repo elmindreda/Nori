@@ -95,7 +95,7 @@ public:
   uint channelCount() const;
   /*! @return A string representation of this pixel format.
    */
-  String asString() const;
+  std::string asString() const;
   static const PixelFormat L8;
   static const PixelFormat L16;
   static const PixelFormat L16F;

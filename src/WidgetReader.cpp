@@ -58,7 +58,7 @@ namespace
 
 const uint WIDGETS_XML_VERSION = 1;
 
-Alignment alignmentCast(const String& name)
+Alignment alignmentCast(const std::string& name)
 {
   static const std::regex regex("(left|center|right) (top|center|bottom)");
 
@@ -85,7 +85,7 @@ Alignment alignmentCast(const String& name)
   return value;
 }
 
-Orientation orientationCast(const String& name)
+Orientation orientationCast(const std::string& name)
 {
   if (name == "horizontal")
     return HORIZONTAL;
@@ -93,7 +93,7 @@ Orientation orientationCast(const String& name)
     return VERTICAL;
 }
 
-LayoutMode layoutModeCast(const String& name)
+LayoutMode layoutModeCast(const std::string& name)
 {
   if (name == "cover")
     return COVER_PARENT;
@@ -279,22 +279,22 @@ WidgetReader::WidgetReader(ResourceCache& cache):
   m_factories["widget"] = createWidget;
 }
 
-void WidgetReader::addFactory(const String& name, WidgetFactory factory)
+void WidgetReader::addFactory(const std::string& name, WidgetFactory factory)
 {
   m_factories[name] = factory;
 }
 
-bool WidgetReader::read(Widget& parent, const String& name)
+bool WidgetReader::read(Widget& parent, const std::string& name)
 {
   return read(parent.layer(), &parent, name);
 }
 
-bool WidgetReader::read(Layer& layer, const String& name)
+bool WidgetReader::read(Layer& layer, const std::string& name)
 {
   return read(layer, nullptr, name);
 }
 
-bool WidgetReader::read(Layer& layer, Widget* parent, const String& name)
+bool WidgetReader::read(Layer& layer, Widget* parent, const std::string& name)
 {
   const Path path = m_cache.findFile(name);
 

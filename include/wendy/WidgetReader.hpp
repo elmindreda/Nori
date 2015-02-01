@@ -36,11 +36,11 @@ class WidgetReader
 {
 public:
   WidgetReader(ResourceCache& cache);
-  void addFactory(const String& name, WidgetFactory factory);
-  bool read(Widget& parent, const String& name);
-  bool read(Layer& layer, const String& name);
+  void addFactory(const std::string& name, WidgetFactory factory);
+  bool read(Widget& parent, const std::string& name);
+  bool read(Layer& layer, const std::string& name);
   template <typename T>
-  T* find(const String& name)
+  T* find(const std::string& name)
   {
     auto entry = m_named.find(name);
     if (entry == m_named.end())
@@ -49,11 +49,11 @@ public:
     return dynamic_cast<T*>(entry->second);
   }
 private:
-  bool read(Layer& layer, Widget* parent, const String& name);
+  bool read(Layer& layer, Widget* parent, const std::string& name);
   void read(Layer& layer, Widget* parent, pugi::xml_node wn);
   ResourceCache& m_cache;
-  std::map<String,WidgetFactory> m_factories;
-  std::map<String,Widget*> m_named;
+  std::map<std::string,WidgetFactory> m_factories;
+  std::map<std::string,Widget*> m_named;
 };
 
 } /*namespace wendy*/

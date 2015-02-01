@@ -49,13 +49,13 @@ public:
   virtual float width() const;
   virtual float height() const;
   virtual ItemID id() const;
-  virtual const String& value() const;
+  virtual const std::string& value() const;
   virtual void setValue(const char* newValue);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
   Layer& m_layer;
 private:
-  String m_value;
+  std::string m_value;
   ItemID m_id;
 };
 

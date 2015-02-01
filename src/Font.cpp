@@ -191,7 +191,7 @@ Ref<Font> Font::create(const ResourceInfo& info,
   return font;
 }
 
-Ref<Font> Font::read(RenderContext& context, const String& name)
+Ref<Font> Font::read(RenderContext& context, const std::string& name)
 {
   FontReader reader(context);
   return reader.read(name);
@@ -361,7 +361,7 @@ FontReader::FontReader(RenderContext& context):
 {
 }
 
-Ref<Font> FontReader::read(const String& name, const Path& path)
+Ref<Font> FontReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name());
   if (stream.fail())
@@ -388,7 +388,7 @@ Ref<Font> FontReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  const String faceName(root.attribute("face").value());
+  const std::string faceName(root.attribute("face").value());
   if (faceName.empty())
   {
     logError("No typeface specified for font %s", faceName.c_str());

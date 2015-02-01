@@ -48,7 +48,7 @@ class MeshSection
 {
 public:
   std::vector<MeshTriangle> triangles;
-  String materialName;
+  std::string materialName;
 };
 
 /*! @brief Triangle mesh.
@@ -95,7 +95,7 @@ public:
   /*! @return The number of triangles in all sections of this mesh.
    */
   size_t triangleCount() const;
-  static Ref<Mesh> read(ResourceCache& cache, const String& name);
+  static Ref<Mesh> read(ResourceCache& cache, const std::string& name);
   /*! The list of sections in this mesh.
    */
   std::vector<MeshSection> sections;
@@ -109,9 +109,9 @@ class MeshReader : public ResourceReader<Mesh>
 public:
   MeshReader(ResourceCache& cache);
   using ResourceReader<Mesh>::read;
-  Ref<Mesh> read(const String& name, const Path& path);
+  Ref<Mesh> read(const std::string& name, const Path& path);
 private:
-  String parseName(const char** text);
+  std::string parseName(const char** text);
   int parseInteger(const char** text);
   float parseFloat(const char** text);
   bool interesting(const char** text);

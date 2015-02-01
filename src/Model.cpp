@@ -215,7 +215,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
   return true;
 }
 
-Ref<Model> Model::read(RenderContext& context, const String& name)
+Ref<Model> Model::read(RenderContext& context, const std::string& name)
 {
   ModelReader reader(context);
   return reader.read(name);
@@ -227,7 +227,7 @@ ModelReader::ModelReader(RenderContext& context):
 {
 }
 
-Ref<Model> ModelReader::read(const String& name, const Path& path)
+Ref<Model> ModelReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name());
   if (stream.fail())
@@ -254,7 +254,7 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  const String meshName(root.attribute("mesh").value());
+  const std::string meshName(root.attribute("mesh").value());
   if (meshName.empty())
   {
     logError("No mesh for model %s", name.c_str());
@@ -272,14 +272,14 @@ Ref<Model> ModelReader::read(const String& name, const Path& path)
 
   for (auto m : root.children("material"))
   {
-    const String materialAlias(m.attribute("alias").value());
+    const std::string materialAlias(m.attribute("alias").value());
     if (materialAlias.empty())
     {
       logError("Empty material alias found in model %s", name.c_str());
       return nullptr;
     }
 
-    const String materialName(m.attribute("name").value());
+    const std::string materialName(m.attribute("name").value());
     if (materialName.empty())
     {
       logError("Empty material name for alias %s in model %s",

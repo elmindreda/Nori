@@ -73,7 +73,7 @@
 namespace wendy
 {
 
-Path::Path(const String& initName)
+Path::Path(const std::string& initName)
 {
   operator = (initName);
 }
@@ -105,12 +105,12 @@ bool Path::exists() const
 #endif
 }
 
-Path Path::operator + (const String& child) const
+Path Path::operator + (const std::string& child) const
 {
   return Path(m_string + '/' + child);
 }
 
-Path& Path::operator += (const String& child)
+Path& Path::operator += (const std::string& child)
 {
   return operator = (m_string + '/' + child);
 }
@@ -129,7 +129,7 @@ bool Path::operator != (const Path& other) const
   return m_string != other.m_string;
 }
 
-Path& Path::operator = (const String& newPath)
+Path& Path::operator = (const std::string& newPath)
 {
   m_string = newPath;
 
@@ -137,7 +137,7 @@ Path& Path::operator = (const String& newPath)
   {
     // Remove extraneous trailing slashes
 
-    while (String::size_type end = m_string.length() - 1)
+    while (std::string::size_type end = m_string.length() - 1)
     {
       if (m_string[end] != '/')
         break;
@@ -207,16 +207,16 @@ Path Path::parent() const
 {
   // TODO: Fix this.
 
-  String::size_type offset = m_string.find_last_of('/');
-  if (offset == String::npos)
+  std::string::size_type offset = m_string.find_last_of('/');
+  if (offset == std::string::npos)
     return Path(".");
 
   return Path(m_string.substr(0, offset + 1));
 }
 
-std::vector<String> Path::children() const
+std::vector<std::string> Path::children() const
 {
-  std::vector<String> children;
+  std::vector<std::string> children;
 
 #if WENDY_SYSTEM_WIN32
   WIN32_FIND_DATA data;
@@ -250,9 +250,9 @@ std::vector<String> Path::children() const
   return children;
 }
 
-std::vector<String> Path::childrenMatching(const std::regex& regex) const
+std::vector<std::string> Path::childrenMatching(const std::regex& regex) const
 {
-  std::vector<String> children;
+  std::vector<std::string> children;
   std::cmatch match;
 
 #if WENDY_SYSTEM_WIN32
@@ -291,35 +291,35 @@ std::vector<String> Path::childrenMatching(const std::regex& regex) const
   return children;
 }
 
-String Path::suffix() const
+std::string Path::suffix() const
 {
-  String last;
+  std::string last;
 
-  String::size_type start = m_string.find_last_of('/');
-  if (start == String::npos)
+  std::string::size_type start = m_string.find_last_of('/');
+  if (start == std::string::npos)
     last = m_string;
   else
-    last = m_string.substr(start, String::npos);
+    last = m_string.substr(start, std::string::npos);
 
-  String::size_type offset = last.find_last_of('.');
-  if (offset == String::npos)
+  std::string::size_type offset = last.find_last_of('.');
+  if (offset == std::string::npos)
     return "";
 
-  return last.substr(offset + 1, String::npos);
+  return last.substr(offset + 1, std::string::npos);
 }
 
-String Path::basename() const
+std::string Path::basename() const
 {
-  String::size_type start = m_string.find_last_of('/');
-  String::size_type end = m_string.find_last_of('.');
+  std::string::size_type start = m_string.find_last_of('/');
+  std::string::size_type end = m_string.find_last_of('.');
 
-  if (start == String::npos)
+  if (start == std::string::npos)
     start = 0;
   else
     start++;
 
-  if (end != String::npos && end < start)
-    end = String::npos;
+  if (end != std::string::npos && end < start)
+    end = std::string::npos;
 
   return m_string.substr(start, end - start);
 }

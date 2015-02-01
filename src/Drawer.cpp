@@ -40,7 +40,7 @@ namespace wendy
 namespace
 {
 
-Bimap<String, WidgetState> widgetStateMap;
+Bimap<std::string, WidgetState> widgetStateMap;
 
 class ElementVertex
 {
@@ -80,7 +80,7 @@ Theme::Theme(const ResourceInfo& info):
 {
 }
 
-Ref<Theme> Theme::read(RenderContext& context, const String& name)
+Ref<Theme> Theme::read(RenderContext& context, const std::string& name)
 {
   ThemeReader reader(context);
   return reader.read(name);
@@ -99,7 +99,7 @@ ThemeReader::ThemeReader(RenderContext& context):
   }
 }
 
-Ref<Theme> ThemeReader::read(const String& name, const Path& path)
+Ref<Theme> ThemeReader::read(const std::string& name, const Path& path)
 {
   std::ifstream stream(path.name());
   if (stream.fail())
@@ -128,7 +128,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
 
   Ref<Theme> theme = new Theme(ResourceInfo(cache, name, path));
 
-  const String imageName(root.attribute("image").value());
+  const std::string imageName(root.attribute("image").value());
   if (imageName.empty())
   {
     logError("No image specified for UI theme %s", name.c_str());
@@ -144,7 +144,7 @@ Ref<Theme> ThemeReader::read(const String& name, const Path& path)
     return nullptr;
   }
 
-  const String fontName(root.attribute("font").value());
+  const std::string fontName(root.attribute("font").value());
   if (fontName.empty())
   {
     logError("Font for UI theme %s is empty", name.c_str());
@@ -569,7 +569,7 @@ bool Drawer::init()
 
   // Load default theme
   {
-    const String themeName("wendy/UIDefault.theme");
+    const std::string themeName("wendy/UIDefault.theme");
 
     m_theme = Theme::read(m_context, themeName);
     if (!m_theme)

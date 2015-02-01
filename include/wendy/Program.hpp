@@ -58,13 +58,13 @@ public:
   static Ref<Shader> create(const ResourceInfo& info,
                             RenderContext& context,
                             ShaderType type,
-                            const String& text);
+                            const std::string& text);
   static Ref<Shader> read(RenderContext& context,
                           ShaderType type,
-                          const String& name);
+                          const std::string& name);
 private:
   Shader(const ResourceInfo& info, RenderContext& context, ShaderType type);
-  bool init(const String& text);
+  bool init(const std::string& text);
   RenderContext& m_context;
   ShaderType m_type;
   uint m_shaderID;
@@ -106,7 +106,7 @@ public:
   AttributeType type() const { return m_type; }
   /*! @return The name of this attribute.
    */
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   /*! @return The number of elements in this attribute.
    */
   uint elementCount() const;
@@ -115,7 +115,7 @@ public:
   static const char* typeName(AttributeType type);
 private:
   AttributeType m_type;
-  String m_name;
+  std::string m_name;
   int m_location;
 };
 
@@ -151,7 +151,7 @@ public:
   SamplerType type() const { return m_type; }
   /*! @return The name of this sampler.
    */
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   /*! @return The shared ID of this sampler, or -1 if it is not shared.
    */
   int sharedID() const { return m_sharedID; }
@@ -159,7 +159,7 @@ public:
    */
   static const char* typeName(SamplerType type);
 private:
-  String m_name;
+  std::string m_name;
   SamplerType m_type;
   int m_location;
   int m_sharedID;
@@ -217,7 +217,7 @@ public:
   UniformType type() const { return m_type; }
   /*! @return The name of this uniform.
    */
-  const String& name() const { return m_name; }
+  const std::string& name() const { return m_name; }
   /*! @return The number of elements in this uniform.
    */
   uint elementCount() const;
@@ -228,7 +228,7 @@ public:
    */
   static const char* typeName(UniformType type);
 private:
-  String m_name;
+  std::string m_name;
   UniformType m_type;
   int m_location;
   int m_sharedID;
@@ -263,8 +263,8 @@ public:
                              Shader& vertexShader,
                              Shader& fragmentShader);
   static Ref<Program> read(RenderContext& context,
-                           const String& vertexShaderName,
-                           const String& fragmentShaderName);
+                           const std::string& vertexShaderName,
+                           const std::string& fragmentShaderName);
 private:
   Program(const ResourceInfo& info, RenderContext& context);
   Program(const Program&) = delete;
@@ -275,7 +275,7 @@ private:
   void unbind();
   Program& operator = (const Program&) = delete;
   bool isValid() const;
-  String infoLog() const;
+  std::string infoLog() const;
   RenderContext& m_context;
   Ref<Shader> m_vertexShader;
   Ref<Shader> m_fragmentShader;
@@ -328,9 +328,9 @@ public:
    */
   bool matches(const VertexFormat& format, bool verbose = false) const;
 private:
-  std::vector<std::pair<String, SamplerType>> samplers;
-  std::vector<std::pair<String, UniformType>> uniforms;
-  std::vector<std::pair<String, AttributeType>> attributes;
+  std::vector<std::pair<std::string, SamplerType>> samplers;
+  std::vector<std::pair<std::string, UniformType>> uniforms;
+  std::vector<std::pair<std::string, AttributeType>> attributes;
 };
 
 } /*namespace wendy*/

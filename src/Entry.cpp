@@ -55,7 +55,7 @@ Entry::Entry(Layer& layer, Widget* parent, const char* text):
   setFocusable(true);
 }
 
-void Entry::setText(const String& newText)
+void Entry::setText(const std::string& newText)
 {
   setText(newText.c_str());
 }
@@ -84,7 +84,7 @@ void Entry::draw() const
     const float em = font.height();
     const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                         area.size + vec2(em, 0.f));
-    const String& text = m_controller.text();
+    const std::string& text = m_controller.text();
 
     drawer.setCurrentFont(nullptr);
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());

@@ -50,7 +50,7 @@ public:
   float height(int index, float scale) const;
   Ref<Image> glyph(int index, float scale) const;
   static Ref<Face> create(const ResourceInfo& info, const char* data, size_t size);
-  static Ref<Face> read(ResourceCache& cache, const String& name);
+  static Ref<Face> read(ResourceCache& cache, const std::string& name);
 private:
   Face(const ResourceInfo& info);
   Face(const Face&) = delete;
@@ -65,7 +65,7 @@ class FaceReader : public ResourceReader<Face>
 public:
   FaceReader(ResourceCache& cache);
   using ResourceReader<Face>::read;
-  Ref<Face> read(const String& name, const Path& path);
+  Ref<Face> read(const std::string& name, const Path& path);
 };
 
 } /*namespace wendy*/

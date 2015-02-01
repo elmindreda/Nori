@@ -207,7 +207,7 @@ public:
   bool isTable() const { return sq_istable(m_handle); }
   bool isClass() const { return sq_isclass(m_handle); }
   bool isInstance() const { return sq_isinstance(m_handle); }
-  String asString() const;
+  std::string asString() const;
   SQObjectType type() const;
   HSQOBJECT handle() { return m_handle; }
   HSQUIRRELVM vm() const { return m_vm; }

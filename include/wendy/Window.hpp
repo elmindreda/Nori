@@ -354,21 +354,21 @@ public:
   /*! Constructor.
    *  @param[in] title The desired title of the window.
    */
-  WindowConfig(const String& title);
+  WindowConfig(const std::string& title);
   /*! Constructor.
    *  @param[in] title The desired title of the window.
    *  @param[in] width The desired width of the window.
    *  @param[in] height The desired height of the window.
    *  @param[in] mode The desired mode of the window.
    */
-  WindowConfig(const String& title,
+  WindowConfig(const std::string& title,
                uint width,
                uint height,
                WindowMode mode,
                bool resizable = true);
   /*! The desired window title.
    */
-  String title;
+  std::string title;
   /*! The desired width of the window.
    */
   uint width;
@@ -434,8 +434,8 @@ public:
    *  @param[in] newPosition The desired mouse position.
    */
   void setCursorPosition(vec2 newPosition);
-  String clipboardText() const;
-  void setClipboardText(const String& newText);
+  std::string clipboardText() const;
+  void setClipboardText(const std::string& newText);
   /*! @return The signal for per-frame post-render clean-up.
    */
   SignalProxy<void> frameSignal() { return m_frameSignal; }
@@ -505,18 +505,18 @@ class TextController
 {
 public:
   TextController();
-  TextController(const String& text);
+  TextController(const std::string& text);
   void inputKey(Key key, Action action, uint mods);
   void inputCharacter(uint32 codepoint);
-  const String& text() const { return m_text; }
-  void setText(const String& newText);
+  const std::string& text() const { return m_text; }
+  void setText(const std::string& newText);
   size_t length() const;
   size_t caretPosition() const { return m_caretPosition; }
   void setCaretPosition(size_t newPosition);
   SignalProxy<void> caretMovedSignal() { return m_caretMovedSignal; }
   SignalProxy<void> textChangedSignal() { return m_textChangedSignal; }
 private:
-  String m_text;
+  std::string m_text;
   size_t m_caretPosition;
   Signal<void> m_textChangedSignal;
   Signal<void> m_caretMovedSignal;
