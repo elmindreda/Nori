@@ -135,6 +135,8 @@ void Book::onPageAdded(Page& page)
 
 void Book::onPageRemoved(Page& page)
 {
+  m_pages.erase(std::find(m_pages.begin(), m_pages.end(), &page));
+
   if (&page == m_activePage)
   {
     if (m_pages.empty())
@@ -142,8 +144,6 @@ void Book::onPageRemoved(Page& page)
     else
       setActivePage(m_pages.front(), false);
   }
-
-  m_pages.erase(std::find(m_pages.begin(), m_pages.end(), &page));
 }
 
 void Book::onAreaChanged()
