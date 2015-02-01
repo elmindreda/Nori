@@ -82,6 +82,13 @@ if (_GLFW_X11)
 
   list(APPEND glfw_INCLUDE_DIR ${X11_Xkb_INCLUDE_PATH})
 
+  if (NOT X11_Xinerama_FOUND)
+    message(FATAL_ERROR "The Xinerama library and headers were not found")
+  endif()
+
+  list(APPEND glfw_INCLUDE_DIRS ${X11_Xinerama_INCLUDE_PATH})
+  list(APPEND glfw_LIBRARIES ${X11_Xinerama_LIB})
+
   find_library(RT_LIBRARY rt)
   mark_as_advanced(RT_LIBRARY)
   if (RT_LIBRARY)
