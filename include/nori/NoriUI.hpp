@@ -30,7 +30,7 @@
 
 #if NORI_INCLUDE_UI_SYSTEM
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Scroller.hpp>

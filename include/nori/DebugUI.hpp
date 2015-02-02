@@ -41,7 +41,7 @@ private:
 class Interface : public Layer
 {
 public:
-  Interface(Window& window, Drawer& drawer);
+  Interface(Theme& theme);
   void update();
   void draw();
 private:

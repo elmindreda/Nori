@@ -25,7 +25,19 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Core.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Image.hpp>
+
+#include <nori/Texture.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/RenderContext.hpp>
+
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Label.hpp>
@@ -68,19 +80,24 @@ Panel::Panel(Layer& layer):
 
 void Panel::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.fillRect(area, vec4(0.5f));
+    VectorContext& vc = theme.context();
+    vc.beginPath();
+    vc.rect(area);
+    vc.fillColor(vec4(0.5f));
+    vc.fill();
+
     Widget::draw();
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 
-Interface::Interface(Window& window, Drawer& drawer):
-  Layer(drawer),
+Interface::Interface(Theme& theme):
+  Layer(theme),
   root(nullptr)
 {
   root = new Panel(*this);
@@ -92,13 +109,13 @@ Interface::Interface(Window& window, Drawer& drawer):
   for (size_t i = 0;  i < ITEM_COUNT;  i++)
   {
     labels[i] = new Label(*this, layout);
-    labels[i]->setTextAlignment(RIGHT_ALIGNED);
+    labels[i]->setTextAlignment(ALIGN_RIGHT | ALIGN_MIDDLE);
   }
 }
 
 void Interface::update()
 {
-  RenderStats* stats = drawer().context().stats();
+  RenderStats* stats = theme().context().context().stats();
 
   if (stats)
   {
@@ -135,7 +152,7 @@ void Interface::update()
 
 void Interface::draw()
 {
-  RenderContext& context = drawer().context();
+  RenderContext& context = theme().context().context();
 
   Framebuffer& framebuffer = context.framebuffer();
   root->setSize(vec2(150.f, float(framebuffer.height())));

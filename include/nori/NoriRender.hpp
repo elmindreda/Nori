@@ -38,7 +38,6 @@
 #include <nori/Program.hpp>
 #include <nori/RenderContext.hpp>
 #include <nori/Pass.hpp>
-#include <nori/Font.hpp>
 #include <nori/Material.hpp>
 #include <nori/RenderQueue.hpp>
 #include <nori/Sprite.hpp>

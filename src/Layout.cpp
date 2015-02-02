@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Layout.hpp>

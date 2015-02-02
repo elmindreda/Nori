@@ -43,7 +43,7 @@ class Layer : public EventTarget, public Trackable, public RefObject
 public:
   /*! Constructor.
    */
-  Layer(Drawer& drawer);
+  Layer(Theme& theme);
   /*! Destructor.
    */
   ~Layer();
@@ -69,7 +69,7 @@ public:
   virtual bool isOpaque() const;
   bool hasCapturedCursor() const;
   vec2 cursorPoint() const;
-  Drawer& drawer() const { return m_drawer; }
+  Theme& theme() const { return m_theme; }
   Window& window() const { return m_window; }
   /*! @return The root widgets of this layer.
    */
@@ -97,7 +97,7 @@ private:
   void focusableWidgets(std::vector<Widget*>& target,
                         const std::vector<Widget*>& source) const;
   Window& m_window;
-  Drawer& m_drawer;
+  Theme& m_theme;
   bool m_dragging;
   MouseButton m_dragButton;
   std::vector<Widget*> m_roots;

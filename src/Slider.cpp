@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Slider.hpp>
@@ -41,7 +41,7 @@ Slider::Slider(Layer& layer, Widget* parent, Orientation orientation):
   m_value(0.f),
   m_orientation(orientation)
 {
-  const float em = layer.drawer().theme().em();
+  const float em = layer.theme().em();
 
   if (m_orientation == HORIZONTAL)
     setDesiredSize(vec2(em * 10.f, em * 1.5f));
@@ -77,10 +77,10 @@ void Slider::setStepSize(float newSize)
 
 void Slider::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
     const float fraction = (m_value - m_minValue) / (m_maxValue - m_minValue);
 
@@ -107,12 +107,11 @@ void Slider::draw() const
                      area.size.x);
     }
 
-    drawer.drawWell(wellArea, state());
-    drawer.drawHandle(handleArea, state());
+    theme.drawWell(wellArea, state());
+    theme.drawHandle(handleArea, state());
 
     Widget::draw();
-
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

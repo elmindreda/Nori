@@ -27,7 +27,7 @@
 
 #include <nori/Core.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Label.hpp>
@@ -56,31 +56,31 @@ namespace
 
 const uint WIDGETS_XML_VERSION = 1;
 
-Alignment alignmentCast(const std::string& name)
+int alignmentCast(const std::string& name)
 {
   static const std::regex regex("(left|center|right) (top|center|bottom)");
 
-  Alignment value;
+  int alignment = 0;
   std::smatch match;
 
   if (std::regex_match(name, match, regex))
   {
     if (match[1] == "left")
-      value.horizontal = LEFT_ALIGNED;
+      alignment |= ALIGN_LEFT;
     else if (match[1] == "center")
-      value.horizontal = CENTERED_ON_X;
+      alignment |= ALIGN_CENTER;
     else if (match[1] == "right")
-      value.horizontal = RIGHT_ALIGNED;
+      alignment |= ALIGN_RIGHT;
 
     if (match[2] == "top")
-      value.vertical = TOP_ALIGNED;
+      alignment |= ALIGN_TOP;
     else if (match[2] == "center")
-      value.vertical = CENTERED_ON_Y;
+      alignment |= ALIGN_MIDDLE;
     else if (match[2] == "bottom")
-      value.vertical = BOTTOM_ALIGNED;
+      alignment |= ALIGN_BOTTOM;
   }
 
-  return value;
+  return alignment;
 }
 
 Orientation orientationCast(const std::string& name)

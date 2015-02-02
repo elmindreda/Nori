@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Book.hpp>
@@ -73,14 +73,14 @@ void Book::setActivePage(Page* newPage)
 
 void Book::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
     if (!m_pages.empty())
     {
-      const float em = drawer.theme().em();
+      const float em = theme.em();
       const vec2 tabSize(area.size.x / m_pages.size(), em * 2.f);
 
       Rect tabArea(area.position.x,
@@ -101,22 +101,20 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.setFont(nullptr);
-        drawer.drawTab(tabArea, state, p->text().c_str());
-
+        theme.drawTab(tabArea, state, p->text().c_str());
         tabArea.position.x += tabSize.x;
       }
     }
 
     Widget::draw();
 
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 
 void Book::onPageAdded(Page& page)
 {
-  const float em = layer().drawer().theme().em();
+  const float em = layer().theme().em();
 
   page.setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));
 
@@ -143,7 +141,7 @@ void Book::onPageRemoved(Page& page)
 
 void Book::onAreaChanged()
 {
-  const float em = layer().drawer().theme().em();
+  const float em = layer().theme().em();
 
   for (Page* p : m_pages)
     p->setArea(Rect(0.f, 0.f, width(), height() - em * 2.f));

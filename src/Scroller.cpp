@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Scroller.hpp>
@@ -42,7 +42,7 @@ Scroller::Scroller(Layer& layer, Widget* parent, Orientation orientation):
   m_reference(0.f),
   m_orientation(orientation)
 {
-  const float em = layer.drawer().theme().em();
+  const float em = layer.theme().em();
 
   if (m_orientation == HORIZONTAL)
     setDesiredSize(vec2(0.f, em * 1.5f));
@@ -79,12 +79,12 @@ void Scroller::setPercentage(float newPercentage)
 
 void Scroller::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.drawWell(area, state());
+    theme.drawWell(area, state());
 
     if (m_minValue != m_maxValue)
     {
@@ -108,12 +108,11 @@ void Scroller::draw() const
                        size);
       }
 
-      drawer.drawHandle(handleArea, state());
+      theme.drawHandle(handleArea, state());
     }
 
     Widget::draw();
-
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 
@@ -259,7 +258,7 @@ void Scroller::setValue(float newValue, bool notify)
 
 float Scroller::handleSize() const
 {
-  const float em = layer().drawer().theme().em();
+  const float em = layer().theme().em();
 
   if (m_orientation == HORIZONTAL)
     return max(width() * m_percentage, em);

@@ -73,20 +73,17 @@ protected:
 
 /*! @ingroup ui
  */
-class TextureItem : public Item
+class ImageItem : public Item
 {
 public:
-  TextureItem(Layer& layer,
-              Texture& texture,
-              const std::string& name = "",
-              ItemID id = 0);
+  ImageItem(Layer& layer, int image, const std::string& name = "", ItemID id = 0);
   float width() const override;
   float height() const override;
-  Texture& texture() const;
+  int image() const { return m_image; }
 protected:
   void draw(const Rect& area, WidgetState state) const;
 private:
-  Ref<Texture> m_texture;
+  int m_image;
 };
 
 class ItemComparator

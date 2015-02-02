@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Progress.hpp>
@@ -40,7 +40,7 @@ Progress::Progress(Layer& layer, Widget* parent, Orientation orientation):
   m_value(0.f),
   m_orientation(orientation)
 {
-  const float em = layer.drawer().theme().em();
+  const float em = layer.theme().em();
 
   if (m_orientation == HORIZONTAL)
     setDesiredSize(vec2(em * 10.f, em * 1.5f));
@@ -75,12 +75,12 @@ void Progress::setOrientation(Orientation newOrientation)
 
 void Progress::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.drawWell(area, state());
+    theme.drawWell(area, state());
 
     const float position = (m_value - m_minValue) / (m_maxValue - m_minValue);
     Rect handleArea;
@@ -100,11 +100,10 @@ void Progress::draw() const
                      10.f);
     }
 
-    drawer.drawHandle(handleArea, state());
+    theme.drawSelection(handleArea, state());
 
     Widget::draw();
-
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

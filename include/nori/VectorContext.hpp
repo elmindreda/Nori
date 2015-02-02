@@ -41,6 +41,17 @@ namespace nori
 
 class RenderContext;
 
+enum
+{
+  ALIGN_LEFT     = 0x01,
+  ALIGN_CENTER   = 0x02,
+  ALIGN_RIGHT    = 0x04,
+  ALIGN_TOP      = 0x08,
+  ALIGN_MIDDLE   = 0x10,
+  ALIGN_BOTTOM   = 0x20,
+  ALIGN_BASELINE = 0x40,
+};
+
 class VectorContext
 {
 public:
@@ -50,6 +61,7 @@ public:
   void save();
   void restore();
   void reset();
+  void beginPath();
   void strokeColor(vec4 color);
   void strokePaint(NVGpaint paint);
   void strokeWidth(float size);
@@ -73,11 +85,10 @@ public:
   NVGpaint linearGradient(vec2 start, vec2 end, vec4 innerColor, vec4 outerColor);
   NVGpaint boxGradient(Rect rect, float radius, float feather, vec4 innerColor, vec4 outerColor);
   NVGpaint radialGradient(vec2 center, float innerRadius, float outerRadius, vec4 innerColor, vec4 outerColor);
-  NVGpaint imagePattern(vec2 origin, vec2 size, float angle, int image, float alpha);
+  NVGpaint imagePattern(Rect area, float angle, int image, float alpha);
   void scissor(Rect rect);
   void intersectScissor(Rect rect);
   void resetScissor();
-  void beginPath();
   void moveTo(vec2 point);
   void lineTo(vec2 point);
   void closePath();

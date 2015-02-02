@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Item.hpp>
@@ -51,13 +51,14 @@ bool Item::operator < (const Item& other) const
 
 float Item::width() const
 {
-  Font& font = m_layer.drawer().theme().font();
-  return font.height() * 2.f + font.boundsOf(m_value.c_str()).size.x;
+  Theme& theme = m_layer.theme();
+  VectorContext& vc = theme.context();
+  return theme.em() * 2.f + vc.textBounds(vec2(0.f), m_value.c_str()).size.x;
 }
 
 float Item::height() const
 {
-  return m_layer.drawer().theme().em() * 1.5f;
+  return m_layer.theme().em() * 1.5f;
 }
 
 ItemID Item::id() const
@@ -78,20 +79,15 @@ void Item::setValue(const std::string& value)
 
 void Item::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = m_layer.drawer();
-  Font& font = drawer.theme().font();
-  const float em = font.height();
+  Theme& theme = m_layer.theme();
+  const float em = theme.em();
   const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                       area.size - vec2(em, 0.f));
 
   if (state == STATE_SELECTED)
-  {
-    const vec3 color = drawer.theme().backgroundColor(STATE_SELECTED);
-    drawer.fillRect(area, vec4(color, 1.f));
-  }
+    theme.drawSelection(area, state);
 
-  drawer.setFont(nullptr);
-  drawer.drawText(textArea, m_value.c_str(), LEFT_ALIGNED, state);
+  theme.drawText(textArea, state, ALIGN_LEFT | ALIGN_MIDDLE, m_value.c_str());
 }
 
 SeparatorItem::SeparatorItem(Layer& layer):
@@ -101,67 +97,59 @@ SeparatorItem::SeparatorItem(Layer& layer):
 
 float SeparatorItem::width() const
 {
-  return m_layer.drawer().theme().em() * 2.f;
+  return m_layer.theme().em() * 2.f;
 }
 
 float SeparatorItem::height() const
 {
-  return m_layer.drawer().theme().em() / 2.f;
+  return m_layer.theme().em() / 2.f;
 }
 
 void SeparatorItem::draw(const Rect& area, WidgetState state) const
 {
-  Drawer& drawer = m_layer.drawer();
-
-  const vec2 start(area.position.x, area.position.y + area.size.y / 2.f);
-  const vec2 end(area.position.x + area.size.x,
-                 area.position.y + area.size.y / 2.f);
-
-  drawer.drawLine(start, end, vec4(vec3(0.f), 1.f));
+  VectorContext& context = m_layer.theme().context();
+  context.beginPath();
+  context.moveTo(vec2(area.position.x, area.position.y + area.size.y / 2.f));
+  context.lineTo(vec2(area.position.x + area.size.x,
+                      area.position.y + area.size.y / 2.f));
+  context.fillColor(vec4(0.f, 0.f, 0.f, 1.f));
+  context.fill();
 }
 
-TextureItem::TextureItem(Layer& layer,
-                         Texture& texture,
-                         const std::string& name,
-                         ItemID id):
+ImageItem::ImageItem(Layer& layer, int image, const std::string& name, ItemID id):
   Item(layer, name, id),
-  m_texture(&texture)
+  m_image(image)
 {
 }
 
-float TextureItem::width() const
+float ImageItem::width() const
 {
-  return Item::width() + m_layer.drawer().theme().em() * 3.f;
+  return Item::width() + m_layer.theme().em() * 3.f;
 }
 
-float TextureItem::height() const
+float ImageItem::height() const
 {
-  return m_layer.drawer().theme().em() * 3.f;
+  return m_layer.theme().em() * 3.f;
 }
 
-Texture& TextureItem::texture() const
+void ImageItem::draw(const Rect& area, WidgetState state) const
 {
-  return *m_texture;
-}
-
-void TextureItem::draw(const Rect& area, WidgetState state) const
-{
-  Drawer& drawer = m_layer.drawer();
-  const float em = drawer.theme().em();
+  Theme& theme = m_layer.theme();
+  VectorContext& context = theme.context();
+  const float em = theme.em();
   const Rect textArea(area.position + vec2(em * 3.5f, 0.f),
                       area.size - vec2(em, 0.f));
 
   if (state == STATE_SELECTED)
-  {
-    const vec3 color = drawer.theme().backgroundColor(STATE_SELECTED);
-    drawer.fillRect(area, vec4(color, 1.f));
-  }
+    theme.drawSelection(area, state);
 
-  drawer.setFont(nullptr);
-  drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
+  theme.drawText(textArea, state, ALIGN_LEFT | ALIGN_MIDDLE, value().c_str());
 
-  const Rect textureArea(area.position, vec2(em * 3.f));
-  drawer.blitTexture(textureArea, *m_texture, vec4(1.f));
+  const Rect imageArea(area.position, vec2(em * 3.f));
+  context.beginPath();
+  context.rect(imageArea);
+  context.fillPaint(context.imagePattern(imageArea, 0.f, m_image, 1.f));
+  context.fill();
 }
 
 } /*namespace nori*/

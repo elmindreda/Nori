@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Scroller.hpp>
@@ -208,12 +208,12 @@ void List::setSelectedID(ItemID newItemID)
 
 void List::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.drawWell(area, state());
+    theme.drawWell(area, state());
 
     float itemTop = area.size.y;
 
@@ -233,7 +233,7 @@ void List::draw() const
 
     Widget::draw();
 
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

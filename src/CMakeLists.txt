@@ -17,9 +17,9 @@ include_directories(${pugixml_SOURCE_DIR}
 set(nori_SOURCES
     Nori.cpp
 
-    Core.cpp Camera.cpp Face.cpp Frustum.cpp Image.cpp Mesh.cpp Path.cpp
-    Pixel.cpp Primitive.cpp Profile.cpp Rect.cpp Resource.cpp Sample.cpp
-    Signal.cpp Time.cpp Transform.cpp Vertex.cpp)
+    Core.cpp Camera.cpp Frustum.cpp Image.cpp Mesh.cpp Path.cpp Pixel.cpp
+    Primitive.cpp Profile.cpp Rect.cpp Resource.cpp Sample.cpp Signal.cpp
+    Time.cpp Transform.cpp Vertex.cpp)
 
 if (NORI_INCLUDE_NETWORK)
   include_directories(${enet_SOURCE_DIR})
@@ -32,11 +32,10 @@ if (NORI_INCLUDE_AUDIO)
 endif()
 
 if (NORI_INCLUDE_RENDERER)
-  list(APPEND nori_SOURCES Font.cpp Material.cpp Model.cpp OpenGL.cpp Pass.cpp
-                           Program.cpp Query.cpp RenderBuffer.cpp
-                           RenderContext.cpp RenderQueue.cpp Renderer.cpp
-                           Scene.cpp Sprite.cpp Texture.cpp VectorContext.cpp
-                           Window.cpp)
+  list(APPEND nori_SOURCES
+       Material.cpp Model.cpp OpenGL.cpp Pass.cpp Program.cpp Query.cpp
+       RenderBuffer.cpp RenderContext.cpp RenderQueue.cpp Renderer.cpp Scene.cpp
+       Sprite.cpp Texture.cpp VectorContext.cpp Window.cpp)
 endif()
 
 if (NORI_INCLUDE_SQUIRREL)
@@ -51,9 +50,9 @@ endif()
 
 if (NORI_INCLUDE_UI_SYSTEM)
   list(APPEND nori_SOURCES
-       Book.cpp Button.cpp Canvas.cpp Drawer.cpp Entry.cpp Item.cpp Label.cpp
-       Layer.cpp Layout.cpp List.cpp Menu.cpp Popup.cpp Progress.cpp
-       Scroller.cpp Slider.cpp Widget.cpp WidgetReader.cpp)
+       Book.cpp Button.cpp Canvas.cpp Entry.cpp Item.cpp Label.cpp Layer.cpp
+       Layout.cpp List.cpp Menu.cpp Popup.cpp Progress.cpp Scroller.cpp
+       Slider.cpp Theme.cpp Widget.cpp WidgetReader.cpp)
 endif()
 
 if (NORI_INCLUDE_DEBUG_UI)

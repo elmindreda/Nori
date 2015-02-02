@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Label.hpp>
@@ -35,14 +35,14 @@
 namespace nori
 {
 
-Label::Label(Layer& layer, Widget* parent, const std::string& text, Alignment alignment):
+Label::Label(Layer& layer, Widget* parent, const std::string& text, int alignment):
   Widget(layer, parent),
   m_text(text),
   m_alignment(alignment)
 {
-  Font& font = layer.drawer().theme().font();
-  const float em = font.height();
-  const float textWidth = font.boundsOf(m_text.c_str()).size.x;
+  Theme& theme = layer.theme();
+  const float em = theme.em();
+  const float textWidth = theme.context().textBounds(vec2(0.f), text.c_str()).size.x;
 
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
@@ -53,7 +53,7 @@ void Label::setText(const std::string& text)
   invalidate();
 }
 
-void Label::setTextAlignment(const Alignment& alignment)
+void Label::setTextAlignment(int alignment)
 {
   m_alignment = alignment;
   invalidate();
@@ -61,17 +61,15 @@ void Label::setTextAlignment(const Alignment& alignment)
 
 void Label::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.setFont(nullptr);
-    drawer.drawText(area, m_text.c_str(), m_alignment, state());
+    theme.drawText(area, state(), m_alignment, m_text.c_str());
 
     Widget::draw();
-
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Button.hpp>
@@ -51,9 +51,9 @@ Button::Button(Layer& layer, Widget* parent, ButtonType type, const std::string&
   m_selected(false),
   m_checked(false)
 {
-  Font& font = layer.drawer().theme().font();
-  const float em = font.height();
-  const float textWidth = font.boundsOf(m_text.c_str()).size.x;
+  Theme& theme = layer.theme();
+  const float em = theme.em();
+  const float textWidth = theme.context().textBounds(vec2(0.f), m_text.c_str()).size.x;
 
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
   setDraggable(true);
@@ -62,10 +62,10 @@ Button::Button(Layer& layer, Widget* parent, ButtonType type, const std::string&
 
 void Button::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
     WidgetState hoverState;
 
@@ -74,15 +74,13 @@ void Button::draw() const
     else
       hoverState = state();
 
-    drawer.setFont(nullptr);
     if (m_type == PUSH_BUTTON)
-      drawer.drawButton(area, hoverState, m_text.c_str());
+      theme.drawPushButton(area, hoverState, m_text.c_str());
     else if (m_type == CHECK_BUTTON)
-      drawer.drawCheck(area, hoverState, m_checked, m_text.c_str());
+      theme.drawCheckButton(area, hoverState, m_checked, m_text.c_str());
 
     Widget::draw();
-
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

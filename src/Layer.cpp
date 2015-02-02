@@ -28,17 +28,27 @@
 #include <nori/Core.hpp>
 #include <nori/Time.hpp>
 #include <nori/Profile.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Image.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Texture.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/RenderContext.hpp>
+
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 
 namespace nori
 {
 
-Layer::Layer(Drawer& drawer):
-  m_window(drawer.context().window()),
-  m_drawer(drawer),
+Layer::Layer(Theme& theme):
+  m_window(theme.context().context().window()),
+  m_theme(theme),
   m_dragging(false),
   m_activeWidget(nullptr),
   m_draggedWidget(nullptr),
@@ -47,7 +57,7 @@ Layer::Layer(Drawer& drawer):
   m_stack(nullptr)
 {
   assert(&m_window);
-  assert(&m_drawer);
+  assert(&m_theme);
 }
 
 Layer::~Layer()
@@ -63,7 +73,7 @@ void Layer::draw()
 {
   ProfileNodeCall call("Layer::draw");
 
-  m_drawer.begin();
+  m_theme.beginLayer();
 
   for (Widget* r : m_roots)
   {
@@ -71,7 +81,7 @@ void Layer::draw()
       r->draw();
   }
 
-  m_drawer.end();
+  m_theme.endLayer();
 }
 
 void Layer::destroyRootWidgets()

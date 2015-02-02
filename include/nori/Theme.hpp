@@ -25,26 +25,60 @@
 
 #pragma once
 
+#include <nori/Core.hpp>
+
+#include <nori/VectorContext.hpp>
+
 namespace nori
 {
 
 /*! @ingroup ui
  */
-class Label : public Widget
+enum WidgetState
+{
+  STATE_DISABLED,
+  STATE_NORMAL,
+  STATE_ACTIVE,
+  STATE_SELECTED
+};
+
+/*! @ingroup ui
+ */
+enum Orientation
+{
+  HORIZONTAL,
+  VERTICAL
+};
+
+/*! @ingroup ui
+ */
+class Theme
 {
 public:
-  Label(Layer& layer,
-        Widget* parent = nullptr,
-        const std::string& text = "",
-        int alignment = ALIGN_LEFT | ALIGN_MIDDLE);
-  const std::string& text() const { return m_text; }
-  void setText(const std::string& text);
-  const int textAlignment() const { return m_alignment; }
-  void setTextAlignment(int alignment);
+  ~Theme();
+  void beginLayer();
+  void endLayer();
+  bool pushClipArea(Rect area);
+  void popClipArea();
+  void drawText(Rect area, WidgetState state, int alignment, const char* text);
+  void drawWell(Rect area, WidgetState state);
+  void drawFrame(Rect area, WidgetState state);
+  void drawHandle(Rect area, WidgetState state);
+  void drawPushButton(Rect area, WidgetState state, const char* text);
+  void drawCheckButton(Rect area, WidgetState state, bool checked, const char* text);
+  void drawPopup(Rect area, WidgetState state, const char* text);
+  void drawTab(Rect area, WidgetState state, const char* text);
+  void drawSelection(Rect area, WidgetState state);
+  float em() const { return m_em; }
+  VectorContext& context() const { return m_vc; }
+  static std::unique_ptr<Theme> create(VectorContext& context);
 private:
-  void draw() const;
-  std::string m_text;
-  int m_alignment;
+  Theme(VectorContext& context);
+  bool init();
+  VectorContext& m_vc;
+  RectClipStackf m_stack;
+  int m_font;
+  float m_em;
 };
 
 } /*namespace nori*/

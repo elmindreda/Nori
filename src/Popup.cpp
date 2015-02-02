@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Item.hpp>
@@ -40,7 +40,7 @@ Popup::Popup(Layer& layer, Widget* parent):
   m_selection(NO_ITEM),
   m_menu(nullptr)
 {
-  const float em = layer.drawer().theme().em();
+  const float em = layer.theme().em();
   setDesiredSize(vec2(em * 10.f, em * 2.f));
 
   m_menu = new Menu(layer);
@@ -151,30 +151,23 @@ void Popup::setSelectedID(ItemID newItemID)
 
 void Popup::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
     WidgetState buttonState = state();
     if (m_menu->isVisible())
       buttonState = STATE_SELECTED;
 
-    drawer.setFont(nullptr);
-    drawer.drawButton(area, buttonState);
+    const char* text = "";
+    if (m_selection < m_menu->items().size())
+      text = m_menu->items()[m_selection]->value().c_str();
 
-    if (m_selection != NO_ITEM)
-    {
-      const Item* item = m_menu->items().at(m_selection);
-      const float em = drawer.theme().em();
-      const Rect textArea(area.position + vec2(em / 2.f, 0.f),
-                          area.size - vec2(em, 0.f));
-
-      drawer.drawText(textArea, item->value().c_str(), LEFT_ALIGNED, buttonState);
-    }
+    theme.drawPopup(area, buttonState, text);
 
     Widget::draw();
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

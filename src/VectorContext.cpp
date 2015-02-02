@@ -74,6 +74,11 @@ void VectorContext::reset()
   nvgReset(m_nvg);
 }
 
+void VectorContext::beginPath()
+{
+  nvgBeginPath(m_nvg);
+}
+
 void VectorContext::strokeColor(vec4 color)
 {
   nvgStrokeColor(m_nvg, *(NVGcolor*)&color);
@@ -210,11 +215,11 @@ NVGpaint VectorContext::radialGradient(vec2 center,
                     *(NVGcolor*) &innerColor, *(NVGcolor*) &outerColor);
 }
 
-NVGpaint VectorContext::imagePattern(vec2 origin, vec2 size,
-                                     float angle, int image, float alpha)
+NVGpaint VectorContext::imagePattern(Rect area, float angle, int image, float alpha)
 {
   return nvgImagePattern(m_nvg,
-                         origin.x, origin.y, size.x, size.y,
+                         area.position.x, area.position.y,
+                         area.size.x, area.size.y,
                          angle, image, alpha);
 }
 
@@ -231,11 +236,6 @@ void VectorContext::intersectScissor(Rect area)
 void VectorContext::resetScissor()
 {
   nvgResetScissor(m_nvg);
-}
-
-void VectorContext::beginPath()
-{
-  nvgBeginPath(m_nvg);
 }
 
 void VectorContext::moveTo(vec2 point)
@@ -310,7 +310,7 @@ void VectorContext::textBox(vec2 pen, float width, const char* start, const char
 
 Rect VectorContext::textBounds(vec2 pen, const char* start, const char* end)
 {
-  float bounds[4];
+  float bounds[4] = { 0.f, 0.f, 0.f, 0.f };
   nvgTextBounds(m_nvg, pen.x, pen.y, start, end, bounds);
   return Rect(bounds[0], bounds[1], bounds[2] - bounds[0], bounds[3] - bounds[1]);
 }
@@ -345,7 +345,7 @@ VectorContext::VectorContext(RenderContext& rc):
 
 bool VectorContext::init()
 {
-  m_nvg = nvgCreateGL2(0);
+  m_nvg = nvgCreateGL2(NVG_ANTIALIAS);
   if (!m_nvg)
   {
     logError("Failed to create NanoVG context");

@@ -48,5 +48,4 @@
 
 #include <nori/Image.hpp>
 #include <nori/Mesh.hpp>
-#include <nori/Face.hpp>
 

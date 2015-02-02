@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Item.hpp>
@@ -158,12 +158,12 @@ void Menu::sortItems()
 
 void Menu::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.drawFrame(area, state());
+    theme.drawFrame(area, state());
 
     float itemTop = area.size.y - 1.f;
 
@@ -185,7 +185,7 @@ void Menu::draw() const
 
     Widget::draw();
 
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 

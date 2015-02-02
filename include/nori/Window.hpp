@@ -28,6 +28,7 @@
 #include <nori/Core.hpp>
 #include <nori/Transform.hpp>
 #include <nori/Signal.hpp>
+#include <nori/Time.hpp>
 
 #include <memory>
 

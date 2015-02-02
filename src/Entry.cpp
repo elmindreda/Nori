@@ -25,7 +25,7 @@
 
 #include <nori/Config.hpp>
 
-#include <nori/Drawer.hpp>
+#include <nori/Theme.hpp>
 #include <nori/Layer.hpp>
 #include <nori/Widget.hpp>
 #include <nori/Entry.hpp>
@@ -37,14 +37,9 @@ Entry::Entry(Layer& layer, Widget* parent, const std::string& text):
   Widget(layer, parent),
   m_controller(text)
 {
-  Font& font = layer.drawer().theme().font();
-  const float em = font.height();
-
-  float textWidth;
-  if (m_controller.text().empty())
-    textWidth = em * 3.f;
-  else
-    textWidth = font.boundsOf(m_controller.text().c_str()).size.x;
+  Theme& theme = layer.theme();
+  const float em = theme.em();
+  const float textWidth = theme.context().textBounds(vec2(0.f), text.c_str()).size.x;
 
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 
@@ -68,37 +63,42 @@ void Entry::setCaretPosition(size_t newPosition)
 
 void Entry::draw() const
 {
-  Drawer& drawer = layer().drawer();
+  Theme& theme = layer().theme();
 
   const Rect area = globalArea();
-  if (drawer.pushClipArea(area))
+  if (theme.pushClipArea(area))
   {
-    drawer.drawWell(area, state());
+    theme.drawWell(area, state());
 
-    Font& font = drawer.theme().font();
-    const float em = font.height();
+    const float em = theme.em();
     const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                         area.size + vec2(em, 0.f));
     const std::string& text = m_controller.text();
 
-    drawer.setFont(nullptr);
-    drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());
+    theme.drawText(textArea, state(), ALIGN_LEFT | ALIGN_MIDDLE, text.c_str());
 
-    if (isActive() && floor(fmod(m_timer.time(), 2.0)) == 0.0)
+    if (isActive() && floor(mod(m_timer.time(), 2.0)) == 0.0)
     {
-      const Rect bounds = font.boundsOf(text.c_str(), 0, m_controller.caretPosition());
+      VectorContext& vc = theme.context();
+      const Rect bounds(vc.textBounds(vec2(0.f),
+                                      text.c_str(),
+                                      text.c_str() + m_controller.caretPosition()));
       const float position = bounds.size.x;
+      const vec2 start(textArea.position.x + position,
+                       textArea.position.y);
+      const vec2 end(textArea.position.x + position,
+                     textArea.position.y + textArea.size.y);
 
-      const vec2 start = vec2(textArea.position.x + position,
-                              textArea.position.y);
-      const vec2 end = vec2(textArea.position.x + position,
-                            textArea.position.y + textArea.size.y);
-
-      drawer.drawLine(start, end, vec4(drawer.theme().caretColor(state()), 1.f));
+      vc.beginPath();
+      vc.moveTo(start);
+      vc.lineTo(end);
+      vc.strokeColor(vec4(1.f));
+      vc.strokeWidth(1.f);
+      vc.stroke();
     }
 
     Widget::draw();
-    drawer.popClipArea();
+    theme.popClipArea();
   }
 }
 
@@ -117,19 +117,20 @@ void Entry::onMouseButton(vec2 point,
 {
   if (action == PRESSED)
   {
-    Font& font = layer().drawer().theme().font();
-    const float em = font.height();
+    Theme& theme = layer().theme();
+    VectorContext& vc = theme.context();
+    const float em = theme.em();
     const float position = transformToLocal(point).x - em / 2.f;
-    const auto layout = font.layoutOf(m_controller.text().c_str());
+    const auto positions = vc.textGlyphPositions(vec2(0.f), m_controller.text().c_str());
 
-    size_t caretPosition = layout.size();
+    size_t caretPosition = positions.size();
 
-    for (size_t i = 0;  i < layout.size();  i++)
+    for (size_t i = 0;  i < positions.size();  i++)
     {
-      if (position < layout[i].position.x + layout[i].size.x / 2.f)
+      if (position < (positions[i].minx + positions[i].maxx) / 2.f)
       {
-        if (i == 0 || position >= layout[i - 1].position.x +
-                                  layout[i - 1].size.x / 2.f)
+        if (i == 0 || position >= (positions[i - 1].minx +
+                                   positions[i - 1].maxx) / 2.f)
         {
           caretPosition = i;
           break;
