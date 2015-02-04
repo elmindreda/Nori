@@ -895,7 +895,12 @@ void RenderContext::clearColorBuffer(const vec4& color)
 void RenderContext::clearDepthBuffer(float depth)
 {
   glDepthMask(GL_TRUE);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_ALWAYS);
+
   m_renderState.depthWriting = true;
+  m_renderState.depthTesting = true;
+  m_renderState.depthFunction = ALLOW_ALWAYS;
 
   glClearDepth(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -922,9 +927,14 @@ void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 {
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
   glDepthMask(GL_TRUE);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_ALWAYS);
   glDisable(GL_STENCIL_TEST);
+
   m_renderState.colorWriting = true;
   m_renderState.depthWriting = true;
+  m_renderState.depthTesting = true;
+  m_renderState.depthFunction = ALLOW_ALWAYS;
   m_renderState.stencilTesting = false;
 
   glClearColor(color.r, color.g, color.b, color.a);
