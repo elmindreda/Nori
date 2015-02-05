@@ -29,44 +29,20 @@
 #include <wendy/Resource.hpp>
 #include <wendy/Sample.hpp>
 
-#include <vorbis/vorbisfile.h>
+#include <stb_vorbis.c>
 
 namespace wendy
 {
 
-namespace
-{
-
-const char* getErrorString(int error)
-{
-  switch (error)
-  {
-    case OV_EREAD:
-      return "A read from media returned an error";
-    case OV_ENOTVORBIS:
-      return "Bitstream does not contain any Vorbis data";
-    case OV_EVERSION:
-      return "Vorbis version mismatch";
-    case OV_EBADHEADER:
-      return "Invalid Vorbis bitstream header";
-    case OV_EFAULT:
-      return "Internal logic fault; indicates a bug or heap/stack corruption";
-  }
-
-  return "Unknown vorbisfile error";
-}
-
-} /*namespace*/
-
 Sample::Sample(const ResourceInfo& info,
-               const char* initData,
-               size_t initSize,
-               SampleFormat initFormat,
-               unsigned long initFrequency):
+               const char* data,
+               size_t size,
+               SampleFormat format,
+               uint frequency):
   Resource(info),
-  data(initData, initData + initSize),
-  format(initFormat),
-  frequency(initFrequency)
+  data(data, data + size),
+  format(format),
+  frequency(frequency)
 {
 }
 
@@ -83,86 +59,30 @@ SampleReader::SampleReader(ResourceCache& cache):
 
 Ref<Sample> SampleReader::read(const std::string& name, const Path& path)
 {
-  int result;
-  OggVorbis_File file;
+  stb_vorbis* file;
+  int channels, rate;
+  short* samples;
 
-  result = ov_fopen(path.name().c_str(), &file);
-  if (result)
+  const int length = stb_vorbis_decode_filename(path.name().c_str(),
+                                                &channels, &rate, &samples);
+  if (length < 1)
   {
-    logError("Failed to open audio file %s: %s",
-             path.name().c_str(),
-             getErrorString(result));
+    logError("Failed to read audio file %s", path.name().c_str());
     return nullptr;
   }
-
-  if (ov_streams(&file) > 1)
-  {
-    ov_clear(&file);
-    logError("Audio file %s has an unsupported number of bitstreams",
-             path.name().c_str());
-    return nullptr;
-  }
-
-  const vorbis_info* info = ov_info(&file, -1);
-  if (!info)
-  {
-    ov_clear(&file);
-    logError("Failed to retrieve Vorbis info for audio file %s",
-             path.name().c_str());
-    return nullptr;
-  }
-
-  if (info->channels > 2)
-  {
-    ov_clear(&file);
-    logError("Audio file %s has an unsupported number of channels",
-             path.name().c_str());
-    return nullptr;
-  }
-
-  const unsigned long frequency = info->rate;
 
   SampleFormat format;
-  if (info->channels == 1)
+  if (channels == 1)
     format = SAMPLE_MONO16;
   else
     format = SAMPLE_STEREO16;
 
-  std::vector<char> samples;
+  Ref<Sample> sample = new Sample(ResourceInfo(cache, name, path),
+                                  (const char*) samples, length * sizeof(short),
+                                  format, rate);
 
-#if WENDY_WORDS_BIGENDIAN
-  const int endian = 1;
-#else
-  const int endian = 0;
-#endif
-
-  for (;;)
-  {
-    int bitstream;
-    char scratch[4096];
-
-    result = ov_read(&file, scratch, sizeof(scratch), endian, 2, 1, &bitstream);
-    if (result < 0)
-    {
-      ov_clear(&file);
-      logError("Error when reading audio file %s: %s",
-              path.name().c_str(),
-              getErrorString(result));
-      return nullptr;
-    }
-    else if (result > 0)
-      samples.insert(samples.end(), scratch, scratch + result);
-    else
-      break;
-  }
-
-  ov_clear(&file);
-
-  return new Sample(ResourceInfo(cache, name, path),
-                    &samples[0],
-                    samples.size(),
-                    format,
-                    frequency);
+  free(samples);
+  return sample;
 }
 
 } /*namespace wendy*/

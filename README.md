@@ -46,12 +46,11 @@ Wendy comes with internal versions of the following libraries:
  - [GREG](http://github.com/elmindreda/greg/) for managing OpenGL extensions
  - [GLFW](http://www.glfw.org/) for OpenGL context, input and window
  - [GLM](http://glm.g-truc.net/) for vector math and explicitly sized types
- - [libogg](http://www.xiph.org/ogg/) for reading Ogg files
- - [libvorbis](http://xiph.org/vorbis/) for decoding Vorbis audio data
  - [pugixml](http://pugixml.org/) for reading and writing XML files
  - [Squirrel](http://squirrel-lang.org/) for embedded scripting
  - [stb\_image](http://nothings.org/) for reading and writing image files
  - [stb\_truetype](http://nothings.org/) for TrueType typeface support
+ - [stb\_vorbis](http://nothings.org/) for decoding Ogg Vorbis files
  - [utf8cpp](http://utfcpp.sourceforge.net/) for UTF-8 text support
 
 Wendy requires that OpenGL and OpenAL headers and link libraries are present in

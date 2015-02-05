@@ -47,11 +47,11 @@ public:
          const char* data,
          size_t size,
          SampleFormat format,
-         unsigned long frequency);
+         uint frequency);
   static Ref<Sample> read(ResourceCache& cache, const std::string& name);
   std::vector<char> data;
   SampleFormat format;
-  unsigned long frequency;
+  uint frequency;
 };
 
 class SampleReader : public ResourceReader<Sample>

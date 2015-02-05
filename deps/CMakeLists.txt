@@ -3,8 +3,6 @@ add_subdirectory(pugixml)
 add_subdirectory(glfw)
 add_subdirectory(greg)
 add_subdirectory(glm)
-add_subdirectory(libogg)
-add_subdirectory(libvorbis)
 add_subdirectory(stb)
 add_subdirectory(utf8cpp)
 
