@@ -34,7 +34,7 @@
 
 #include <internal/OpenGL.hpp>
 
-#include <glm/gtx/bit.hpp>
+#include <glm/gtc/round.hpp>
 
 namespace wendy
 {

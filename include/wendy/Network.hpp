@@ -116,14 +116,12 @@ public:
   uint8 read8();
   uint16 read16();
   uint32 read32();
-  half read16f();
   float read32f();
   template <typename T>
   T read();
   void write8(uint8 value);
   void write16(uint16 value);
   void write32(uint32 value);
-  void write16f(half value);
   void write32f(float value);
   template <typename T>
   void write(const T& value);

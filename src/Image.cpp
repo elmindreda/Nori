@@ -36,7 +36,7 @@
 #include <fstream>
 #include <cstring>
 
-#include <glm/gtx/bit.hpp>
+#include <glm/gtc/round.hpp>
 
 #define STBI_NO_STDIO
 #define STB_IMAGE_IMPLEMENTATION
