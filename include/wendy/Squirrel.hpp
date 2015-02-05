@@ -41,6 +41,8 @@ namespace detail
 template <typename T>
 T get(HSQUIRRELVM vm, SQInteger index);
 
+inline void push(HSQUIRRELVM vm) { }
+
 template <typename T>
 void push(HSQUIRRELVM vm, T value);
 
@@ -606,7 +608,7 @@ public:
     return addFunction(name, &method, sizeof(method), detail::demarshaller(method), true);
   }
 protected:
-  static T* createNativeInstance();
+  static T* createNativeInstance(HSQUIRRELVM vm);
 private:
   static SQInteger constructor(HSQUIRRELVM vm);
   static SQInteger destructor(SQUserPointer pointer, SQInteger size);
@@ -647,7 +649,7 @@ inline SQInteger SqRefClass<T>::constructor(HSQUIRRELVM vm)
   sq_getstackobj(vm, 1, &object);
   sq_setreleasehook(vm, 1, &destructor);
 
-  T* instance = createNativeInstance();
+  T* instance = createNativeInstance(vm);
   increment(instance);
   sq_setinstanceup(vm, 1, (SQUserPointer*) instance);
   return 0;
