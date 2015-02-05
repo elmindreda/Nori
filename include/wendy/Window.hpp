@@ -438,7 +438,7 @@ public:
   void setClipboardText(const std::string& newText);
   /*! @return The signal for per-frame post-render clean-up.
    */
-  SignalProxy<void> frameSignal() { return m_frameSignal; }
+  SignalProxy<void> updated() { return m_updated; }
   EventHook* hook() const { return m_hook; }
   void setHook(EventHook* newHook);
   EventTarget* target() const { return m_target; }
@@ -463,7 +463,7 @@ private:
   RefreshMode m_refreshMode;
   EventHook* m_hook;
   EventTarget* m_target;
-  Signal<void> m_frameSignal;
+  Signal<void> m_updated;
   std::unique_ptr<Gamepad> m_gamepad;
 };
 
@@ -513,13 +513,13 @@ public:
   size_t length() const;
   size_t caretPosition() const { return m_caretPosition; }
   void setCaretPosition(size_t newPosition);
-  SignalProxy<void> caretMovedSignal() { return m_caretMovedSignal; }
-  SignalProxy<void> textChangedSignal() { return m_textChangedSignal; }
+  SignalProxy<void> caretMoved() { return m_caretMoved; }
+  SignalProxy<void> textChanged() { return m_textChanged; }
 private:
   std::string m_text;
   size_t m_caretPosition;
-  Signal<void> m_textChangedSignal;
-  Signal<void> m_caretMovedSignal;
+  Signal<void> m_textChanged;
+  Signal<void> m_caretMoved;
 };
 
 } /*namespace wendy*/

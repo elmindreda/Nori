@@ -44,8 +44,8 @@ Popup::Popup(Layer& layer, Widget* parent):
   setDesiredSize(vec2(em * 10.f, em * 2.f));
 
   m_menu = new Menu(layer);
-  m_menu->itemSelectedSignal().connect(*this, &Popup::onItemSelected);
-  m_menu->destroyedSignal().connect(*this, &Popup::onMenuDestroyed);
+  m_menu->itemSelected().connect(*this, &Popup::onItemSelected);
+  m_menu->destroyed().connect(*this, &Popup::onMenuDestroyed);
 
   setFocusable(true);
 }
@@ -151,11 +151,6 @@ void Popup::setSelectedID(ItemID newItemID)
   }
 }
 
-SignalProxy<void, Popup&, uint> Popup::itemSelectedSignal()
-{
-  return m_itemSelectedSignal;
-}
-
 void Popup::draw() const
 {
   Drawer& drawer = layer().drawer();
@@ -223,7 +218,7 @@ void Popup::onKey(Key key, Action action, uint mods)
 void Popup::onItemSelected(Menu& menu, uint index)
 {
   m_selection = index;
-  m_itemSelectedSignal(*this, m_selection);
+  m_itemSelected(*this, m_selection);
   activate();
 }
 

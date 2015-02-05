@@ -295,7 +295,7 @@ bool Window::update()
 
   glfwSwapBuffers(m_handle);
   m_needsRefresh = false;
-  m_frameSignal();
+  m_updated();
 
   if (m_refreshMode == MANUAL_REFRESH)
   {
@@ -758,7 +758,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         std::string::iterator e = s;
         utf8::next(e, m_text.end());
         m_text.erase(s, e);
-        m_textChangedSignal();
+        m_textChanged();
         setCaretPosition(caretPosition() - 1);
       }
 
@@ -777,7 +777,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         std::string::iterator e = s;
         utf8::next(e, m_text.end());
         m_text.erase(s, e);
-        m_textChangedSignal();
+        m_textChanged();
       }
 
       break;
@@ -829,7 +829,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
         utf8::advance(e, caretPosition(), m_text.end());
         m_text.erase(m_text.begin(), e);
         setCaretPosition(0);
-        m_textChangedSignal();
+        m_textChanged();
       }
 
       break;
@@ -876,7 +876,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
         setCaretPosition(s - m_text.begin());
         m_text.erase(s, e);
-        m_textChangedSignal();
+        m_textChanged();
       }
 
       break;
@@ -893,7 +893,7 @@ void TextController::inputCharacter(uint32 codepoint)
   utf8::advance(i, caretPosition(), m_text.end());
   utf8::append(codepoint, std::inserter(m_text, i));
   setCaretPosition(caretPosition() + 1);
-  m_textChangedSignal();
+  m_textChanged();
 }
 
 size_t TextController::length() const
@@ -905,13 +905,13 @@ void TextController::setText(const std::string& newText)
 {
   m_text = newText;
   setCaretPosition(caretPosition());
-  m_textChangedSignal();
+  m_textChanged();
 }
 
 void TextController::setCaretPosition(size_t newPosition)
 {
   m_caretPosition = min(length(), newPosition);
-  m_caretMovedSignal();
+  m_caretMoved();
 }
 
 } /*namespace wendy*/

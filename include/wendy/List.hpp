@@ -54,7 +54,7 @@ public:
   ItemID selectedID();
   void setSelectedID(ItemID newItemID);
   const std::vector<Item*>& items() const { return m_items; }
-  SignalProxy<void, List&> itemSelectedSignal();
+  SignalProxy<void,List&> itemSelected() { return m_itemSelected; }
 protected:
   void draw() const;
 private:
@@ -75,7 +75,7 @@ private:
   void updateScroller();
   bool isSelectionVisible() const;
   void setSelection(uint newSelection, bool notify);
-  Signal<void, List&> m_itemSelectedSignal;
+  Signal<void,List&> m_itemSelected;
   bool m_editable;
   bool m_editing;
   std::vector<Item*> m_items;

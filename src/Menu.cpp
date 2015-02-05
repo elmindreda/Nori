@@ -156,11 +156,6 @@ void Menu::sortItems()
   std::sort(m_items.begin(), m_items.end(), comparator);
 }
 
-SignalProxy<void, Menu&, uint> Menu::itemSelectedSignal()
-{
-  return m_itemSelectedSignal;
-}
-
 void Menu::draw() const
 {
   Drawer& drawer = layer().drawer();
@@ -255,7 +250,7 @@ void Menu::onMouseButton(vec2 point,
 
       if (itemTop - itemHeight <= local.y)
       {
-        m_itemSelectedSignal(*this, index);
+        m_itemSelected(*this, index);
         hide();
         break;
       }
@@ -312,7 +307,7 @@ void Menu::onKey(Key key, Action action, uint mods)
     {
       if (action == PRESSED)
       {
-        m_itemSelectedSignal(*this, m_selection);
+        m_itemSelected(*this, m_selection);
         hide();
       }
 

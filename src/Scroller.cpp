@@ -77,11 +77,6 @@ void Scroller::setPercentage(float newPercentage)
   invalidate();
 }
 
-SignalProxy<void, Scroller&> Scroller::valueChangedSignal()
-{
-  return m_valueChangedSignal;
-}
-
 void Scroller::draw() const
 {
   Drawer& drawer = layer().drawer();
@@ -257,7 +252,7 @@ void Scroller::setValue(float newValue, bool notify)
   m_value = newValue;
 
   if (notify)
-    m_valueChangedSignal(*this);
+    m_valueChanged(*this);
 
   invalidate();
 }

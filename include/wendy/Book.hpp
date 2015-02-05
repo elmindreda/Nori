@@ -54,7 +54,7 @@ public:
   ~Book();
   Page* activePage() const { return m_activePage; }
   void setActivePage(Page* newPage);
-  SignalProxy<void, Book&> pageChangedSignal();
+  SignalProxy<void,Book&> pageChanged() { return m_pageChanged; }
 protected:
   void draw() const;
   void onPageAdded(Page& page);
@@ -67,7 +67,7 @@ protected:
                      uint mods) override;
 private:
   void setActivePage(Page* newPage, bool notify);
-  Signal<void, Book&> m_pageChangedSignal;
+  Signal<void,Book&> m_pageChanged;
   Page* m_activePage;
   std::vector<Page*> m_pages;
 };

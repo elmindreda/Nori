@@ -71,11 +71,6 @@ void Book::setActivePage(Page* newPage)
   setActivePage(newPage, false);
 }
 
-SignalProxy<void, Book&> Book::pageChangedSignal()
-{
-  return m_pageChangedSignal;
-}
-
 void Book::draw() const
 {
   Drawer& drawer = layer().drawer();
@@ -230,7 +225,7 @@ void Book::setActivePage(Page* newPage, bool notify)
   m_activePage->show();
 
   if (notify)
-    m_pageChangedSignal(*this);
+    m_pageChanged(*this);
 
   invalidate();
 }

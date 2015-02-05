@@ -81,7 +81,7 @@ public:
   Widget* hoveredWidget() { return m_hoveredWidget; }
   void setActiveWidget(Widget* widget);
   LayerStack* stack() const { return m_stack; }
-  SignalProxy<void, Layer&> sizeChangedSignal();
+  SignalProxy<void,Layer&> sizeChanged() { return m_sizeChanged; }
 protected:
   void onWindowSize(uint width, uint height) override;
   void onKey(Key key, Action action, uint mods) override;
@@ -106,7 +106,7 @@ private:
   Widget* m_hoveredWidget;
   Widget* m_captureWidget;
   LayerStack* m_stack;
-  Signal<void, Layer&> m_sizeChangedSignal;
+  Signal<void,Layer&> m_sizeChanged;
 };
 
 class LayerStack

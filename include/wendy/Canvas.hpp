@@ -34,10 +34,10 @@ class Canvas : public Widget
 {
 public:
   Canvas(Layer& layer, Widget* parent = nullptr);
-  SignalProxy<void, const Canvas&> drawSignal();
+  SignalProxy<void,const Canvas&> drawn() { return m_drawn; }
 protected:
   void draw() const;
-  Signal<void, const Canvas&> m_drawSignal;
+  Signal<void,const Canvas&> m_drawn;
 };
 
 } /*namespace wendy*/

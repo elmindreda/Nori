@@ -42,7 +42,7 @@ public:
   void setValue(float newValue);
   float percentage() const { return m_percentage; }
   void setPercentage(float newPercentage);
-  SignalProxy<void, Scroller&> valueChangedSignal();
+  SignalProxy<void,Scroller&> valueChanged() { return m_valueChanged; }
 protected:
   void draw() const;
 private:
@@ -58,7 +58,7 @@ private:
   float handleSize() const;
   float handleOffset() const;
   float valueStep() const;
-  Signal<void, Scroller&> m_valueChangedSignal;
+  Signal<void,Scroller&> m_valueChanged;
   float m_minValue;
   float m_maxValue;
   float m_value;

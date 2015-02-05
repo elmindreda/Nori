@@ -38,14 +38,9 @@ Canvas::Canvas(Layer& layer, Widget* parent):
 {
 }
 
-SignalProxy<void, const Canvas&> Canvas::drawSignal()
-{
-  return m_drawSignal;
-}
-
 void Canvas::draw() const
 {
-  m_drawSignal(*this);
+  m_drawn(*this);
 
   Widget::draw();
 }

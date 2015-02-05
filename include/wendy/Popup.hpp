@@ -51,7 +51,7 @@ public:
   ItemID selectedID();
   void setSelectedID(ItemID newItemID);
   const std::vector<Item*>& items() const { return m_menu->items(); }
-  SignalProxy<void, Popup&, uint> itemSelectedSignal();
+  SignalProxy<void,Popup&,uint> itemSelected() { return m_itemSelected; }
 protected:
   void draw() const;
 private:
@@ -63,7 +63,7 @@ private:
   void onKey(Key key, Action action, uint mods) override;
   void onItemSelected(Menu& menu, uint index);
   void onMenuDestroyed(Widget& widget);
-  Signal<void, Popup&, uint> m_itemSelectedSignal;
+  Signal<void,Popup&,uint> m_itemSelected;
   uint m_selection;
   Menu* m_menu;
 };

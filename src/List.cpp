@@ -49,7 +49,7 @@ List::List(Layer& layer, Widget* parent):
   m_entry(nullptr)
 {
   m_scroller = new Scroller(layer, this, VERTICAL);
-  m_scroller->valueChangedSignal().connect(*this, &List::onValueChanged);
+  m_scroller->valueChanged().connect(*this, &List::onValueChanged);
 
   onAreaChanged();
   setFocusable(true);
@@ -147,9 +147,9 @@ void List::setEditable(bool newState)
   {
     m_entry = new Entry(layer(), this);
     m_entry->hide();
-    m_entry->focusChangedSignal().connect(*this, &List::onEntryFocusChanged);
-    m_entry->keySignal().connect(*this, &List::onEntryKey);
-    m_entry->destroyedSignal().connect(*this, &List::onEntryDestroyed);
+    m_entry->focusChanged().connect(*this, &List::onEntryFocusChanged);
+    m_entry->keyInput().connect(*this, &List::onEntryKey);
+    m_entry->destroyed().connect(*this, &List::onEntryDestroyed);
   }
   else
   {
@@ -205,11 +205,6 @@ void List::setSelectedID(ItemID newItemID)
       break;
     }
   }
-}
-
-SignalProxy<void, List&> List::itemSelectedSignal()
-{
-  return m_itemSelectedSignal;
 }
 
 void List::draw() const
@@ -506,7 +501,7 @@ void List::setSelection(uint newSelection, bool notify)
     setOffset(m_selection);
 
   if (notify)
-    m_itemSelectedSignal(*this);
+    m_itemSelected(*this);
 }
 
 } /*namespace wendy*/

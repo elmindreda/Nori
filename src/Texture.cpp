@@ -118,25 +118,6 @@ GLenum convertToGL(TextureType type, CubeFace face)
     return convertToGL(face);
 }
 
-const char* asString(TextureType type)
-{
-  switch (type)
-  {
-    case TEXTURE_1D:
-      return "texture1D";
-    case TEXTURE_2D:
-      return "texture2D";
-    case TEXTURE_3D:
-      return "texture3D";
-    case TEXTURE_RECT:
-      return "textureRECT";
-    case TEXTURE_CUBE:
-      return "textureCube";
-  }
-
-  panic("Invalid texture type %u", type);
-}
-
 } /*namespace*/
 
 TextureData::TextureData(const Image& image):
@@ -148,16 +129,16 @@ TextureData::TextureData(const Image& image):
 {
 }
 
-TextureData::TextureData(PixelFormat initFormat,
-                         uint initWidth,
-                         uint initHeight,
-                         uint initDepth,
-                         const void* initTexels):
-  format(initFormat),
-  width(initWidth),
-  height(initHeight),
-  depth(initDepth),
-  texels(initTexels)
+TextureData::TextureData(PixelFormat format,
+                         uint width,
+                         uint height,
+                         uint depth,
+                         const void* texels):
+  format(format),
+  width(width),
+  height(height),
+  depth(depth),
+  texels(texels)
 {
 }
 
@@ -170,7 +151,6 @@ uint TextureData::dimensionCount() const
 {
   if (depth > 1)
     return 3;
-
   if (height > 1)
     return 2;
 
@@ -280,10 +260,15 @@ bool Texture::copyFrom(const TextureImage& image,
 
 void Texture::generateMipmaps()
 {
+  m_context.setTexture(this);
   glGenerateMipmap(convertToGL(m_params.type));
   glTexParameteri(convertToGL(m_params.type),
                   GL_TEXTURE_MIN_FILTER,
                   convertToGL(m_params.filterMode, true));
+
+#if WENDY_DEBUG
+  checkGL("Error during mipmap generation for texture %s", name().c_str());
+#endif
 }
 
 bool Texture::is1D() const
@@ -330,6 +315,21 @@ uint Texture::depth(uint level) const
     return m_depth;
   else
     return uint(max(1.f, m_depth / pow(2.f, float(level))));
+}
+
+size_t Texture::size() const
+{
+  size_t size = 0;
+
+  for (uint i = 0;  i < m_levels;  i++)
+  {
+    if (m_params.type == TEXTURE_CUBE)
+      size += width(i) * height(i) * depth(i) * m_format.size();
+    else
+      size += width(i) * height(i) * depth(i) * m_format.size() * 6;
+  }
+
+  return size;
 }
 
 Ref<Image> Texture::data(const TextureImage& image)
@@ -422,8 +422,7 @@ Texture::Texture(const ResourceInfo& info,
   m_context(context),
   m_params(params),
   m_textureID(0),
-  m_levels(0),
-  m_size(0)
+  m_levels(0)
 {
 }
 
@@ -436,20 +435,33 @@ bool Texture::init(const TextureData& data)
 
   if (!convertToGL(m_format, sRGB))
   {
-    logError("Source image for texture %s has unsupported pixel format %s",
+    logError("Image for texture %s has unsupported pixel format %s",
              name().c_str(),
              stringCast(m_format).c_str());
     return false;
   }
 
-  // Figure out which texture target to use
+  if (!GREG_EXT_texture_filter_anisotropic)
+  {
+    if (m_params.maxAnisotropy != 1.f)
+    {
+      logWarning("Cannot set max anisotropy: "
+                 "GL_EXT_texture_filter_anisotropic is missing");
+    }
+  }
 
   if (m_params.type == TEXTURE_RECT)
   {
     if (data.dimensionCount() > 2)
     {
-      logError("Source image for rectangular texture %s has more than two dimensions",
+      logError("Image for rectangular texture %s has more than two dimensions",
                name().c_str());
+      return false;
+    }
+
+    if (m_params.addressMode != ADDRESS_CLAMP)
+    {
+      logError("Rectangular textures only support ADDRESS_CLAMP");
       return false;
     }
 
@@ -464,7 +476,7 @@ bool Texture::init(const TextureData& data)
   {
     if (data.dimensionCount() > 2)
     {
-      logError("Source image for cubemap texture %s has more than two dimensions",
+      logError("Image for cubemap texture %s has more than two dimensions",
                name().c_str());
       return false;
     }
@@ -474,7 +486,7 @@ bool Texture::init(const TextureData& data)
 
     if ((width % 6 != 0) || (width / 6 != height) || !isPowerOfTwo(height))
     {
-      logError("Source image for cubemap texture %s has invalid dimensions",
+      logError("Image for cubemap texture %s has invalid dimensions",
                name().c_str());
       return false;
     }
@@ -483,7 +495,8 @@ bool Texture::init(const TextureData& data)
   {
     if (!data.isPOT())
     {
-      logWarning("Texture %s does not have power-of-two dimensions; this may cause slowdown",
+      logWarning("Texture %s does not have power-of-two dimensions; "
+                 "this may cause slowdown",
                  name().c_str());
     }
   }
@@ -573,18 +586,20 @@ bool Texture::init(const TextureData& data)
                  data.texels);
   }
 
+  if (mipmapped)
+  {
+    glGenerateMipmap(convertToGL(m_params.type));
+    m_levels = uint(log2(float(max(max(m_width, m_height), m_depth))));
+  }
+  else
+    m_levels = 1;
+
   // Apply sampler parameters
   {
     glTexParameteri(convertToGL(m_params.type), GL_TEXTURE_MIN_FILTER,
-                    convertToGL(m_params.filterMode, false));
+                    convertToGL(m_params.filterMode, mipmapped));
     glTexParameteri(convertToGL(m_params.type), GL_TEXTURE_MAG_FILTER,
                     convertToGL(m_params.filterMode, false));
-
-    if (m_params.type == TEXTURE_RECT && m_params.addressMode != ADDRESS_CLAMP)
-    {
-      logError("Rectangular textures only support ADDRESS_CLAMP");
-      return false;
-    }
 
     glTexParameteri(convertToGL(m_params.type), GL_TEXTURE_WRAP_S,
                     convertToGL(m_params.addressMode));
@@ -598,30 +613,6 @@ bool Texture::init(const TextureData& data)
       glTexParameteri(convertToGL(m_params.type), GL_TEXTURE_MAX_ANISOTROPY_EXT,
                       GLint(m_params.maxAnisotropy));
     }
-    else
-    {
-      if (m_params.maxAnisotropy != 1.f)
-      {
-        logWarning("Cannot set max anisotropy: "
-                   "GL_EXT_texture_filter_anisotropic is missing");
-      }
-    }
-  }
-
-  if (mipmapped)
-    generateMipmaps();
-
-  if (mipmapped)
-    m_levels = uint(log2(float(max(max(m_width, m_height), m_depth))));
-  else
-    m_levels = 1;
-
-  for (uint i = 0;  i < m_levels;  i++)
-  {
-    if (m_params.type == TEXTURE_CUBE)
-      m_size += width(i) * height(i) * depth(i) * m_format.size();
-    else
-      m_size += width(i) * height(i) * depth(i) * m_format.size() * 6;
   }
 
   if (!checkGL("OpenGL error during creation of texture %s format %s",

@@ -191,14 +191,9 @@ void Layer::setActiveWidget(Widget* widget)
   invalidate();
 }
 
-SignalProxy<void, Layer&> Layer::sizeChangedSignal()
-{
-  return m_sizeChangedSignal;
-}
-
 void Layer::onWindowSize(uint width, uint height)
 {
-  m_sizeChangedSignal(*this);
+  m_sizeChanged(*this);
 }
 
 void Layer::onKey(Key key, Action action, uint mods)

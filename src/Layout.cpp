@@ -43,12 +43,12 @@ Layout::Layout(Layer& layer, Widget* parent, Orientation orientation, LayoutMode
   {
     if (parent)
     {
-      parent->areaChangedSignal().connect(*this, &Layout::onAreaChanged);
+      parent->areaChanged().connect(*this, &Layout::onAreaChanged);
       onAreaChanged(*parent);
     }
     else
     {
-      layer.sizeChangedSignal().connect(*this, &Layout::onSizeChanged);
+      layer.sizeChanged().connect(*this, &Layout::onSizeChanged);
       onSizeChanged(layer);
     }
   }

@@ -219,7 +219,7 @@ public:
   uint depth(uint level = 0) const;
   /*! @return The size, in bytes, of the pixel data in this texture.
    */
-  size_t size() const { return m_size; }
+  size_t size() const;
   /*! @return The number of mipmap levels of the specified image of this
    *  texture.
    */
@@ -274,7 +274,6 @@ private:
   uint m_depth;
   uint m_levels;
   PixelFormat m_format;
-  size_t m_size;
 };
 
 } /*namespace wendy*/

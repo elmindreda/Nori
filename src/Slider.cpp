@@ -75,11 +75,6 @@ void Slider::setStepSize(float newSize)
   m_stepSize = max(newSize, 0.f);
 }
 
-SignalProxy<void, Slider&> Slider::valueChangedSignal()
-{
-  return m_valueChangedSignal;
-}
-
 void Slider::draw() const
 {
   Drawer& drawer = layer().drawer();
@@ -206,7 +201,7 @@ void Slider::setValue(float newValue, bool notify)
   m_value = newValue;
 
   if (notify)
-    m_valueChangedSignal(*this);
+    m_valueChanged(*this);
 
   invalidate();
 }

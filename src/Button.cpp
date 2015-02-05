@@ -44,11 +44,6 @@ void Button::setText(const char* newText)
   invalidate();
 }
 
-SignalProxy<void, Button&> Button::pushedSignal()
-{
-  return m_pushedSignal;
-}
-
 Button::Button(Layer& layer, Widget* parent, ButtonType type, const char* text):
   Widget(layer, parent),
   m_type(type),
@@ -104,7 +99,7 @@ void Button::onMouseButton(vec2 point,
     {
       m_checked = !m_checked;
       m_selected = false;
-      m_pushedSignal(*this);
+      m_pushed(*this);
     }
 
     invalidate();
@@ -152,7 +147,7 @@ void Button::onKey(Key key, Action action, uint mods)
       {
         m_checked = !m_checked;
         m_selected = false;
-        m_pushedSignal(*this);
+        m_pushed(*this);
         invalidate();
       }
 

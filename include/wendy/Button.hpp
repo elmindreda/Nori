@@ -44,7 +44,7 @@ public:
   void setChecked(bool checked);
   const std::string& text() const { return m_text; }
   void setText(const char* newText);
-  SignalProxy<void, Button&> pushedSignal();
+  SignalProxy<void,Button&> pushed() { return m_pushed; }
 protected:
   Button(Layer& layer, Widget* parent, ButtonType type, const char* text);
   void draw() const;
@@ -58,7 +58,7 @@ protected:
   void onDragEnded(vec2 point, MouseButton button) override;
   void onKey(Key key, Action action, uint mods) override;
 private:
-  Signal<void, Button&> m_pushedSignal;
+  Signal<void,Button&> m_pushed;
   ButtonType m_type;
   std::string m_text;
   bool m_selected;

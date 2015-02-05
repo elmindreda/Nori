@@ -47,7 +47,7 @@ public:
   void destroyItems();
   void sortItems();
   const std::vector<Item*>& items() const { return m_items; }
-  SignalProxy<void, Menu&, uint> itemSelectedSignal();
+  SignalProxy<void,Menu&,uint> itemSelected() { return m_itemSelected; }
 private:
   void draw() const;
   void onFocusChanged(bool activated) override;
@@ -62,7 +62,7 @@ private:
   void sizeToFit();
   std::vector<Item*> m_items;
   int m_selection;
-  Signal<void, Menu&, uint> m_itemSelectedSignal;
+  Signal<void,Menu&,uint> m_itemSelected;
 };
 
 } /*namespace wendy*/

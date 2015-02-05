@@ -1422,7 +1422,7 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
     glfwMakeContextCurrent(m_handle);
 
     m_window.init(m_handle);
-    m_window.frameSignal().connect(*this, &RenderContext::onFrame);
+    m_window.updated().connect(*this, &RenderContext::onFrame);
   }
 
   // Initialize greg and check extensions
@@ -1447,7 +1447,8 @@ bool RenderContext::init(const WindowConfig& wc, const RenderConfig& rc)
     if (rc.debug && GREG_KHR_debug)
     {
       glDebugMessageCallback(debugCallback, nullptr);
-      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE,
+                            GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
 
       m_debug = true;
     }

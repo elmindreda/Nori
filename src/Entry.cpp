@@ -48,8 +48,8 @@ Entry::Entry(Layer& layer, Widget* parent, const char* text):
 
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 
-  m_controller.textChangedSignal().connect(*this, &Entry::onTextChanged);
-  m_controller.caretMovedSignal().connect(*this, &Entry::onCaretMoved);
+  m_controller.textChanged().connect(*this, &Entry::onTextChanged);
+  m_controller.caretMoved().connect(*this, &Entry::onCaretMoved);
 
   m_timer.start();
   setFocusable(true);
@@ -143,7 +143,7 @@ void Entry::onMouseButton(vec2 point,
     }
 
     m_controller.setCaretPosition(caretPosition);
-    m_caretMovedSignal(*this);
+    m_caretMoved(*this);
     m_timer.start();
   }
 
@@ -165,14 +165,14 @@ void Entry::onCharacter(uint32 codepoint)
 void Entry::onTextChanged()
 {
   m_timer.start();
-  m_textChangedSignal(*this);
+  m_textChanged(*this);
   invalidate();
 }
 
 void Entry::onCaretMoved()
 {
   m_timer.start();
-  m_caretMovedSignal(*this);
+  m_caretMoved(*this);
   invalidate();
 }
 

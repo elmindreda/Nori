@@ -58,7 +58,7 @@ Widget::~Widget()
 {
   invalidate();
   destroyChildren();
-  m_destroyedSignal(*this);
+  m_destroyed(*this);
   m_layer.removeWidget(*this);
 
   std::vector<Widget*>* siblings;
@@ -341,22 +341,22 @@ void Widget::onChildRemoved(Widget& child)
 
 void Widget::onAreaChanged()
 {
-  m_areaChangedSignal(*this);
+  m_areaChanged(*this);
 }
 
 void Widget::onFocusChanged(bool activated)
 {
-  m_focusChangedSignal(*this, activated);
+  m_focusChanged(*this, activated);
 }
 
 void Widget::onKey(Key key, Action action, uint mods)
 {
-  m_keySignal(*this, key, action, mods);
+  m_keyInput(*this, key, action, mods);
 }
 
 void Widget::onCharacter(uint32 character)
 {
-  m_characterSignal(*this, character);
+  m_characterInput(*this, character);
 }
 
 void Widget::onMouseButton(vec2 point,
@@ -364,42 +364,42 @@ void Widget::onMouseButton(vec2 point,
                            Action action,
                            uint mods)
 {
-  m_mouseButtonSignal(*this, point, button, action, mods);
+  m_mouseButtonInput(*this, point, button, action, mods);
 }
 
 void Widget::onScroll(vec2 offset)
 {
-  m_scrollSignal(*this, offset);
+  m_scrolled(*this, offset);
 }
 
 void Widget::onCursorPos(vec2 point)
 {
-  m_cursorPosSignal(*this, point);
+  m_cursorMoved(*this, point);
 }
 
 void Widget::onCursorEntered()
 {
-  m_cursorEnteredSignal(*this);
+  m_cursorEntered(*this);
 }
 
 void Widget::onCursorLeft()
 {
-  m_cursorLeftSignal(*this);
+  m_cursorLeft(*this);
 }
 
 void Widget::onDragBegun(vec2 point, MouseButton button)
 {
-  m_dragBegunSignal(*this, point, button);
+  m_dragBegun(*this, point, button);
 }
 
 void Widget::onDragMoved(vec2 point, MouseButton button)
 {
-  m_dragMovedSignal(*this, point, button);
+  m_dragMoved(*this, point, button);
 }
 
 void Widget::onDragEnded(vec2 point, MouseButton button)
 {
-  m_dragEndedSignal(*this, point, button);
+  m_dragEnded(*this, point, button);
 }
 
 } /*namespace wendy*/

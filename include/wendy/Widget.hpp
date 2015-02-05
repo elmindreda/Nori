@@ -185,19 +185,19 @@ public:
   /*! Sets whether this widget can be the source of drag operations.
    */
   void setDraggable(bool newState);
-  SignalProxy<void, Widget&> destroyedSignal() { return m_destroyedSignal; }
-  SignalProxy<void, Widget&> areaChangedSignal() { return m_areaChangedSignal; }
-  SignalProxy<void, Widget&, bool> focusChangedSignal() { return m_focusChangedSignal; }
-  SignalProxy<void, Widget&, Key, Action, uint> keySignal() { return m_keySignal; }
-  SignalProxy<void, Widget&, uint32> characterSignal() { return m_characterSignal; }
-  SignalProxy<void, Widget&, vec2, MouseButton, Action, uint> mouseButtonSignal() { return m_mouseButtonSignal; }
-  SignalProxy<void, Widget&, vec2> scrollSignal() { return m_scrollSignal; }
-  SignalProxy<void, Widget&, vec2> cursorPosSignal() { return m_cursorPosSignal; }
-  SignalProxy<void, Widget&> cursorEnteredSignal() { return m_cursorEnteredSignal; }
-  SignalProxy<void, Widget&> cursorLeftSignal() { return m_cursorLeftSignal; }
-  SignalProxy<void, Widget&, vec2, MouseButton> dragBegunSignal() { return m_dragBegunSignal; }
-  SignalProxy<void, Widget&, vec2, MouseButton> dragMovedSignal() { return m_dragMovedSignal; }
-  SignalProxy<void, Widget&, vec2, MouseButton> dragEndedSignal() { return m_dragEndedSignal; }
+  SignalProxy<void,Widget&> destroyed() { return m_destroyed; }
+  SignalProxy<void,Widget&> areaChanged() { return m_areaChanged; }
+  SignalProxy<void,Widget&,bool> focusChanged() { return m_focusChanged; }
+  SignalProxy<void,Widget&,Key,Action,uint> keyInput() { return m_keyInput; }
+  SignalProxy<void,Widget&,uint32> characterInput() { return m_characterInput; }
+  SignalProxy<void,Widget&,vec2,MouseButton,Action,uint> mouseButtonInput() { return m_mouseButtonInput; }
+  SignalProxy<void,Widget&,vec2> scrolled() { return m_scrolled; }
+  SignalProxy<void,Widget&,vec2> cursorMoved() { return m_cursorMoved; }
+  SignalProxy<void,Widget&> cursorEntered() { return m_cursorEntered; }
+  SignalProxy<void,Widget&> cursorLeft() { return m_cursorLeft; }
+  SignalProxy<void,Widget&,vec2,MouseButton> dragBegun() { return m_dragBegun; }
+  SignalProxy<void,Widget&,vec2,MouseButton> dragMoved() { return m_dragMoved; }
+  SignalProxy<void,Widget&,vec2,MouseButton> dragEnded() { return m_dragEnded; }
 protected:
   /*! Calls Widget::draw for all children of this widget.
    */
@@ -221,19 +221,19 @@ protected:
   virtual void onDragMoved(vec2 point, MouseButton button);
   virtual void onDragEnded(vec2 point, MouseButton button);
 private:
-  Signal<void, Widget&> m_destroyedSignal;
-  Signal<void, Widget&> m_areaChangedSignal;
-  Signal<void, Widget&, bool> m_focusChangedSignal;
-  Signal<void, Widget&, Key, Action, uint> m_keySignal;
-  Signal<void, Widget&, uint32> m_characterSignal;
-  Signal<void, Widget&, vec2, MouseButton, Action, uint> m_mouseButtonSignal;
-  Signal<void, Widget&, vec2> m_scrollSignal;
-  Signal<void, Widget&, vec2> m_cursorPosSignal;
-  Signal<void, Widget&> m_cursorEnteredSignal;
-  Signal<void, Widget&> m_cursorLeftSignal;
-  Signal<void, Widget&, vec2, MouseButton> m_dragBegunSignal;
-  Signal<void, Widget&, vec2, MouseButton> m_dragMovedSignal;
-  Signal<void, Widget&, vec2, MouseButton> m_dragEndedSignal;
+  Signal<void,Widget&> m_destroyed;
+  Signal<void,Widget&> m_areaChanged;
+  Signal<void,Widget&,bool> m_focusChanged;
+  Signal<void,Widget&,Key,Action,uint> m_keyInput;
+  Signal<void,Widget&,uint32> m_characterInput;
+  Signal<void,Widget&,vec2,MouseButton,Action,uint> m_mouseButtonInput;
+  Signal<void,Widget&,vec2> m_scrolled;
+  Signal<void,Widget&,vec2> m_cursorMoved;
+  Signal<void,Widget&> m_cursorEntered;
+  Signal<void,Widget&> m_cursorLeft;
+  Signal<void,Widget&,vec2,MouseButton> m_dragBegun;
+  Signal<void,Widget&,vec2,MouseButton> m_dragMoved;
+  Signal<void,Widget&,vec2,MouseButton> m_dragEnded;
   Layer& m_layer;
   Widget* m_parent;
   std::vector<Widget*> m_children;
