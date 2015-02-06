@@ -290,7 +290,7 @@ void List::onMouseButton(vec2 point,
 
 void List::onKey(Key key, Action action, uint mods)
 {
-  if (action == PRESSED)
+  if ((action == PRESSED || action == REPEATED) && mods == 0)
   {
     switch (key)
     {

@@ -55,9 +55,9 @@ UniformStateIndex::UniformStateIndex():
 {
 }
 
-UniformStateIndex::UniformStateIndex(uint16 initIndex, uint16 initOffset):
-  index(initIndex),
-  offset(initOffset)
+UniformStateIndex::UniformStateIndex(uint16 index, uint16 offset):
+  index(index),
+  offset(offset)
 {
 }
 

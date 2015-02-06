@@ -92,8 +92,8 @@ template <typename T>
 class ResourceReader
 {
 public:
-  ResourceReader(ResourceCache& initCache):
-    cache(initCache)
+  ResourceReader(ResourceCache& cache):
+    cache(cache)
   {
   }
   Ref<T> read(const std::string& name)

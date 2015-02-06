@@ -331,16 +331,16 @@ void setBooleanState(uint state, bool value)
 
 } /*namespace (and Gandalf)*/
 
-RenderConfig::RenderConfig(uint initColorBits,
-                           uint initDepthBits,
-                           uint initStencilBits,
-                           uint initSamples,
-                           bool initDebug):
-  colorBits(initColorBits),
-  depthBits(initDepthBits),
-  stencilBits(initStencilBits),
-  samples(initSamples),
-  debug(initDebug)
+RenderConfig::RenderConfig(uint colorBits,
+                           uint depthBits,
+                           uint stencilBits,
+                           uint samples,
+                           bool debug):
+  colorBits(colorBits),
+  depthBits(depthBits),
+  stencilBits(stencilBits),
+  samples(samples),
+  debug(debug)
 {
 }
 

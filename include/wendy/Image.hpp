@@ -33,12 +33,6 @@ namespace wendy
 class Image : public Resource, public RefObject
 {
 public:
-  /*! Transforms the contents of this image to the specified pixel format using
-   *  the specified pixel transform.
-   *  @param[in] targetFormat The desired pixel format.
-   *  @param[in] transform The pixel transform to use.
-   */
-  bool transformTo(const PixelFormat& format, PixelTransform& transform);
   /*! Sets this image to the specified area of the current image data.
    *  @param[in] area The desired area.
    *  @return @c true if successful, otherwise @c false.
@@ -97,13 +91,6 @@ public:
   /*! @return The number of dimensions (that differ from 1) in this image.
    */
   uint dimensionCount() const;
-  /*! Returns an image containing the specified area of this image.
-   *  @param area The desired area of this image.
-   *
-   *  @remarks This method fails if the desired area is partially or completely
-   *  outside the current image data.
-   */
-  Ref<Image> area(const Recti& area) const;
   /*! Creates an image with the specified properties.
    *  @param[in] info The resource information for this image.
    *  @param[in] format The desired format of the image.

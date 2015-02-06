@@ -49,7 +49,7 @@ enum PrimitiveType
 
 /*! Index buffer element type enumeration.
  */
-enum IndexBufferType
+enum IndexType
 {
   /*! Indices are 8-bit unsigned integers.
    */
@@ -162,7 +162,7 @@ public:
   void copyTo(void* target, size_t count, size_t start = 0);
   /*! @return The type of the index elements in this index buffer.
    */
-  IndexBufferType type() const { return m_type; }
+  IndexType type() const { return m_type; }
   /*! @return The usage hint of this index buffer.
    */
   BufferUsage usage() const { return m_usage; }
@@ -181,18 +181,18 @@ public:
    */
   static Ref<IndexBuffer> create(RenderContext& context,
                                  size_t count,
-                                 IndexBufferType type,
+                                 IndexType type,
                                  BufferUsage usage);
   /*! @return The size, in bytes, of the specified element type.
    */
-  static size_t typeSize(IndexBufferType type);
+  static size_t typeSize(IndexType type);
 private:
   IndexBuffer(RenderContext& context);
   IndexBuffer(const IndexBuffer&) = delete;
-  bool init(size_t count, IndexBufferType type, BufferUsage usage);
+  bool init(size_t count, IndexType type, BufferUsage usage);
   IndexBuffer& operator = (const IndexBuffer&) = delete;
   RenderContext& m_context;
-  IndexBufferType m_type;
+  IndexType m_type;
   BufferUsage m_usage;
   uint m_bufferID;
   size_t m_count;

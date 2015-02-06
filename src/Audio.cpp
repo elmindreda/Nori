@@ -209,7 +209,7 @@ bool AudioBuffer::init(const Sample& data)
   alGenBuffers(1, &m_bufferID);
   alBufferData(m_bufferID,
                convertToAL(data.format),
-               &data.data[0], (ALsizei) data.data.size(),
+               data.data.data(), (ALsizei) data.data.size(),
                data.frequency);
 
   if (!checkAL("Error during OpenAL buffer creation"))

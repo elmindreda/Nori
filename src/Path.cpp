@@ -73,9 +73,9 @@
 namespace wendy
 {
 
-Path::Path(const std::string& initName)
+Path::Path(const std::string& name)
 {
-  operator = (initName);
+  operator = (name);
 }
 
 bool Path::createDirectory() const

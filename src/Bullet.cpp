@@ -143,8 +143,8 @@ bool BvhTriangleMeshShape::init(const Mesh& data)
   return true;
 }
 
-AvatarSweepCallback::AvatarSweepCallback(const btCollisionObject* initSelf):
-  self(initSelf)
+AvatarSweepCallback::AvatarSweepCallback(const btCollisionObject* self):
+  self(self)
 {
 }
 

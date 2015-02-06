@@ -121,7 +121,7 @@ void Slider::onMouseButton(vec2 point,
                            Action action,
                            uint mods)
 {
-  if (action == PRESSED)
+  if (action == PRESSED || action == REPEATED)
     setValue(transformToLocal(point));
 
   Widget::onMouseButton(point, button, action, mods);
@@ -129,7 +129,7 @@ void Slider::onMouseButton(vec2 point,
 
 void Slider::onKey(Key key, Action action, uint mods)
 {
-  if (action == PRESSED)
+  if ((action == PRESSED || action == REPEATED) && mods == 0)
   {
     switch (key)
     {

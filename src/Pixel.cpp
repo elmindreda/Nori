@@ -210,43 +210,5 @@ const PixelFormat PixelFormat::DEPTH32(PixelFormat::DEPTH, PixelFormat::UINT32);
 const PixelFormat PixelFormat::DEPTH16F(PixelFormat::DEPTH, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::DEPTH32F(PixelFormat::DEPTH, PixelFormat::FLOAT32);
 
-PixelTransform::~PixelTransform()
-{
-}
-
-bool RGBtoRGBA::supports(const PixelFormat& targetFormat,
-                         const PixelFormat& sourceFormat)
-{
-  if (targetFormat.type() != sourceFormat.type())
-    return false;
-
-  if (targetFormat.semantic() != PixelFormat::RGBA ||
-      sourceFormat.semantic() != PixelFormat::RGB)
-  {
-    return false;
-  }
-
-  return true;
-}
-
-void RGBtoRGBA::convert(void* target,
-                        const PixelFormat& targetFormat,
-                        const void* source,
-                        const PixelFormat& sourceFormat,
-                        size_t count)
-{
-  size_t channelSize = targetFormat.channelSize();
-  size_t targetSize = targetFormat.size();
-  size_t sourceSize = sourceFormat.size();
-
-  while (count--)
-  {
-    std::memcpy(target, source, sourceSize);
-    std::memset((char*) target + sourceSize, 0, channelSize);
-    target = (char*) target + targetSize;
-    source = (char*) source + sourceSize;
-  }
-}
-
 } /*namespace wendy*/
 

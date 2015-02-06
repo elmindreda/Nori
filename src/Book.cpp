@@ -153,14 +153,13 @@ void Book::onAreaChanged()
 
 void Book::onKey(Key key, Action action, uint mods)
 {
-  if (action == PRESSED)
+  if ((action == PRESSED || action == REPEATED) && mods == 0)
   {
     auto p = std::find(m_pages.begin(), m_pages.end(), m_activePage);
     if (p != m_pages.end())
     {
       switch (key)
       {
-        case KEY_TAB:
         case KEY_RIGHT:
         {
           if (++p == m_pages.end())

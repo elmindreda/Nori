@@ -268,7 +268,7 @@ size_t IndexBuffer::size() const
 
 Ref<IndexBuffer> IndexBuffer::create(RenderContext& context,
                                      size_t count,
-                                     IndexBufferType type,
+                                     IndexType type,
                                      BufferUsage usage)
 {
   Ref<IndexBuffer> buffer(new IndexBuffer(context));
@@ -278,7 +278,7 @@ Ref<IndexBuffer> IndexBuffer::create(RenderContext& context,
   return buffer;
 }
 
-size_t IndexBuffer::typeSize(IndexBufferType type)
+size_t IndexBuffer::typeSize(IndexType type)
 {
   switch (type)
   {
@@ -302,7 +302,7 @@ IndexBuffer::IndexBuffer(RenderContext& context):
 {
 }
 
-bool IndexBuffer::init(size_t count, IndexBufferType type, BufferUsage usage)
+bool IndexBuffer::init(size_t count, IndexType type, BufferUsage usage)
 {
   m_type = type;
   m_usage = usage;

@@ -176,7 +176,7 @@ bool Face::init(const char* data, size_t size)
   m_data.assign(data, data + size);
   m_info = new stbtt_fontinfo;
 
-  if (!stbtt_InitFont(m_info, (unsigned char*) &m_data[0], 0))
+  if (!stbtt_InitFont(m_info, (unsigned char*) m_data.data(), 0))
   {
     logError("Failed to parse TrueType face file");
     return false;
@@ -205,9 +205,9 @@ Ref<Face> FaceReader::read(const std::string& name, const Path& path)
   data.resize((size_t) stream.tellg());
 
   stream.seekg(0, std::ios::beg);
-  stream.read(&data[0], data.size());
+  stream.read(data.data(), data.size());
 
-  return Face::create(ResourceInfo(cache, name, path), &data[0], data.size());
+  return Face::create(ResourceInfo(cache, name, path), data.data(), data.size());
 }
 
 } /*namespace wendy*/

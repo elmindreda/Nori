@@ -125,32 +125,5 @@ const char* stringCast(PixelFormat::Semantic semantic);
 const char* stringCast(PixelFormat::Type type);
 std::string stringCast(PixelFormat format);
 
-/*! @brief Pixel transform interface.
- */
-class PixelTransform
-{
-public:
-  virtual ~PixelTransform();
-  virtual bool supports(const PixelFormat& targetFormat,
-                        const PixelFormat& sourceFormat) = 0;
-  virtual void convert(void* target,
-                       const PixelFormat& targetFormat,
-                       const void* source,
-                       const PixelFormat& sourceFormat,
-                       size_t count) = 0;
-};
-
-class RGBtoRGBA : public PixelTransform
-{
-public:
-  bool supports(const PixelFormat& targetFormat,
-                const PixelFormat& sourceFormat);
-  void convert(void* target,
-               const PixelFormat& targetFormat,
-               const void* source,
-               const PixelFormat& sourceFormat,
-               size_t count);
-};
-
 } /*namespace wendy*/
 

@@ -265,29 +265,25 @@ void Menu::onMouseButton(vec2 point,
 
 void Menu::onKey(Key key, Action action, uint mods)
 {
-  switch (key)
+  if ((action == PRESSED || action == REPEATED) && mods == 0)
   {
-    case KEY_UP:
+    switch (key)
     {
-      if (action == PRESSED || action == REPEATED)
+      case KEY_UP:
       {
         if (m_selection == NO_ITEM)
         {
-          if (not m_items.empty())
+          if (!m_items.empty())
             m_selection = 0;
         }
         else
           m_selection = (m_selection + m_items.size() - 1) % m_items.size();
 
         invalidate();
+        break;
       }
 
-      break;
-    }
-
-    case KEY_DOWN:
-    {
-      if (action == PRESSED || action == REPEATED)
+      case KEY_DOWN:
       {
         if (m_selection == NO_ITEM)
         {
@@ -298,24 +294,25 @@ void Menu::onKey(Key key, Action action, uint mods)
           m_selection = (m_selection + 1) % m_items.size();
 
         invalidate();
+        break;
       }
 
-      break;
-    }
-
-    case KEY_ENTER:
-    {
-      if (action == PRESSED)
+      case KEY_ENTER:
       {
         m_itemSelected(*this, m_selection);
         hide();
+        break;
       }
 
-      break;
-    }
+      case KEY_ESCAPE:
+      {
+        hide();
+        break;
+      }
 
-    default:
-      break;
+      default:
+        break;
+    }
   }
 
   Widget::onKey(key, action, mods);

@@ -264,8 +264,8 @@ void panic(const char* format, ...)
   std::terminate();
 }
 
-Exception::Exception(const char* initMessage):
-  message(initMessage)
+Exception::Exception(const char* message):
+  message(message)
 {
 }
 

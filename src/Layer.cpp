@@ -198,7 +198,9 @@ void Layer::onWindowSize(uint width, uint height)
 
 void Layer::onKey(Key key, Action action, uint mods)
 {
-  if (key == KEY_TAB && action == PRESSED)
+  if (key == KEY_TAB &&
+      (action == PRESSED || action == REPEATED) &&
+      (mods == 0 || mods == MOD_SHIFT))
   {
     if (mods & MOD_SHIFT)
       activatePrevWidget();

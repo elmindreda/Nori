@@ -190,14 +190,19 @@ void Popup::onMouseButton(vec2 point,
                           uint mods)
 {
   if (button == MOUSE_BUTTON_LEFT && action == PRESSED)
-    display();
+  {
+    if (m_menu->isVisible())
+      m_menu->hide();
+    else
+      display();
+  }
 
   Widget::onMouseButton(point, button, action, mods);
 }
 
 void Popup::onKey(Key key, Action action, uint mods)
 {
-  if (action == PRESSED)
+  if ((action == PRESSED || action == REPEATED) && mods == MOD_NONE)
   {
     switch (key)
     {

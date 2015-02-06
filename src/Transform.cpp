@@ -38,10 +38,10 @@ Transform2::Transform2():
 {
 }
 
-Transform2::Transform2(const vec2& initPosition, float initAngle, float initScale):
-  position(initPosition),
-  angle(initAngle),
-  scale(initScale)
+Transform2::Transform2(vec2 position, float angle, float scale):
+  position(position),
+  angle(angle),
+  scale(scale)
 {
 }
 
@@ -103,7 +103,7 @@ void Transform2::setIdentity()
   scale = 1.f;
 }
 
-void Transform2::set(const vec2& newPosition, float newAngle, float newScale)
+void Transform2::set(vec2 newPosition, float newAngle, float newScale)
 {
   position = newPosition;
   angle = newAngle;
@@ -117,12 +117,10 @@ Transform3::Transform3():
 {
 }
 
-Transform3::Transform3(const vec3& initPosition,
-                       const quat& initRotation,
-                       float initScale):
-  position(initPosition),
-  rotation(initRotation),
-  scale(initScale)
+Transform3::Transform3(vec3 position, quat rotation, float scale):
+  position(position),
+  rotation(rotation),
+  scale(scale)
 {
 }
 
@@ -168,9 +166,7 @@ void Transform3::setIdentity()
   scale = 1.f;
 }
 
-void Transform3::set(const vec3& newPosition,
-                     const quat& newRotation,
-                     float newScale)
+void Transform3::set(vec3 newPosition, quat newRotation, float newScale)
 {
   position = newPosition;
   rotation = newRotation;

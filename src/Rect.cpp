@@ -33,9 +33,9 @@
 namespace wendy
 {
 
-Rect::Rect(vec2 initPosition, vec2 initSize):
-  position(initPosition),
-  size(initSize)
+Rect::Rect(vec2 position, vec2 size):
+  position(position),
+  size(size)
 {
 }
 
@@ -187,9 +187,9 @@ void Rect::set(float x, float y, float width, float height)
   size = vec2(width, height);
 }
 
-Recti::Recti(ivec2 initPosition, ivec2 initSize):
-  position(initPosition),
-  size(initSize)
+Recti::Recti(ivec2 position, ivec2 size):
+  position(position),
+  size(size)
 {
 }
 

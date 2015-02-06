@@ -34,12 +34,12 @@
 namespace wendy
 {
 
-ResourceInfo::ResourceInfo(ResourceCache& initCache,
-                           const std::string& initName,
-                           const Path& initPath):
-  cache(initCache),
-  name(initName),
-  path(initPath)
+ResourceInfo::ResourceInfo(ResourceCache& cache,
+                           const std::string& name,
+                           const Path& path):
+  cache(cache),
+  name(name),
+  path(path)
 {
 }
 

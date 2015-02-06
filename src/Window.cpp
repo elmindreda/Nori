@@ -162,9 +162,9 @@ Resolution::Resolution():
 {
 }
 
-Resolution::Resolution(uint initWidth, uint initHeight):
-  width(initWidth),
-  height(initHeight)
+Resolution::Resolution(uint width, uint height):
+  width(width),
+  height(height)
 {
 }
 
@@ -177,8 +177,8 @@ WindowConfig::WindowConfig():
 {
 }
 
-WindowConfig::WindowConfig(const std::string& initTitle):
-  title(initTitle),
+WindowConfig::WindowConfig(const std::string& title):
+  title(title),
   width(640),
   height(480),
   mode(WINDOWED),
@@ -186,16 +186,16 @@ WindowConfig::WindowConfig(const std::string& initTitle):
 {
 }
 
-WindowConfig::WindowConfig(const std::string& initTitle,
-                           uint initWidth,
-                           uint initHeight,
-                           WindowMode initMode,
-                           bool initResizable):
-  title(initTitle),
-  width(initWidth),
-  height(initHeight),
-  mode(initMode),
-  resizable(initResizable)
+WindowConfig::WindowConfig(const std::string& title,
+                           uint width,
+                           uint height,
+                           WindowMode mode,
+                           bool resizable):
+  title(title),
+  width(width),
+  height(height),
+  mode(mode),
+  resizable(resizable)
 {
 }
 
@@ -748,18 +748,18 @@ void TextController::inputKey(Key key, Action action, uint mods)
   {
     case KEY_BACKSPACE:
     {
-      if (action == RELEASED)
-        break;
-
-      if (caretPosition() > 0)
+      if ((action == PRESSED || action == REPEATED) && mods == 0)
       {
-        std::string::iterator s = m_text.begin();
-        utf8::advance(s, caretPosition() - 1, m_text.end());
-        std::string::iterator e = s;
-        utf8::next(e, m_text.end());
-        m_text.erase(s, e);
-        m_textChanged();
-        setCaretPosition(caretPosition() - 1);
+        if (caretPosition() > 0)
+        {
+          std::string::iterator s = m_text.begin();
+          utf8::advance(s, caretPosition() - 1, m_text.end());
+          std::string::iterator e = s;
+          utf8::next(e, m_text.end());
+          m_text.erase(s, e);
+          m_textChanged();
+          setCaretPosition(caretPosition() - 1);
+        }
       }
 
       break;
@@ -767,17 +767,17 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
     case KEY_DELETE:
     {
-      if (action == RELEASED)
-        break;
-
-      if (caretPosition() < length())
+      if ((action == PRESSED || action == REPEATED) && mods == 0)
       {
-        std::string::iterator s = m_text.begin();
-        utf8::advance(s, caretPosition(), m_text.end());
-        std::string::iterator e = s;
-        utf8::next(e, m_text.end());
-        m_text.erase(s, e);
-        m_textChanged();
+        if (caretPosition() < length())
+        {
+          std::string::iterator s = m_text.begin();
+          utf8::advance(s, caretPosition(), m_text.end());
+          std::string::iterator e = s;
+          utf8::next(e, m_text.end());
+          m_text.erase(s, e);
+          m_textChanged();
+        }
       }
 
       break;
@@ -785,45 +785,42 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
     case KEY_LEFT:
     {
-      if (action == RELEASED)
-        break;
-
-      if (caretPosition() > 0)
-        setCaretPosition(caretPosition() - 1);
+      if ((action == PRESSED || action == REPEATED) && mods == 0)
+      {
+        if (caretPosition() > 0)
+          setCaretPosition(caretPosition() - 1);
+      }
 
       break;
     }
 
     case KEY_RIGHT:
     {
-      if (action == RELEASED)
-        break;
+      if ((action == PRESSED || action == REPEATED) && mods == 0)
+        setCaretPosition(caretPosition() + 1);
 
-      setCaretPosition(caretPosition() + 1);
       break;
     }
 
     case KEY_HOME:
     {
-      if (action == RELEASED)
-        break;
+      if ((action == PRESSED || action == REPEATED) && mods == 0)
+        setCaretPosition(0);
 
-      setCaretPosition(0);
       break;
     }
 
     case KEY_END:
     {
-      if (action == RELEASED)
-        break;
+      if ((action == PRESSED || action == REPEATED) && mods == 0)
+        setCaretPosition(length());
 
-      setCaretPosition(length());
       break;
     }
 
     case KEY_U:
     {
-      if (action != RELEASED && (mods & MOD_CONTROL))
+      if ((action == PRESSED || action == REPEATED) && mods == MOD_CONTROL)
       {
         std::string::iterator e = m_text.begin();
         utf8::advance(e, caretPosition(), m_text.end());
@@ -837,7 +834,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
     case KEY_A:
     {
-      if (action != RELEASED && (mods & MOD_CONTROL))
+      if ((action == PRESSED || action == REPEATED) && mods == MOD_CONTROL)
         setCaretPosition(0);
 
       break;
@@ -845,7 +842,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
     case KEY_E:
     {
-      if (action != RELEASED && (mods & MOD_CONTROL))
+      if ((action == PRESSED || action == REPEATED) && mods == MOD_CONTROL)
         setCaretPosition(length());
 
       break;
@@ -853,7 +850,7 @@ void TextController::inputKey(Key key, Action action, uint mods)
 
     case KEY_W:
     {
-      if (action != RELEASED && (mods & MOD_CONTROL))
+      if ((action == PRESSED || action == REPEATED) && mods == MOD_CONTROL)
       {
         std::string::iterator e = m_text.begin();
         utf8::advance(e, caretPosition(), m_text.end());

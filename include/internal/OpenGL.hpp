@@ -30,7 +30,7 @@ namespace wendy
 
 WENDY_CHECKFORMAT(1, bool checkGL(const char* format, ...));
 
-GLenum convertToGL(IndexBufferType type);
+GLenum convertToGL(IndexType type);
 GLenum convertToGL(PixelFormat::Type type);
 GLenum convertToGL(const PixelFormat& format, bool sRGB);
 GLenum convertToGL(PixelFormat::Type type);

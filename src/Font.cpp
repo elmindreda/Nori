@@ -106,7 +106,7 @@ void Font::drawText(vec2 pen, vec4 color, const char* text)
     return;
   }
 
-  range.copyFrom(&m_vertices[0]);
+  range.copyFrom(m_vertices.data());
 
   m_pass.setUniformState(m_colorIndex, color);
   m_pass.apply();

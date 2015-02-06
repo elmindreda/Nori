@@ -149,7 +149,7 @@ void Scroller::onMouseButton(vec2 point,
 
 void Scroller::onKey(Key key, Action action, uint mods)
 {
-  if (action != RELEASED)
+  if ((action == PRESSED || action == REPEATED) && mods == 0)
   {
     switch (key)
     {

@@ -133,11 +133,11 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
   if (!m_vertexBuffer)
     return false;
 
-  m_vertexBuffer->copyFrom(&data.vertices[0], data.vertices.size());
+  m_vertexBuffer->copyFrom(data.vertices.data(), data.vertices.size());
 
   const size_t indexCount = data.triangleCount() * 3;
 
-  IndexBufferType indexType;
+  IndexType indexType;
   if (indexCount <= (1 << 8))
     indexType = INDEX_UINT8;
   else if (indexCount <= (1 << 16))
@@ -174,7 +174,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
         indices[index++] = t.indices[2];
       }
 
-      range.copyFrom(&indices[0]);
+      range.copyFrom(indices.data());
     }
     else if (indexType == INDEX_UINT16)
     {
@@ -189,7 +189,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
         indices[index++] = t.indices[2];
       }
 
-      range.copyFrom(&indices[0]);
+      range.copyFrom(indices.data());
     }
     else
     {
@@ -204,7 +204,7 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
         indices[index++] = t.indices[2];
       }
 
-      range.copyFrom(&indices[0]);
+      range.copyFrom(indices.data());
     }
 
     start += count;

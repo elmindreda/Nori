@@ -32,13 +32,11 @@
 #include <wendy/Resource.hpp>
 #include <wendy/Image.hpp>
 
-#include <algorithm>
 #include <fstream>
 #include <cstring>
 
 #include <glm/gtc/round.hpp>
 
-#define STBI_NO_STDIO
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -69,22 +67,6 @@ PixelFormat convertToPixelFormat(int format)
 }
 
 } /*namespace*/
-
-bool Image::transformTo(const PixelFormat& format, PixelTransform& transform)
-{
-  if (m_format == format)
-    return true;
-
-  if (!transform.supports(format, m_format))
-    return false;
-
-  std::vector<char> temp(m_width * m_height * m_depth * format.size());
-  transform.convert(temp.data(), format, m_data.data(), m_format, m_width * m_height * m_depth);
-  std::swap(m_data, temp);
-
-  m_format = format;
-  return true;
-}
 
 bool Image::crop(const Recti& area)
 {
@@ -193,33 +175,6 @@ uint Image::dimensionCount() const
   return 1;
 }
 
-Ref<Image> Image::area(const Recti& area) const
-{
-  if (dimensionCount() > 2)
-  {
-    logError("Cannot retrieve area of 3D image");
-    return nullptr;
-  }
-
-  if (!Recti(0, 0, m_width, m_height).contains(area))
-  {
-    logError("Cannot retrieve area outside of image");
-    return nullptr;
-  }
-
-  const size_t rowSize = area.size.x * m_format.size();
-  Ref<Image> result = create(cache(), m_format, area.size.x, area.size.y);
-
-  for (uint y = 0;  y < uint(area.size.y);  y++)
-  {
-    std::memcpy(result->pixel(0, y),
-                pixel(area.position.x, area.position.y + y),
-                rowSize);
-  }
-
-  return result;
-}
-
 Ref<Image> Image::create(const ResourceInfo& info,
                          const PixelFormat& format,
                          uint width,
@@ -258,23 +213,10 @@ bool Image::init(const PixelFormat& format,
   m_height = height;
   m_depth = depth;
 
-  if (!m_format.isValid())
-  {
-    logError("Cannot create image with invalid pixel format");
-    return false;
-  }
-
-  if (!m_width || !m_height || !m_depth)
-  {
-    logError("Cannot create image with zero size in any dimension");
-    return false;
-  }
-
-  if (m_height > 1 && m_width == 1)
-    std::swap(m_width, m_height);
-
-  if (m_depth > 1 && m_height == 1)
-    std::swap(m_height, m_depth);
+  assert(m_format.isValid());
+  assert(m_width);
+  assert(m_height);
+  assert(m_depth);
 
   if (pixels)
   {
@@ -312,27 +254,13 @@ ImageReader::ImageReader(ResourceCache& cache):
 
 Ref<Image> ImageReader::read(const std::string& name, const Path& path)
 {
-  std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
-  if (stream.fail())
-  {
-    logError("Failed to open image file %s", path.name().c_str());
-    return nullptr;
-  }
-
-  std::vector<char> data;
-
-  stream.seekg(0, std::ios::end);
-  data.resize((size_t) stream.tellg());
-  stream.seekg(0, std::ios::beg);
-  stream.read(data.data(), data.size());
-
   int width, height, format;
-  stbi_uc* pixels = stbi_load_from_memory((stbi_uc*) data.data(), data.size(),
-                                          &width, &height,
-                                          &format, STBI_default);
+  stbi_uc* pixels = stbi_load(path.name().c_str(),
+                              &width, &height,
+                              &format, STBI_default);
   if (!pixels)
   {
-    logError("Failed to load image %s", path.name().c_str());
+    logError("Failed to read image %s", path.name().c_str());
     return nullptr;
   }
 

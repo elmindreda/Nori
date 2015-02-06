@@ -29,8 +29,8 @@
 namespace wendy
 {
 
-SignalSlotBase::SignalSlotBase(Trackable* initObject):
-  object(initObject)
+SignalSlotBase::SignalSlotBase(Trackable* object):
+  object(object)
 {
   if (object)
     object->slots.push_back(this);
