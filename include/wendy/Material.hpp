@@ -77,17 +77,5 @@ private:
   Pass m_passes[2];
 };
 
-/*! @brief Codec for XML format render materials.
- */
-class MaterialReader : public ResourceReader<Material>
-{
-public:
-  MaterialReader(RenderContext& context);
-  using ResourceReader<Material>::read;
-  Ref<Material> read(const std::string& name, const Path& path);
-private:
-  RenderContext& m_context;
-};
-
 } /*namespace wendy*/
 

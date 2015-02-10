@@ -47,6 +47,7 @@ public:
   /*! Flips this image along the y axis.
    */
   void flipVertical();
+  bool write(const Path& path) const;
   /*! @return @c true if this image has power-of-two dimensions, otherwise @c false.
    */
   bool isPOT() const;
@@ -129,20 +130,6 @@ private:
   uint m_depth;
   PixelFormat m_format;
   std::vector<char> m_data;
-};
-
-class ImageReader : public ResourceReader<Image>
-{
-public:
-  ImageReader(ResourceCache& cache);
-  using ResourceReader<Image>::read;
-  Ref<Image> read(const std::string& name, const Path& path);
-};
-
-class ImageWriter
-{
-public:
-  bool write(const Path& path, const Image& image);
 };
 
 } /*namespace wendy*/

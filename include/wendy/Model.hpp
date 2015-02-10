@@ -123,15 +123,5 @@ private:
   AABB m_boundingAABB;
 };
 
-class ModelReader : public ResourceReader<Model>
-{
-public:
-  ModelReader(RenderContext& context);
-  using ResourceReader<Model>::read;
-  Ref<Model> read(const std::string& name, const Path& path);
-private:
-  RenderContext& m_context;
-};
-
 } /*namespace wendy*/
 

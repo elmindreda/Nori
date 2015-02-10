@@ -72,18 +72,18 @@ void Popup::insertItem(Item& item, uint index)
     m_selection = 0;
 }
 
-void Popup::createItem(const char* value, ItemID ID)
+void Popup::createItem(const std::string& value, ItemID ID)
 {
   Item* item = new Item(layer(), value, ID);
   addItem(*item);
 }
 
-Item* Popup::findItem(const char* value)
+Item* Popup::findItem(const std::string& value)
 {
   return m_menu->findItem(value);
 }
 
-const Item* Popup::findItem(const char* value) const
+const Item* Popup::findItem(const std::string& value) const
 {
   return m_menu->findItem(value);
 }
@@ -123,11 +123,9 @@ Item* Popup::selectedItem()
 
 void Popup::setSelectedItem(Item& newItem)
 {
-  const std::vector<Item*>& items = m_menu->items();
-
+  const auto& items = m_menu->items();
   auto i = std::find(items.begin(), items.end(), &newItem);
   assert(i != items.end());
-
   m_selection = uint(i - items.begin());
 }
 
@@ -162,7 +160,7 @@ void Popup::draw() const
     if (m_menu->isVisible())
       buttonState = STATE_SELECTED;
 
-    drawer.setCurrentFont(nullptr);
+    drawer.setFont(nullptr);
     drawer.drawButton(area, buttonState);
 
     if (m_selection != NO_ITEM)

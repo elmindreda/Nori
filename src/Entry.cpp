@@ -33,7 +33,7 @@
 namespace wendy
 {
 
-Entry::Entry(Layer& layer, Widget* parent, const char* text):
+Entry::Entry(Layer& layer, Widget* parent, const std::string& text):
   Widget(layer, parent),
   m_controller(text)
 {
@@ -55,14 +55,9 @@ Entry::Entry(Layer& layer, Widget* parent, const char* text):
   setFocusable(true);
 }
 
-void Entry::setText(const std::string& newText)
+void Entry::setText(const std::string& text)
 {
-  setText(newText.c_str());
-}
-
-void Entry::setText(const char* newText)
-{
-  m_controller.setText(newText);
+  m_controller.setText(text);
   invalidate();
 }
 
@@ -86,7 +81,7 @@ void Entry::draw() const
                         area.size + vec2(em, 0.f));
     const std::string& text = m_controller.text();
 
-    drawer.setCurrentFont(nullptr);
+    drawer.setFont(nullptr);
     drawer.drawText(textArea, text.c_str(), LEFT_ALIGNED, state());
 
     if (isActive() && floor(fmod(m_timer.time(), 2.0)) == 0.0)

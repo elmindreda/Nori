@@ -32,8 +32,6 @@
 
 #include <pugixml.hpp>
 
-#include <fstream>
-
 namespace wendy
 {
 
@@ -82,14 +80,6 @@ Theme::Theme(const ResourceInfo& info):
 
 Ref<Theme> Theme::read(RenderContext& context, const std::string& name)
 {
-  ThemeReader reader(context);
-  return reader.read(name);
-}
-
-ThemeReader::ThemeReader(RenderContext& context):
-  ResourceReader<Theme>(context.cache()),
-  m_context(context)
-{
   if (widgetStateMap.isEmpty())
   {
     widgetStateMap["disabled"] = STATE_DISABLED;
@@ -97,20 +87,20 @@ ThemeReader::ThemeReader(RenderContext& context):
     widgetStateMap["active"] = STATE_ACTIVE;
     widgetStateMap["selected"] = STATE_SELECTED;
   }
-}
 
-Ref<Theme> ThemeReader::read(const std::string& name, const Path& path)
-{
-  std::ifstream stream(path.name());
-  if (stream.fail())
+  if (Theme* cached = context.cache().find<Theme>(name))
+    return cached;
+
+  const Path path = context.cache().findFile(name);
+  if (path.isEmpty())
   {
-    logError("Failed to open animation %s", name.c_str());
+    logError("Failed to find theme %s", name.c_str());
     return nullptr;
   }
 
   pugi::xml_document document;
 
-  const pugi::xml_parse_result result = document.load(stream);
+  const pugi::xml_parse_result result = document.load_file(path.name().c_str());
   if (!result)
   {
     logError("Failed to load UI theme %s: %s",
@@ -126,7 +116,7 @@ Ref<Theme> ThemeReader::read(const std::string& name, const Path& path)
     return nullptr;
   }
 
-  Ref<Theme> theme = new Theme(ResourceInfo(cache, name, path));
+  Ref<Theme> theme = new Theme(ResourceInfo(context.cache(), name, path));
 
   const std::string imageName(root.attribute("image").value());
   if (imageName.empty())
@@ -137,7 +127,7 @@ Ref<Theme> ThemeReader::read(const std::string& name, const Path& path)
 
   const TextureParams params(TEXTURE_RECT, TF_NONE, FILTER_BILINEAR, ADDRESS_CLAMP);
 
-  theme->m_texture = Texture::read(m_context, params, imageName);
+  theme->m_texture = Texture::read(context, params, imageName);
   if (!theme->m_texture)
   {
     logError("Failed to create texture for UI theme %s", name.c_str());
@@ -151,7 +141,7 @@ Ref<Theme> ThemeReader::read(const std::string& name, const Path& path)
     return nullptr;
   }
 
-  theme->m_font = Font::read(m_context, fontName);
+  theme->m_font = Font::read(context, fontName);
   if (!theme->m_font)
   {
     logError("Failed to load font for UI theme %s", name.c_str());
@@ -263,10 +253,10 @@ void Drawer::drawLine(vec2 start, vec2 end, vec4 color)
   m_context.render(PrimitiveRange(LINE_LIST, range));
 }
 
-void Drawer::drawRectangle(const Rect& rectangle, vec4 color)
+void Drawer::drawRect(const Rect& rect, vec4 color)
 {
   float minX, minY, maxX, maxY;
-  rectangle.bounds(minX, minY, maxX, maxY);
+  rect.bounds(minX, minY, maxX, maxY);
 
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
@@ -286,10 +276,10 @@ void Drawer::drawRectangle(const Rect& rectangle, vec4 color)
   m_context.render(PrimitiveRange(LINE_LOOP, range));
 }
 
-void Drawer::fillRectangle(const Rect& rectangle, vec4 color)
+void Drawer::fillRect(const Rect& rect, vec4 color)
 {
   float minX, minY, maxX, maxY;
-  rectangle.bounds(minX, minY, maxX, maxY);
+  rect.bounds(minX, minY, maxX, maxY);
 
   if (maxX - minX < 1.f || maxY - minY < 1.f)
     return;
@@ -414,6 +404,7 @@ void Drawer::drawHandle(const Rect& area, WidgetState state)
 void Drawer::drawButton(const Rect& area, WidgetState state, const char* text)
 {
   drawElement(area, m_theme->m_buttonElements[state]);
+  setFont(nullptr);
 
   if (state == STATE_SELECTED)
   {
@@ -442,34 +433,21 @@ void Drawer::drawCheck(const Rect& area, WidgetState state, bool checked, const 
   const Rect textArea(area.position + vec2(checkSize, 0.f),
                       area.size - vec2(checkSize, 0.f));
 
+  setFont(nullptr);
   drawText(textArea, text, LEFT_ALIGNED, state);
 }
 
 void Drawer::drawTab(const Rect& area, WidgetState state, const char* text)
 {
   drawElement(area, m_theme->m_tabElements[state]);
+  setFont(nullptr);
   drawText(area, text, Alignment(), state);
 }
 
-const Theme& Drawer::theme() const
+void Drawer::setFont(Font* font)
 {
-  return *m_theme;
-}
-
-RenderContext& Drawer::context()
-{
-  return m_context;
-}
-
-Font& Drawer::currentFont()
-{
-  return *m_font;
-}
-
-void Drawer::setCurrentFont(Font* newFont)
-{
-  if (newFont)
-    m_font = newFont;
+  if (font)
+    m_font = font;
   else
     m_font = m_theme->m_font;
 }
@@ -562,9 +540,7 @@ bool Drawer::init()
 
     m_indexBuffer->copyFrom(indices, 54);
 
-    m_range = PrimitiveRange(TRIANGLE_LIST,
-                             *m_vertexBuffer,
-                             *m_indexBuffer);
+    m_range = PrimitiveRange(TRIANGLE_LIST, *m_vertexBuffer, *m_indexBuffer);
   }
 
   // Load default theme

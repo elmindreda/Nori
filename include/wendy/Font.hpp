@@ -127,15 +127,5 @@ public:
   uint32 codepoint;
 };
 
-class FontReader : public ResourceReader<Font>
-{
-public:
-  FontReader(RenderContext& context);
-  using ResourceReader<Font>::read;
-  Ref<Font> read(const std::string& name, const Path& path);
-private:
-  RenderContext& m_context;
-};
-
 } /*namespace wendy*/
 

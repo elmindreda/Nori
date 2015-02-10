@@ -60,13 +60,5 @@ private:
   stbtt_fontinfo* m_info;
 };
 
-class FaceReader : public ResourceReader<Face>
-{
-public:
-  FaceReader(ResourceCache& cache);
-  using ResourceReader<Face>::read;
-  Ref<Face> read(const std::string& name, const Path& path);
-};
-
 } /*namespace wendy*/
 

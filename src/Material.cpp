@@ -36,7 +36,6 @@
 #include <wendy/Material.hpp>
 
 #include <algorithm>
-#include <fstream>
 
 #include <pugixml.hpp>
 
@@ -53,8 +52,6 @@ Bimap<std::string, StencilOp> operationMap;
 Bimap<std::string, FilterMode> filterModeMap;
 Bimap<std::string, AddressMode> addressModeMap;
 Bimap<std::string, RenderPhase> phaseMap;
-
-const uint MATERIAL_XML_VERSION = 12;
 
 void initializeMaps()
 {
@@ -125,6 +122,8 @@ void initializeMaps()
     phaseMap["shadowmap"] = RENDER_SHADOWMAP;
   }
 }
+
+const uint MATERIAL_XML_VERSION = 12;
 
 } /*namespace*/
 
@@ -444,34 +443,21 @@ Ref<Material> Material::create(const ResourceInfo& info, RenderContext& context)
 
 Ref<Material> Material::read(RenderContext& context, const std::string& name)
 {
-  MaterialReader reader(context);
-  return reader.read(name);
-}
-
-Material::Material(const ResourceInfo& info):
-  Resource(info)
-{
-}
-
-MaterialReader::MaterialReader(RenderContext& context):
-  ResourceReader<Material>(context.cache()),
-  m_context(context)
-{
   initializeMaps();
-}
 
-Ref<Material> MaterialReader::read(const std::string& name, const Path& path)
-{
-  std::ifstream stream(path.name());
-  if (stream.fail())
+  if (Material* cached = context.cache().find<Material>(name))
+    return cached;
+
+  const Path path = context.cache().findFile(name);
+  if (path.isEmpty())
   {
-    logError("Failed to open material %s", name.c_str());
+    logError("Failed to find material %s", name.c_str());
     return nullptr;
   }
 
   pugi::xml_document document;
 
-  const pugi::xml_parse_result result = document.load(stream);
+  const pugi::xml_parse_result result = document.load_file(path.name().c_str());
   if (!result)
   {
     logError("Failed to load material %s: %s",
@@ -487,7 +473,7 @@ Ref<Material> MaterialReader::read(const std::string& name, const Path& path)
     return nullptr;
   }
 
-  Ref<Material> material = Material::create(ResourceInfo(cache, name, path), m_context);
+  Ref<Material> material = Material::create(ResourceInfo(context.cache(), name, path), context);
 
   for (auto pn : root.children("pass"))
   {
@@ -500,7 +486,7 @@ Ref<Material> MaterialReader::read(const std::string& name, const Path& path)
       return nullptr;
     }
 
-    if (!parsePass(m_context, material->pass(phaseMap[phaseName]), pn))
+    if (!parsePass(context, material->pass(phaseMap[phaseName]), pn))
     {
       logError("Failed to parse pass for material %s", name.c_str());
       return nullptr;
@@ -508,6 +494,11 @@ Ref<Material> MaterialReader::read(const std::string& name, const Path& path)
   }
 
   return material;
+}
+
+Material::Material(const ResourceInfo& info):
+  Resource(info)
+{
 }
 
 } /*namespace wendy*/

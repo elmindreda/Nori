@@ -35,10 +35,10 @@
 namespace wendy
 {
 
-Label::Label(Layer& layer, Widget* parent, const char* text, Alignment alignment):
+Label::Label(Layer& layer, Widget* parent, const std::string& text, Alignment alignment):
   Widget(layer, parent),
   m_text(text),
-  m_textAlignment(alignment)
+  m_alignment(alignment)
 {
   Font& font = layer.drawer().theme().font();
   const float em = font.height();
@@ -47,15 +47,15 @@ Label::Label(Layer& layer, Widget* parent, const char* text, Alignment alignment
   setDesiredSize(vec2(em * 2.f + textWidth, em * 2.f));
 }
 
-void Label::setText(const char* newText)
+void Label::setText(const std::string& text)
 {
-  m_text = newText;
+  m_text = text;
   invalidate();
 }
 
-void Label::setTextAlignment(const Alignment& newAlignment)
+void Label::setTextAlignment(const Alignment& alignment)
 {
-  m_textAlignment = newAlignment;
+  m_alignment = alignment;
   invalidate();
 }
 
@@ -66,8 +66,8 @@ void Label::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.setCurrentFont(nullptr);
-    drawer.drawText(area, m_text.c_str(), m_textAlignment, state());
+    drawer.setFont(nullptr);
+    drawer.drawText(area, m_text.c_str(), m_alignment, state());
 
     Widget::draw();
 

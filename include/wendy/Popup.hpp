@@ -35,22 +35,22 @@ class Popup : public Widget, public ItemContainer
 public:
   Popup(Layer& layer, Widget* parent = nullptr);
   ~Popup();
-  void addItem(Item& item);
-  void insertItem(Item& item, uint index);
-  void createItem(const char* value, ItemID ID = 0);
+  void addItem(Item& item) override;
+  void insertItem(Item& item, uint index) override;
+  void createItem(const std::string& value, ItemID ID = 0);
   void createSeparatorItem();
-  Item* findItem(const char* value);
-  const Item* findItem(const char* value) const;
-  void sortItems();
-  void destroyItem(Item& item);
-  void destroyItems();
+  Item* findItem(const std::string& value) override;
+  const Item* findItem(const std::string& value) const override;
+  void sortItems() override;
+  void destroyItem(Item& item) override;
+  void destroyItems() override;
   uint selection() const { return m_selection; }
   void setSelection(uint newIndex);
   Item* selectedItem();
   void setSelectedItem(Item& newItem);
   ItemID selectedID();
   void setSelectedID(ItemID newItemID);
-  const std::vector<Item*>& items() const { return m_menu->items(); }
+  const std::vector<Item*>& items() const override { return m_menu->items(); }
   SignalProxy<void,Popup&,uint> itemSelected() { return m_itemSelected; }
 protected:
   void draw() const;

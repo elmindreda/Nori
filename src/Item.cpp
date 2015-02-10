@@ -33,7 +33,7 @@
 namespace wendy
 {
 
-Item::Item(Layer& layer, const char* value, ItemID id):
+Item::Item(Layer& layer, const std::string& value, ItemID id):
   m_layer(layer),
   m_value(value),
   m_id(id)
@@ -70,9 +70,9 @@ const std::string& Item::value() const
   return m_value;
 }
 
-void Item::setValue(const char* newValue)
+void Item::setValue(const std::string& value)
 {
-  m_value = newValue;
+  m_value = value;
   m_layer.invalidate();
 }
 
@@ -87,10 +87,10 @@ void Item::draw(const Rect& area, WidgetState state) const
   if (state == STATE_SELECTED)
   {
     const vec3 color = drawer.theme().backgroundColor(STATE_SELECTED);
-    drawer.fillRectangle(area, vec4(color, 1.f));
+    drawer.fillRect(area, vec4(color, 1.f));
   }
 
-  drawer.setCurrentFont(nullptr);
+  drawer.setFont(nullptr);
   drawer.drawText(textArea, m_value.c_str(), LEFT_ALIGNED, state);
 }
 
@@ -122,9 +122,9 @@ void SeparatorItem::draw(const Rect& area, WidgetState state) const
 
 TextureItem::TextureItem(Layer& layer,
                          Texture& texture,
-                         const char* name,
-                         ItemID ID):
-  Item(layer, name, ID),
+                         const std::string& name,
+                         ItemID id):
+  Item(layer, name, id),
   m_texture(&texture)
 {
 }
@@ -154,10 +154,10 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
   if (state == STATE_SELECTED)
   {
     const vec3 color = drawer.theme().backgroundColor(STATE_SELECTED);
-    drawer.fillRectangle(area, vec4(color, 1.f));
+    drawer.fillRect(area, vec4(color, 1.f));
   }
 
-  drawer.setCurrentFont(nullptr);
+  drawer.setFont(nullptr);
   drawer.drawText(textArea, value().c_str(), LEFT_ALIGNED, state);
 
   const Rect textureArea(area.position, vec2(em * 3.f));

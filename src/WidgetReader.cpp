@@ -46,8 +46,6 @@
 
 #include <wendy/WidgetReader.hpp>
 
-#include <fstream>
-
 #include <pugixml.hpp>
 
 namespace wendy
@@ -298,16 +296,9 @@ bool WidgetReader::read(Layer& layer, Widget* parent, const std::string& name)
 {
   const Path path = m_cache.findFile(name);
 
-  std::ifstream stream(path.name());
-  if (stream.fail())
-  {
-    logError("Failed to open widget tree %s", name.c_str());
-    return false;
-  }
-
   pugi::xml_document document;
 
-  const pugi::xml_parse_result result = document.load(stream);
+  const pugi::xml_parse_result result = document.load_file(path.name().c_str());
   if (!result)
   {
     logError("Failed to load widget tree %s: %s",

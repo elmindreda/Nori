@@ -54,13 +54,5 @@ public:
   uint frequency;
 };
 
-class SampleReader : public ResourceReader<Sample>
-{
-public:
-  SampleReader(ResourceCache& cache);
-  using ResourceReader<Sample>::read;
-  Ref<Sample> read(const std::string& name, const Path& path);
-};
-
 } /*namespace wendy*/
 

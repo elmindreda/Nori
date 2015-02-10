@@ -73,7 +73,7 @@ void Panel::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
-    drawer.fillRectangle(area, vec4(0.5f));
+    drawer.fillRect(area, vec4(0.5f));
     Widget::draw();
     drawer.popClipArea();
   }
@@ -150,7 +150,7 @@ void Interface::draw()
 
 void Interface::updateCountItem(Item item, const char* unit, size_t count)
 {
-  labels[item]->setText(format("%u %s", (uint) count, unit).c_str());
+  labels[item]->setText(format("%u %s", (uint) count, unit));
 }
 
 void Interface::updateCountSizeItem(Item item,
@@ -162,7 +162,7 @@ void Interface::updateCountSizeItem(Item item,
                                (uint) count,
                                unit,
                                reduce(size),
-                               suffix(size)).c_str());
+                               suffix(size)));
 }
 
   } /*namespace debug*/

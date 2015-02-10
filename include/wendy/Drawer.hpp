@@ -114,18 +114,6 @@ private:
   Ref<Font> m_font;
 };
 
-/*! @ingroup ui
- */
-class ThemeReader : public ResourceReader<Theme>
-{
-public:
-  ThemeReader(RenderContext& context);
-  using ResourceReader<Theme>::read;
-  Ref<Theme> read(const std::string& name, const Path& path);
-private:
-  RenderContext& m_context;
-};
-
 /*! @brief User interface renderer.
  *  @ingroup ui
  *
@@ -160,8 +148,8 @@ public:
   void popClipArea();
   void drawPoint(vec2 point, vec4 color);
   void drawLine(vec2 start, vec2 end, vec4 color);
-  void drawRectangle(const Rect& rectangle, vec4 color);
-  void fillRectangle(const Rect& rectangle, vec4 color);
+  void drawRect(const Rect& rect, vec4 color);
+  void fillRect(const Rect& rect, vec4 color);
   void blitTexture(const Rect& area, Texture& texture, vec4 color);
   void drawText(const Rect& area,
                 const char* text,
@@ -177,23 +165,24 @@ public:
   void drawButton(const Rect& area, WidgetState state, const char* text = "");
   void drawCheck(const Rect& area, WidgetState state, bool checked, const char* text = "");
   void drawTab(const Rect& area, WidgetState state, const char* text = "");
-  const Theme& theme() const;
-  RenderContext& context();
-  Font& currentFont();
-  void setCurrentFont(Font* newFont);
+  const Theme& theme() const { return *m_theme; }
+  RenderContext& context() { return m_context; }
+  Font& font() { return *m_font; }
+  void setFont(Font* font);
   static std::unique_ptr<Drawer> create(RenderContext& context);
 private:
   Drawer(RenderContext& context);
   bool init();
   void drawElement(const Rect& area, const Rect& mapping);
   void setDrawingState(vec4 color, bool wireframe);
-  RectClipStackf m_clipAreaStack;
+  RenderContext& m_context;
+  Ref<Theme> m_theme;
   Ref<VertexBuffer> m_vertexBuffer;
   Ref<IndexBuffer> m_indexBuffer;
-  PrimitiveRange m_range;
-  Ref<Theme> m_theme;
-  RenderContext& m_context;
+  Ref<SharedProgramState> m_state;
   Ref<Font> m_font;
+  RectClipStackf m_clipAreaStack;
+  PrimitiveRange m_range;
   Pass m_drawPass;
   Pass m_blitPass;
   Pass m_elementPass;
@@ -201,7 +190,6 @@ private:
   UniformStateIndex m_elementSizeIndex;
   UniformStateIndex m_texPosIndex;
   UniformStateIndex m_texSizeIndex;
-  Ref<SharedProgramState> m_state;
 };
 
 } /*namespace wendy*/

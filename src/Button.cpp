@@ -44,7 +44,7 @@ void Button::setText(const char* newText)
   invalidate();
 }
 
-Button::Button(Layer& layer, Widget* parent, ButtonType type, const char* text):
+Button::Button(Layer& layer, Widget* parent, ButtonType type, const std::string& text):
   Widget(layer, parent),
   m_type(type),
   m_text(text),
@@ -74,7 +74,7 @@ void Button::draw() const
     else
       hoverState = state();
 
-    drawer.setCurrentFont(nullptr);
+    drawer.setFont(nullptr);
     if (m_type == PUSH_BUTTON)
       drawer.drawButton(area, hoverState, m_text.c_str());
     else if (m_type == CHECK_BUTTON)

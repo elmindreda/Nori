@@ -35,18 +35,18 @@ class Menu : public Widget, public ItemContainer
 public:
   Menu(Layer& layer);
   ~Menu();
-  void display(const vec2& point);
+  void display(vec2 point);
   void display();
-  void addItem(Item& item);
-  void insertItem(Item& item, uint index);
-  void createItem(const char* value, ItemID ID = 0);
+  void addItem(Item& item) override;
+  void insertItem(Item& item, uint index) override;
+  void createItem(const std::string& value, ItemID id = 0);
   void createSeparatorItem();
-  Item* findItem(const char* value);
-  const Item* findItem(const char* value) const;
-  void destroyItem(Item& item);
-  void destroyItems();
-  void sortItems();
-  const std::vector<Item*>& items() const { return m_items; }
+  Item* findItem(const std::string& value) override;
+  const Item* findItem(const std::string& value) const override;
+  void destroyItem(Item& item) override;
+  void destroyItems() override;
+  void sortItems() override;
+  const std::vector<Item*>& items() const override { return m_items; }
   SignalProxy<void,Menu&,uint> itemSelected() { return m_itemSelected; }
 private:
   void draw() const;

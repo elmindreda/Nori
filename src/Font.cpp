@@ -37,8 +37,6 @@
 
 #include <utf8.h>
 
-#include <fstream>
-
 namespace wendy
 {
 
@@ -193,8 +191,49 @@ Ref<Font> Font::create(const ResourceInfo& info,
 
 Ref<Font> Font::read(RenderContext& context, const std::string& name)
 {
-  FontReader reader(context);
-  return reader.read(name);
+  if (Font* cached = context.cache().find<Font>(name))
+    return cached;
+
+  const Path path = context.cache().findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find font %s", name.c_str());
+    return nullptr;
+  }
+
+  pugi::xml_document document;
+
+  const pugi::xml_parse_result result = document.load_file(path.name().c_str());
+  if (!result)
+  {
+    logError("Failed to load font %s: %s",
+             name.c_str(),
+             result.description());
+    return nullptr;
+  }
+
+  pugi::xml_node root = document.child("font");
+  if (!root || root.attribute("version").as_uint() != FONT_XML_VERSION)
+  {
+    logError("Font file format mismatch in %s", name.c_str());
+    return nullptr;
+  }
+
+  const std::string faceName(root.attribute("face").value());
+  if (faceName.empty())
+  {
+    logError("No typeface specified for font %s", faceName.c_str());
+    return nullptr;
+  }
+
+  const uint height = root.attribute("height").as_uint();
+
+  Ref<Face> face = Face::read(context.cache(), faceName);
+  if (!face)
+    return nullptr;
+
+  return create(ResourceInfo(context.cache(), name, path),
+                context, *face, height);
 }
 
 Font::Font(const ResourceInfo& info, RenderContext& context):
@@ -353,55 +392,6 @@ bool Font::addGlyphTextureRow()
 
   m_pass.setUniformTexture("glyphs", m_texture);
   return true;
-}
-
-FontReader::FontReader(RenderContext& context):
-  ResourceReader<Font>(context.cache()),
-  m_context(context)
-{
-}
-
-Ref<Font> FontReader::read(const std::string& name, const Path& path)
-{
-  std::ifstream stream(path.name());
-  if (stream.fail())
-  {
-    logError("Failed to open font %s", name.c_str());
-    return nullptr;
-  }
-
-  pugi::xml_document document;
-
-  const pugi::xml_parse_result result = document.load(stream);
-  if (!result)
-  {
-    logError("Failed to load font %s: %s",
-             name.c_str(),
-             result.description());
-    return nullptr;
-  }
-
-  pugi::xml_node root = document.child("font");
-  if (!root || root.attribute("version").as_uint() != FONT_XML_VERSION)
-  {
-    logError("Font file format mismatch in %s", name.c_str());
-    return nullptr;
-  }
-
-  const std::string faceName(root.attribute("face").value());
-  if (faceName.empty())
-  {
-    logError("No typeface specified for font %s", faceName.c_str());
-    return nullptr;
-  }
-
-  const uint height = root.attribute("height").as_uint();
-
-  Ref<Face> face = Face::read(cache, faceName);
-  if (!face)
-    return nullptr;
-
-  return Font::create(ResourceInfo(cache, name, path), m_context, *face, height);
 }
 
 } /*namespace wendy*/

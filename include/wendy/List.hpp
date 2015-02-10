@@ -35,14 +35,14 @@ class List : public Widget, public ItemContainer
 public:
   List(Layer& layer, Widget* parent = nullptr);
   ~List();
-  void addItem(Item& item);
-  void insertItem(Item& item, uint index);
-  void createItem(const char* value, ItemID ID = 0);
-  Item* findItem(const char* value);
-  const Item* findItem(const char* value) const;
-  void destroyItem(Item& item);
-  void destroyItems();
-  void sortItems();
+  void addItem(Item& item) override;
+  void insertItem(Item& item, uint index) override;
+  void createItem(const std::string& value, ItemID id = 0);
+  Item* findItem(const std::string& value) override;
+  const Item* findItem(const std::string& value) const override;
+  void destroyItem(Item& item) override;
+  void destroyItems() override;
+  void sortItems() override;
   bool isEditable() const { return m_editable; }
   void setEditable(bool newState);
   uint offset() const { return m_offset; }
@@ -53,7 +53,7 @@ public:
   void setSelectedItem(Item& newItem);
   ItemID selectedID();
   void setSelectedID(ItemID newItemID);
-  const std::vector<Item*>& items() const { return m_items; }
+  const std::vector<Item*>& items() const override { return m_items; }
   SignalProxy<void,List&> itemSelected() { return m_itemSelected; }
   SignalProxy<void,List&,const std::string&> itemEdited() { return m_itemEdited; }
 protected:

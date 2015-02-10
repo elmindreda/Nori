@@ -43,14 +43,14 @@ class Item
   friend class List;
   friend class Menu;
 public:
-  Item(Layer& layer, const char* value = "", ItemID id = 0);
+  Item(Layer& layer, const std::string& value = "", ItemID id = 0);
   virtual ~Item();
   virtual bool operator < (const Item& other) const;
   virtual float width() const;
   virtual float height() const;
   virtual ItemID id() const;
   virtual const std::string& value() const;
-  virtual void setValue(const char* newValue);
+  virtual void setValue(const std::string& value);
 protected:
   virtual void draw(const Rect& area, WidgetState state) const;
   Layer& m_layer;
@@ -78,8 +78,8 @@ class TextureItem : public Item
 public:
   TextureItem(Layer& layer,
               Texture& texture,
-              const char* name = "",
-              ItemID ID = 0);
+              const std::string& name = "",
+              ItemID id = 0);
   float width() const override;
   float height() const override;
   Texture& texture() const;
@@ -106,8 +106,8 @@ public:
   virtual void insertItem(Item& item, uint index) = 0;
   virtual void destroyItem(Item& item) = 0;
   virtual void destroyItems() = 0;
-  virtual Item* findItem(const char* value) = 0;
-  virtual const Item* findItem(const char* value) const = 0;
+  virtual Item* findItem(const std::string& value) = 0;
+  virtual const Item* findItem(const std::string& value) const = 0;
   virtual void sortItems() = 0;
   virtual const std::vector<Item*>& items() const = 0;
 };

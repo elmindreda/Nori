@@ -143,6 +143,29 @@ void Image::flipVertical()
   std::swap(m_data, temp);
 }
 
+bool Image::write(const Path& path) const
+{
+  if (dimensionCount() > 2)
+  {
+    logError("Cannot write 3D images to PNG file");
+    return false;
+  }
+
+  if (m_format.type() != PixelFormat::UINT8)
+  {
+    logError("Only 8-bit images may be written");
+    return false;
+  }
+
+  const int stride = int(m_width * m_format.size());
+  const void* start = m_data.data() + stride * (m_height - 1);
+
+  return stbi_write_png(path.name().c_str(),
+                        m_width, m_height,
+                        m_format.channelCount(),
+                        start, -stride) != 0;
+}
+
 bool Image::isPOT() const
 {
   return isPowerOfTwo(m_width) && isPowerOfTwo(m_height) && isPowerOfTwo(m_depth);
@@ -192,8 +215,39 @@ Ref<Image> Image::create(const ResourceInfo& info,
 
 Ref<Image> Image::read(ResourceCache& cache, const std::string& name)
 {
-  ImageReader reader(cache);
-  return reader.read(name);
+  if (Image* cached = cache.find<Image>(name))
+    return cached;
+
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find image %s", name.c_str());
+    return nullptr;
+  }
+
+  int width, height, format;
+  stbi_uc* pixels = stbi_load(path.name().c_str(),
+                              &width, &height,
+                              &format, STBI_default);
+  if (!pixels)
+  {
+    logError("Failed to read image %s", path.name().c_str());
+    return nullptr;
+  }
+
+  for (int i = 0;  i < height / 2;  i++)
+  {
+    std::swap_ranges(pixels + width * format * i,
+                     pixels + width * format * (i + 1),
+                     pixels + width * format * (height - i - 1));
+  }
+
+  Ref<Image> result = create(ResourceInfo(cache, name, path),
+                             convertToPixelFormat(format),
+                             width, height, 1, pixels);
+
+  stbi_image_free(pixels);
+  return result;
 }
 
 Image::Image(const ResourceInfo& info):
@@ -245,61 +299,6 @@ bool Image::init(const PixelFormat& format,
     m_data.resize(m_width * m_height * m_depth * m_format.size(), 0);
 
   return true;
-}
-
-ImageReader::ImageReader(ResourceCache& cache):
-  ResourceReader<Image>(cache)
-{
-}
-
-Ref<Image> ImageReader::read(const std::string& name, const Path& path)
-{
-  int width, height, format;
-  stbi_uc* pixels = stbi_load(path.name().c_str(),
-                              &width, &height,
-                              &format, STBI_default);
-  if (!pixels)
-  {
-    logError("Failed to read image %s", path.name().c_str());
-    return nullptr;
-  }
-
-  for (int i = 0;  i < height / 2;  i++)
-  {
-    std::swap_ranges(pixels + width * format * i,
-                     pixels + width * format * (i + 1),
-                     pixels + width * format * (height - i - 1));
-  }
-
-  Ref<Image> result = Image::create(ResourceInfo(cache, name, path),
-                                    convertToPixelFormat(format),
-                                    width, height, 1, pixels);
-
-  stbi_image_free(pixels);
-  return result;
-}
-
-bool ImageWriter::write(const Path& path, const Image& image)
-{
-  if (image.dimensionCount() > 2)
-  {
-    logError("Cannot write 3D images to PNG file");
-    return false;
-  }
-
-  if (image.format().type() != PixelFormat::UINT8)
-  {
-    logError("Only 8-bit images may be written");
-    return false;
-  }
-
-  const int stride = int(image.width() * image.format().size());
-  const void* start = (char*) image.pixels() + stride * (image.height() - 1);
-
-  return stbi_write_png(path.name().c_str(),
-                        image.width(), image.height(),
-                        image.format().channelCount(),
-                        start, -stride) != 0;
 }
 
 } /*namespace wendy*/

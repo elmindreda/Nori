@@ -88,32 +88,5 @@ private:
   std::vector<Resource*> m_resources;
 };
 
-template <typename T>
-class ResourceReader
-{
-public:
-  ResourceReader(ResourceCache& cache):
-    cache(cache)
-  {
-  }
-  Ref<T> read(const std::string& name)
-  {
-    if (T* cached = cache.find<T>(name))
-      return cached;
-
-    const Path path = cache.findFile(name);
-    if (path.isEmpty())
-    {
-      logError("Failed to find resource \'%s\'", name.c_str());
-      return nullptr;
-    }
-
-    return read(name, path);
-  }
-  virtual Ref<T> read(const std::string& name, const Path& path) = 0;
-protected:
-  ResourceCache& cache;
-};
-
 } /*namespace wendy*/
 

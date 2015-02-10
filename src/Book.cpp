@@ -35,7 +35,7 @@
 namespace wendy
 {
 
-Page::Page(Layer& layer, Book& parent, const char* text):
+Page::Page(Layer& layer, Book& parent, const std::string& text):
   Widget(layer, &parent),
   m_book(parent),
   m_text(text)
@@ -48,9 +48,9 @@ Page::~Page()
   m_book.onPageRemoved(*this);
 }
 
-void Page::setText(const char* newText)
+void Page::setText(const std::string& text)
 {
-  m_text = newText;
+  m_text = text;
   invalidate();
 }
 
@@ -101,7 +101,7 @@ void Book::draw() const
         else
           state = STATE_DISABLED;
 
-        drawer.setCurrentFont(nullptr);
+        drawer.setFont(nullptr);
         drawer.drawTab(tabArea, state, p->text().c_str());
 
         tabArea.position.x += tabSize.x;

@@ -33,15 +33,15 @@ namespace wendy
 class Label : public Widget
 {
 public:
-  Label(Layer& layer, Widget* parent = nullptr, const char* text = "", Alignment alignment = LEFT_ALIGNED);
+  Label(Layer& layer, Widget* parent = nullptr, const std::string& text = "", Alignment alignment = LEFT_ALIGNED);
   const std::string& text() const { return m_text; }
-  void setText(const char* newText);
-  const Alignment& textAlignment() const { return m_textAlignment; }
-  void setTextAlignment(const Alignment& newAlignment);
+  void setText(const std::string& text);
+  const Alignment& textAlignment() const { return m_alignment; }
+  void setTextAlignment(const Alignment& alignment);
 private:
   void draw() const;
   std::string m_text;
-  Alignment m_textAlignment;
+  Alignment m_alignment;
 };
 
 } /*namespace wendy*/

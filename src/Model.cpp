@@ -43,8 +43,6 @@
 
 #include <pugixml.hpp>
 
-#include <fstream>
-
 namespace wendy
 {
 
@@ -217,28 +215,19 @@ bool Model::init(RenderContext& context, const Mesh& data, const MaterialMap& ma
 
 Ref<Model> Model::read(RenderContext& context, const std::string& name)
 {
-  ModelReader reader(context);
-  return reader.read(name);
-}
+  if (Model* cached = context.cache().find<Model>(name))
+    return cached;
 
-ModelReader::ModelReader(RenderContext& context):
-  ResourceReader<Model>(context.cache()),
-  m_context(context)
-{
-}
-
-Ref<Model> ModelReader::read(const std::string& name, const Path& path)
-{
-  std::ifstream stream(path.name());
-  if (stream.fail())
+  const Path path = context.cache().findFile(name);
+  if (path.isEmpty())
   {
-    logError("Failed to open model %s", name.c_str());
+    logError("Failed to find model %s", name.c_str());
     return nullptr;
   }
 
   pugi::xml_document document;
 
-  const pugi::xml_parse_result result = document.load(stream);
+  const pugi::xml_parse_result result = document.load_file(path.name().c_str());
   if (!result)
   {
     logError("Failed to load model %s: %s",
@@ -261,7 +250,7 @@ Ref<Model> ModelReader::read(const std::string& name, const Path& path)
     return nullptr;
   }
 
-  Ref<Mesh> mesh = Mesh::read(cache, meshName);
+  Ref<Mesh> mesh = Mesh::read(context.cache(), meshName);
   if (!mesh)
   {
     logError("Failed to load mesh for model %s", name.c_str());
@@ -288,7 +277,7 @@ Ref<Model> ModelReader::read(const std::string& name, const Path& path)
       return nullptr;
     }
 
-    Ref<Material> material = Material::read(m_context, materialName);
+    Ref<Material> material = Material::read(context, materialName);
     if (!material)
     {
       logError("Failed to load material for alias %s of model %s",
@@ -300,7 +289,8 @@ Ref<Model> ModelReader::read(const std::string& name, const Path& path)
     materials[materialAlias] = material;
   }
 
-  return Model::create(ResourceInfo(cache, name, path), m_context, *mesh, materials);
+  return create(ResourceInfo(context.cache(), name, path),
+                context, *mesh, materials);
 }
 
 } /*namespace wendy*/

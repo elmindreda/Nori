@@ -208,6 +208,57 @@ struct FaceGroup
   std::string name;
 };
 
+std::string parseName(const char** text)
+{
+  while (std::isspace(**text))
+    (*text)++;
+
+  std::string result;
+
+  while (std::isalnum(**text) || **text == '_')
+  {
+    result.append(1, **text);
+    (*text)++;
+  }
+
+  if (!result.size())
+    throw Exception("Expected but missing name");
+
+  return result;
+}
+
+int parseInteger(const char** text)
+{
+  char* end;
+
+  const int result = std::strtol(*text, &end, 0);
+  if (end == *text)
+    throw Exception("Expected but missing integer value");
+
+  *text = end;
+  return result;
+}
+
+float parseFloat(const char** text)
+{
+  char* end;
+
+  const float result = float(std::strtod(*text, &end));
+  if (end == *text)
+    throw Exception("Expected but missing float value");
+
+  *text = end;
+  return result;
+}
+
+bool interesting(const char** text)
+{
+  if (std::isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
+    return false;
+
+  return true;
+}
+
 } /*namespace*/
 
 void MeshTriangle::setIndices(uint32 a, uint32 b, uint32 c)
@@ -320,6 +371,46 @@ Sphere Mesh::generateBoundingSphere() const
   return bounds;
 }
 
+bool Mesh::write(const Path& path) const
+{
+  std::ofstream stream(path.name());
+  if (!stream.is_open())
+  {
+    logError("Failed to open %s for writing", path.name().c_str());
+    return false;
+  }
+
+  for (const Vertex3fn2ft3fv& v : vertices)
+    stream << "v " << v.position.x << ' ' << v.position.y << ' ' << v.position.z << '\n';
+
+  for (const Vertex3fn2ft3fv& v : vertices)
+    stream << "vn " << v.normal.x << ' ' << v.normal.y << ' ' << v.normal.z << '\n';
+
+  for (const Vertex3fn2ft3fv& v : vertices)
+    stream << "vt " << v.texcoord.x << ' ' << v.texcoord.y << '\n';
+
+  for (const MeshSection& s : sections)
+  {
+    stream << "usemtl " << s.materialName << '\n';
+
+    for (auto& t : s.triangles)
+    {
+      stream << "f";
+
+      for (size_t i = 0;  i < 3;  i++)
+      {
+        uint32 index = t.indices[i] + 1;
+        stream << ' ' << index << '/' << index << '/' << index;
+      }
+
+      stream << '\n';
+    }
+  }
+
+  stream.close();
+  return true;
+}
+
 bool Mesh::isValid() const
 {
   if (vertices.empty())
@@ -369,17 +460,16 @@ size_t Mesh::triangleCount() const
 
 Ref<Mesh> Mesh::read(ResourceCache& cache, const std::string& name)
 {
-  MeshReader reader(cache);
-  return reader.read(name);
-}
+  if (Mesh* cached = cache.find<Mesh>(name))
+    return cached;
 
-MeshReader::MeshReader(ResourceCache& index):
-  ResourceReader<Mesh>(index)
-{
-}
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find mesh %s", name.c_str());
+    return nullptr;
+  }
 
-Ref<Mesh> MeshReader::read(const std::string& name, const Path& path)
-{
   std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
   if (stream.fail())
   {
@@ -575,97 +665,6 @@ Ref<Mesh> MeshReader::read(const std::string& name, const Path& path)
 
   tool.realizeVertices(mesh->vertices);
   return mesh;
-}
-
-std::string MeshReader::parseName(const char** text)
-{
-  while (std::isspace(**text))
-    (*text)++;
-
-  std::string result;
-
-  while (std::isalnum(**text) || **text == '_')
-  {
-    result.append(1, **text);
-    (*text)++;
-  }
-
-  if (!result.size())
-    throw Exception("Expected but missing name");
-
-  return result;
-}
-
-int MeshReader::parseInteger(const char** text)
-{
-  char* end;
-
-  const int result = std::strtol(*text, &end, 0);
-  if (end == *text)
-    throw Exception("Expected but missing integer value");
-
-  *text = end;
-  return result;
-}
-
-float MeshReader::parseFloat(const char** text)
-{
-  char* end;
-
-  const float result = float(std::strtod(*text, &end));
-  if (end == *text)
-    throw Exception("Expected but missing float value");
-
-  *text = end;
-  return result;
-}
-
-bool MeshReader::interesting(const char** text)
-{
-  if (std::isspace(**text) || **text == '#' || **text == '\0' || **text == '\r')
-    return false;
-
-  return true;
-}
-
-bool MeshWriter::write(const Path& path, const Mesh& mesh)
-{
-  std::ofstream stream(path.name());
-  if (!stream.is_open())
-  {
-    logError("Failed to open %s for writing", path.name().c_str());
-    return false;
-  }
-
-  for (const Vertex3fn2ft3fv& v : mesh.vertices)
-    stream << "v " << v.position.x << ' ' << v.position.y << ' ' << v.position.z << '\n';
-
-  for (const Vertex3fn2ft3fv& v : mesh.vertices)
-    stream << "vn " << v.normal.x << ' ' << v.normal.y << ' ' << v.normal.z << '\n';
-
-  for (const Vertex3fn2ft3fv& v : mesh.vertices)
-    stream << "vt " << v.texcoord.x << ' ' << v.texcoord.y << '\n';
-
-  for (const MeshSection& s : mesh.sections)
-  {
-    stream << "usemtl " << s.materialName << '\n';
-
-    for (auto& t : s.triangles)
-    {
-      stream << "f";
-
-      for (size_t i = 0;  i < 3;  i++)
-      {
-        uint32 index = t.indices[i] + 1;
-        stream << ' ' << index << '/' << index << '/' << index;
-      }
-
-      stream << '\n';
-    }
-  }
-
-  stream.close();
-  return true;
 }
 
 } /*namespace wendy*/

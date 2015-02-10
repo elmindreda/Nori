@@ -35,10 +35,10 @@ class Book;
 class Page : public Widget
 {
 public:
-  Page(Layer& layer, Book& parent, const char* text = "");
+  Page(Layer& layer, Book& parent, const std::string& text = "");
   ~Page();
   const std::string& text() const { return m_text; }
-  void setText(const char* newText);
+  void setText(const std::string& text);
 private:
   Book& m_book;
   std::string m_text;

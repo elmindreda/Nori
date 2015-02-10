@@ -74,13 +74,13 @@ void List::insertItem(Item& item, uint index)
   m_items.insert(m_items.begin() + min(index, uint(m_items.size())), &item);
 }
 
-void List::createItem(const char* value, ItemID ID)
+void List::createItem(const std::string& value, ItemID id)
 {
-  Item* item = new Item(layer(), value, ID);
+  Item* item = new Item(layer(), value, id);
   addItem(*item);
 }
 
-Item* List::findItem(const char* value)
+Item* List::findItem(const std::string& value)
 {
   for (Item* i : m_items)
   {
@@ -91,7 +91,7 @@ Item* List::findItem(const char* value)
   return nullptr;
 }
 
-const Item* List::findItem(const char* value) const
+const Item* List::findItem(const std::string& value) const
 {
   for (Item* i : m_items)
   {
@@ -408,7 +408,7 @@ void List::beginEditing()
     const std::string& value = selected->value();
 
     m_entry->setArea(entryArea);
-    m_entry->setText(value.c_str());
+    m_entry->setText(value);
     m_entry->setCaretPosition(uint(value.length()));
     m_entry->show();
     m_entry->activate();
@@ -422,7 +422,7 @@ void List::applyEditing()
   if (Item* item = selectedItem())
   {
     m_itemEdited(*this, m_entry->text());
-    item->setValue(m_entry->text().c_str());
+    item->setValue(m_entry->text());
   }
 }
 

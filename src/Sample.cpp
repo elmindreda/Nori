@@ -48,17 +48,16 @@ Sample::Sample(const ResourceInfo& info,
 
 Ref<Sample> Sample::read(ResourceCache& cache, const std::string& name)
 {
-  SampleReader reader(cache);
-  return reader.read(name);
-}
+  if (Sample* cached = cache.find<Sample>(name))
+    return cached;
 
-SampleReader::SampleReader(ResourceCache& cache):
-  ResourceReader(cache)
-{
-}
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find sample %s", name.c_str());
+    return nullptr;
+  }
 
-Ref<Sample> SampleReader::read(const std::string& name, const Path& path)
-{
   stb_vorbis* file;
   int channels, rate;
   short* samples;

@@ -50,7 +50,7 @@ Menu::~Menu()
   destroyItems();
 }
 
-void Menu::display(const vec2& point)
+void Menu::display(vec2 point)
 {
   vec2 position;
 
@@ -93,7 +93,7 @@ void Menu::insertItem(Item& item, uint index)
   sizeToFit();
 }
 
-void Menu::createItem(const char* value, ItemID ID)
+void Menu::createItem(const std::string& value, ItemID ID)
 {
   Item* item = new Item(layer(), value, ID);
   addItem(*item);
@@ -105,7 +105,7 @@ void Menu::createSeparatorItem()
   addItem(*item);
 }
 
-Item* Menu::findItem(const char* value)
+Item* Menu::findItem(const std::string& value)
 {
   for (Item* i : m_items)
   {
@@ -116,7 +116,7 @@ Item* Menu::findItem(const char* value)
   return nullptr;
 }
 
-const Item* Menu::findItem(const char* value) const
+const Item* Menu::findItem(const std::string& value) const
 {
   for (const Item* i : m_items)
   {

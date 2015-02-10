@@ -161,8 +161,32 @@ Ref<Face> Face::create(const ResourceInfo& info, const char* data, size_t size)
 
 Ref<Face> Face::read(ResourceCache& cache, const std::string& name)
 {
-  FaceReader reader(cache);
-  return reader.read(name);
+  if (Face* cached = cache.find<Face>(name))
+    return cached;
+
+  const Path path = cache.findFile(name);
+  if (path.isEmpty())
+  {
+    logError("Failed to find face %s", name.c_str());
+    return nullptr;
+  }
+
+  std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
+  if (stream.fail())
+  {
+    logError("Failed to open face file %s", path.name().c_str());
+    return nullptr;
+  }
+
+  std::vector<char> data;
+
+  stream.seekg(0, std::ios::end);
+  data.resize((size_t) stream.tellg());
+
+  stream.seekg(0, std::ios::beg);
+  stream.read(data.data(), data.size());
+
+  return create(ResourceInfo(cache, name, path), data.data(), data.size());
 }
 
 Face::Face(const ResourceInfo& info):
@@ -183,31 +207,6 @@ bool Face::init(const char* data, size_t size)
   }
 
   return true;
-}
-
-FaceReader::FaceReader(ResourceCache& cache):
-  ResourceReader<Face>(cache)
-{
-}
-
-Ref<Face> FaceReader::read(const std::string& name, const Path& path)
-{
-  std::ifstream stream(path.name(), std::ios::in | std::ios::binary);
-  if (stream.fail())
-  {
-    logError("Failed to open face file %s", path.name().c_str());
-    return nullptr;
-  }
-
-  std::vector<char> data;
-
-  stream.seekg(0, std::ios::end);
-  data.resize((size_t) stream.tellg());
-
-  stream.seekg(0, std::ios::beg);
-  stream.read(data.data(), data.size());
-
-  return Face::create(ResourceInfo(cache, name, path), data.data(), data.size());
 }
 
 } /*namespace wendy*/

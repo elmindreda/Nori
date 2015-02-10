@@ -33,10 +33,9 @@ namespace wendy
 class Entry : public Widget
 {
 public:
-  Entry(Layer& layer, Widget* parent = nullptr, const char* text = "");
+  Entry(Layer& layer, Widget* parent = nullptr, const std::string& text = "");
   const std::string& text() const { return m_controller.text(); }
-  void setText(const std::string& newText);
-  void setText(const char* newText);
+  void setText(const std::string& text);
   size_t caretPosition() const { return m_controller.caretPosition(); }
   void setCaretPosition(size_t newPosition);
   SignalProxy<void,Entry&> textChanged() { return m_textChanged; }

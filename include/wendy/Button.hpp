@@ -46,7 +46,7 @@ public:
   void setText(const char* newText);
   SignalProxy<void,Button&> pushed() { return m_pushed; }
 protected:
-  Button(Layer& layer, Widget* parent, ButtonType type, const char* text);
+  Button(Layer& layer, Widget* parent, ButtonType type, const std::string& text);
   void draw() const;
   void onMouseButton(vec2 point,
                      MouseButton button,
@@ -68,7 +68,7 @@ private:
 class PushButton : public Button
 {
 public:
-  PushButton(Layer& layer, Widget* parent = nullptr, const char* text = ""):
+  PushButton(Layer& layer, Widget* parent = nullptr, const std::string& text = ""):
     Button(layer, parent, PUSH_BUTTON, text)
   {
   }
@@ -77,7 +77,7 @@ public:
 class CheckButton : public Button
 {
 public:
-  CheckButton(Layer& layer, Widget* parent = nullptr, const char* text = ""):
+  CheckButton(Layer& layer, Widget* parent = nullptr, const std::string& text = ""):
     Button(layer, parent, CHECK_BUTTON, text)
   {
   }

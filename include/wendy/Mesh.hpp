@@ -89,6 +89,7 @@ public:
   /*! Generates the bounding sphere of this mesh.
    */
   Sphere generateBoundingSphere() const;
+  bool write(const Path& path) const;
   /*! @return @c true if this mesh is valid, otherwise @c false.
    */
   bool isValid() const;
@@ -102,25 +103,6 @@ public:
   /*! The list of vertices in this mesh.
    */
   std::vector<Vertex3fn2ft3fv> vertices;
-};
-
-class MeshReader : public ResourceReader<Mesh>
-{
-public:
-  MeshReader(ResourceCache& cache);
-  using ResourceReader<Mesh>::read;
-  Ref<Mesh> read(const std::string& name, const Path& path);
-private:
-  std::string parseName(const char** text);
-  int parseInteger(const char** text);
-  float parseFloat(const char** text);
-  bool interesting(const char** text);
-};
-
-class MeshWriter
-{
-public:
-  bool write(const Path& path, const Mesh& mesh);
 };
 
 } /*namespace wendy*/

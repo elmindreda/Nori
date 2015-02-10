@@ -107,12 +107,6 @@ void logErrorCallStack(HSQUIRRELVM vm)
 
       switch (sq_gettype(vm, -1))
       {
-        case OT_NULL:
-        {
-          stream << "null";
-          break;
-        }
-
         case OT_INTEGER:
         {
           SQInteger value;
@@ -145,36 +139,6 @@ void logErrorCallStack(HSQUIRRELVM vm)
           break;
         }
 
-        case OT_TABLE:
-        {
-          stream << "{ ... }";
-          break;
-        }
-
-        case OT_ARRAY:
-        {
-          stream << "[ ... ]";
-          break;
-        }
-
-        case OT_CLOSURE:
-        {
-          stream << "function() [Squirrel]";
-          break;
-        }
-
-        case OT_NATIVECLOSURE:
-        {
-          stream << "function() [C++]";
-          break;
-        }
-
-        case OT_GENERATOR:
-        {
-          stream << "generator()";
-          break;
-        }
-
         case OT_USERDATA:
         case OT_USERPOINTER:
         {
@@ -184,41 +148,42 @@ void logErrorCallStack(HSQUIRRELVM vm)
           break;
         }
 
+        case OT_NULL:
+          stream << "null";
+          break;
+        case OT_TABLE:
+          stream << "{ ... }";
+          break;
+        case OT_ARRAY:
+          stream << "[ ... ]";
+          break;
+        case OT_CLOSURE:
+          stream << "function() [Squirrel]";
+          break;
+        case OT_NATIVECLOSURE:
+          stream << "function() [C++]";
+          break;
+        case OT_GENERATOR:
+          stream << "generator()";
+          break;
         case OT_THREAD:
-        {
           stream << "thread";
           break;
-        }
-
         case OT_FUNCPROTO:
-        {
           stream << "whathuh";
           break;
-        }
-
         case OT_CLASS:
-        {
           stream << "class";
           break;
-        }
-
         case OT_INSTANCE:
-        {
           stream << "instance";
           break;
-        }
-
         case OT_WEAKREF:
-        {
           stream << "weakref";
           break;
-        }
-
         case OT_OUTER:
-        {
           stream << "huhwhat";
           break;
-        }
       }
 
       sq_poptop(vm);
