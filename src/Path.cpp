@@ -96,6 +96,16 @@ bool Path::destroyDirectory() const
 #endif
 }
 
+bool Path::rename(const std::string& target)
+{
+  return ::rename(m_string.c_str(), target.c_str()) == 0;
+}
+
+bool Path::remove()
+{
+  return unlink(m_string.c_str()) == 0;
+}
+
 bool Path::exists() const
 {
 #if WENDY_SYSTEM_WIN32

@@ -48,6 +48,8 @@ public:
    *  @return @c true if successful, otherwise @c false.
    */
   bool destroyDirectory() const;
+  bool rename(const std::string& target);
+  bool remove();
   /*! @return @c true if a file or directory with this path exists, otherwise
    *  @c false.
    */
