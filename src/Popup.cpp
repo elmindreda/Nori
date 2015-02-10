@@ -158,8 +158,12 @@ void Popup::draw() const
   const Rect area = globalArea();
   if (drawer.pushClipArea(area))
   {
+    WidgetState buttonState = state();
+    if (m_menu->isVisible())
+      buttonState = STATE_SELECTED;
+
     drawer.setCurrentFont(nullptr);
-    drawer.drawButton(area, state());
+    drawer.drawButton(area, buttonState);
 
     if (m_selection != NO_ITEM)
     {
@@ -168,19 +172,27 @@ void Popup::draw() const
       const Rect textArea(area.position + vec2(em / 2.f, 0.f),
                           area.size - vec2(em, 0.f));
 
-      drawer.drawText(textArea, item->value().c_str(), LEFT_ALIGNED, state());
+      drawer.drawText(textArea, item->value().c_str(), LEFT_ALIGNED, buttonState);
     }
 
     Widget::draw();
-
     drawer.popClipArea();
   }
 }
 
 void Popup::display()
 {
-  m_menu->setArea(Rect(globalPos(),
-                       vec2(max(m_menu->width(), width()), m_menu->height())));
+  m_menu->setSize(vec2(max(m_menu->width(), width()), m_menu->height()));
+
+  const Rect area = globalArea();
+
+  if (area.position.y - m_menu->height() > 0.f)
+    m_menu->setPosition(area.position - vec2(0.f, m_menu->height()));
+  else if (area.position.y + area.size.y + m_menu->height() < layer().window().height())
+    m_menu->setPosition(area.position + area.size);
+  else
+    m_menu->setPosition(vec2(area.position.x, 1.f));
+
   m_menu->display();
 }
 
