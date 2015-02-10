@@ -41,7 +41,6 @@ namespace wendy
 List::List(Layer& layer, Widget* parent):
   Widget(layer, parent),
   m_editable(false),
-  m_editing(false),
   m_offset(0),
   m_maxOffset(0),
   m_selection(NO_ITEM),
@@ -341,7 +340,7 @@ void List::onKey(Key key, Action action, uint mods)
 
 void List::onScroll(vec2 offset)
 {
-  if (!m_items.empty() && !m_editing &&
+  if (!m_items.empty() && !m_entry->isVisible() &&
       int(offset.y) + int(m_offset) >= 0)
   {
     setOffset(m_offset + int(offset.y));
@@ -352,7 +351,7 @@ void List::onScroll(vec2 offset)
 
 void List::onEntryFocusChanged(Widget& widget, bool activated)
 {
-  if (m_editing)
+  if (m_entry->isVisible() && !activated)
     applyEditing();
 }
 
@@ -382,7 +381,6 @@ void List::onEntryKey(Widget& widget, Key key, Action action, uint mods)
 
 void List::onEntryDestroyed(Widget& widget)
 {
-  m_editing = false;
   m_entry = nullptr;
 }
 
@@ -414,23 +412,23 @@ void List::beginEditing()
     m_entry->setCaretPosition(uint(value.length()));
     m_entry->show();
     m_entry->activate();
-    m_editing = true;
   }
 }
 
 void List::applyEditing()
 {
   m_entry->hide();
-  m_editing = false;
 
   if (Item* item = selectedItem())
+  {
+    m_itemEdited(*this, m_entry->text());
     item->setValue(m_entry->text().c_str());
+  }
 }
 
 void List::cancelEditing()
 {
   m_entry->hide();
-  m_editing = false;
 }
 
 void List::updateScroller()

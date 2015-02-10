@@ -55,6 +55,7 @@ public:
   void setSelectedID(ItemID newItemID);
   const std::vector<Item*>& items() const { return m_items; }
   SignalProxy<void,List&> itemSelected() { return m_itemSelected; }
+  SignalProxy<void,List&,const std::string&> itemEdited() { return m_itemEdited; }
 protected:
   void draw() const;
 private:
@@ -76,8 +77,8 @@ private:
   bool isSelectionVisible() const;
   void setSelection(uint newSelection, bool notify);
   Signal<void,List&> m_itemSelected;
+  Signal<void,List&,const std::string&> m_itemEdited;
   bool m_editable;
-  bool m_editing;
   std::vector<Item*> m_items;
   uint m_offset;
   uint m_maxOffset;
