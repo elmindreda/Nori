@@ -268,8 +268,8 @@ public:
    */
   Ref<T>& operator = (Ref<T>&& source)
   {
-    m_object = source.m_object;
-    source.m_object = nullptr;
+    operator = (nullptr);
+    std::swap(m_object, source.m_object);
     return *this;
   }
   /*! @return The currently owned object.
