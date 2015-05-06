@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,17 +23,17 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/Menu.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Item.hpp>
+#include <nori/Menu.hpp>
 
 #include <algorithm>
 
-namespace wendy
+namespace nori
 {
 
 Menu::Menu(Layer& layer):
@@ -339,5 +339,5 @@ void Menu::sizeToFit()
   setSize(size);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

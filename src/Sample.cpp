@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Sample.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Sample.hpp>
 
 #include <stb_vorbis.c>
 
-namespace wendy
+namespace nori
 {
 
 Sample::Sample(const ResourceInfo& info,
@@ -84,5 +84,5 @@ Ref<Sample> Sample::read(ResourceCache& cache, const std::string& name)
   return sample;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,16 +23,16 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Profile.hpp>
-#include <wendy/Window.hpp>
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
+#include <nori/Profile.hpp>
+#include <nori/Window.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -46,7 +46,7 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtc/constants.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -169,7 +169,7 @@ Resolution::Resolution(uint width, uint height):
 }
 
 WindowConfig::WindowConfig():
-  title("Wendy"),
+  title("Nori"),
   width(640),
   height(480),
   mode(WINDOWED),
@@ -911,5 +911,5 @@ void TextController::setCaretPosition(size_t newPosition)
   m_caretMoved();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

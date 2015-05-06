@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,28 +23,28 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Profile.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
-#include <wendy/Camera.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
+#include <nori/Profile.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
+#include <nori/Camera.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
-#include <wendy/Pass.hpp>
-#include <wendy/Material.hpp>
-#include <wendy/RenderQueue.hpp>
-#include <wendy/Scene.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Material.hpp>
+#include <nori/RenderQueue.hpp>
+#include <nori/Scene.hpp>
 
 #include <algorithm>
 
-namespace wendy
+namespace nori
 {
 
 SceneNode::SceneNode():
@@ -328,5 +328,5 @@ void SceneGraph::destroyRootNodes()
     delete m_roots.back();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

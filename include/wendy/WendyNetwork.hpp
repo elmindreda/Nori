@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2012 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -28,9 +28,9 @@
 /*! @defgroup net Networking API.
  */
 
-#if WENDY_INCLUDE_NETWORK
+#if NORI_INCLUDE_NETWORK
 
-#include <wendy/Network.hpp>
+#include <nori/Network.hpp>
 
 #else
 #error "Network module is not enabled"

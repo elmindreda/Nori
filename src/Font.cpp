@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,21 +23,21 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
-#include <wendy/Pass.hpp>
-#include <wendy/Font.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Font.hpp>
 
 #include <pugixml.hpp>
 
 #include <utf8.h>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -266,8 +266,8 @@ bool Font::init(Face& face, uint height)
   // Create render pass
   {
     Ref<Program> program = Program::read(m_context,
-                                         "wendy/RenderFont.vs",
-                                         "wendy/RenderFont.fs");
+                                         "nori/RenderFont.vs",
+                                         "nori/RenderFont.fs");
     if (!program)
     {
       logError("Failed to read program for font %s", name().c_str());
@@ -394,5 +394,5 @@ bool Font::addGlyphTextureRow()
   return true;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -28,26 +28,26 @@
 /*! @defgroup ui User interface API
  */
 
-#if WENDY_INCLUDE_UI_SYSTEM
+#if NORI_INCLUDE_UI_SYSTEM
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Layout.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Scroller.hpp>
+#include <nori/Book.hpp>
+#include <nori/Canvas.hpp>
+#include <nori/Layout.hpp>
+#include <nori/Label.hpp>
+#include <nori/Progress.hpp>
+#include <nori/Button.hpp>
+#include <nori/Slider.hpp>
+#include <nori/Entry.hpp>
+#include <nori/Item.hpp>
+#include <nori/List.hpp>
+#include <nori/Menu.hpp>
+#include <nori/Popup.hpp>
 
-#include <wendy/WidgetReader.hpp>
+#include <nori/WidgetReader.hpp>
 
 #else
 #error "UI module not enabled"

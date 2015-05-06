@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2013 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Sample.hpp>
-#include <wendy/Audio.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Sample.hpp>
+#include <nori/Audio.hpp>
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -231,7 +231,7 @@ void AudioSource::start()
 {
   alSourcePlay(m_sourceID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkAL("Failed to start source");
 #endif
 }
@@ -240,7 +240,7 @@ void AudioSource::stop()
 {
   alSourceStop(m_sourceID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkAL("Failed to stop source");
 #endif
 }
@@ -249,7 +249,7 @@ void AudioSource::pause()
 {
   alSourcePause(m_sourceID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkAL("Failed to pause source");
 #endif
 }
@@ -258,7 +258,7 @@ void AudioSource::resume()
 {
   alSourcePlay(m_sourceID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkAL("Failed to resume source");
 #endif
 }
@@ -268,7 +268,7 @@ AudioSource::State AudioSource::state() const
   ALenum state;
   alGetSourcei(m_sourceID, AL_SOURCE_STATE, &state);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkAL("Failed to get source state");
 #endif
 
@@ -293,7 +293,7 @@ void AudioSource::setLooping(bool newState)
     m_looping = newState;
     alSourcei(m_sourceID, AL_LOOPING, m_looping);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set source looping state");
 #endif
   }
@@ -306,7 +306,7 @@ void AudioSource::setPosition(const vec3& newPosition)
     m_position = newPosition;
     alSourcefv(m_sourceID, AL_POSITION, value_ptr(m_position));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set source position");
 #endif
   }
@@ -319,7 +319,7 @@ void AudioSource::setVelocity(const vec3& newVelocity)
     m_velocity = newVelocity;
     alSourcefv(m_sourceID, AL_VELOCITY, value_ptr(m_velocity));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set source velocity");
 #endif
   }
@@ -336,7 +336,7 @@ void AudioSource::setBuffer(AudioBuffer* newBuffer)
     else
       alSourcei(m_sourceID, AL_BUFFER, AL_NONE);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set source buffer");
 #endif
   }
@@ -349,7 +349,7 @@ void AudioSource::setGain(float newGain)
     m_gain = newGain;
     alSourcefv(m_sourceID, AL_GAIN, &m_gain);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set source gain");
 #endif
   }
@@ -362,7 +362,7 @@ void AudioSource::setPitch(float newPitch)
     m_pitch = newPitch;
     alSourcefv(m_sourceID, AL_PITCH, &m_pitch);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set source pitch");
 #endif
   }
@@ -415,7 +415,7 @@ void AudioContext::setListenerPosition(const vec3& newPosition)
     m_listenerPosition = newPosition;
     alListenerfv(AL_POSITION, value_ptr(m_listenerPosition));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set listener position");
 #endif
   }
@@ -428,7 +428,7 @@ void AudioContext::setListenerVelocity(const vec3& newVelocity)
     m_listenerVelocity = newVelocity;
     alListenerfv(AL_VELOCITY, value_ptr(m_listenerVelocity));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set listener velocity");
 #endif
   }
@@ -447,7 +447,7 @@ void AudioContext::setListenerRotation(const quat& newRotation)
 
     alListenerfv(AL_ORIENTATION, orientation);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set listener rotation");
 #endif
   }
@@ -460,7 +460,7 @@ void AudioContext::setListenerGain(float newGain)
     m_listenerGain = newGain;
     alListenerfv(AL_GAIN, &m_listenerGain);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     checkAL("Failed to set listener gain");
 #endif
   }
@@ -518,5 +518,5 @@ bool AudioContext::init()
   return true;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

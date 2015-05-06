@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -28,23 +28,23 @@
 /*! @defgroup renderer 3D rendering pipeline
  */
 
-#if WENDY_INCLUDE_RENDERER
+#if NORI_INCLUDE_RENDERER
 
-#include <wendy/Window.hpp>
+#include <nori/Window.hpp>
 
-#include <wendy/Query.hpp>
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
-#include <wendy/Pass.hpp>
-#include <wendy/Font.hpp>
-#include <wendy/Material.hpp>
-#include <wendy/RenderQueue.hpp>
-#include <wendy/Sprite.hpp>
-#include <wendy/Model.hpp>
-#include <wendy/Scene.hpp>
-#include <wendy/Renderer.hpp>
+#include <nori/Query.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Font.hpp>
+#include <nori/Material.hpp>
+#include <nori/RenderQueue.hpp>
+#include <nori/Sprite.hpp>
+#include <nori/Model.hpp>
+#include <nori/Scene.hpp>
+#include <nori/Renderer.hpp>
 
 #else
 #error "Render module not enabled"

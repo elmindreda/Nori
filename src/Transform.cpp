@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,13 +23,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
 
 #include <glm/gtx/transform.hpp>
 
-namespace wendy
+namespace nori
 {
 
 Transform2::Transform2():
@@ -175,5 +175,5 @@ void Transform3::set(vec3 newPosition, quat newRotation, float newScale)
 
 Transform3 Transform3::IDENTITY;
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

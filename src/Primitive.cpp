@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2013 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
 
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/intersect.hpp>
 
-namespace wendy
+namespace nori
 {
 
 void Ray3::set(const vec3& newOrigin, const vec3& newDirection)
@@ -295,5 +295,5 @@ void AABB::set(float newWidth, float newHeight, float newDepth)
   size = vec3(newWidth, newHeight, newDepth);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

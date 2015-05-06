@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Rect.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Pixel.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Image.hpp>
+#include <nori/Core.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Path.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Image.hpp>
 
 #include <fstream>
 #include <cstring>
@@ -43,7 +43,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -301,5 +301,5 @@ bool Image::init(const PixelFormat& format,
   return true;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

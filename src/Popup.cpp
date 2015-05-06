@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,16 +23,16 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Item.hpp>
+#include <nori/Menu.hpp>
+#include <nori/Popup.hpp>
 
-namespace wendy
+namespace nori
 {
 
 Popup::Popup(Layer& layer, Widget* parent):
@@ -242,5 +242,5 @@ void Popup::onMenuDestroyed(Widget& widget)
   m_menu = nullptr;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,23 +23,23 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Bimap.hpp>
+#include <nori/Core.hpp>
+#include <nori/Bimap.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
-#include <wendy/Pass.hpp>
-#include <wendy/Material.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Material.hpp>
 
 #include <algorithm>
 
 #include <pugixml.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -501,5 +501,5 @@ Material::Material(const ResourceInfo& info):
 {
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

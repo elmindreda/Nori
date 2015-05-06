@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2012 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -27,14 +27,14 @@
 
 /*! @defgroup bullet Bullet helper API
  *
- *  This module provides functions and classes that make it easier to use Wendy
+ *  This module provides functions and classes that make it easier to use Nori
  *  and Bullet together in an application.  It makes no attempt to wrap Bullet,
  *  as it already provides a good C++ API.
  */
 
-#if WENDY_INCLUDE_BULLET
+#if NORI_INCLUDE_BULLET
 
-#include <wendy/Bullet.hpp>
+#include <nori/Bullet.hpp>
 
 #else
 #error "Bullet module not enabled"

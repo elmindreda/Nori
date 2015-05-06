@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Item.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Item.hpp>
 
-namespace wendy
+namespace nori
 {
 
 Item::Item(Layer& layer, const std::string& value, ItemID id):
@@ -164,5 +164,5 @@ void TextureItem::draw(const Rect& area, WidgetState state) const
   drawer.blitTexture(textureArea, *m_texture, vec4(1.f));
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

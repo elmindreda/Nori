@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
@@ -41,7 +41,7 @@
 
 #include <pugixml.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -314,7 +314,7 @@ void Attribute::bind(size_t stride, size_t offset)
                         (GLsizei) stride,
                         (const void*) offset);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Failed to set attribute %s", m_name.c_str());
 #endif
 }
@@ -352,7 +352,7 @@ void Uniform::copyFrom(const void* data)
       break;
   }
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Failed to set uniform %s", m_name.c_str());
 #endif
 }
@@ -889,5 +889,5 @@ bool ProgramInterface::matches(const VertexFormat& format, bool verbose) const
   return true;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

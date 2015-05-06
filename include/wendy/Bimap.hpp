@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,7 +25,7 @@
 
 #pragma once
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief Bidirectional map template.
@@ -167,5 +167,5 @@ inline void Bimap<X,Y>::setDefaults(const X& defaultX, const Y& defaultY)
   defaults.y = defaultY;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

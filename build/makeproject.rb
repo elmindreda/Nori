@@ -37,7 +37,7 @@ private
       FileUtils.mkdir_p(path)
     end
 
-    FileUtils.ln_s("../../wendy/media/wendy", @path + '/data/')
+    FileUtils.ln_s("../../nori/media/nori", @path + '/data/')
   end
 
   def build_cmake()
@@ -49,10 +49,10 @@ cmake_minimum_required(VERSION 2.8)
 project(#{@name} C CXX)
 set(VERSION 0.1)
 
-add_subdirectory(${#{@name}_SOURCE_DIR}/../wendy ${#{@name}_BINARY_DIR}/wendy)
+add_subdirectory(${#{@name}_SOURCE_DIR}/../nori ${#{@name}_BINARY_DIR}/nori)
 
-include_directories(${WENDY_INCLUDE_DIRS})
-list(APPEND #{@name}_LIBRARIES ${WENDY_LIBRARIES})
+include_directories(${NORI_INCLUDE_DIRS})
+list(APPEND #{@name}_LIBRARIES ${NORI_LIBRARIES})
 
 add_subdirectory(src)
 
@@ -71,7 +71,7 @@ endif()
 set(#{@name}_SOURCES #{@type}.cpp #{@type}.hpp)
 
 add_executable(#{@name} WIN32 MACOSX_BUNDLE ${#{@name}_SOURCES})
-target_link_libraries(#{@name} wendy ${#{@name}_LIBRARIES})
+target_link_libraries(#{@name} nori ${#{@name}_LIBRARIES})
 
 set_target_properties(#{@name} PROPERTIES
   MACOSX_BUNDLE_BUNDLE_NAME #{@name.capitalize}
@@ -95,7 +95,7 @@ EOF
 namespace #{@name}
 {
 
-using namespace wendy;
+using namespace nori;
 
 class #{@type} : public EventHook
 {
@@ -121,7 +121,7 @@ EOF
     File.open(@path + "/src/#{@type}.cpp", 'wb') do |file|
       file.print <<EOF
 
-#include <wendy/Wendy.hpp>
+#include <nori/Nori.hpp>
 
 #include <cstdlib>
 
@@ -130,7 +130,7 @@ EOF
 namespace #{@name}
 {
 
-using namespace wendy;
+using namespace nori;
 
 #{@type}::#{@type}()
 {

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2012 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Profile.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
+#include <nori/Profile.hpp>
 
 #include <algorithm>
 
-namespace wendy
+namespace nori
 {
 
 bool ProfileNode::operator == (const char* string) const
@@ -109,5 +109,5 @@ void Profile::resetNode(ProfileNode& node)
 
 Profile* Profile::m_current = nullptr;
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

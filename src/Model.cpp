@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,27 +23,27 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
-#include <wendy/Camera.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
+#include <nori/Camera.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
-#include <wendy/Pass.hpp>
-#include <wendy/Material.hpp>
-#include <wendy/RenderQueue.hpp>
-#include <wendy/Model.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Material.hpp>
+#include <nori/RenderQueue.hpp>
+#include <nori/Model.hpp>
 
 #include <pugixml.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -293,5 +293,5 @@ Ref<Model> Model::read(RenderContext& context, const std::string& name)
                 context, *mesh, materials);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

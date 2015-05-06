@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2012 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,10 +25,10 @@
 
 #pragma once
 
-namespace wendy
+namespace nori
 {
 
-WENDY_CHECKFORMAT(1, bool checkGL(const char* format, ...));
+NORI_CHECKFORMAT(1, bool checkGL(const char* format, ...));
 
 GLenum convertToGL(IndexType type);
 GLenum convertToGL(PixelFormat::Type type);
@@ -101,5 +101,5 @@ public:
   bool first;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,44 +1,44 @@
 
-#define WENDY_VERSION "@VERSION@"
+#define NORI_VERSION "@VERSION@"
 
 /* Define this to 1 if word order is big-endian */
-#cmakedefine WENDY_WORDS_BIGENDIAN 1
+#cmakedefine NORI_WORDS_BIGENDIAN 1
 
 /* Define this to 1 if building for Win32 */
-#cmakedefine WENDY_SYSTEM_WIN32 1
+#cmakedefine NORI_SYSTEM_WIN32 1
 /* Define this to 1 if building for Mac OS X */
-#cmakedefine WENDY_SYSTEM_MACOSX 1
+#cmakedefine NORI_SYSTEM_MACOSX 1
 /* Define this to 1 if building for Linux */
-#cmakedefine WENDY_SYSTEM_LINUX 1
+#cmakedefine NORI_SYSTEM_LINUX 1
 
 /* Define this to 1 if sys/stat.h is available */
-#cmakedefine WENDY_HAVE_SYS_STAT_H 1
+#cmakedefine NORI_HAVE_SYS_STAT_H 1
 /* Define this to 1 if fcntl.h is available */
-#cmakedefine WENDY_HAVE_FCNTL_H 1
+#cmakedefine NORI_HAVE_FCNTL_H 1
 /* Define this to 1 if unistd.h is available */
-#cmakedefine WENDY_HAVE_UNISTD_H 1
+#cmakedefine NORI_HAVE_UNISTD_H 1
 /* Define this to 1 if dirent.h is available */
-#cmakedefine WENDY_HAVE_DIRENT_H 1
+#cmakedefine NORI_HAVE_DIRENT_H 1
 
 /* Define this to 1 if io.h is available */
-#cmakedefine WENDY_HAVE_IO_H 1
+#cmakedefine NORI_HAVE_IO_H 1
 /* Define this to 1 if direct.h is available */
-#cmakedefine WENDY_HAVE_DIRECT_H 1
+#cmakedefine NORI_HAVE_DIRECT_H 1
 /* Define this to 1 if windows.h is available */
-#cmakedefine WENDY_HAVE_WINDOWS_H 1
+#cmakedefine NORI_HAVE_WINDOWS_H 1
 
 /* Define this to 1 to include the networking API */
-#cmakedefine WENDY_INCLUDE_NETWORK 1
+#cmakedefine NORI_INCLUDE_NETWORK 1
 /* Define this to 1 to include the renderers */
-#cmakedefine WENDY_INCLUDE_RENDERER 1
+#cmakedefine NORI_INCLUDE_RENDERER 1
 /* Define this to 1 to include the audio wrapper */
-#cmakedefine WENDY_INCLUDE_AUDIO 1
+#cmakedefine NORI_INCLUDE_AUDIO 1
 /* Define this to 1 to include the UI system */
-#cmakedefine WENDY_INCLUDE_UI_SYSTEM 1
+#cmakedefine NORI_INCLUDE_UI_SYSTEM 1
 /* Define this to 1 to include the debug interface */
-#cmakedefine WENDY_INCLUDE_DEBUG_UI 1
+#cmakedefine NORI_INCLUDE_DEBUG_UI 1
 /* Define this to 1 to include the Squirrel bindings */
-#cmakedefine WENDY_INCLUDE_SQUIRREL 1
+#cmakedefine NORI_INCLUDE_SQUIRREL 1
 /* Define this to 1 to include the Bullet library */
-#cmakedefine WENDY_INCLUDE_BULLET 1
+#cmakedefine NORI_INCLUDE_BULLET 1
 

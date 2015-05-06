@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
-#include <wendy/Rect.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Pixel.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Image.hpp>
-#include <wendy/Face.hpp>
+#include <nori/Core.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Path.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Image.hpp>
+#include <nori/Face.hpp>
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief %Font layout and rendering object.
@@ -127,5 +127,5 @@ public:
   uint32 codepoint;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

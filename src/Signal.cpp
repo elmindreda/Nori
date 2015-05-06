@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,10 +23,10 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Signal.hpp>
+#include <nori/Config.hpp>
+#include <nori/Signal.hpp>
 
-namespace wendy
+namespace nori
 {
 
 SignalSlotBase::SignalSlotBase(Trackable* object):
@@ -64,5 +64,5 @@ Trackable& Trackable::operator = (const Trackable& source)
   return *this;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

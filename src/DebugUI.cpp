@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,17 +23,17 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Layout.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Label.hpp>
+#include <nori/Layout.hpp>
 
-#include <wendy/DebugUI.hpp>
+#include <nori/DebugUI.hpp>
 
-namespace wendy
+namespace nori
 {
   namespace debug
   {
@@ -166,5 +166,5 @@ void Interface::updateCountSizeItem(Item item,
 }
 
   } /*namespace debug*/
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Brandon Jones
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -28,7 +28,7 @@
 
 #include <squirrel.h>
 
-namespace wendy
+namespace nori
 {
 
 class SqObject;
@@ -177,8 +177,8 @@ public:
   SqTable registryTable();
   ResourceCache& cache() const;
 private:
-  WENDY_CHECKFORMAT(2, static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...));
-  WENDY_CHECKFORMAT(2, static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...));
+  NORI_CHECKFORMAT(2, static void onLogMessage(HSQUIRRELVM vm, const SQChar* format, ...));
+  NORI_CHECKFORMAT(2, static void onLogError(HSQUIRRELVM vm, const SQChar* format, ...));
   static void onCompilerError(HSQUIRRELVM vm,
                               const SQChar* description,
                               const SQChar* source,
@@ -702,5 +702,5 @@ inline T* SqNativeInstance<T>::native()
   return static_cast<T*>(pointer());
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

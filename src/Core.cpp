@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,9 +23,9 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
+#include <nori/Core.hpp>
 
 #include <algorithm>
 #include <exception>
@@ -36,7 +36,7 @@
 #include <cstring>
 #include <cstdio>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -318,5 +318,5 @@ LogConsumer::~LogConsumer()
   consumers.erase(std::find(consumers.begin(), consumers.end(), this));
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

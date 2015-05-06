@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -28,9 +28,9 @@
 /*! @defgroup audio Audio API
  */
 
-#if WENDY_INCLUDE_AUDIO
+#if NORI_INCLUDE_AUDIO
 
-#include <wendy/Audio.hpp>
+#include <nori/Audio.hpp>
 
 #else
 #error "Audio module is not enabled"

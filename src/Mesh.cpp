@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Vertex.hpp>
-#include <wendy/Mesh.hpp>
+#include <nori/Core.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Vertex.hpp>
+#include <nori/Mesh.hpp>
 
 #include <limits>
 #include <cstdlib>
@@ -40,7 +40,7 @@
 #include <glm/gtx/compatibility.hpp>
 #include <glm/gtc/epsilon.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -667,5 +667,5 @@ Ref<Mesh> Mesh::read(ResourceCache& cache, const std::string& name)
   return mesh;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

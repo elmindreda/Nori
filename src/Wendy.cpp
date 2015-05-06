@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,7 +23,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Wendy.hpp>
+#include <nori/Nori.hpp>
 
 // This file exists only to include the main public header, providing
 // some verification of all public headers early in the compilation.

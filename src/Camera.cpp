@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,18 +23,18 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
-#include <wendy/Camera.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
+#include <nori/Camera.hpp>
 
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace wendy
+namespace nori
 {
 
 Camera::Camera():
@@ -163,5 +163,5 @@ void Camera::updateInverse()
   m_inverse = m_transform.inverse();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

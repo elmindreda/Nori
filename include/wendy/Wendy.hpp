@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -29,7 +29,7 @@
  *
  *  @section intro Introduction
  *
- *  This is the reference documentation for the Wendy engine, a simple game
+ *  This is the reference documentation for the Nori engine, a simple game
  *  engine.
  *
  *  @section license License
@@ -52,33 +52,33 @@
  *      distribution.
  */
 
-#include <wendy/WendyCore.hpp>
+#include <nori/NoriCore.hpp>
 
-#if WENDY_INCLUDE_NETWORK
-#include <wendy/WendyNetwork.hpp>
+#if NORI_INCLUDE_NETWORK
+#include <nori/NoriNetwork.hpp>
 #endif
 
-#if WENDY_INCLUDE_AUDIO
-#include <wendy/WendyAudio.hpp>
+#if NORI_INCLUDE_AUDIO
+#include <nori/NoriAudio.hpp>
 #endif
 
-#if WENDY_INCLUDE_RENDERER
-#include <wendy/WendyRender.hpp>
+#if NORI_INCLUDE_RENDERER
+#include <nori/NoriRender.hpp>
 #endif
 
-#if WENDY_INCLUDE_UI_SYSTEM
-#include <wendy/WendyUI.hpp>
+#if NORI_INCLUDE_UI_SYSTEM
+#include <nori/NoriUI.hpp>
 #endif
 
-#if WENDY_INCLUDE_DEBUG_UI
-#include <wendy/DebugUI.hpp>
+#if NORI_INCLUDE_DEBUG_UI
+#include <nori/DebugUI.hpp>
 #endif
 
-#if WENDY_INCLUDE_SQUIRREL
-#include <wendy/WendySquirrel.hpp>
+#if NORI_INCLUDE_SQUIRREL
+#include <nori/NoriSquirrel.hpp>
 #endif
 
-#if WENDY_INCLUDE_BULLET
-#include <wendy/WendyBullet.hpp>
+#if NORI_INCLUDE_BULLET
+#include <nori/NoriBullet.hpp>
 #endif
 

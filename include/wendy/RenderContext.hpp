@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,16 +25,16 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
-#include <wendy/Rect.hpp>
-#include <wendy/Pixel.hpp>
-#include <wendy/Signal.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Window.hpp>
+#include <nori/Core.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Signal.hpp>
+#include <nori/Time.hpp>
+#include <nori/Window.hpp>
 
 #include <deque>
 
-namespace wendy
+namespace nori
 {
 
 class AABB;
@@ -506,10 +506,10 @@ public:
   /*! Sets the current index buffer.
    */
   void setIndexBuffer(IndexBuffer* newIndexBuffer);
-  /*! @note Unless you are Wendy, you probably don't need to call this.
+  /*! @note Unless you are Nori, you probably don't need to call this.
    */
   void setTexture(Texture* newTexture);
-  /*! @note Unless you are Wendy, you probably don't need to call this.
+  /*! @note Unless you are Nori, you probably don't need to call this.
    */
   void setTextureUnit(uint unit);
   bool isCullingInverted();
@@ -577,5 +577,5 @@ private:
   RenderStats* m_stats;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

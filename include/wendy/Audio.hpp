@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Sample.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Sample.hpp>
 
-namespace wendy
+namespace nori
 {
 
 class AudioContext;
@@ -257,5 +257,5 @@ private:
   float m_listenerGain;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

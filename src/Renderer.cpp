@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,22 +23,22 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Profile.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
-#include <wendy/Camera.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
+#include <nori/Profile.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
+#include <nori/Camera.hpp>
 
-#include <wendy/Pass.hpp>
-#include <wendy/Material.hpp>
-#include <wendy/RenderQueue.hpp>
-#include <wendy/Renderer.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Material.hpp>
+#include <nori/RenderQueue.hpp>
+#include <nori/Renderer.hpp>
 
-namespace wendy
+namespace nori
 {
 
 void Renderer::render(const RenderQueue& queue, const Camera& camera)
@@ -113,5 +113,5 @@ void Renderer::renderOperations(const RenderBucket& bucket)
   }
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

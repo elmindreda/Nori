@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,17 +23,17 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Profile.hpp>
-#include <wendy/Primitive.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
+#include <nori/Profile.hpp>
+#include <nori/Primitive.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
 #define GREG_IMPLEMENTATION
 #define GREG_USE_GLFW3
@@ -48,7 +48,7 @@
 
 #include <algorithm>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -887,7 +887,7 @@ void RenderContext::clearColorBuffer(const vec4& color)
   glClearColor(color.r, color.g, color.b, color.a);
   glClear(GL_COLOR_BUFFER_BIT);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
 }
@@ -905,7 +905,7 @@ void RenderContext::clearDepthBuffer(float depth)
   glClearDepth(depth);
   glClear(GL_DEPTH_BUFFER_BIT);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
 }
@@ -918,7 +918,7 @@ void RenderContext::clearStencilBuffer(uint value)
   glClearStencil(value);
   glClear(GL_STENCIL_BUFFER_BIT);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
 }
@@ -943,7 +943,7 @@ void RenderContext::clearBuffers(const vec4& color, float depth, uint value)
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during color buffer clearing");
 #endif
 }
@@ -1017,7 +1017,7 @@ void RenderContext::render(PrimitiveType type, uint start, uint count, uint base
     m_dirtyBinding = false;
   }
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (!m_program->isValid())
     return;
 #endif
@@ -1196,7 +1196,7 @@ bool RenderContext::setFramebuffer(Framebuffer& newFramebuffer)
   m_framebuffer = &newFramebuffer;
   m_framebuffer->apply();
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (m_framebuffer != m_windowFramebuffer)
   {
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -1239,7 +1239,7 @@ void RenderContext::setVertexBuffer(VertexBuffer* newVertexBuffer)
     else
       glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     if (!checkGL("Failed to make index buffer current"))
       return;
 #endif
@@ -1258,7 +1258,7 @@ void RenderContext::setIndexBuffer(IndexBuffer* newIndexBuffer)
     else
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     if (!checkGL("Failed to apply index buffer"))
       return;
 #endif
@@ -1275,7 +1275,7 @@ void RenderContext::setTexture(Texture* newTexture)
     {
       glBindTexture(convertToGL(newTexture->type()), newTexture->m_textureID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
       if (!checkGL("Failed to bind texture %s", newTexture->name().c_str()))
         return;
 #endif
@@ -1284,7 +1284,7 @@ void RenderContext::setTexture(Texture* newTexture)
     {
       glBindTexture(convertToGL(oldTexture->type()), 0);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
       if (!checkGL("Failed to unbind texture %s", oldTexture->name().c_str()))
         return;
 #endif
@@ -1301,7 +1301,7 @@ void RenderContext::setTextureUnit(uint unit)
     glActiveTexture(GL_TEXTURE0 + unit);
     m_textureUnit = unit;
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
     if (!checkGL("Failed to activate texture unit %u", unit))
       return;
 #endif
@@ -1663,7 +1663,7 @@ void RenderContext::applyState(const RenderState& newState)
     }
   }
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error when applying render state");
 #endif
 }
@@ -1725,7 +1725,7 @@ void RenderContext::forceState(const RenderState& newState)
                       convertToGL(newState.stencil[FACE_BACK].depthFailOp),
                       convertToGL(newState.stencil[FACE_BACK].depthPassOp));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error when forcing render state");
 #endif
 
@@ -1734,7 +1734,7 @@ void RenderContext::forceState(const RenderState& newState)
 
 void RenderContext::onFrame()
 {
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Uncaught OpenGL error during last frame");
 #endif
 
@@ -1761,5 +1761,5 @@ void RenderContext::onFrame()
     m_stats->addFrame();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

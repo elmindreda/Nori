@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,7 +25,7 @@
 
 #pragma once
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief Container for one- or two-dimensional pixel data.
@@ -132,5 +132,5 @@ private:
   std::vector<char> m_data;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

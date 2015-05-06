@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -36,17 +36,17 @@
 #include <glm/gtc/type_precision.hpp>
 
 #if _MSC_VER
- #define WENDY_NORETURN(x) __declspec(noreturn) x
+ #define NORI_NORETURN(x) __declspec(noreturn) x
 #elif __GNUC__
- #define WENDY_NORETURN(x) x __attribute__((noreturn))
+ #define NORI_NORETURN(x) x __attribute__((noreturn))
 #else
- #define WENDY_NORETURN(x) x
+ #define NORI_NORETURN(x) x
 #endif
 
 #if __GNUC__
- #define WENDY_CHECKFORMAT(i, x) x __attribute__((format(printf, i, i + 1)))
+ #define NORI_CHECKFORMAT(i, x) x __attribute__((format(printf, i, i + 1)))
 #else
- #define WENDY_CHECKFORMAT(i, x) x
+ #define NORI_CHECKFORMAT(i, x) x
 #endif
 
 #ifdef _MSC_VER
@@ -58,7 +58,7 @@
 
 namespace pugi { class xml_node; }
 
-namespace wendy
+namespace nori
 {
 
 using namespace glm;
@@ -99,7 +99,7 @@ quat quatCast(const std::string& string);
 
 /*! @brief Creates a string using printf formatting.
  */
-WENDY_CHECKFORMAT(1, std::string format(const char* format, ...));
+NORI_CHECKFORMAT(1, std::string format(const char* format, ...));
 
 std::string vlformat(const char* format, va_list vl);
 
@@ -124,23 +124,23 @@ enum LogEntryType
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
-WENDY_CHECKFORMAT(1, void logError(const char* format, ...));
+NORI_CHECKFORMAT(1, void logError(const char* format, ...));
 
 /*! Writes a warning message log entry to the log consumers,
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
-WENDY_CHECKFORMAT(1, void logWarning(const char* format, ...));
+NORI_CHECKFORMAT(1, void logWarning(const char* format, ...));
 
 /*! Writes an informational message log entry to the log consumers,
  *  or to stderr if there are no log consumers.
  *  @param[in] format The formatting string for the log entry.
  */
-WENDY_CHECKFORMAT(1, void log(const char* format, ...));
+NORI_CHECKFORMAT(1, void log(const char* format, ...));
 
 /*! Displays the specified message and terminates the program.
  */
-WENDY_CHECKFORMAT(1, WENDY_NORETURN(void panic(const char* format, ...)));
+NORI_CHECKFORMAT(1, NORI_NORETURN(void panic(const char* format, ...)));
 
 /*! Base class for exceptions.
  */
@@ -301,5 +301,5 @@ public:
   virtual void onLogEntry(LogEntryType type, const char* message) = 0;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

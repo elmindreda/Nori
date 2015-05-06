@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,16 +23,16 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
 
 #include <glm/gtc/constants.hpp>
 
-namespace wendy
+namespace nori
 {
 
 Frustum::Frustum(float FOV, float aspectRatio, float nearZ, float farZ)
@@ -153,5 +153,5 @@ void Frustum::setOrtho(const AABB& volume)
   planes[FRUSTUM_FAR].set(vec3(0.f, 0.f, -1.f), -minimum.z);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,18 +23,18 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
 #include <internal/OpenGL.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -127,7 +127,7 @@ void VertexBuffer::discard()
                nullptr,
                convertToGL(m_usage));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during vertex buffer discard");
 #endif
 }
@@ -145,7 +145,7 @@ void VertexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start
   const size_t size = m_format.size();
   glBufferSubData(GL_ARRAY_BUFFER, start * size, sourceCount * size, source);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during copy to vertex buffer");
 #endif
 }
@@ -163,7 +163,7 @@ void VertexBuffer::copyTo(void* target, size_t targetCount, size_t start)
   const size_t size = m_format.size();
   glGetBufferSubData(GL_ARRAY_BUFFER, start * size, targetCount * size, target);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during copy from vertex buffer");
 #endif
 }
@@ -238,7 +238,7 @@ void IndexBuffer::copyFrom(const void* source, size_t sourceCount, size_t start)
   const size_t size = typeSize(m_type);
   glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, start * size, sourceCount * size, source);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during copy to index buffer");
 #endif
 }
@@ -256,7 +256,7 @@ void IndexBuffer::copyTo(void* target, size_t targetCount, size_t start)
   const size_t size = typeSize(m_type);
   glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, start * size, targetCount * size, target);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during copy from index buffer");
 #endif
 }
@@ -588,7 +588,7 @@ void WindowFramebuffer::apply() const
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error when applying default framebuffer");
 #endif
 }
@@ -717,7 +717,7 @@ bool TextureFramebuffer::init()
 {
   glGenFramebuffers(1, &m_bufferID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (!checkGL("Error during image framebuffer creation"))
     return false;
 #endif
@@ -745,10 +745,10 @@ void TextureFramebuffer::apply() const
   else
     glDrawBuffer(GL_NONE);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error when applying image framebuffer");
 #endif
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
-#include <wendy/Vertex.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
+#include <nori/Core.hpp>
+#include <nori/Vertex.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
 
-namespace wendy
+namespace nori
 {
 
 class RenderContext;
@@ -280,5 +280,5 @@ private:
   std::vector<std::pair<std::string, AttributeType>> attributes;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

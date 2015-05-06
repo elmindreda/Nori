@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,9 +25,9 @@
 
 #pragma once
 
-#include <wendy/Window.hpp>
+#include <nori/Window.hpp>
 
-namespace wendy
+namespace nori
 {
 
 class Widget;
@@ -125,5 +125,5 @@ private:
   std::vector<Ref<Layer>> m_layers;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

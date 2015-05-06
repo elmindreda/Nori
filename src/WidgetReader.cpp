@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2014 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,32 +23,32 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
+#include <nori/Core.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Label.hpp>
-#include <wendy/Button.hpp>
-#include <wendy/Progress.hpp>
-#include <wendy/Canvas.hpp>
-#include <wendy/Entry.hpp>
-#include <wendy/Book.hpp>
-#include <wendy/Scroller.hpp>
-#include <wendy/Slider.hpp>
-#include <wendy/Item.hpp>
-#include <wendy/List.hpp>
-#include <wendy/Menu.hpp>
-#include <wendy/Popup.hpp>
-#include <wendy/Layout.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Label.hpp>
+#include <nori/Button.hpp>
+#include <nori/Progress.hpp>
+#include <nori/Canvas.hpp>
+#include <nori/Entry.hpp>
+#include <nori/Book.hpp>
+#include <nori/Scroller.hpp>
+#include <nori/Slider.hpp>
+#include <nori/Item.hpp>
+#include <nori/List.hpp>
+#include <nori/Menu.hpp>
+#include <nori/Popup.hpp>
+#include <nori/Layout.hpp>
 
-#include <wendy/WidgetReader.hpp>
+#include <nori/WidgetReader.hpp>
 
 #include <pugixml.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -365,5 +365,5 @@ void WidgetReader::read(Layer& layer, Widget* parent, pugi::xml_node wn)
     read(layer, widget, cn);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

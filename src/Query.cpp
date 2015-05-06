@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,11 +23,11 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Query.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Query.hpp>
 
 #include <GREG/greg.h>
 
@@ -35,7 +35,7 @@
 
 #include <memory>
 
-namespace wendy
+namespace nori
 {
 
 OcclusionQuery::~OcclusionQuery()
@@ -46,7 +46,7 @@ OcclusionQuery::~OcclusionQuery()
   if (m_queryID)
     glDeleteQueries(1, &m_queryID);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("OpenGL error during occlusion query deletion");
 #endif
 }
@@ -63,7 +63,7 @@ void OcclusionQuery::begin()
 
   m_active = true;
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("OpenGL error during occlusion query begin");
 #endif
 }
@@ -80,7 +80,7 @@ void OcclusionQuery::end()
 
   m_active = false;
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("OpenGL error during occlusion query end");
 #endif
 }
@@ -93,7 +93,7 @@ bool OcclusionQuery::hasResultAvailable() const
   int available;
   glGetQueryObjectiv(m_queryID, GL_QUERY_RESULT_AVAILABLE, &available);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (!checkGL("OpenGL error during occlusion query result availability check"))
     return false;
 #endif
@@ -112,7 +112,7 @@ uint OcclusionQuery::result() const
   uint result;
   glGetQueryObjectuiv(m_queryID, GL_QUERY_RESULT, &result);
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (!checkGL("OpenGL error during occlusion query result retrieval"))
     return 0;
 #endif
@@ -146,5 +146,5 @@ bool OcclusionQuery::init()
   return true;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

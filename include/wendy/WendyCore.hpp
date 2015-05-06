@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,28 +25,28 @@
 
 #pragma once
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Bimap.hpp>
-#include <wendy/Signal.hpp>
-#include <wendy/Time.hpp>
-#include <wendy/Profile.hpp>
+#include <nori/Core.hpp>
+#include <nori/Bimap.hpp>
+#include <nori/Signal.hpp>
+#include <nori/Time.hpp>
+#include <nori/Profile.hpp>
 
-#include <wendy/Transform.hpp>
+#include <nori/Transform.hpp>
 
-#include <wendy/Rect.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
-#include <wendy/Camera.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
+#include <nori/Camera.hpp>
 
-#include <wendy/Pixel.hpp>
-#include <wendy/Vertex.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Vertex.hpp>
 
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
 
-#include <wendy/Image.hpp>
-#include <wendy/Mesh.hpp>
-#include <wendy/Face.hpp>
+#include <nori/Image.hpp>
+#include <nori/Mesh.hpp>
+#include <nori/Face.hpp>
 

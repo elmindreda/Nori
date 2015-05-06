@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2013 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,7 +25,7 @@
 
 #pragma once
 
-namespace wendy
+namespace nori
 {
 
 class Transform3;
@@ -184,5 +184,5 @@ public:
   vec3 size;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

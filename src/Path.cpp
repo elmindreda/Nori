@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,36 +23,36 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Path.hpp>
+#include <nori/Core.hpp>
+#include <nori/Path.hpp>
 
-#if WENDY_HAVE_SYS_STAT_H
+#if NORI_HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
 
-#if WENDY_HAVE_FCNTL_H
+#if NORI_HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
 
-#if WENDY_HAVE_DIRECT_H
+#if NORI_HAVE_DIRECT_H
 #include <direct.h>
 #endif
 
-#if WENDY_HAVE_UNISTD_H
+#if NORI_HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-#if WENDY_HAVE_DIRENT_H
+#if NORI_HAVE_DIRENT_H
 #include <dirent.h>
 #endif
 
-#if WENDY_HAVE_WINDOWS_H
+#if NORI_HAVE_WINDOWS_H
 #include <windows.h>
 #endif
 
-#if WENDY_HAVE_IO_H
+#if NORI_HAVE_IO_H
 #include <io.h>
 #endif
 
@@ -70,7 +70,7 @@
 
 #endif /*_MSC_VER*/
 
-namespace wendy
+namespace nori
 {
 
 Path::Path(const std::string& name)
@@ -80,7 +80,7 @@ Path::Path(const std::string& name)
 
 bool Path::createDirectory() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   return _mkdir(m_string.c_str()) == 0;
 #else
   return mkdir(m_string.c_str(), 0777) == 0;
@@ -89,7 +89,7 @@ bool Path::createDirectory() const
 
 bool Path::destroyDirectory() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   return _rmdir(m_string.c_str()) == 0;
 #else
   return rmdir(m_string.c_str()) == 0;
@@ -108,7 +108,7 @@ bool Path::remove()
 
 bool Path::exists() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   return _access(m_string.c_str(), F_OK) == 0;
 #else
   return access(m_string.c_str(), F_OK) == 0;
@@ -163,7 +163,7 @@ Path& Path::operator = (const std::string& newPath)
 
 bool Path::isReadable() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   return _access(m_string.c_str(), R_OK) == 0;
 #else
   return access(m_string.c_str(), R_OK) == 0;
@@ -172,7 +172,7 @@ bool Path::isReadable() const
 
 bool Path::isWritable() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   return _access(m_string.c_str(), W_OK) == 0;
 #else
   return access(m_string.c_str(), W_OK) == 0;
@@ -181,7 +181,7 @@ bool Path::isWritable() const
 
 bool Path::isFile() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   struct _stati64 sb;
 
   if (_stati64(m_string.c_str(), &sb) != 0)
@@ -198,7 +198,7 @@ bool Path::isFile() const
 
 bool Path::isDirectory() const
 {
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   struct _stati64 sb;
 
   if (_stati64(m_string.c_str(), &sb) != 0)
@@ -228,7 +228,7 @@ std::vector<std::string> Path::children() const
 {
   std::vector<std::string> children;
 
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
@@ -265,7 +265,7 @@ std::vector<std::string> Path::childrenMatching(const std::regex& regex) const
   std::vector<std::string> children;
   std::cmatch match;
 
-#if WENDY_SYSTEM_WIN32
+#if NORI_SYSTEM_WIN32
   WIN32_FIND_DATA data;
   HANDLE search;
 
@@ -334,5 +334,5 @@ std::string Path::basename() const
   return m_string.substr(start, end - start);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

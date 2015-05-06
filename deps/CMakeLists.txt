@@ -6,15 +6,15 @@ add_subdirectory(glm)
 add_subdirectory(stb)
 add_subdirectory(utf8cpp)
 
-if (WENDY_INCLUDE_NETWORK)
+if (NORI_INCLUDE_NETWORK)
   add_subdirectory(enet)
 endif()
 
-if (WENDY_INCLUDE_SQUIRREL)
+if (NORI_INCLUDE_SQUIRREL)
   add_subdirectory(squirrel)
 endif()
 
-if (WENDY_INCLUDE_BULLET)
+if (NORI_INCLUDE_BULLET)
   add_subdirectory(bullet)
 endif()
 

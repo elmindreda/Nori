@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Vertex.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Vertex.hpp>
 
 #include <cctype>
 #include <sstream>
 
-namespace wendy
+namespace nori
 {
 
 VertexComponent::VertexComponent(const char* name, size_t count):
@@ -189,5 +189,5 @@ const VertexFormat Vertex4fc2ft3fv::format("4f:vColor 2f:vTexCoord 3f:vPosition"
 
 const VertexFormat Vertex3fn2ft3fv::format("3f:vNormal 2f:vTexCoord 3f:vPosition");
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

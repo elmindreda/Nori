@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Rect.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Rect.hpp>
 
 #include <sstream>
 #include <utility>
 
-namespace wendy
+namespace nori
 {
 
 Rect::Rect(vec2 position, vec2 size):
@@ -372,5 +372,5 @@ std::string stringCast(const Recti& v)
   return stream.str();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

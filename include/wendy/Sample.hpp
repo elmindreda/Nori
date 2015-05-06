@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,7 +25,7 @@
 
 #pragma once
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief Audio sample data format enumeration.
@@ -54,5 +54,5 @@ public:
   uint frequency;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

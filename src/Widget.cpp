@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
 
 #include <algorithm>
 
-namespace wendy
+namespace nori
 {
 
 Widget::Widget(Layer& layer, Widget* parent):
@@ -402,5 +402,5 @@ void Widget::onDragEnded(vec2 point, MouseButton button)
   m_dragEnded(*this, point, button);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

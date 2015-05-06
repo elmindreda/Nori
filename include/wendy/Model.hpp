@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Mesh.hpp>
+#include <nori/Core.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Mesh.hpp>
 
 #include <map>
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief Model section.
@@ -123,5 +123,5 @@ private:
   AABB m_boundingAABB;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

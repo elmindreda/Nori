@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,7 +30,7 @@
 
 #include <memory>
 
-namespace wendy
+namespace nori
 {
   namespace bullet
   {
@@ -89,5 +89,5 @@ private:
 };
 
   } /*namespace bullet*/
-} /*namespace wendy*/
+} /*namespace nori*/
 

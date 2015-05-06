@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Brandon Jones
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -33,9 +33,9 @@
  *  and lacks some of the features of Sqrat.
  */
 
-#if WENDY_INCLUDE_SQUIRREL
+#if NORI_INCLUDE_SQUIRREL
 
-#include <wendy/Squirrel.hpp>
+#include <nori/Squirrel.hpp>
 
 #else
 #error "Squirrel module not enabled"

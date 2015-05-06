@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2007 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,16 +23,16 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Drawer.hpp>
-#include <wendy/Layer.hpp>
-#include <wendy/Widget.hpp>
-#include <wendy/Book.hpp>
+#include <nori/Drawer.hpp>
+#include <nori/Layer.hpp>
+#include <nori/Widget.hpp>
+#include <nori/Book.hpp>
 
 #include <algorithm>
 
-namespace wendy
+namespace nori
 {
 
 Page::Page(Layer& layer, Book& parent, const std::string& text):
@@ -229,5 +229,5 @@ void Book::setActivePage(Page* newPage, bool notify)
   invalidate();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

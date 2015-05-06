@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2004 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,12 +23,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
 #include <GREG/greg.h>
 
@@ -36,7 +36,7 @@
 
 #include <glm/gtc/round.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -246,7 +246,7 @@ bool Texture::copyFrom(const TextureImage& image,
                     data.texels);
   }
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (!checkGL("Error during copy from image into level %u of texture %s",
                image.level,
                name().c_str()))
@@ -266,7 +266,7 @@ void Texture::generateMipmaps()
                   GL_TEXTURE_MIN_FILTER,
                   convertToGL(m_params.filterMode, true));
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error during mipmap generation for texture %s", name().c_str());
 #endif
 }
@@ -348,7 +348,7 @@ Ref<Image> Texture::data(const TextureImage& image)
                 convertToGL(m_format.type()),
                 result->pixels());
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   if (!checkGL("Error during copy to image from level %u of texture %s",
                image.level,
                name().c_str()))
@@ -400,7 +400,7 @@ Ref<Texture> Texture::read(RenderContext& context,
     name += " clamp";
 
   if (params.maxAnisotropy != 1.f)
-    name += wendy::format(" %f", params.maxAnisotropy);
+    name += nori::format(" %f", params.maxAnisotropy);
 
   if (Ref<Texture> texture = cache.find<Texture>(name))
     return texture;
@@ -656,7 +656,7 @@ void Texture::attach(int attachment, const TextureImage& image, uint z)
                            image.level);
   }
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error when attaching level %u of texture %s to framebuffer",
           image.level,
           name().c_str());
@@ -687,10 +687,10 @@ void Texture::detach(int attachment)
                            0, 0);
   }
 
-#if WENDY_DEBUG
+#if NORI_DEBUG
   checkGL("Error when detaching texture %s from framebuffer", name().c_str());
 #endif
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

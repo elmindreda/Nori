@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Signal.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Signal.hpp>
 
 #include <memory>
 
 typedef struct GLFWwindow GLFWwindow;
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief Keyboard key enumeration.
@@ -522,5 +522,5 @@ private:
   Signal<void> m_caretMoved;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

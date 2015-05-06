@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,13 +23,13 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Time.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Time.hpp>
 
 #include <chrono>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -146,5 +146,5 @@ uint Ticker::update(Time deltaTime)
   return ticks;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

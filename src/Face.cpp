@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2013 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,22 +23,22 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Rect.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Pixel.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Image.hpp>
-#include <wendy/Face.hpp>
+#include <nori/Core.hpp>
+#include <nori/Rect.hpp>
+#include <nori/Path.hpp>
+#include <nori/Pixel.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Image.hpp>
+#include <nori/Face.hpp>
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 
 #include <fstream>
 
-namespace wendy
+namespace nori
 {
 
 Face::~Face()
@@ -209,5 +209,5 @@ bool Face::init(const char* data, size_t size)
   return true;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,7 +25,7 @@
 
 #pragma once
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief %Pixel format descriptor.
@@ -125,5 +125,5 @@ const char* stringCast(PixelFormat::Semantic semantic);
 const char* stringCast(PixelFormat::Type type);
 std::string stringCast(PixelFormat format);
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

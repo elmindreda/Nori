@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,14 +23,14 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/ID.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Pass.hpp>
+#include <nori/Core.hpp>
+#include <nori/ID.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Pass.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -531,5 +531,5 @@ UniformType Pass::uniformType<mat3>() { return UNIFORM_MAT3; }
 template <>
 UniformType Pass::uniformType<mat4>() { return UNIFORM_MAT4; }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

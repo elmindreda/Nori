@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,17 +23,17 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
-#include <wendy/Vertex.hpp>
-#include <wendy/Mesh.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
+#include <nori/Vertex.hpp>
+#include <nori/Mesh.hpp>
 
-#include <wendy/Bullet.hpp>
+#include <nori/Bullet.hpp>
 
-namespace wendy
+namespace nori
 {
   namespace bullet
   {
@@ -176,5 +176,5 @@ btScalar AvatarSweepCallback::addSingleResult(btCollisionWorld::LocalConvexResul
 }
 
   } /*namespace bullet*/
-} /*namespace wendy*/
+} /*namespace nori*/
 

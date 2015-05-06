@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -25,16 +25,16 @@
 
 #pragma once
 
-#include <wendy/Core.hpp>
+#include <nori/Core.hpp>
 
-#include <wendy/Texture.hpp>
-#include <wendy/RenderBuffer.hpp>
-#include <wendy/Program.hpp>
-#include <wendy/RenderContext.hpp>
+#include <nori/Texture.hpp>
+#include <nori/RenderBuffer.hpp>
+#include <nori/Program.hpp>
+#include <nori/RenderContext.hpp>
 
 #include <cstring>
 
-namespace wendy
+namespace nori
 {
 
 class RenderSystem;
@@ -254,5 +254,5 @@ private:
   RenderState m_state;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

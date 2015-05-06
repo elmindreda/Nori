@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,24 +23,24 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Transform.hpp>
-#include <wendy/Primitive.hpp>
-#include <wendy/Frustum.hpp>
-#include <wendy/Camera.hpp>
+#include <nori/Core.hpp>
+#include <nori/Transform.hpp>
+#include <nori/Primitive.hpp>
+#include <nori/Frustum.hpp>
+#include <nori/Camera.hpp>
 
-#include <wendy/Pass.hpp>
-#include <wendy/Material.hpp>
-#include <wendy/RenderQueue.hpp>
-#include <wendy/Sprite.hpp>
+#include <nori/Pass.hpp>
+#include <nori/Material.hpp>
+#include <nori/RenderQueue.hpp>
+#include <nori/Sprite.hpp>
 
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -149,5 +149,5 @@ Sphere Sprite3::bounds() const
   return Sphere(vec3(0.f), length(size) / 2.f);
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

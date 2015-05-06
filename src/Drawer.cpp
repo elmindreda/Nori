@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2006 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,16 +23,16 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
+#include <nori/Config.hpp>
 
-#include <wendy/Core.hpp>
-#include <wendy/Bimap.hpp>
+#include <nori/Core.hpp>
+#include <nori/Bimap.hpp>
 
-#include <wendy/Drawer.hpp>
+#include <nori/Drawer.hpp>
 
 #include <pugixml.hpp>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -545,7 +545,7 @@ bool Drawer::init()
 
   // Load default theme
   {
-    const std::string themeName("wendy/UIDefault.theme");
+    const std::string themeName("nori/UIDefault.theme");
 
     m_theme = Theme::read(m_context, themeName);
     if (!m_theme)
@@ -560,8 +560,8 @@ bool Drawer::init()
   // Set up solid pass
   {
     Ref<Program> program = Program::read(m_context,
-                                         "wendy/UIElement.vs",
-                                         "wendy/UIElement.fs");
+                                         "nori/UIElement.vs",
+                                         "nori/UIElement.fs");
     if (!program)
     {
       logError("Failed to load UI element program");
@@ -599,8 +599,8 @@ bool Drawer::init()
   // Set up solid pass
   {
     Ref<Program> program = Program::read(m_context,
-                                         "wendy/UIDrawSolid.vs",
-                                         "wendy/UIDrawSolid.fs");
+                                         "nori/UIDrawSolid.vs",
+                                         "nori/UIDrawSolid.fs");
     if (!program)
     {
       logError("Failed to load UI drawing shader program");
@@ -628,8 +628,8 @@ bool Drawer::init()
   // Set up blitting pass
   {
     Ref<Program> program = Program::read(m_context,
-                                         "wendy/UIDrawMapped.vs",
-                                         "wendy/UIDrawMapped.fs");
+                                         "nori/UIDrawMapped.vs",
+                                         "nori/UIDrawMapped.fs");
     if (!program)
     {
       logError("Failed to load UI blitting shader program");
@@ -682,5 +682,5 @@ void Drawer::setDrawingState(vec4 color, bool wireframe)
   m_drawPass.apply();
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

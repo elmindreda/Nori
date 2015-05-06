@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2009 Brandon Jones
 // Copyright (c) 2011 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -24,12 +24,12 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Path.hpp>
-#include <wendy/Resource.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Path.hpp>
+#include <nori/Resource.hpp>
 
-#include <wendy/Squirrel.hpp>
+#include <nori/Squirrel.hpp>
 
 #include <sqstdmath.h>
 #include <sqstdstring.h>
@@ -39,7 +39,7 @@
 
 #include <cstring>
 
-namespace wendy
+namespace nori
 {
 
 namespace
@@ -957,5 +957,5 @@ void* SqInstance::pointer()
   return result;
 }
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

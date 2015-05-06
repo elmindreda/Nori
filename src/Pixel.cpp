@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2005 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -23,15 +23,15 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
-#include <wendy/Config.hpp>
-#include <wendy/Core.hpp>
-#include <wendy/Pixel.hpp>
+#include <nori/Config.hpp>
+#include <nori/Core.hpp>
+#include <nori/Pixel.hpp>
 
 #include <cstring>
 #include <sstream>
 #include <cctype>
 
-namespace wendy
+namespace nori
 {
 
 PixelFormat::PixelFormat(Semantic semantic, Type type):
@@ -210,5 +210,5 @@ const PixelFormat PixelFormat::DEPTH32(PixelFormat::DEPTH, PixelFormat::UINT32);
 const PixelFormat PixelFormat::DEPTH16F(PixelFormat::DEPTH, PixelFormat::FLOAT16);
 const PixelFormat PixelFormat::DEPTH32F(PixelFormat::DEPTH, PixelFormat::FLOAT32);
 
-} /*namespace wendy*/
+} /*namespace nori*/
 

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////
-// Wendy - a simple game engine
+// Nori - a simple game engine
 // Copyright (c) 2013 Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -27,7 +27,7 @@
 
 typedef struct stbtt_fontinfo stbtt_fontinfo;
 
-namespace wendy
+namespace nori
 {
 
 /*! @brief TrueType typeface.
@@ -60,5 +60,5 @@ private:
   stbtt_fontinfo* m_info;
 };
 
-} /*namespace wendy*/
+} /*namespace nori*/
 
